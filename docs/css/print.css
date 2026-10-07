@@ -1,0 +1,66 @@
+/* aviva print stylesheet: Ctrl/Cmd + P prints the product.
+   Owner: visual-designer. Brief Part 6, delight #1; copy ids print.line and print.disclaimer (brief 3.0).
+   Link it last: <link rel="stylesheet" href="css/print.css" media="print">.
+   Everything on the page is hidden; what comes out of the printer is one blank A4 sheet with a 7 pt line
+   at its foot and the 6 pt disclaimer under it. The rules are wrapped in @media print as well, so the file
+   is safe even if it is linked without the media attribute. */
+
+@page {
+  size: A4;      /* 210 × 297 mm, portrait */
+  margin: 0;     /* no browser headers or footers: the sheet is the product */
+}
+
+@media print {
+  html,
+  body {
+    width: 210mm !important;
+    height: 296mm !important;      /* a hair under 297 mm, so no second, emptier sheet ever appears */
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: none !important;
+    transform: none !important;
+  }
+
+  body {
+    position: relative !important;
+  }
+
+  body > * {
+    display: none !important;      /* nav, canvas, sections, ruler, grain, footer: all of it */
+  }
+
+  body::before,
+  body::after {
+    all: initial;
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #2A2926;
+    font-family: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  /* print.line */
+  body::before {
+    content: "aviva A4 \00B7  210 \00D7  297 mm \00B7  You have printed the product.";
+    bottom: 15mm;
+    font-size: 7pt;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  /* print.disclaimer */
+  body::after {
+    content: "aviva is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale.";
+    bottom: 10.5mm;
+    font-size: 6pt;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: #615F58;
+  }
+}

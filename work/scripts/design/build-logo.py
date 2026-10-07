@@ -25,7 +25,7 @@ OUT = os.environ.get('LOGO_OUT', os.path.join(ROOT, 'docs', 'assets', 'logo'))
 
 WGHT = int(os.environ.get('LOGO_WGHT', 340))           # between Light (300) and Regular (400): calm at 4 m wide on the floor, still firm at 16 px
 # Gaps between letter outlines, in font units, measured at the x-height band (hand-tuned by eye).
-GAPS = {('a', 'v'): 52, ('v', 'i'): 64, ('i', 'v'): 64, ('v', 'a'): 40}
+GAPS = {('a', 'v'): 50, ('v', 'i'): 58, ('i', 'v'): 58, ('v', 'a'): 40}
 if os.environ.get('LOGO_GAPS'):
     _g = json.loads(os.environ['LOGO_GAPS']); GAPS = {('a', 'v'): _g[0], ('v', 'i'): _g[1], ('i', 'v'): _g[2], ('v', 'a'): _g[3]}
 SQRT2 = math.sqrt(2)
@@ -105,15 +105,18 @@ def crop_marks(x, y, w, h, gap, arm, stroke, color='currentColor'):
     return f'<path d="{p}" fill="none" stroke="{color}" stroke-width="{r(stroke)}" stroke-linecap="butt"/>'
 
 
-def logomark(size=24, stroke=1.5, color='currentColor'):
-    """The logomark on a square grid: an empty 1 : sqrt(2) trim box marked by four crop marks."""
-    h = size * 0.5                          # trim box height
+MARK_W, MARK_H = 26, 30     # portrait grid for the logomark
+MARK = {'h': 14, 'gap': 2, 'arm': 6, 'stroke': 1.5}   # trim box 14 tall (1 : sqrt 2), arms 3x the gap
+
+
+def logomark(stroke=None, color='currentColor', m=MARK):
+    """The logomark on a 26 x 30 grid: an empty 1 : sqrt(2) trim box marked by printer's crop marks.
+    Arms are three times the gap, so the eight strokes read as the extended edges of a sheet, not a ring."""
+    h = m['h']
     w = h / SQRT2
-    gap = size * 0.0833                     # 2 px on 24
-    arm = (size - h) / 2 - gap - stroke / 2 # arms run to the edge of the grid
-    x = (size - w) / 2
-    y = (size - h) / 2
-    return crop_marks(x, y, w, h, gap, arm, stroke, color), (x, y, w, h)
+    x = (MARK_W - w) / 2
+    y = (MARK_H - h) / 2
+    return crop_marks(x, y, w, h, m['gap'], m['arm'], stroke or m['stroke'], color), (x, y, w, h)
 
 
 def main():
@@ -134,24 +137,20 @@ def main():
     fview = f'{r(-fpad)} {r(-asc - fpad)} {r(W + 2 * fpad)} {r(fview_h)}'
     with open(os.path.join(OUT, 'wordmark-floor.svg'), 'w') as fh:
         fh.write(svg_doc(fview, wordmark_paths(L, GRAPHITE), 'aviva (floor decal)'))
-    # 3. logomark, 24 grid (scales cleanly; favicon has its own optical size)
-    mark, box = logomark(24, 1.5)
+    # 3. logomark
+    mark, box = logomark()
     with open(os.path.join(OUT, 'logomark.svg'), 'w') as fh:
-        fh.write(svg_doc('0 0 24 24', mark, 'aviva logomark: crop marks around an empty A4'))
-    # 4. lockup: mark left of wordmark. The mark's trim box is as tall as the x-height + ascender band
-    #    (cap height), its centre on the x-height midline; gap = one stem.
-    s = asc / 12.0                          # mark drawn on a 24 grid scaled so its 12-unit trim box = cap height
-    mark_size = 24 * s
-    gap = 0.42 * mark_size
-    mark_svg, _ = logomark(24, 1.5)
-    tx = 0
-    ty = -asc / 2 - mark_size / 2          # centre of mark on the cap-height midline
-    word_x = mark_size + gap - 4 * s       # crop-mark arms read as the mark's edge, so tuck the word in a little
-    body = (f'<g transform="translate({r(tx)} {r(ty)}) scale({r(s)})">{mark_svg}</g>'
-            f'<g transform="translate({r(word_x)} 0)">{wordmark_paths(L)}</g>')
-    lw = word_x + W
+        fh.write(svg_doc(f'0 0 {MARK_W} {MARK_H}', mark, 'aviva logomark: crop marks around an empty A4'))
+    # 4. lockup: mark left of wordmark, mark height = LOCK_SCALE x cap height, centred on the x-height midline
+    k = float(os.environ.get('LOCK_SCALE', 1.18)) * asc / MARK_H      # font units per mark unit
+    mark_h = MARK_H * k
+    gap = float(os.environ.get('LOCK_GAP', 0.30)) * asc                 # space between the crop-mark arms and the a
+    ty = -L['xheight'] / 2 - mark_h / 2
+    body = (f'<g transform="translate(0 {r(ty)}) scale({r(k)})">{mark}</g>'
+            f'<g transform="translate({r(MARK_W * k + gap)} 0)">{wordmark_paths(L)}</g>')
+    lw = MARK_W * k + gap + W
     top = min(ty, -asc)
-    bot = max(ty + mark_size, desc)
+    bot = max(ty + mark_h, desc)
     with open(os.path.join(OUT, 'lockup.svg'), 'w') as fh:
         fh.write(svg_doc(f'0 {r(top)} {r(lw)} {r(bot - top)}', body, 'aviva'))
     meta = {

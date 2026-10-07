@@ -6,6 +6,7 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const argv = process.argv.slice(2);
 const [url, out] = argv;
@@ -23,7 +24,8 @@ export async function launch() {
   throw lastErr;
 }
 
-if (url && out) {
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+if (isMain && url && out) {
   const browser = await launch();
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dpr, colorScheme: opt('dark', false) ? 'dark' : 'light', reducedMotion: opt('reduced', false) ? 'reduce' : 'no-preference', isMobile: w < 600, hasTouch: w < 600 });
   const page = await ctx.newPage();

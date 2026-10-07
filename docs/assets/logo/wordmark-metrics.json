@@ -1,0 +1,49 @@
+{
+ "weight": 340,
+ "gaps": {
+  "av": 50,
+  "vi": 58,
+  "iv": 58,
+  "va": 40
+ },
+ "units_per_em": 1000,
+ "width": 2038.8,
+ "cap_height": 697,
+ "x_height": 493,
+ "descent": 7.4,
+ "letters": [
+  {
+   "id": "wm-a1",
+   "left": 0.0,
+   "right": 416.6
+  },
+  {
+   "id": "wm-v1",
+   "left": 466.6,
+   "right": 930.8
+  },
+  {
+   "id": "wm-i",
+   "left": 988.8,
+   "right": 1060.0
+  },
+  {
+   "id": "wm-v2",
+   "left": 1118.0,
+   "right": 1582.2
+  },
+  {
+   "id": "wm-a2",
+   "left": 1622.2,
+   "right": 2038.8
+  }
+ ],
+ "i_dot": {
+  "id": "wm-i-dot",
+  "x": 988.8,
+  "y": -697,
+  "w": 71.2,
+  "h": 100.7
+ },
+ "floor_viewbox": "-81.55 -778.55 2201.9 867.5"
+}

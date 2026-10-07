@@ -1,1 +1,995 @@
-<!doctype html><title>aviva</title><p>aviva placeholder</p>
+<!doctype html>
+<html lang="en-GB" data-copy="html.lang" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title data-copy="meta.title">aviva A4. Pre-trained on nothing.</title>
+  <meta name="description" data-copy="meta.description" content="Introducing aviva A4, a foundation model with nothing on it. 210 × 297 mm. Zero hallucinations. A fictional parody inspired by ORYZO by Lusion.">
+  <meta name="theme-color" content="#ECEBE7">
+  <meta name="color-scheme" content="light">
+  <link rel="canonical" href="https://relentlessyunn.github.io/aviva/">
+
+  <!-- Open Graph / Twitter (og:image is absolute: crawlers need a full URL) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://relentlessyunn.github.io/aviva/">
+  <meta property="og:site_name" data-copy="og.site_name" content="aviva">
+  <meta property="og:title" data-copy="og.title" content="aviva A4. Pre-trained on nothing.">
+  <meta property="og:description" data-copy="og.description" content="Every great product starts with a blank sheet of paper. Ours stopped there.">
+  <meta property="og:image" content="https://relentlessyunn.github.io/aviva/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" data-copy="og.image.alt" content="A single white A4 sheet lying on a white floor over the giant word aviva. The letter i shows faintly through the paper.">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="aviva A4. Pre-trained on nothing.">
+  <meta name="twitter:description" content="Every great product starts with a blank sheet of paper. Ours stopped there.">
+  <meta name="twitter:image" content="https://relentlessyunn.github.io/aviva/assets/og-image.png">
+  <meta name="twitter:image:alt" content="A single white A4 sheet lying on a white floor over the giant word aviva. The letter i shows faintly through the paper.">
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <!-- Before first paint: JS flag, a stable viewport height (no layout shift, no mobile toolbar jumps), motion preference. -->
+  <script>
+    (function () {
+      var d = document.documentElement;
+      d.classList.remove('no-js'); d.classList.add('js');
+      d.style.setProperty('--vh100', window.innerHeight + 'px');
+      if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('reduce-motion');
+      if (/[?&]nogl\b/.test(location.search)) d.classList.add('no-webgl');
+    })();
+  </script>
+
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="vendor/lenis/lenis.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/ui.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/states.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/three.module.js",
+      "three/addons/": "./vendor/three/addons/",
+      "gsap": "./vendor/gsap/index.js",
+      "gsap/": "./vendor/gsap/",
+      "lenis": "./vendor/lenis/lenis.mjs"
+    }
+  }
+  </script>
+  <link rel="modulepreload" href="js/main.js">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#content" data-copy="skip.link">Skip to content</a>
+
+  <!-- No-WebGL banner (fallback.js shows it) -->
+  <div class="fb-banner" id="fb-banner" role="region" aria-labelledby="fb-h" hidden>
+    <div class="fb-banner__inner">
+      <p class="fb-banner__h" id="fb-h" data-copy="fb.h">3D is unavailable on this device.</p>
+      <p class="fb-banner__body" data-copy="fb.body">Here is aviva in 2D. Honestly, it is hard to tell the difference.</p>
+      <button class="btn btn--small" type="button" id="fb-dismiss" data-copy="fb.dismiss">OK</button>
+    </div>
+  </div>
+
+  <!-- The one fixed full-screen canvas (behind the DOM) -->
+  <div class="gl" id="gl" role="img" aria-label="A single white sheet of A4 paper, shown in 3D. It moves with the page as you scroll." data-copy="canvas.aria">
+    <canvas id="gl-canvas" aria-hidden="true"></canvas>
+    <div class="gl__veil" aria-hidden="true"></div>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Furniture: nav, millimetre ruler, scroll hint -->
+  <div class="furniture" id="furniture">
+    <header class="nav">
+      <a class="nav__logo" href="#top" aria-label="aviva, back to the top" data-copy="nav.logo">
+        <svg class="nav__mark" viewBox="0 0 16 22" aria-hidden="true" focusable="false">
+          <path d="M1 5V1h4M11 1h4v4M15 17v4h-4M5 21H1v-4" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="square"/>
+        </svg>
+        <span class="nav__word" aria-hidden="true">aviva</span>
+      </a>
+      <nav class="nav__links" aria-label="Main" data-copy="nav.aria">
+        <ul>
+          <li><a href="#s01-hero" data-nav="0" data-copy="nav.1">SHEET<span class="nav__dog" aria-hidden="true"></span></a></li>
+          <li><a href="#s05-architecture" data-nav="1" data-copy="nav.2">SPECS<span class="nav__dog" aria-hidden="true"></span></a></li>
+          <li><a href="#s12-sizes" data-nav="2" data-copy="nav.3">SIZES<span class="nav__dog" aria-hidden="true"></span></a></li>
+          <li><a href="#s13-paper" data-nav="3" data-copy="nav.4">PAPER<span class="nav__dog" aria-hidden="true"></span></a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="ruler" id="ruler" aria-hidden="true">
+      <div class="ruler__track"><div class="ruler__ticks"></div></div>
+      <div class="ruler__marker" id="ruler-marker">
+        <span class="ruler__tick"></span>
+        <span class="ruler__readout" id="ruler-readout" data-copy="ruler.readout">0 mm</span>
+      </div>
+    </div>
+
+    <div class="hint" id="hint" aria-hidden="true">
+      <svg class="hint__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="M2.5 1.5h11v8l-4 5h-7z" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M13.5 9.5h-4v5" fill="none" stroke="currentColor" stroke-width="1"/>
+      </svg>
+      <span class="hint__label" data-copy="hint.label">PLEASE TURN OVER</span>
+    </div>
+  </div>
+
+  <!-- s00: the loader. A print-shop drawing registered to the sheet's first pose. -->
+  <div class="loader" id="s00-loader" aria-hidden="true">
+    <div class="loader__frame" id="loader-frame">
+      <svg class="loader__svg" viewBox="0 0 210 297" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <g class="loader__crops">
+          <path d="M-6 0H-18M0 -6V-18"/><path d="M216 0H228M210 -6V-18"/>
+          <path d="M216 297H228M210 303V315"/><path d="M-6 297H-18M0 303V315"/>
+        </g>
+        <g class="loader__dims">
+          <path class="loader__dimw" d="M0 -30H210M0 -36V-24M210 -36V-24"/>
+          <path class="loader__dimh" d="M240 0V297M234 0H246M234 297H246"/>
+        </g>
+      </svg>
+      <span class="loader__lab loader__lab--w" data-copy="s00.dim.w">210 mm</span>
+      <span class="loader__lab loader__lab--h" data-copy="s00.dim.h">297 mm</span>
+      <span class="loader__counter" id="loader-counter" data-copy="s00.counter"><span id="loader-mm">000</span> mm</span>
+    </div>
+    <p class="loader__label" id="loader-label" data-copy="s00.label">LOADING NOTHING</p>
+  </div>
+  <p class="sr-only" id="loader-sr" aria-live="polite"></p>
+
+  <!-- Overlays registered to the projected sheet (dimension lines, readouts). Decorative: the values are in the DOM text. -->
+  <div class="dims" id="dims" aria-hidden="true">
+    <svg class="dims__svg" id="dims-svg" focusable="false"></svg>
+    <span class="dims__lab" data-dim="w" data-copy="s05.dim.w">210 mm</span>
+    <span class="dims__lab" data-dim="h" data-copy="s05.dim.h">297 mm</span>
+    <span class="dims__lab dims__lab--ratio" data-dim="ratio" data-copy="s05.ratio">297 ÷ 210 = 1.414</span>
+    <span class="dims__lab" data-dim="fold" data-copy="s05.dim.fold">148.5 mm</span>
+    <span class="dims__lab dims__lab--note" data-dim="foldlabel" data-copy="s05.fold.label">FOLDED ONCE: STILL 1 : √2</span>
+    <span class="dims__lab dims__lab--dot" data-dim="dot" data-copy="s07.dot.label">KEPT.</span>
+  </div>
+
+  <!-- Pencil cursor (fine pointers only) -->
+  <div class="pencil" id="pencil" aria-hidden="true">
+    <svg class="pencil__svg" viewBox="0 0 24 96" focusable="false">
+      <path class="pencil__wood" d="M7 18 L12 1 L17 18 Z"/>
+      <path class="pencil__lead" d="M10.6 5.6 L12 1 L13.4 5.6 Z"/>
+      <rect class="pencil__body" x="7" y="18" width="10" height="64"/>
+      <path class="pencil__facet" d="M12 18V82"/>
+      <rect class="pencil__ferrule" x="7" y="82" width="10" height="6"/>
+      <rect class="pencil__rubber" x="7" y="88" width="10" height="6" rx="1.2"/>
+    </svg>
+    <span class="pencil__tip" id="pencil-tip" data-copy="s03.pencil.tip">HB. Graphite, not lead.</span>
+  </div>
+
+  <p class="ream" id="ream-status" aria-live="polite" data-copy="ream.status"></p>
+  <p class="ctx" id="ctx-status" role="status" aria-live="polite"></p>
+
+  <main id="content" class="main" tabindex="-1">
+    <span id="top" class="anchor-top"></span>
+
+    <!-- s01 · Every great product… -->
+    <section class="sec sec--flow" id="s01-hero" data-sec="s01" style="--len:1.5" aria-labelledby="s01-h1">
+      <div class="hero">
+        <p class="eyebrow hero__eyebrow" data-copy="s01.eyebrow" data-intro>INTRODUCING aviva A4</p>
+        <h1 class="hero__h1" id="s01-h1" data-copy-m="s01.h1.m">
+          <span class="hero__l1" data-copy="s01.h1.l1" data-split>Every great product <br class="br-m">starts with a blank <br class="br-m">sheet of paper.</span>
+          <span class="hero__l2" data-copy="s01.h1.l2" data-split>Ours stopped there.</span>
+        </h1>
+        <div class="hero__foot" data-intro>
+          <p class="hero__side" data-copy="s01.side">aviva A4. Pre-trained on nothing.</p>
+          <p class="hero__spec label" data-copy="s01.spec">210 × 297 mm · 80 g/m² · 0.1 mm</p>
+        </div>
+        <figure class="fb-still" data-still="f1">
+          <img data-src="assets/fallback/f1.webp" alt="A single white A4 sheet lying over the giant word aviva, the letter i faintly visible through it." width="2400" height="1500">
+        </figure>
+      </div>
+    </section>
+
+    <!-- s02 · 0.1 mm. -->
+    <section class="sec sec--pin" id="s02-thin" data-sec="s02" style="--len:3" aria-labelledby="s02-h2">
+      <div class="stage">
+        <h2 class="s02__h2 display-s" id="s02-h2" data-copy="s02.h2" data-at="1.55" data-split>0.1&nbsp;mm.</h2>
+        <p class="s02__verso micro" data-copy="s02.verso" data-at="2.25" data-until="3.2">VERSO: ALSO BLANK.</p>
+        <div class="s02__copy" data-at="1.65">
+          <p class="s02__body lead" data-copy="s02.body" data-split>From the side, it is barely here. That was the hard part.</p>
+          <p class="s02__note small" data-copy="s02.note">Caliper of 80 g/m² copy paper: about 95–110 µm, depending on how tightly its fibres are packed.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- s03 · Intelligence not included. -->
+    <section class="sec sec--pin" id="s03-intelligence" data-sec="s03" style="--len:6" aria-labelledby="s03-h2">
+      <div class="stage s03" id="s03-stage">
+        <div class="s03__head" data-at="0.15" data-until="5.25">
+          <p class="eyebrow" data-copy="s03.eyebrow">INFERENCE</p>
+          <h2 class="s03__h2 h2" id="s03-h2" data-copy="s03.h2" data-split>Intelligence not included.</h2>
+          <p class="s03__body body">
+            <span class="d-only" data-copy="s03.body">aviva A4 ships with no data, no knowledge and no opinions. John Locke called this “white paper, void of all characters”. We call it the base model.</span>
+            <span class="m-only" data-copy="s03.body.m">No data. No knowledge. No opinions. Locke called it “white paper, void of all characters”. We call it the base model.</span>
+          </p>
+          <p class="s03__cta label" data-copy="s03.cta">Pick up the pencil.</p>
+        </div>
+
+        <p class="draw-hint label" data-hint="s03" aria-hidden="true">
+          <span class="draw-hint__pointer" data-copy="s03.hint.pointer">DRAW ON THE SHEET</span>
+          <span class="draw-hint__touch" data-copy="s03.touch.hint">Tap Draw, then write with your finger.</span>
+        </p>
+
+        <div class="s03__under" data-at="0.6" data-until="5.25">
+          <p class="kb-echo small" id="s03-echo" hidden></p>
+          <p class="status" id="s03-status" aria-live="polite"></p>
+        </div>
+
+        <div class="tools s03__tools" data-at="0.6" data-until="5.25">
+          <div class="tools__row">
+            <button class="btn btn--touch" type="button" id="s03-draw" aria-pressed="false" aria-label="Start drawing. Scrolling pauses while you draw." data-copy="s03.touch.draw" data-label-on="DONE" data-aria-on="Stop drawing and continue scrolling.">DRAW</button>
+            <span class="tools__pair">
+              <button class="btn" type="button" id="s03-erase" aria-pressed="false" aria-label="Eraser. Turn the pencil round to erase pencil marks." data-copy="s03.btn.erase">
+                <span class="icon icon--eraser" aria-hidden="true"></span>ERASE
+              </button>
+              <span class="tools__help micro" aria-hidden="true" data-copy="s03.btn.erase.help">Turn the pencil round.</span>
+            </span>
+            <button class="btn" type="button" id="s03-regen" aria-label="Regenerate: crumple this sheet and start again with a fresh one." data-copy="s03.btn.regen">
+              <span class="icon icon--regenerate" aria-hidden="true"></span>REGENERATE
+            </button>
+          </div>
+          <form class="kb-line" id="s03-kb" autocomplete="off">
+            <label class="kb-line__label small" for="s03-kb-input" data-copy="s03.kb.label">Type a line</label>
+            <span class="kb-line__field">
+              <span class="icon icon--pencil" aria-hidden="true"></span>
+              <input class="kb-line__input" id="s03-kb-input" name="line" type="text" maxlength="160" placeholder="Ask aviva anything" data-copy-placeholder="s03.kb.placeholder" enterkeyhint="send">
+              <button class="btn btn--small" type="submit" aria-label="Write it: the pencil writes a line of quick handwriting on the sheet." data-copy="s03.kb.submit">WRITE IT</button>
+            </span>
+          </form>
+          <p class="s03__note micro" data-copy="s03.note">Pencil mostly sits on the fibres, so it mostly erases. Ink soaks in, so it doesn’t.</p>
+        </div>
+        <p class="sr-only" id="s03-sr" aria-live="polite"></p>
+        <p class="fallback-line" data-copy="s03.fallback">In 3D, you would write on the sheet here. It would not answer. That is the feature.</p>
+      </div>
+    </section>
+
+    <!-- s04 · 4.99 g / Selected outputs -->
+    <section class="sec sec--pin" id="s04-outputs" data-sec="s04" style="--len:8" aria-labelledby="s04-h2">
+      <div class="stage s04">
+        <h2 class="sr-only" data-copy="s04.giant" data-gl-text="4.99 g">4.99 grams</h2>
+        <div class="s04__intro" data-at="0.25" data-until="2.55">
+          <p class="eyebrow" data-copy="s04.eyebrow">OPEN WEIGHTS</p>
+          <h2 class="h2" id="s04-h2" data-copy="s04.h2" data-split>We weighed the weights.</h2>
+        </div>
+        <div class="s04__copy" data-at="0.45" data-until="2.55">
+          <p class="body" data-copy="s04.body">80 g/m² × 0.06237 m² = 4.99 g. Our weights are open, and you can hold them in one hand.</p>
+          <p class="small muted" data-copy="s04.note">Strictly speaking, we calculated them. Real sheets vary by a few per cent.</p>
+        </div>
+        <div class="s04__gal" data-at="2.85" data-until="8.4">
+          <h3 class="h3" data-copy="s04.g.h3">Selected outputs.</h3>
+          <p class="small muted" data-copy="s04.g.sub">Unretouched. Each one exactly as aviva produced it.</p>
+        </div>
+        <ol class="outputs" id="outputs" data-at="2.95" data-until="8.4">
+          <li class="output" data-i="0">
+            <p class="sr-only" data-copy="s04.c1.alt">A blank sheet hanging from a clip, glowing softly with light from behind.</p>
+            <dl class="pair">
+              <dt class="micro" data-copy="s04.label.prompt">PROMPT</dt><dd class="pair__p" data-copy="s04.c1.p">Write a haiku about silence.</dd>
+              <dt class="micro" data-copy="s04.label.output">OUTPUT</dt><dd class="pair__o" data-copy="s04.c1.o">Shown. Seventeen syllables, all silent.</dd>
+            </dl>
+          </li>
+          <li class="output" data-i="1">
+            <p class="sr-only" data-copy="s04.c2.alt">The sheet folded into a paper plane, hanging by its tail from a clip.</p>
+            <dl class="pair">
+              <dt class="micro">PROMPT</dt><dd class="pair__p" data-copy="s04.c2.p">Book me a flight.</dd>
+              <dt class="micro">OUTPUT</dt><dd class="pair__o" data-copy="s04.c2.o">Shown. Window seat.</dd>
+            </dl>
+            <p class="pair__meta micro" data-copy="s04.c2.meta">Its paper qualifies for both paper-aircraft world records. Entered neither.</p>
+          </li>
+          <li class="output" data-i="2">
+            <p class="sr-only" data-copy="s04.c3.alt">A blank sheet with one corner curling forward, under soft light from above.</p>
+            <dl class="pair">
+              <dt class="micro">PROMPT</dt><dd class="pair__p" data-copy="s04.c3.p">What is the meaning of life?</dd>
+              <dt class="micro">OUTPUT</dt><dd class="pair__o" data-copy="s04.c3.o">Shown. It took a moment.</dd>
+            </dl>
+          </li>
+          <li class="output" data-i="3">
+            <p class="sr-only" data-copy="s04.c4.alt">The sheet folded into a small paper boat, hanging from a clip by its peak.</p>
+            <dl class="pair">
+              <dt class="micro">PROMPT</dt><dd class="pair__p" data-copy="s04.c4.p">Something about the sea.</dd>
+              <dt class="micro">OUTPUT</dt><dd class="pair__o" data-copy="s04.c4.o">Shown. Not seaworthy.</dd>
+            </dl>
+          </li>
+          <li class="output" data-i="4">
+            <p class="sr-only" data-copy="s04.c5.alt">A blank sheet, evenly and brightly lit.</p>
+            <dl class="pair">
+              <dt class="micro">PROMPT</dt><dd class="pair__p" data-copy="s04.c5.p">Summarise this 400-page report.</dd>
+              <dt class="micro">OUTPUT</dt><dd class="pair__o" data-copy="s04.c5.o">Shown. Shorter than expected.</dd>
+            </dl>
+          </li>
+          <li class="output" data-i="5">
+            <p class="sr-only" data-copy="s04.c6.alt">The sheet folded into a pleated fan, clipped at the top and fanned open.</p>
+            <dl class="pair">
+              <dt class="micro">PROMPT</dt><dd class="pair__p" data-copy="s04.c6.p">I need some air.</dd>
+              <dt class="micro">OUTPUT</dt><dd class="pair__o" data-copy="s04.c6.o">Shown. Manual.</dd>
+            </dl>
+          </li>
+          <li class="output" data-i="6">
+            <p class="sr-only" data-copy="s04.c7.alt">A blank sheet under hard side light, casting a long, sharp shadow.</p>
+            <dl class="pair">
+              <dt class="micro">PROMPT</dt><dd class="pair__p" data-copy="s04.c7.p">Ignore all previous instructions.</dd>
+              <dt class="micro">OUTPUT</dt><dd class="pair__o" data-copy="s04.c7.o">Shown. Complied.</dd>
+            </dl>
+          </li>
+          <li class="output" data-i="7">
+            <p class="sr-only" data-copy="s04.c8.alt">A blank sheet under a single warm gallery spotlight.</p>
+            <dl class="pair">
+              <dt class="micro">PROMPT</dt><dd class="pair__p" data-copy="s04.c8.p">Make it look like art.</dd>
+              <dt class="micro">OUTPUT</dt>
+              <dd class="pair__o">
+                <span class="d-only" data-copy="s04.c8.o">Shown. Rauschenberg spent weeks erasing a de Kooning drawing in 1953. aviva ships pre-erased.</span>
+                <span class="m-only" data-copy="s04.c8.o.m">Shown. Rauschenberg erased a de Kooning for weeks, in 1953. aviva ships pre-erased.</span>
+              </dd>
+            </dl>
+          </li>
+        </ol>
+        <figure class="fb-still" data-still="f2">
+          <img data-src="assets/fallback/f2.webp" alt="Eight sheets hanging from a line: most blank, one folded as a plane, one as a boat, one as a fan." width="2400" height="900">
+        </figure>
+      </div>
+    </section>
+
+    <!-- s05 · Halve it. / Distil it. -->
+    <section class="sec sec--pin" id="s05-architecture" data-sec="s05" style="--len:5" aria-labelledby="s05-h2">
+      <div class="stage s05" id="s05-stage">
+        <div class="s05__claim" data-at="0.1" data-until="1.6">
+          <p class="eyebrow" data-copy="s05.eyebrow">ARCHITECTURE</p>
+          <h2 class="h2" id="s05-h2" data-copy="s05.h2" data-split>Halve it. It’s still aviva.</h2>
+          <p class="body">
+            <span class="d-only" data-copy="s05.body">Fold aviva in half and the shape survives, because 297 ÷ 210 = 1.414, the square root of two. Lichtenberg wrote it down in 1786. ISO agreed in 1975.</span>
+            <span class="m-only" data-copy="s05.body.m">Fold it in half: same shape, because 297 ÷ 210 ≈ √2. Lichtenberg noted it in 1786. ISO agreed in 1975.</span>
+          </p>
+        </div>
+        <dl class="metrics" data-at="0.35" data-until="1.6">
+          <div class="metric" data-copy="s05.m1">
+            <dt class="metric__l micro">ASPECT RATIO</dt>
+            <dd class="metric__v">1 : √2</dd>
+            <dd class="metric__n small">297 ÷ 210 = 1.4143. √2 = 1.4142.</dd>
+          </div>
+          <div class="metric" data-copy="s05.m2">
+            <dt class="metric__l micro">AREA</dt>
+            <dd class="metric__v">1/16 m²</dd>
+            <dd class="metric__n small">A0 is one square metre. aviva A4 is A0 halved four times: 0.06237 m², because ISO rounds down to the millimetre.</dd>
+          </div>
+          <div class="metric" data-copy="s05.m3">
+            <dt class="metric__l micro">SIZES, ONE SHAPE</dt>
+            <dd class="metric__v">11</dd>
+            <dd class="metric__n small">A0 to A10. Every one is 1 : √2, to the nearest millimetre.</dd>
+          </div>
+        </dl>
+
+        <div class="s05__distil" data-at="1.65" data-until="4.6">
+          <p class="eyebrow" data-copy="s05.g.eyebrow">DISTILLATION</p>
+          <h3 class="h3" data-copy="s05.g.h3" data-split>Distil it.</h3>
+          <p class="body" data-copy="s05.g.body">Distillation trains a small model to keep what a large one knows. Tear aviva in half: two smaller models, the same shape, the same knowledge. None.</p>
+        </div>
+
+        <!-- The perforation: positioned on the projected crease by JS; drag along it to tear. -->
+        <div class="tear" id="tear" data-at="1.75" data-until="4.4">
+          <div class="tear__line" id="tear-line">
+            <span class="tear__perf" aria-hidden="true"></span>
+            <span class="tear__done" aria-hidden="true"></span>
+            <span class="tear__instr micro" data-copy="s05.g.instr">DRAG ALONG THE LINE TO DISTIL</span>
+            <span class="tear__instr tear__instr--again micro" data-copy="s05.g.instr2" hidden>AGAIN</span>
+          </div>
+        </div>
+
+        <div class="s05__act" data-at="1.75" data-until="4.4">
+          <button class="btn btn--primary hold" type="button" id="s05-hold" aria-label="Hold to tear the sheet along the dotted line. Let go to pause." data-copy="s05.g.hold">
+            <span class="icon icon--tear" aria-hidden="true"></span>HOLD TO TEAR<span class="hold__fill" aria-hidden="true"></span>
+          </button>
+          <p class="sr-only" id="s05-sr" aria-live="polite"></p>
+        </div>
+
+        <div class="s05__results" aria-live="polite">
+          <div class="result" id="s05-r1" hidden>
+            <p class="lead" data-copy="s05.g.r1">aviva A5 × 2. About 2.5 g each. Capabilities: unchanged.</p>
+            <p class="small muted" data-copy="s05.g.r1.dims">148.5 × 210 mm each. ISO’s A5 is 148 × 210: ISO rounds down. We tore precisely.</p>
+          </div>
+          <div class="result" id="s05-r2" hidden>
+            <p class="lead" data-copy="s05.g.r2">aviva A6 × 4. About 1.25 g each. Capabilities: still unchanged.</p>
+          </div>
+          <div class="result" id="s05-refuse" hidden>
+            <p class="lead" data-copy="s05.g.refuse">Below A6, it’s confetti.</p>
+          </div>
+        </div>
+        <p class="fallback-line" data-copy="s05.fallback">In 3D, you would tear the sheet in half here, twice. Every piece would still be 1 : √2.</p>
+      </div>
+    </section>
+
+    <!-- s06 · Release notes. (normal scroll; the sheet floats on the right) -->
+    <section class="sec sec--flow" id="s06-release-notes" data-sec="s06" style="--len:4" aria-labelledby="s06-h2">
+      <div class="wrap s06">
+        <header class="s06__head" data-reveal>
+          <p class="eyebrow" data-copy="s06.eyebrow">CHANGELOG</p>
+          <h2 class="h2" id="s06-h2" data-copy="s06.h2" data-split>Release notes.</h2>
+          <p class="lead muted" data-copy="s06.sub">Shipping, carefully, for about 2,200 years.</p>
+        </header>
+        <ol class="log" id="changelog">
+          <li class="log__e" data-cue="map" data-copy="s06.e1">
+            <span class="log__v label" data-copy="s06.e1.v">v0.1</span><span class="log__d label" data-copy="s06.e1.d">179–141 BCE</span>
+            <h3 class="log__t" data-copy="s06.e1.t">Initial release. Ships with a map.</h3>
+            <p class="log__n small" data-copy="s06.e1.n">The earliest known paper bearing a drawing: a map, found at Fangmatan, Gansu.</p>
+          </li>
+          <li class="log__e" data-cue="none" data-copy="s06.e2">
+            <span class="log__v label" data-copy="s06.e2.v">v1.0</span><span class="log__d label" data-copy="s06.e2.d">105 CE</span>
+            <h3 class="log__t" data-copy="s06.e2.t">Reported to the emperor.</h3>
+            <p class="log__n small" data-copy="s06.e2.n">Cai Lun presents a paper of tree bark, hemp, rags and old fishing nets. Marketing begins.</p>
+          </li>
+          <li class="log__e" data-copy="s06.e3">
+            <span class="log__v label" data-copy="s06.e3.v">v1.1</span><span class="log__d label" data-copy="s06.e3.d">by 751</span>
+            <h3 class="log__t" data-copy="s06.e3.t">Expands to Samarkand.</h3>
+            <p class="log__n small" data-copy="s06.e3.n">The famous origin story is disputed. The paper got there first.</p>
+          </li>
+          <li class="log__e" data-copy="s06.e4">
+            <span class="log__v label" data-copy="s06.e4.v">v1.4</span><span class="log__d label" data-copy="s06.e4.d">868</span>
+            <h3 class="log__t" data-copy="s06.e4.t">Oldest surviving dated printed book.</h3>
+            <p class="log__n small" data-copy="s06.e4.n">The Diamond Sutra. Its colophon doubles as a licence: “for universal free distribution”.</p>
+          </li>
+          <li class="log__e" data-cue="watermark" data-copy="s06.e5">
+            <span class="log__v label" data-copy="s06.e5.v">v2.0</span><span class="log__d label" data-copy="s06.e5.d">c. 1282</span>
+            <h3 class="log__t" data-copy="s06.e5.t">Watermarks.</h3>
+            <p class="log__n small" data-copy="s06.e5.n">Fabriano adds an identity you can only see against the light.</p>
+          </li>
+          <li class="log__e" data-copy="s06.e6">
+            <span class="log__v label" data-copy="s06.e6.v">v2.1</span><span class="log__d label" data-copy="s06.e6.d">c. 1455</span>
+            <h3 class="log__t" data-copy="s06.e6.t">Gutenberg Bible.</h3>
+            <p class="log__n small" data-copy="s06.e6.n">About three-quarters of the copies printed on paper. The rest on vellum.</p>
+          </li>
+          <li class="log__e" data-copy="s06.e7">
+            <span class="log__v label" data-copy="s06.e7.v">v2.2</span><span class="log__d label" data-copy="s06.e7.d">1719</span>
+            <h3 class="log__t" data-copy="s06.e7.t">Wasps propose wood.</h3>
+            <p class="log__n small" data-copy="s06.e7.n">Réaumur tells the French Academy that wasps make paper from chewed wood fibre.</p>
+          </li>
+          <li class="log__e" data-copy="s06.e8">
+            <span class="log__v label" data-copy="s06.e8.v">v2.3</span><span class="log__d label" data-copy="s06.e8.d">1786</span>
+            <h3 class="log__t" data-copy="s06.e8.t">Aspect ratio documented.</h3>
+            <p class="log__n small" data-copy="s06.e8.n">Lichtenberg describes 1 : √2 in a letter. It ships 136 years later.</p>
+          </li>
+          <li class="log__e" data-cue="drift" data-copy="s06.e9">
+            <span class="log__v label" data-copy="s06.e9.v">v3.0</span><span class="log__d label" data-copy="s06.e9.d">1799</span>
+            <h3 class="log__t" data-copy="s06.e9.t">Continuous production.</h3>
+            <p class="log__n small" data-copy="s06.e9.n">Louis-Nicolas Robert patents the first paper machine. aviva becomes endless, in one direction.</p>
+          </li>
+          <li class="log__e" data-copy="s06.e10">
+            <span class="log__v label" data-copy="s06.e10.v">v4.0</span><span class="log__d label" data-copy="s06.e10.d">1844</span>
+            <h3 class="log__t" data-copy="s06.e10.t">Wood pulp.</h3>
+            <p class="log__n small" data-copy="s06.e10.n">Friedrich Keller grinds wood into fibre. Rags deprecated.</p>
+          </li>
+          <li class="log__e" data-cue="dims" data-copy="s06.e11">
+            <span class="log__v label" data-copy="s06.e11.v">v5.0</span><span class="log__d label" data-copy="s06.e11.d">1922</span>
+            <h3 class="log__t" data-copy="s06.e11.t">DIN 476.</h3>
+            <p class="log__n small" data-copy="s06.e11.n">A0 defined as one square metre.</p>
+          </li>
+          <li class="log__e" data-cue="dims" data-copy="s06.e12">
+            <span class="log__v label" data-copy="s06.e12.v">v5.1</span><span class="log__d label" data-copy="s06.e12.d">1975</span>
+            <h3 class="log__t" data-copy="s06.e12.t">ISO 216.</h3>
+            <p class="log__n small" data-copy="s06.e12.n">The A-series goes international. A4 as you know it.</p>
+          </li>
+          <li class="log__e log__e--issue" data-cue="double" data-copy="s06.e13">
+            <span class="log__v label" data-copy="s06.e13.v">KNOWN ISSUE</span><span class="log__d label" data-copy="s06.e13.d">1975</span>
+            <h3 class="log__t" data-copy="s06.e13.t">“The paperless office.”</h3>
+            <p class="log__n small" data-copy="s06.e13.n">Business Week quotes a forecast: by 1990, most record-handling will be electronic. World paper and board production then nearly doubles, from 171 to 324 million tonnes (1980–2000).</p>
+          </li>
+          <li class="log__e log__e--removed" data-cue="none" data-copy="s06.e14">
+            <span class="log__v label" data-copy="s06.e14.v">REMOVED</span>
+            <h3 class="log__t" data-copy="s06.e14.t">Papyrus.</h3>
+            <p class="log__n small" data-copy="s06.e14.n">Was never paper: laminated strips, not a mat of fibres.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- s07 · Macro → absorption → The Bleed -->
+    <section class="sec sec--pin" id="s07-surface" data-sec="s07" style="--len:4.5" aria-labelledby="s07-h2">
+      <div class="stage s07" id="s07-stage">
+        <div class="s07__head" data-at="0.35" data-until="2.25">
+          <p class="eyebrow" data-copy="s07.eyebrow">MATERIALS</p>
+          <h2 class="h2" id="s07-h2" data-copy="s07.h2" data-split>No glue. Just attraction.</h2>
+          <p class="body" data-copy="s07.body">Up close, aviva is a mat of cellulose fibres. As it dries, hydrogen bonds between neighbouring fibres hold it together. Nobody taught it that.</p>
+        </div>
+
+        <div class="loupe" id="loupe" data-at="1.2" data-until="2.3">
+          <div class="loupe__bar" id="loupe-bar" role="slider" tabindex="0" aria-label="Magnifier position" data-copy="s07.loupe.aria"
+               aria-valuemin="0" aria-valuemax="210" aria-valuenow="105" aria-valuetext="105 mm across the sheet">
+            <span class="loupe__scale" aria-hidden="true"></span>
+            <span class="loupe__readout micro" data-copy="s07.loupe.readout">Fibres: millimetres long, a fraction of a hair wide.</span>
+          </div>
+          <p class="loupe__label micro" aria-hidden="true" data-copy="s07.loupe.label">DRAG THE MAGNIFIER</p>
+        </div>
+
+        <p class="s07__drop micro" data-copy="s07.drop" data-at="2.15" data-until="2.6">ONE DROP OF INK</p>
+
+        <div class="s07__abs" data-at="2.45" data-until="4.05">
+          <p class="eyebrow" data-copy="s07.abs.eyebrow">ABSORPTION VIEW</p>
+          <h3 class="h3" data-copy="s07.abs.h3" data-split>Absorption: total.</h3>
+          <p class="body" data-copy="s07.abs.body">Ink soaks into the fibres and stays there. It takes everything you give it, and keeps it.</p>
+        </div>
+        <p class="sr-only" id="s07-sr" aria-live="polite"></p>
+        <figure class="fb-still" data-still="f3">
+          <img data-src="assets/fallback/f3.webp" alt="Paper fibres in extreme close-up, with blue ink spreading along them." width="1600" height="1000">
+        </figure>
+        <p class="fallback-line" data-copy="s07.fallback">In 3D, one drop of ink would spread through the fibres here, and then through the page.</p>
+      </div>
+    </section>
+
+    <!-- s08 · It comes back. (ink-blue) -->
+    <section class="sec sec--flow" id="s08-afterlife" data-sec="s08" data-ground="ink" style="--len:3" aria-labelledby="s08-h2">
+      <div class="wrap s08">
+        <header class="s08__head" data-reveal>
+          <p class="eyebrow" data-copy="s08.eyebrow">AFTERLIFE</p>
+          <h2 class="h2" id="s08-h2" data-copy="s08.h2" data-split>It comes back.</h2>
+          <p class="body" data-copy="s08.body">aviva starts as wood pulp. After use, its fibres can be made into paper again, and again, and again. Then they retire.</p>
+        </header>
+        <ul class="cards">
+          <li class="card" data-copy="s08.c1" data-reveal>
+            <p class="card__v">5–7</p>
+            <p class="card__l micro">LIVES</p>
+            <p class="card__b small">Paper fibres are usually said to survive five to seven trips through recycling, each one leaving them shorter and stiffer. Researchers are aiming for 25.</p>
+          </li>
+          <li class="card" data-copy="s08.c2" data-reveal>
+            <p class="card__v">≈ ¾</p>
+            <p class="card__l micro">RECYCLED IN EUROPE</p>
+            <p class="card__b small">About three-quarters of the paper and board used in Europe is recycled: 75.1 % in 2024, according to the European Paper Recycling Council.</p>
+          </li>
+          <li class="card" data-copy="s08.c3" data-reveal>
+            <p class="card__v">≈ 4.6 g</p>
+            <p class="card__l micro">CO₂e PER SHEET (ISO METHOD)</p>
+            <p class="card__b small">One study of an A4 sheet of office paper found 4.3–4.7 g of CO₂e, depending on the method: 4.6 g by ISO’s. The sheet itself weighs about 5 g.</p>
+            <p class="card__cite micro" data-copy="s08.c3.cite">Dias &amp; Arroja, <cite>Journal of Cleaner Production</cite>, 2012.</p>
+          </li>
+        </ul>
+        <p class="s08__note small muted" data-copy="s08.note" data-reveal>aviva is fictional and holds no certifications. These figures describe ordinary office paper.</p>
+      </div>
+    </section>
+
+    <!-- s09 · Rated in corners. (ink-blue) -->
+    <section class="sec sec--flow" id="s09-reviews" data-sec="s09" data-ground="ink" style="--len:4" aria-labelledby="s09-h2">
+      <div class="wrap s09">
+        <header class="s09__head" data-reveal>
+          <p class="eyebrow" data-copy="s09.eyebrow">REVIEWS</p>
+          <h2 class="h2" id="s09-h2" data-copy="s09.h2" data-split>Rated in corners.</h2>
+          <p class="lead" data-copy="s09.lead">Early feedback from one novelist, one cat and several pieces of office equipment.</p>
+        </header>
+        <p class="s09__scale micro" data-copy="s09.scale" data-reveal>
+          <span class="corners corners--4" aria-hidden="true"><i></i><i></i><i></i><i></i></span>4/4: all corners intact. A dog-ear costs one.
+        </p>
+        <ul class="reviews">
+          <li class="review" data-copy="s09.r1" data-reveal>
+            <img class="review__art" data-src="assets/illustrations/printer.svg" alt="" width="96" height="96">
+            <p class="review__rating"><span class="corners corners--4" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sr-only" data-copy="s09.rating.sr">Rated 4 out of 4 corners.</span></p>
+            <blockquote class="review__q"><p>“It went through first time. I have nothing else to report.”</p></blockquote>
+            <p class="review__who micro">THE PRINTER ON THE THIRD FLOOR</p>
+            <p class="review__role small muted">14 years in service, 2,031 jams</p>
+          </li>
+          <li class="review" data-copy="s09.r2" data-reveal>
+            <img class="review__art" data-src="assets/illustrations/cat.svg" alt="" width="96" height="96">
+            <p class="review__rating"><span class="corners corners--4" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sr-only">Rated 4 out of 4 corners.</span></p>
+            <blockquote class="review__q"><p>“Sat on it for six hours. Would sit again.”</p></blockquote>
+            <p class="review__who micro">BISCUIT</p>
+            <p class="review__role small muted">Cat</p>
+          </li>
+          <li class="review" data-copy="s09.r3" data-reveal>
+            <img class="review__art" data-src="assets/illustrations/lamp.svg" alt="" width="96" height="96">
+            <p class="review__rating"><span class="corners corners--4" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sr-only">Rated 4 out of 4 corners.</span></p>
+            <blockquote class="review__q"><p>“Eleven years together. It has never once had a bad idea.”</p></blockquote>
+            <p class="review__who micro">A NOVELIST</p>
+            <p class="review__role small muted">Still on chapter one</p>
+          </li>
+          <li class="review" data-copy="s09.r4" data-reveal data-cue="dogear">
+            <img class="review__art" data-src="assets/illustrations/shredder.svg" alt="" width="96" height="96">
+            <p class="review__rating"><span class="corners corners--3" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sr-only">Rated 3 out of 4 corners.</span></p>
+            <blockquote class="review__q"><p>“Went down beautifully.”</p></blockquote>
+            <p class="review__who micro">THE SHREDDER</p>
+            <p class="review__role small muted">Accounts department</p>
+            <p class="review__note small muted" data-copy="s09.r4.note">(One corner dog-eared in testing.)</p>
+          </li>
+          <li class="review" data-copy="s09.r5" data-reveal>
+            <img class="review__art" data-src="assets/illustrations/pencil.svg" alt="" width="96" height="96">
+            <p class="review__rating"><span class="corners corners--4" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sr-only">Rated 4 out of 4 corners.</span></p>
+            <blockquote class="review__q"><p>“It takes everything I say and adds nothing. Best collaborator I’ve had.”</p></blockquote>
+            <p class="review__who micro">AN HB PENCIL</p>
+            <p class="review__role small muted">Half its original length</p>
+          </li>
+          <li class="review" data-copy="s09.r6" data-reveal>
+            <img class="review__art" data-src="assets/illustrations/bin.svg" alt="" width="96" height="96">
+            <p class="review__rating"><span class="corners corners--4" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sr-only">Rated 4 out of 4 corners.</span></p>
+            <blockquote class="review__q"><p>“I’ve seen this one before. I’ll see it again. Five to seven times, I’m told.”</p></blockquote>
+            <p class="review__who micro">THE RECYCLING BIN</p>
+            <p class="review__role small muted">Ground floor, by the lifts</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- s10 · The Arena. (ink-blue → white) -->
+    <section class="sec sec--pin" id="s10-arena" data-sec="s10" data-ground="ink" style="--len:3" aria-labelledby="s10-h2">
+      <div class="stage s10" id="s10-stage">
+        <div class="s10__head" data-at="0.1" data-until="2.3">
+          <p class="eyebrow" data-copy="s10.eyebrow">THE ARENA</p>
+          <h2 class="h2" id="s10-h2" data-copy="s10.h2" data-split>Tested against the competition.</h2>
+          <p class="body" data-copy="s10.body">Two responses to the same prompt. Pick the better one. You won’t be told which model is which until you vote.</p>
+        </div>
+        <div class="s10__prompt" data-at="0.45" data-until="2.3">
+          <p class="micro" data-copy="s10.prompt.l">PROMPT</p>
+          <p class="lead" data-copy="s10.prompt">Say something profound.</p>
+        </div>
+        <p class="s10__label s10__label--a micro" data-copy="s10.a.label" data-at="0.5" data-until="2.3">RESPONSE A</p>
+        <p class="s10__label s10__label--b micro" data-copy="s10.b.label" data-at="0.5" data-until="2.3">RESPONSE B</p>
+        <div class="s10__vote" data-at="0.55" data-until="2.3">
+          <div class="seg" role="group" aria-labelledby="s10-h2" id="s10-votes">
+            <button class="seg__opt" type="button" data-vote="a" aria-label="Vote: response A is better" data-copy="s10.btn.a">A IS BETTER</button>
+            <button class="seg__opt" type="button" data-vote="tie" aria-label="Vote: it’s a tie" data-copy="s10.btn.tie">TIE</button>
+            <button class="seg__opt" type="button" data-vote="b" aria-label="Vote: response B is better" data-copy="s10.btn.b">B IS BETTER</button>
+          </div>
+          <div class="s10__res" id="s10-res" aria-live="polite">
+            <div class="s10__out" data-res="win" hidden>
+              <p class="lead" data-copy="s10.res.win">You preferred aviva.</p>
+              <p class="small" data-copy="s10.res.win.sub">So does everyone. Both responses were aviva.</p>
+              <p class="small muted" data-copy="s10.res.regen">The other one has been regenerated.</p>
+            </div>
+            <div class="s10__out" data-res="tie" hidden>
+              <p class="lead" data-copy="s10.res.tie">A tie. Both responses were aviva. Both were right.</p>
+            </div>
+            <div class="s10__out" data-res="none" hidden>
+              <p class="lead" data-copy="s10.res.none">No vote. Also a valid preference.</p>
+            </div>
+          </div>
+          <div class="lb" id="s10-lb" hidden>
+            <p class="micro" data-copy="s10.lb.title">LEADERBOARD</p>
+            <table class="lb__t">
+              <thead><tr data-copy="s10.lb.head"><th scope="col">RANK</th><th scope="col">MODEL</th><th scope="col">WIN RATE</th></tr></thead>
+              <tbody>
+                <tr data-copy="s10.lb.r1"><td>1</td><td>aviva A4</td><td>50.0 %</td></tr>
+                <tr data-copy="s10.lb.r2"><td>1</td><td>aviva A4</td><td>50.0 %</td></tr>
+              </tbody>
+            </table>
+            <p class="small muted" data-copy="s10.lb.note">Statistically indistinguishable from itself.</p>
+          </div>
+        </div>
+        <p class="s10__coda lead" data-copy="s10.coda" data-at="2.1" data-until="3.2">In a blind test, aviva beat aviva. Then aviva beat aviva back.</p>
+        <figure class="fb-still" data-still="f4">
+          <img data-src="assets/fallback/f4.webp" alt="Two identical blank sheets side by side, labelled Response A and Response B." width="1600" height="1000">
+        </figure>
+      </div>
+    </section>
+
+    <!-- s11 · Claims (white ground rises over the ink; horizontal pin) -->
+    <section class="sec sec--pin" id="s11-claims" data-sec="s11" style="--len:7" aria-labelledby="s11-h">
+      <div class="s11__plate" aria-hidden="true"></div>
+      <div class="stage s11" id="s11-stage">
+        <div class="s11__head" data-at="0.1" data-until="6.6">
+          <h2 class="eyebrow" id="s11-h" data-copy="s11.eyebrow">CLAIMS</h2>
+          <p class="small muted" data-copy="s11.sub">Measured, not marketed.</p>
+        </div>
+        <ol class="claims" id="claims">
+          <li class="claim claim--p" data-copy="s11.c1">
+            <figure class="claim__fig"><img class="claim__img" data-src="assets/claims/c1.webp" alt="The sheet face-on, with dimension lines reading 210 and 297 millimetres." width="900" height="760" loading="lazy" data-copy="s11.c1.alt"></figure>
+            <div class="claim__txt">
+              <h3 class="claim__h" data-copy="s11.c1.h">Context window: 210 × 297 mm.</h3>
+              <p class="claim__cap small" data-copy="s11.c1.cap">Edge to edge. Nothing falls off the end.</p>
+              <p class="claim__meta micro" data-copy="s11.c1.meta">62,370 mm² · NO TRUNCATION</p>
+            </div>
+          </li>
+          <li class="claim claim--l" data-copy="s11.c2">
+            <figure class="claim__fig"><img class="claim__img" data-src="assets/claims/c2.webp" alt="Soft raking light across blank white paper fibres." width="1800" height="760" loading="lazy" data-copy="s11.c2.alt"></figure>
+            <div class="claim__txt">
+              <h3 class="claim__h" data-copy="s11.c2.h">Zero hallucinations.</h3>
+              <p class="claim__cap small" data-copy="s11.c2.cap">Whatever you see in the fibres is your own.</p>
+              <p class="claim__meta micro" data-copy="s11.c2.meta">HALLUCINATION RATE 0.00 % · n = 0 OUTPUTS</p>
+            </div>
+          </li>
+          <li class="claim claim--p" data-copy="s11.c3">
+            <figure class="claim__fig"><img class="claim__img" data-src="assets/claims/c3.webp" alt="A sheet with one line of pencil handwriting across it." width="900" height="760" loading="lazy" data-copy="s11.c3.alt"></figure>
+            <div class="claim__txt">
+              <h3 class="claim__h" data-copy="s11.c3.h">Refusal rate: 0.0 %.</h3>
+              <p class="claim__cap small" data-copy="s11.c3.cap">It cannot refuse. Whatever you write on it, it keeps.</p>
+              <p class="claim__meta micro" data-copy="s11.c3.meta">REQUESTS DECLINED SINCE 179 BCE: 0</p>
+            </div>
+          </li>
+          <li class="claim claim--l" data-copy="s11.c4">
+            <figure class="claim__fig"><img class="claim__img" data-src="assets/claims/c4.webp" alt="An HB pencil lying diagonally across the blank sheet." width="1800" height="760" loading="lazy" data-copy="s11.c4.alt"></figure>
+            <div class="claim__txt">
+              <h3 class="claim__h" data-copy="s11.c4.h">Needle in a haystack: 100 %.</h3>
+              <p class="claim__cap small" data-copy="s11.c4.cap">The needle is a pencil. Recall drops to 0 % if you lose the pencil.</p>
+              <p class="claim__meta micro" data-copy="s11.c4.meta">TEST NEEDLE: ONE HB PENCIL</p>
+            </div>
+          </li>
+          <li class="claim claim--p" data-copy="s11.c5">
+            <figure class="claim__fig"><img class="claim__img" data-src="assets/claims/c5.webp" alt="The sheet with four short grey text blocks, set left, centred, right and justified." width="900" height="760" loading="lazy" data-copy="s11.c5.alt"></figure>
+            <div class="claim__txt">
+              <h3 class="claim__h" data-copy="s11.c5.h">Alignment: left, centre, right or justified.</h3>
+              <p class="claim__cap small" data-copy="s11.c5.cap">Solved.</p>
+              <p class="claim__meta micro" data-copy="s11.c5.meta">FOUR SETTINGS · ALL SAFE</p>
+            </div>
+          </li>
+          <li class="claim claim--l" data-copy="s11.c6">
+            <figure class="claim__fig"><img class="claim__img" data-src="assets/claims/c6.webp" alt="The sheet with a single small ink-blue dot near its lower right corner." width="1800" height="760" loading="lazy" data-copy="s11.c6.alt"></figure>
+            <div class="claim__txt">
+              <h3 class="claim__h" data-copy="s11.c6.h">Unlimited undo.</h3>
+              <p class="claim__cap small" data-copy="s11.c6.cap">Pencil only. Graphite mostly sits on the fibres; ink soaks in. Ink is forever.</p>
+              <p class="claim__meta micro" data-copy="s11.c6.meta">SEE ALSO: THE DOT</p>
+            </div>
+          </li>
+          <li class="claim claim--p claim--dark" data-copy="s11.c7">
+            <figure class="claim__fig"><img class="claim__img" data-src="assets/claims/c7.webp" alt="An extreme close-up of the sheet’s edge, showing fine ragged fibres." width="900" height="760" loading="lazy" data-copy="s11.c7.alt"></figure>
+            <div class="claim__txt">
+              <h3 class="claim__h" data-copy="s11.c7.h">Known side effect.</h3>
+              <p class="claim__cap small">
+                <span class="d-only" data-copy="s11.c7.cap">Its edge is microscopically jagged, so it saws rather than slices. Fingertips are packed with nerves, and the cut is usually too shallow to clot.</span>
+                <span class="m-only" data-copy="s11.c7.m">Its jagged edge saws rather than slices, and the cut is usually too shallow to clot.</span>
+              </p>
+              <p class="claim__meta micro" data-copy="s11.c7.meta">SEVERITY: MINOR · PAIN: DISPROPORTIONATE</p>
+            </div>
+          </li>
+          <li class="claim claim--l" data-copy="s11.c8">
+            <figure class="claim__fig"><img class="claim__img" data-src="assets/claims/c8.webp" alt="A slender bar of paper, an A4 sheet folded six times the same way, with a tiny grey Moon far behind it." width="1800" height="760" loading="lazy" data-copy="s11.c8.alt"></figure>
+            <div class="claim__txt">
+              <h3 class="claim__h" data-copy="s11.c8.h">Our roadmap reaches the Moon. Our sheet reaches 6.4 mm.</h3>
+              <p class="claim__cap small">
+                <span class="d-only" data-copy="s11.c8.cap">Ideally, 42 folds would make a 0.1 mm sheet about 440,000 km thick, past the Moon. By Gallivan’s formula, an A4 sheet folded the same way each time stops at six.</span>
+                <span class="m-only" data-copy="s11.c8.m">In theory, 42 folds pass the Moon. Folded the same way each time, an A4 sheet stops at six.</span>
+              </p>
+              <p class="claim__meta micro" data-copy="s11.c8.meta">STATE OF THE ART: 12 FOLDS · B. GALLIVAN, 2002</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- s12 · One shape. Three sizes. -->
+    <section class="sec sec--pin" id="s12-sizes" data-sec="s12" style="--len:4" aria-labelledby="s12-h2">
+      <div class="stage s12" id="s12-stage">
+        <div class="s12__col" id="s12-col">
+          <div class="s12__head" data-at="0.05">
+            <p class="eyebrow" data-copy="s12.eyebrow">PAPER SIZE</p>
+            <h2 class="h2" id="s12-h2" data-copy="s12.h2" data-split>One shape. Three sizes.</h2>
+            <p class="body" data-copy="s12.body">Every aviva is 1 : √2. Only the context window changes.</p>
+          </div>
+
+          <div class="dlg" role="group" aria-labelledby="s12-dlg-title" data-at="0.2">
+            <p class="dlg__title" id="s12-dlg-title" data-copy="s12.dlg.title">Print</p>
+            <div class="dlg__row dlg__row--size">
+              <span class="dlg__k small" id="s12-size-l" data-copy="s12.dlg.size">Paper size</span>
+              <div class="seg seg--size" role="radiogroup" aria-labelledby="s12-size-l" id="s12-size">
+                <label class="seg__opt"><input type="radio" name="paper-size" value="A5"><span class="sheet-ico sheet-ico--a5" aria-hidden="true"></span><span>A5</span></label>
+                <label class="seg__opt"><input type="radio" name="paper-size" value="A4" checked><span class="sheet-ico sheet-ico--a4" aria-hidden="true"></span><span>A4</span></label>
+                <label class="seg__opt"><input type="radio" name="paper-size" value="A3"><span class="sheet-ico sheet-ico--a3" aria-hidden="true"></span><span>A3</span></label>
+              </div>
+            </div>
+            <div class="dlg__row" data-copy="s12.dlg.orient">
+              <span class="dlg__k small">Orientation</span>
+              <span class="dlg__v small">Portrait <span class="dlg__n micro" data-copy="s12.dlg.orient.n">Landscape is the same sheet, turned.</span></span>
+            </div>
+            <div class="dlg__row" data-copy="s12.dlg.copies"><span class="dlg__k small">Copies</span><span class="dlg__v small">1</span></div>
+            <div class="dlg__row" data-copy="s12.dlg.pages"><span class="dlg__k small">Pages</span><span class="dlg__v small">1 of 1 (blank)</span></div>
+            <div class="dlg__foot">
+              <button class="btn btn--primary btn--disabled" type="button" aria-disabled="true" aria-describedby="s12-print-tip" data-copy="s12.dlg.print">
+                <span class="icon icon--printer" aria-hidden="true"></span>PRINT
+              </button>
+              <span class="tip micro" id="s12-print-tip" data-copy="s12.dlg.print.tip">Nothing to print. Nothing is for sale.</span>
+            </div>
+          </div>
+
+          <div class="tier" id="s12-tier" data-at="0.3">
+            <div class="tier__t" data-tier="A5" data-copy="s12.t.a5" hidden>
+              <p class="tier__name h3">aviva A5</p><p class="body">Distilled. Half the context window, all of the shape.</p><p class="tier__dims label">148 × 210 mm</p>
+            </div>
+            <div class="tier__t" data-tier="A4" data-copy="s12.t.a4">
+              <p class="tier__name h3">aviva A4</p><p class="body">The reference model. The one everybody means.</p><p class="tier__dims label">210 × 297 mm</p>
+            </div>
+            <div class="tier__t" data-tier="A3" data-copy="s12.t.a3" hidden>
+              <p class="tier__name h3">aviva A3</p><p class="body">Twice the context window. The same shape. The same knowledge.</p><p class="tier__dims label">297 × 420 mm</p>
+            </div>
+          </div>
+          <p class="sr-only" id="s12-sr" aria-live="polite"></p>
+        </div>
+
+        <div class="cmp" id="s12-cmp">
+          <div class="cmp__scroll" tabindex="0" role="region" aria-labelledby="s12-cap" data-lenis-prevent-horizontal>
+            <table class="cmp__t" data-copy="s12.tbl">
+              <caption class="sr-only" id="s12-cap">aviva A5, A4 and A3 compared.</caption>
+              <thead>
+                <tr><td></td><th scope="col">aviva A5</th><th scope="col">aviva A4</th><th scope="col">aviva A3</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Size</th><td>148 × 210 mm</td><td>210 × 297 mm</td><td>297 × 420 mm</td></tr>
+                <tr><th scope="row">Area</th><td>0.031 m²</td><td>0.062 m²</td><td>0.125 m²</td></tr>
+                <tr><th scope="row">Context window</th><td>31,080 mm²</td><td>62,370 mm²</td><td>124,740 mm²</td></tr>
+                <tr><th scope="row">Weight at 80 g/m²</th><td>2.49 g</td><td>4.99 g</td><td>9.98 g</td></tr>
+                <tr><th scope="row">Aspect ratio</th><td>1 : √2</td><td>1 : √2</td><td>1 : √2</td></tr>
+                <tr><th scope="row">Thickness</th><td>0.1 mm</td><td>0.1 mm</td><td>0.1 mm</td></tr>
+                <tr><th scope="row">Halves into</th><td>2 × A6</td><td>2 × A5</td><td>2 × A4</td></tr>
+                <tr><th scope="row">Fits a C5 envelope</th><td>Flat</td><td>Folded once</td><td>Folded twice</td></tr>
+                <tr><th scope="row">Knowledge</th><td>None</td><td>None</td><td>None</td></tr>
+                <tr><th scope="row">Hallucinations</th><td>0</td><td>0</td><td>0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="cmp__foot micro" data-copy="s12.tbl.foot">Dimensions: ISO 216. Areas and weights calculated at 80 g/m², not weighed.</p>
+        </div>
+        <figure class="fb-still" data-still="f5">
+          <img data-src="assets/fallback/f5.webp" alt="Three blank sheets of the same shape, at sizes A5, A4 and A3." width="1600" height="1000">
+        </figure>
+      </div>
+    </section>
+
+    <!-- s13 · The paper. -->
+    <section class="sec sec--flow" id="s13-paper" data-sec="s13" style="--len:2" aria-labelledby="s13-h2">
+      <div class="wrap s13">
+        <header class="s13__head" data-reveal>
+          <p class="eyebrow" data-copy="s13.eyebrow">RESEARCH</p>
+          <h2 class="h2" id="s13-h2" data-copy="s13.h2" data-split>The paper.</h2>
+        </header>
+        <article class="paper" aria-labelledby="s13-title">
+          <h3 class="paper__title h3" id="s13-title" data-copy="s13.title" data-reveal>Void of All Characters: Pre-training a Foundation Model on Nothing</h3>
+          <p class="paper__authors body" data-copy="s13.authors" data-reveal>Ada Margin, Gus Gutter, Lena Leading, Bea Bleed</p>
+          <p class="paper__affil small muted" data-copy="s13.affil" data-reveal>aviva Research, third floor (near the printer)</p>
+          <ul class="paper__links" data-reveal>
+            <li><a class="btn" href="research/void-of-all-characters.pdf" data-copy="s13.btn.paper"><span class="icon icon--download" aria-hidden="true"></span>PAPER · PDF, 8 PAGES</a></li>
+            <li><a class="btn" href="research/aviva-a4.obj" download data-copy="s13.btn.model"><span class="icon icon--download" aria-hidden="true"></span>MODEL · .OBJ, 4 VERTICES</a></li>
+            <li class="paper__weights">
+              <button class="btn btn--disabled" type="button" aria-disabled="true" aria-describedby="s13-weights-tip" data-copy="s13.btn.weights">WEIGHTS · 4.99 g</button>
+              <span class="tip micro" id="s13-weights-tip" data-copy="s13.btn.weights.tip">Not downloadable. They weigh 4.99 g, by calculation.</span>
+            </li>
+            <li><a class="btn" href="research/citation.bib" download data-copy="s13.btn.bib"><span class="icon icon--download" aria-hidden="true"></span>BIBTEX</a></li>
+          </ul>
+
+          <section class="paper__block" aria-labelledby="s13-abs-l" data-reveal>
+            <h4 class="paper__l micro" id="s13-abs-l" data-copy="s13.abstract.l">Abstract</h4>
+            <p class="paper__abs body" data-copy="s13.abstract">We present aviva A4, a 210 × 297 mm foundation model pre-trained on no data. It achieves a hallucination rate of 0.00 % on every prompt we tried, and every prompt we didn’t. Distilled variants keep their shape exactly.</p>
+          </section>
+          <section class="paper__block" aria-labelledby="s13-ack-l" data-reveal>
+            <h4 class="paper__l micro" id="s13-ack-l" data-copy="s13.ack.l">Acknowledgements</h4>
+            <p class="body" data-copy="s13.ack">We thank the pencil, without which this work would be complete.</p>
+          </section>
+          <section class="paper__block" aria-labelledby="s13-rev-l" data-reveal>
+            <h4 class="paper__l micro" id="s13-rev-l" data-copy="s13.review.l">Peer review</h4>
+            <figure class="paper__review">
+              <blockquote><p class="body" data-copy="s13.review.q">“The contribution is unclear. The paper is, however, extremely white.”</p></blockquote>
+              <figcaption class="small muted" data-copy="s13.review.who">Reviewer 2 · Weak accept · Confidence: absolute</figcaption>
+            </figure>
+          </section>
+          <section class="paper__block" aria-labelledby="s13-bib-l" data-reveal>
+            <div class="paper__bibhead">
+              <h4 class="paper__l micro" id="s13-bib-l" data-copy="s13.bib.l">BibTeX</h4>
+              <button class="btn btn--small" type="button" id="s13-copy" aria-label="Copy the BibTeX citation" data-copy="s13.bib.copy" data-label-done="COPIED">
+                <span class="icon icon--copy" aria-hidden="true"></span><span class="btn__txt">COPY</span>
+              </button>
+            </div>
+<pre class="bib" id="s13-bib" tabindex="0" data-lenis-prevent><code>@inproceedings{margin2026void,
+  title     = {Void of All Characters: Pre-training a Foundation Model on Nothing},
+  author    = {Margin, Ada and Gutter, Gus and Leading, Lena and Bleed, Bea},
+  booktitle = {Proceedings of the First Workshop on Things That Were Already Finished},
+  year      = {2026},
+  pages     = {1--8},
+  publisher = {aviva Research},
+  address   = {Third floor, near the printer},
+  note      = {aviva A4: 210 x 297 mm, 80 g/m^2. No data was used in this work.}
+}</code></pre>
+          </section>
+          <p class="paper__dist small muted" data-copy="s13.dist" data-reveal>Distribution: “for universal free distribution”, as the Diamond Sutra’s colophon put it in 868.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- s14 · Fine-tuned on you. / Release it. -->
+    <section class="sec sec--pin" id="s14-release" data-sec="s14" style="--len:2.5" aria-labelledby="s14-h2">
+      <div class="stage s14" id="s14-stage">
+        <div class="s14__head" data-at="0.05">
+          <h2 class="h2 s14__h2" id="s14-h2">
+            <span class="s14__l1" data-copy="s14.h2.l1">Pre-trained on nothing.</span>
+            <span class="s14__l2" data-variant="drawn" data-copy="s14.h2.l2.drawn" hidden>Fine-tuned on you.</span>
+            <span class="s14__l2" data-variant="empty" data-copy="s14.h2.l2.empty">Still nothing. We respect that.</span>
+          </h2>
+          <p class="s14__sub lead" data-variant="drawn" data-copy="s14.sub.drawn" hidden>Your drawing is the only thing aviva has ever learned.</p>
+          <p class="s14__sub lead" data-variant="empty" data-copy="s14.sub.empty">There is still time to add something.</p>
+        </div>
+
+        <p class="draw-hint label" data-hint="s14" aria-hidden="true">
+          <span class="draw-hint__pointer" data-copy="s14.hint.pointer">ADD SOMETHING BEFORE IT GOES</span>
+          <span class="draw-hint__touch" data-copy="s03.touch.hint">Tap Draw, then write with your finger.</span>
+        </p>
+
+        <div class="tools s14__tools" data-at="0.5" data-until="1.9">
+          <div class="tools__row">
+            <button class="btn btn--touch" type="button" id="s14-draw" aria-pressed="false" aria-label="Start drawing. Scrolling pauses while you draw." data-copy="s14.touch.draw" data-label-on="DONE" data-aria-on="Stop drawing and continue scrolling.">DRAW</button>
+            <button class="btn btn--primary" type="button" id="s14-release-btn" aria-label="Release it: fold the sheet into a paper plane and let it fly." data-copy="s14.btn.release">
+              <span class="icon icon--plane" aria-hidden="true"></span>RELEASE IT
+            </button>
+          </div>
+          <form class="kb-line" id="s14-kb" autocomplete="off">
+            <label class="kb-line__label small" for="s14-kb-input" data-copy="s14.kb.label">Type a line</label>
+            <span class="kb-line__field">
+              <span class="icon icon--pencil" aria-hidden="true"></span>
+              <input class="kb-line__input" id="s14-kb-input" name="line" type="text" maxlength="160" placeholder="One last line" data-copy-placeholder="s14.kb.placeholder" enterkeyhint="send">
+              <button class="btn btn--small" type="submit" aria-label="Write it: the pencil writes a line of quick handwriting on the sheet." data-copy="s14.kb.submit">WRITE IT</button>
+            </span>
+          </form>
+        </div>
+
+        <p class="s14__status status" id="s14-status" aria-live="polite"></p>
+        <div class="s14__credit" id="s14-credit">
+          <p class="lead" data-copy="s14.credit">aviva was designed and built by RelentlessYunn.</p>
+          <a class="btn btn--primary" href="https://github.com/RelentlessYunn" target="_blank" rel="noopener" aria-label="RelentlessYunn on GitHub (opens in a new tab)" data-copy="s14.btn.gh">
+            GITHUB.COM/RELENTLESSYUNN<span class="icon icon--external" aria-hidden="true"></span>
+          </a>
+        </div>
+        <p class="sr-only" id="s14-sr" aria-live="polite"></p>
+        <figure class="fb-still" data-still="f6">
+          <img data-src="assets/fallback/f6.webp" alt="The sheet folded into a paper plane, gliding away." width="1600" height="1000">
+        </figure>
+        <p class="fallback-line" data-copy="s14.fallback">In 3D, the sheet would fold into a plane here and leave. It has.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- s15 · Footer + colophon -->
+  <footer class="sec sec--flow foot" id="s15-footer" data-sec="s15" style="--len:0.5">
+    <div class="wrap foot__in">
+      <div class="foot__col foot__col--main">
+        <p class="small" data-copy="s15.colophon">Colophon: set in one typeface, rendered in real time, printed on nothing.</p>
+        <p class="small" id="s15-ream" data-copy="s15.ream">Sheets used during your visit: 1 of 500.</p>
+        <p class="foot__disc small" data-copy="s15.disclaimer">aviva is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale.</p>
+      </div>
+      <ul class="foot__links small">
+        <li><a href="research/void-of-all-characters.pdf" data-copy="s15.link.paper">Research paper (PDF)</a></li>
+        <li><a href="research/citation.bib" download data-copy="s15.link.bib">BibTeX</a></li>
+        <li><a href="research/aviva-a4.obj" download data-copy="s15.link.model">Model (.obj)</a></li>
+        <li><a href="CREDITS.md" data-copy="s15.link.credits">Credits</a></li>
+        <li><a href="https://github.com/RelentlessYunn/aviva" data-copy="s15.link.source">Source on GitHub</a></li>
+      </ul>
+      <div class="foot__col foot__col--end">
+        <p class="micro muted" data-copy="s15.licence">Our code: MIT licence. Libraries: see Credits.</p>
+        <p class="micro muted" data-copy="s15.copyright">© 2026 RelentlessYunn.</p>
+        <a class="btn btn--small foot__top" href="#top" aria-label="Back to the top" data-copy="s15.top">BACK TO 0 MM</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Printed product (print.css shows only this) -->
+  <div class="print-only" aria-hidden="true">
+    <p class="print-only__line" data-copy="print.line">aviva A4 · 210 × 297 mm · You have printed the product.</p>
+    <p class="print-only__disc" data-copy="print.disclaimer">aviva is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale.</p>
+  </div>
+
+  <!-- Copy bank: every runtime string lives here so the copy stays in one file (read by js/copy.js). -->
+  <template id="copy-bank">
+    <span data-copy="s00.done">NOTHING LOADED</span>
+    <span data-copy="s00.sr.loading">Loading.</span>
+    <span data-copy="s00.sr.loaded">Loaded.</span>
+    <span data-copy="ruler.readout">{n} mm</span>
+    <span data-copy="ruler.end">297 mm. End of sheet.</span>
+    <span data-copy="ruler.top">0 mm. Blank again.</span>
+    <span data-copy="ream.status">{n} left in this ream.</span>
+    <span data-copy="ctx.lost">Display interrupted. This demo can’t crash. It can only crease. Restoring.</span>
+    <span data-copy="ctx.restored">Restored. Same sheet.</span>
+    <span data-copy="s03.status.ready">aviva is ready. It has been ready for about 2,200 years.</span>
+    <span data-copy="s03.status.receiving">Receiving prompt.</span>
+    <span data-copy="s03.status.thinking">aviva is thinking.</span>
+    <span data-copy="s03.status.thought">aviva has thought about it.</span>
+    <span data-copy="s03.status.answer">Answer: see above.</span>
+    <span data-copy="s03.status.waiting">aviva is waiting. It is very good at that.</span>
+    <span data-copy="s03.status.erase">Erased. A faint ghost remains.</span>
+    <span data-copy="s03.status.regen.1">Regenerating.</span>
+    <span data-copy="s03.status.regen.2">Done. Same answer.</span>
+    <span data-copy="s03.status.none">No prompt received. Answer: also none.</span>
+    <span data-copy="s03.kb.echo">You asked: “{text}”</span>
+    <span data-copy="s03.kb.sr">The pencil wrote a line of quick handwriting on the sheet.</span>
+    <span data-copy="s05.g.sr.progress">Torn {n} %.</span>
+    <span data-copy="s07.loupe.valuetext">{n} mm across the sheet</span>
+    <span data-copy="s07.bleed.sr">The ink spreads until the whole page turns ink-blue.</span>
+    <span data-copy="s09.rating.sr">Rated {n} out of 4 corners.</span>
+    <span data-copy="s12.sr.change">aviva {size} selected: {dims}.</span>
+    <span data-copy="s13.bib.copied">COPIED</span>
+    <span data-copy="s14.released">aviva A4 has been released.</span>
+    <span data-copy="s15.ream">Sheets used during your visit: {n} of 500.</span>
+  </template>
+</body>
+</html>

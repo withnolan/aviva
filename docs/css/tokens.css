@@ -89,7 +89,6 @@
   --measure-narrow: 26rem;   /* [added] 416: bodies beside or under the sheet */
   --measure: 36rem;          /* [added] 576: ordinary body blocks */
   --measure-wide: 45rem;     /* [added] 720: the s13 abstract column */
-  --nav-h: clamp(3.5rem, 3.3143rem + 0.7619vw, 4rem);                 /* [added] 56 · 59 · 64 */
   --ruler-zone: 2.25rem;     /* [added] 36: right-edge band kept clear for the mm ruler at ≥ 768 */
 
   --space-1: 0.25rem;  /* 4 */
