@@ -81,6 +81,8 @@ export class PaintLayer {
     this.aP = new THREE.InstancedBufferAttribute(new Float32Array(MAX_SEG * 2), 2).setUsage(THREE.DynamicDrawUsage);
     quad.setAttribute('aSeg', this.aSeg); quad.setAttribute('aP', this.aP);
     quad.instanceCount = 0;
+    quad.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e6);   // 2D positions: never let three compute bounds
+    quad.boundingBox = new THREE.Box3(new THREE.Vector3(-1e6, -1e6, -1e6), new THREE.Vector3(1e6, 1e6, 1e6));
     const blank = new THREE.DataTexture(new Uint8Array([128, 128, 160, 255]), 1, 1); blank.needsUpdate = true;
     this.uniforms = {
       uSize: { value: this.sizeMM }, uTooth: { value: tooth || blank }, uToothMM: { value: toothMM },
