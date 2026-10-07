@@ -50,7 +50,10 @@ Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 - 2026-10-07 17:12 UTC — User said continue. Inventory: skeleton has index.html + CSS + choreo/state/scene/adapter/placeholder but no main.js/scroll/ui/interactions/fallback (why the page sits on the loader); design system has tokens/fonts/print/icons/logo/illustrations/05 doc but no styleguide or PDF; paper module ~2k lines mid texture rewrite. Relaunched 3 agents with 'what's left' briefs; WD's first priority is a scrollable page wired to the real paper module.
 
 ## Running now
-- **Pausing (user said stop, 2026-10-07):** the three Phase 3 agents (web-developer skeleton, paper look-dev, design system/PDF) were sent a PAUSE via SendMessage (decision #22). Resume the SAME agents with SendMessage on "continue".
+- Nothing. **All three Phase 3 agents paused cleanly (2026-10-07)** and can be resumed with SendMessage (decision #22):
+  - web-developer: written scroll.js, ui.js, interactions.js, grounds.js, adapter (real module default), config (FEATURES flags). Next: world.js → main.js → fallback.js + states.css → CSS edits (pencil, dims, grain) → index.html data-ground per #24 (+ remove wrong data-ground on s08 cards) → 404 → shoot + interaction script.
+  - visual-designer (paper): new textures, edge, 3-lobe contact shadow, grounds + charcoal/grey presets, pencil.js (HB yellow), paint.js (GPU pencil + ghost), crumple bake (183 KB). Next: pencil darkness, s03 lamp colour, charcoal gradient, tooth strength → crumple shading → boat, folds, tear, ink, macro → contact sheet + README/05b.
+  - visual-designer (design): tokens v2 (charcoal, greys, pencil, blueprint, highlighters; all AA), 05 doc §2.1/§9.18–9.20, marks SVGs, paper fonts, paper.html/css written. Next: paper.js → build-paper.mjs → recolour figures → Figure 5 → render 8 pages and iterate → styleguide → print/icon checks. Decision #25 on typesetting.
 
 ## Next step
 - Judge the paper look-dev myself (contact sheet) and iterate until it's clearly real. Send fact-check corrections to the creative-director (new agent; brief owner). Review the skeleton screenshots. Then Phase 4.
