@@ -19,6 +19,7 @@ Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 
 ## Working rules
 - **Pause/resume (decision #22):** on the user's "stop", pause running agents via SendMessage (finish step, save, report, end turn); on "continue", resume the same agents via SendMessage. Don't launch new agents for paused work.
+- **Lean plan (decision #23):** 2 build chunks; 3 review rounds (round 1 = 3 reviewers, rounds 2–3 = 1 combined reviewer); Sonnet for fact-checks and small fixes; fewer screenshots; the lead does trivial fixes directly.
 
 ## Phase checklist
 - [x] **Phase 0 — Setup**: mission saved, folders, npm install, shoot tool verified, network checked, ORYZO-1 repo cloned, commit + push, draft PR (#1).

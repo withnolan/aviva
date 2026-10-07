@@ -89,57 +89,64 @@ function heightToNormal(renderer, heightRT, size, strength) {
   return out;
 }
 
-/* ---------- 30 mm tooth tile: calendered felt + a dense mat of short fibres ----------
- * Prime lattice periods per octave (and offsets) so no two octaves share a grid: no lattice pattern at any mip.
- * The fibres are summed (a felt), not drawn as distinct needles; heavy overlaps saturate like real flattened fibres.
+/* ---------- 30 mm tooth tile: what 80 g/m2 copy paper shows between 5 cm and 1 m ----------
+ * Copy paper is calendered: its relief is a FINE fibrous felt (fibres 15-35 um wide, ~1 mm long, laid mostly flat,
+ * a little more along the machine direction x), not bumps. Larger relief is very low: the "felt marks" of the press
+ * felt and the cloudy formation (1.5-4 mm), which is all that survives the mip chain at hero distance, where it reads
+ * as the faint mottle of a real sheet under raking light. Three layers, all tileable:
+ *   fibrous felt  dense short fibres splatted from 0.35 mm cells (soft ridges ~2 texels wide, saturating overlaps)
+ *   fine felt     gradient noise at 0.9 / 0.45 / 0.22 mm (prime periods per axis: no shared lattice, no grid at any mip)
+ *   felt marks    two gentle octaves at 4.3 / 2.3 mm, amplitude uLow (tuned by eye at hero distance)
+ * then a calender (peaks pressed flat). Output: 16-bit height in RG for the normal pass, B = fibre mask.
  */
 const TOOTH_FRAG = /* glsl */`
 precision highp float; varying vec2 vUv;
-uniform float uTileMM, uSeed, uFibreAmt, uGrain;
+uniform float uTileMM, uSeed, uFibreAmt, uGrain, uLow, uFelt;
 ${NOISE_GLSL}
-float felt(vec2 uv){
-  float h = 0.0;
-  h += 0.30 * pnoise(uv * vec2(11.0, 13.0) + vec2(0.37, 0.71), vec2(11.0, 13.0), uSeed);
-  h += 0.30 * pnoise(uv * vec2(23.0, 29.0) + vec2(0.13, 0.29), vec2(23.0, 29.0), uSeed + 17.0);
-  h += 0.24 * pnoise(uv * vec2(47.0, 59.0) + vec2(0.61, 0.07), vec2(47.0, 59.0), uSeed + 31.0);
-  h += 0.17 * pnoise(uv * vec2(97.0, 127.0) + vec2(0.29, 0.53), vec2(97.0, 127.0), uSeed + 47.0);
-  h += 0.10 * pnoise(uv * vec2(193.0, 241.0) + vec2(0.83, 0.41), vec2(193.0, 241.0), uSeed + 59.0);
-  return h;
-}
 void main(){
   vec2 uv = vUv;
-  float h = 0.5 + 0.55 * felt(uv);
-  float cells = floor(uTileMM / 0.5 + 0.5), fib = 0.0;            // 0.5 mm cells, 6 short fibres each
+  // felt marks (low, broad) and fine felt (high frequency)
+  float lo = 0.62 * pnoise(uv * vec2(7.0, 7.0) + vec2(0.37, 0.71), vec2(7.0, 7.0), uSeed)
+           + 0.38 * pnoise(uv * vec2(13.0, 11.0) + vec2(0.13, 0.29), vec2(13.0, 11.0), uSeed + 17.0);
+  float fe = 0.45 * pnoise(uv * vec2(37.0, 31.0) + vec2(0.61, 0.07), vec2(37.0, 31.0), uSeed + 31.0)
+           + 0.35 * pnoise(uv * vec2(67.0, 71.0) + vec2(0.29, 0.53), vec2(67.0, 71.0), uSeed + 47.0)
+           + 0.20 * pnoise(uv * vec2(137.0, 131.0) + vec2(0.83, 0.41), vec2(137.0, 131.0), uSeed + 59.0);
+  // the fibrous felt
+  float cells = floor(uTileMM / 0.35 + 0.5), cmm = uTileMM / cells, fib = 0.0, top = 0.0;
   vec2 p = uv * cells, ip = floor(p);
-  for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) {
+  for (int j = -2; j <= 2; j++) for (int i = -2; i <= 2; i++) {
     vec2 cell = ip + vec2(float(i), float(j)), wc = mod(cell, cells);
-    for (int k = 0; k < 6; k++) {
+    for (int k = 0; k < 5; k++) {
       vec4 r = hash42(wc * 3.0 + float(k) * 7.31 + uSeed);
       vec4 s = hash42(wc * 5.0 + float(k) * 3.17 + uSeed + 11.0);
       vec2 c = cell + r.xy;
-      float ang = (s.x < uGrain ? 0.0 : s.y * 3.14159) + (s.z - 0.5) * 0.6;
+      float ang = (s.x < uGrain ? (s.y - 0.5) * 0.5 : s.y * 3.14159) + (s.z - 0.5) * 0.35;
       vec2 d = vec2(cos(ang), sin(ang)), n = vec2(-d.y, d.x);
-      float len = mix(0.45, 0.95, r.z);
+      float len = mix(0.35, 0.95, r.z) / cmm;                    // half length 0.35-0.95 mm, in cells
       vec2 q = p - c; float t = dot(q, d);
-      float w = dot(q, n) + 0.1 * (s.w - 0.5) * (t * t - len * len) / len;
-      float inSeg = 1.0 - smoothstep(len * 0.55, len, abs(t));
-      float wid = 0.05 * (0.7 + 0.6 * r.w);
-      fib += inSeg * exp(-w * w / (wid * wid)) * (0.35 + 0.65 * s.w);
+      if (abs(t) > len) continue;
+      float w = dot(q, n) - 0.18 * (s.w - 0.5) * (t * t - len * len) / len;   // a slight bow
+      float wid = (0.025 + 0.015 * r.w) / cmm;                  // half width 25-40 um, in cells (~2 texels: no aliasing)
+      float a = w / wid; if (abs(a) > 3.0) continue;
+      float tip = smoothstep(len, len * 0.7, abs(t));
+      float ridge = exp(-a * a) * tip * (0.45 + 0.55 * s.w);
+      fib += ridge; top = max(top, ridge);
     }
   }
-  fib = 1.0 - exp(-fib * 0.9);                                      // saturate overlaps (flattened by calendering)
-  h += uFibreAmt * (fib - 0.35);
-  h = h - 0.35 * max(h - 0.72, 0.0);                                // calender: the peaks are pressed flat
-  gl_FragColor = vec4(encode16(clamp(h, 0.0, 1.0)), fib, 1.0);
+  fib = 1.0 - exp(-fib * 0.85);                                  // overlapping fibres saturate (flattened)
+  float h = 0.5 + uLow * lo + uFelt * fe + uFibreAmt * (fib - 0.4);
+  h = h - 0.45 * max(h - 0.62, 0.0);                             // calender: the peaks are pressed flat
+  gl_FragColor = vec4(encode16(clamp(h, 0.0, 1.0)), top, 1.0);
 }`;
 
 /**
  * @returns {THREE.Texture} RGBA8, 1 texel = tileMM/size. RG normal, B height, A fibre mask.
+ * low = felt-mark relief (what reads at hero distance), felt = fine felt, fibre = fibrous felt.
  */
-export function makeFibreTile(renderer, { size = 1024, tileMM = 30, seed = 3, strength = 16, fibre = 0.16, grain = 0.4 } = {}) {
+export function makeFibreTile(renderer, { size = 1024, tileMM = 30, seed = 3, strength = 14, fibre = 0.2, felt = 0.16, low = 0.06, grain = 0.35 } = {}) {
   const h = rt(size, size, { mip: false });
   const m = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: TOOTH_FRAG, depthTest: false, depthWrite: false,
-    uniforms: { uTileMM: { value: tileMM }, uSeed: { value: seed }, uFibreAmt: { value: fibre }, uGrain: { value: grain } } });
+    uniforms: { uTileMM: { value: tileMM }, uSeed: { value: seed }, uFibreAmt: { value: fibre }, uGrain: { value: grain }, uLow: { value: low }, uFelt: { value: felt } } });
   gpuPass(renderer, m, h); m.dispose();
   const out = heightToNormal(renderer, h, size, strength * size / 1024);
   h.dispose();
@@ -231,7 +238,7 @@ export function makeFibreGeoTile(renderer, { size = 1024, tileMM = 6, seed = 9, 
 /* ---------- formation map (whole sheet, periodic) ---------- */
 const FORMATION_FRAG = /* glsl */`
 precision highp float; varying vec2 vUv;
-uniform vec2 uSheetMM; uniform float uSeed;
+uniform vec2 uSheetMM; uniform float uSeed, uFlocMM, uContrast;
 ${NOISE_GLSL}
 float fbm(vec2 uv, float baseMM, int oct, float seed){
   float h = 0.0, amp = 0.5, norm = 0.0;
@@ -243,22 +250,27 @@ float fbm(vec2 uv, float baseMM, int oct, float seed){
   }
   return h / norm;
 }
+// Look-through formation of a machine-made copy paper: soft, interconnected flocs of 1-3 mm with thin "voids" between
+// them (a little longer along the machine direction x), over a very gentle large-scale variation. Moderate contrast:
+// the shader turns R into a few % of albedo and B into +-15 % transmission. Every channel has mean ~0.5.
 void main(){
   vec2 uv = vUv;
-  float floc = fbm(uv, 7.0, 4, uSeed);              // 7 mm .. 1 mm flocs: the look-through cloudiness of copy paper
-  float broad = fbm(uv, 36.0, 2, uSeed + 70.0);     // a gentle large-scale variation
-  float fine = fbm(uv, 1.2, 2, uSeed + 50.0);
-  float f = clamp(0.5 + 0.95 * floc + 0.35 * broad + 0.2 * fine, 0.0, 1.0);
-  float rough = clamp(0.5 + 0.6 * fbm(uv, 5.0, 3, uSeed + 90.0), 0.0, 1.0);
-  float thick = clamp(0.5 + 1.05 * floc + 0.3 * broad + 0.25 * fine, 0.0, 1.0);
-  float fill = clamp(0.5 + 0.6 * fbm(uv, 0.8, 2, uSeed + 130.0), 0.0, 1.0);
-  gl_FragColor = vec4(f, rough, thick, fill);
+  float floc = fbm(uv, uFlocMM, 3, uSeed);                  // the flocs
+  float fine = fbm(uv, uFlocMM * 0.32, 2, uSeed + 50.0);    // their ragged edges
+  float broad = fbm(uv, 32.0, 2, uSeed + 70.0);             // a gentle large-scale variation
+  float f = floc + 0.35 * fine;
+  f = f + 0.35 * f * abs(f);                                // flocs and voids: a slightly heavier-tailed cloud
+  float R = clamp(0.5 + uContrast * (f + 0.3 * broad), 0.0, 1.0);
+  float rough = clamp(0.5 + 0.5 * fbm(uv, 4.0, 3, uSeed + 90.0), 0.0, 1.0);
+  float B = clamp(0.5 + uContrast * 1.1 * (f + 0.15 * broad), 0.0, 1.0);
+  float fill = clamp(0.5 + 0.6 * fbm(uv, 0.9, 2, uSeed + 130.0), 0.0, 1.0);
+  gl_FragColor = vec4(R, rough, B, fill);
 }`;
 
-export function makeFormationMap(renderer, { width = 512, height = 724, sheetMM = [210, 297], seed = 11 } = {}) {
+export function makeFormationMap(renderer, { width = 512, height = 724, sheetMM = [210, 297], seed = 11, flocMM = 2.6, contrast = 0.42 } = {}) {
   const out = rt(width, height);
   const m = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FORMATION_FRAG, depthTest: false, depthWrite: false,
-    uniforms: { uSheetMM: { value: new THREE.Vector2(sheetMM[0], sheetMM[1]) }, uSeed: { value: seed } } });
+    uniforms: { uSheetMM: { value: new THREE.Vector2(sheetMM[0], sheetMM[1]) }, uSeed: { value: seed }, uFlocMM: { value: flocMM }, uContrast: { value: contrast } } });
   gpuPass(renderer, m, out); m.dispose();
   out.texture.name = 'paper.formation';
   return out.texture;

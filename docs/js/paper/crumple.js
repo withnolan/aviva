@@ -38,8 +38,9 @@ export async function loadCrumple(sys, url) {
     const pos = D.positions[k];
     tmp.setAttribute('position', new THREE.BufferAttribute(pos, 3)); tmp.deleteAttribute('normal'); tmp.computeVertexNormals();
     P.push(new THREE.BufferAttribute(pos, 3)); N.push(new THREE.BufferAttribute(tmp.getAttribute('normal').array.slice(), 3));
-    const ao = new Float32Array(n * 3); for (let i = 0; i < n; i++) { ao[i * 3] = D.ao[k][i * 2]; ao[i * 3 + 1] = D.ao[k][i * 2 + 1]; ao[i * 3 + 2] = 1; }
-    A.push(new THREE.BufferAttribute(ao, 3));
+    // 4 components (USE_COLOR_ALPHA): three 0.186's morphcolor_vertex only compiles for vec4 colours with morph targets
+    const ao = new Float32Array(n * 4); for (let i = 0; i < n; i++) { ao[i * 4] = D.ao[k][i * 2]; ao[i * 4 + 1] = D.ao[k][i * 2 + 1]; ao[i * 4 + 2] = 1; ao[i * 4 + 3] = 1; }
+    A.push(new THREE.BufferAttribute(ao, 4));
     if (k === K - 1) { let m = 0; for (let i = 0; i < n; i++) m += Math.hypot(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]); radius = m / n * 1.15; }
   }
   geo.setAttribute('position', P[0]); geo.setAttribute('normal', N[0]); geo.setAttribute('color', A[0]);
