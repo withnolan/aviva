@@ -1,8 +1,9 @@
-// studio.js: the endless white studio.
+// studio.js: the endless studio (white, grey, charcoal or ink: any ground colour, decision #24).
 //   makeStudioEnvironment()  a soft-box room rendered once into a PMREM (image-based light for the paper)
-//   createBackdrop(...)      ONE mesh: floor + curved sweep + wall, unlit custom shader with EXACT token colours
+//   createBackdrop(...)      ONE mesh: floor + curved sweep + wall, unlit custom shader with EXACT ground colours
 //                            (not tone-mapped, so the far field equals the CSS ground), soft light pools that follow
-//                            the light rig, the floor print (the giant wordmark), and the two-lobe contact shadow.
+//                            the light rig (multiplied on light grounds, added on dark ones), the floor print (the giant
+//                            wordmark), and the three-lobe contact shadow.
 import * as THREE from 'three';
 
 /** Soft boxes with HDR values in a dim room; PMREM blurs them into gentle gradients on the sheet. */
@@ -63,7 +64,8 @@ uniform vec3 uStudio;            // linear studio colour == the clear colour
 uniform vec3 uFloorTint;         // multiplier on the floor part (1 = same as the wall)
 uniform float uGain;             // whole-backdrop gain (s02: the background behind the edge drops ~4 %)
 uniform vec4 uPool[3];           // xyz world centre, w radius (m)
-uniform vec4 uPoolC[3];          // rgb tint, a gain (0 = off)
+uniform vec4 uPoolC[3];          // rgb tint, a gain (0 = off): multiplies the ground (reads on white and grey)
+uniform vec4 uPoolAdd;           // per pool: added light (linear) on top: what makes a lamp pool read on charcoal
 uniform sampler2D uContactA; uniform sampler2D uContactB; uniform sampler2D uContactM;
 uniform vec4 uCS;                // xy centre (world xz), z half extent, w floor y
 uniform vec4 uShadowP;           // x contact opacity, y soft opacity, z on (0/1), w mid opacity
@@ -76,13 +78,15 @@ void main(){
   vec3 col = uStudio;
   float onFloor = 1.0 - smoothstep(0.002, 0.05, vWorld.y - uCS.w);
   col *= mix(vec3(1.0), uFloorTint, onFloor);
-  vec3 pool = vec3(0.0);
+  vec3 pool = vec3(0.0), padd = vec3(0.0);
   for (int i = 0; i < 3; i++) {
-    if (uPoolC[i].a == 0.0) continue;
+    if (uPoolC[i].a == 0.0 && uPoolAdd[i] == 0.0) continue;
     vec3 d = (vWorld - uPool[i].xyz) / uPool[i].w;
-    pool += uPoolC[i].rgb * uPoolC[i].a * exp(-dot(d, d));
+    float g = exp(-dot(d, d));
+    pool += uPoolC[i].rgb * uPoolC[i].a * g;
+    padd += uPoolC[i].rgb * uPoolAdd[i] * g;
   }
-  col *= (1.0 + pool) * uGain;
+  col = (col * (1.0 + pool) + padd) * uGain;
   if (uPrintP.y > 0.5) {
     vec2 wuv = (vWorld.xz - uFloorRect.xy) / uFloorRect.zw;
     if (wuv.x > 0.0 && wuv.y > 0.0 && wuv.x < 1.0 && wuv.y < 1.0) {
@@ -114,6 +118,7 @@ export function createBackdrop({ studio = '#ECEBE7', graphite = '#2A2926', floor
     uGain: { value: 1 },
     uPool: { value: [new THREE.Vector4(0, 0, 0, 1), new THREE.Vector4(0, 0, 0, 1), new THREE.Vector4(0, 0, 0, 1)] },
     uPoolC: { value: [new THREE.Vector4(0, 0, 0, 0), new THREE.Vector4(0, 0, 0, 0), new THREE.Vector4(0, 0, 0, 0)] },
+    uPoolAdd: { value: new THREE.Vector4(0, 0, 0, 0) },
     uContactA: { value: null }, uContactB: { value: null }, uContactM: { value: null },
     uCS: { value: new THREE.Vector4(0, 0, 0.45, floorY) },
     uShadowP: { value: new THREE.Vector4(0.5, 0.3, 0, 0.3) },

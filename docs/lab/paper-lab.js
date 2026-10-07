@@ -16,7 +16,7 @@
 //   studio   bg=#hex  floor=y|none  print=1 printw=m printz=m  contact=0|1  cop=contact,soft  ground=ink
 //   misc     hud=1 (print params)  boat=1 moon=1 cord=1
 import * as THREE from 'three';
-import { createPaperSystem, TOKENS } from '../js/paper/index.js';
+import { createPaperSystem, TOKENS, GROUNDS, createPencil } from '../js/paper/index.js';
 
 const STATES = {
   flat: 'cam=-14,6,1.22&pos=0,0.5,0&rot=0,-14,0&bend=0.7&light=studio',
@@ -55,6 +55,14 @@ const STATES = {
   eraser: 'cam=0,12,0.6&target=0,0.5,0&pos=0,0.5,0&rot=-35,0,0&light=s03&draw=demo&erase=1',
   line: 'cam=0,12,0.75&target=0,0.5,0&pos=0,0.5,0&rot=-35,0,0&light=s03&draw=line',
   sixfold: 'cam=30,35,0.25&target=-0.09,0.43,0&pos=0,0.5,0&rot=-90,0,0&sixfold=6&thick=0.1&light=studio',
+  // decision #24 grounds
+  edgecharcoal: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,88,0&light=s02&ground=charcoal',
+  turncharcoal: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,-28,0&light=s02&ground=charcoal',
+  slopecharcoal: 'cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&draw=line',
+  cardgrey: 'cam=0,0,1.3&pos=0,0.5,0&rot=0,-8,180&plane=7&light=card2&ground=grey',
+  sizesgrey: 'cam=0,4,1.3&pos=0,0.5,0&rot=-8,-14,0&light=grey&ground=grey',
+  c4pencil: 'cam=0,58,0.62&target=0,0,0.0&pos=0,0.0004,0&rot=-90,0,0&light=studio&pencil=-0.07,0.0040,0.06,0,38,0',
+  pencil: 'cam=25,22,0.32&target=0,0.5,0&pos=0,0.5,0&rot=0,0,0&light=studio&pencil=-0.06,0.5,0.03,0,20,8&floor=none',
 };
 
 /* ------------------------------------------------------------------ params */
@@ -89,7 +97,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null;
+let paint = null, pencilProp = null;
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -103,9 +111,11 @@ async function apply(search) {
   camera.lookAt(T);
 
   // studio
+  // the ground (decision #24): studio | grey | greyLight | charcoal | ink, or any colour with bg=#hex
   const ground = str('ground', 'studio');
-  paper.setColors({ studio: P.has('bg') ? str('bg') : (ground === 'ink' ? TOKENS.ink : TOKENS.studio) });
-  document.documentElement.style.setProperty('--studio', P.has('bg') ? str('bg') : (ground === 'ink' ? TOKENS.ink : TOKENS.studio));
+  const gcol = P.has('bg') ? str('bg') : (GROUNDS[ground] || TOKENS.studio);
+  paper.setGround(gcol);
+  document.documentElement.style.setProperty('--studio', gcol);
   const floor = str('floor', '0');
   paper.backdrop.visible = floor !== 'none';
   paper.contact.enabled = num('contact', 1) > 0 && floor !== 'none';
@@ -151,6 +161,14 @@ async function apply(search) {
       p.object.rotation.z = (p.key.includes('L') ? 1 : p.key.includes('R') ? -1 : (p.key === 'T' ? -1 : 1)) * 0.06 * sep;
     }
   }
+  // the HB pencil prop: pencil=x,y,z,rx,ry,rz (the graphite point, world metres; degrees)
+  const pz = str('pencil', '');
+  if (pz) {
+    if (!pencilProp) { pencilProp = createPencil({ color: TOKENS.pencil }); scene.add(pencilProp.object); }
+    const v = pz.split(',').map(Number);
+    pencilProp.object.position.set(v[0] || 0, v[1] || 0, v[2] || 0); pencilProp.object.rotation.set(rad(v[3] || 0), rad(v[4] || 0), rad(v[5] || 0), 'YXZ');
+    pencilProp.object.visible = true;
+  } else if (pencilProp) pencilProp.object.visible = false;
   // paint
   const draw = str('draw', '');
   if (draw) { const pl = await ensurePaint(); pl.clear(); demoStroke(pl, draw); if (num('erase', 0) > 0) demoErase(pl); pl.flush(); sheet.set({ paint: true }); }

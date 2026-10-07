@@ -46,13 +46,57 @@ Source of truth for words and scenes: `work/04-creative-brief.md` (Parts 1, 3, 5
 | on ink: rule | paper 28 % | decorative hairlines on ink | 2.13 (exempt) |
 | on ink: rule-strong | paper 62 % | UI boundaries on ink | 5.00 |
 
-Checked with `node work/scripts/design/contrast-table.mjs`. Every text/ground pair the site uses passes AA (4.5 : 1) at every size, including muted text over the darkest part of the studio vignette. Focus rings: ink on white (10.49), paper on ink (10.49), both far above the 3 : 1 minimum.
+Checked with `node work/scripts/design/contrast-table.mjs` (v2: it covers every pair below and in 2.1, composites the alpha rules and the highlighter marks first, and exits non-zero if any required pair fails; `--md` prints Markdown rows). Every text/ground pair the site uses passes AA (4.5 : 1) at every size, including muted text over the darkest part of the studio vignette. Focus rings: ink on white (10.49), ink on cool grey (8.37), paper on ink (10.49), paper on charcoal (14.50), all far above the 3 : 1 minimum.
 
 **Why these values.** Paper is a warm off-white (never `#fff`); studio is a touch darker and less warm, so the sheet always reads as the brightest object. Graphite is a warm grey-black, like a B pencil, so type sits *on* the paper rather than punching through it. The ink is a deep, slightly violet fountain-pen blue (hue ≈ 243°): violet enough to read as ink rather than corporate royal blue (the provisional `#283090` was hue 235°, towards cyan), deep enough that paper-white body text on it scores 10.5 : 1.
 
 **For three.js** (linear sRGB, `new THREE.Color().setRGB(r, g, b, THREE.LinearSRGBColorSpace)`): paper 0.9301 0.9131 0.8714 · studio 0.8388 0.8308 0.7991 · graphite 0.0232 0.0222 0.0194 · ink 0.0273 0.0232 0.2705 · ink-deep 0.0130 0.0103 0.1170. The Bleed must end exactly on `--color-ink`, so the ink-front shader's flat ink and the CSS ground switch at 4.0 vh are the same colour.
 
-**Roles, not colours.** Components use `--ground`, `--surface`, `--surface-sunken`, `--text`, `--text-muted`, `--text-disabled`, `--accent`, `--color-rule`, `--color-rule-strong`, `--color-focus`, `--button-bg`, `--button-fg`, `--button-bg-hover`, `--selection-bg`, `--selection-fg`, `--press-hi`, `--press-lo`, `--shadow-contact`, `--shadow-lift`. `[data-ground="ink"]` remaps all of them (paper text, paper hairlines, paper buttons with ink labels, paper selection with ink text). `[data-ground="paper"]` / `[data-ground="studio"]` restore the light roles inside an ink region.
+**Roles, not colours.** Components use `--ground`, `--surface`, `--surface-sunken`, `--text`, `--text-muted`, `--text-disabled`, `--accent`, `--color-rule`, `--color-rule-strong`, `--color-focus`, `--button-bg`, `--button-fg`, `--button-bg-hover`, `--selection-bg`, `--selection-fg`, `--press-hi`, `--press-lo`, `--shadow-contact`, `--shadow-lift`, and (v2) `--dims`, `--mark`, `--mark-alt`, `--pencil`. `[data-ground="ink"]` remaps all of them (paper text, paper hairlines, paper buttons with ink labels, paper selection with ink text). `[data-ground="paper"]` / `[data-ground="studio"]` restore the light roles inside an ink region. v2 adds `[data-ground="charcoal"]`, `[data-ground="grey"]` and `[data-ground="grey-light"]` (2.1).
+
+### 2.1 Palette v2: mixed grounds and stationery colours (decision #24)
+
+The user asked for dark and grey sections and more colour. Everything new is **cool or stationery-coloured**, so it stays paper-native and clearly away from ORYZO's warm brown-black, cork orange, cream and green. Paper white, graphite and ink-blue keep their v1 roles.
+
+| Token | Hex | Role | Contrast (WCAG 2.x) |
+|---|---|---|---|
+| `--color-charcoal` | `#1F2328` | the dark ground (s02, s03, s15). Cool blue-grey, hue 213°, never warm brown-black | paper on it 14.50 |
+| `--color-charcoal-raised` | `#2A2F36` | raised surfaces on charcoal (the tools panel, cards) | paper 12.37 · muted 6.16 |
+| `--color-charcoal-deep` | `#171A1E` | wells and pressed states on charcoal | paper 16.02 |
+| `--color-on-charcoal` | `#F7F5F0` | text on charcoal (= paper) | 14.50 |
+| `--color-on-charcoal-muted` | `#A9B0B9` | secondary text and labels on charcoal | 7.22 on charcoal · 6.16 on raised |
+| `--color-grey-100` | `#E6E8EA` | light cool grey ground (s06) | graphite 11.84 · muted-deep 6.26 |
+| `--color-grey-200` | `#D9DDE1` | cool grey ground (s04 gallery, s12 print room) | graphite 10.65 · muted-deep 5.63 |
+| `--color-grey-300` | `#CDD2D7` | wells and table heads on grey | graphite 9.56 · muted-deep 5.05 |
+| `--color-graphite-muted-deep` | `#55534D` | secondary text on the grey grounds (v1 muted is only 4.68 on grey-200, too close) | see above |
+| `--color-pencil` | `#F3C623` | HB-pencil yellow (hue 47°, golden, not orange): the pencil's lacquer, the s03 CTA underline, claim card c4 | 9.71 on charcoal · 1.49 on paper (objects only there, never text or UI) |
+| `--color-pencil-shade` | `#CFA21A` | the pencil's shaded facets | — |
+| `--color-blueprint` | `#2A5BAE` | technical blue (hue 218°; ink is 242°, and three times darker): dimension lines and their labels, the loader drawing, the paper's diagrams | 6.01 paper · 5.49 studio · 5.33 grey-100 · 4.80 grey-200 |
+| `--color-blueprint-light` | `#8FB3F0` | blueprint on charcoal | 7.43 charcoal · 6.34 raised |
+| `--color-hl-yellow` | `#EAF33F` | highlighter, fluorescent lemon (hue 63°: yellow, not green) | graphite under it 11.24 on paper · 9.01 on grey-200 · 9.58 on charcoal |
+| `--color-hl-pink` | `#FF94CA` | highlighter, pink | graphite under it 7.19 on paper · 5.77 on grey-200 · 5.81 on charcoal |
+
+**The ground map** (brief section ids):
+
+| Ground | `data-ground` | Sections | Accent family on that screen |
+|---|---|---|---|
+| paper white | (default) | s00 loader (blueprint lines), s01 hero, s05 architecture (blueprint dimension lines), s07 until The Bleed, s11 claims, s13 the paper, s14 release (golden 3D light) | blueprint on s00/s05; highlighter at most once; ink only as the drop |
+| **charcoal** | `charcoal` | **s02 0.1 mm** (the edge hairline glows on dark), **s03 Intelligence** (a night desk, warm lamp key, yellow pencil), **s15 footer** | pencil yellow (s03) or none |
+| **cool grey** | `grey` | **s04 Outputs** (gallery), **s12 Sizes** (print room) | highlighter or ink, one of them |
+| **light grey** | `grey-light` | **s06 Release notes** | highlighter ("KNOWN ISSUE") |
+| ink-blue | `ink` | s07 after The Bleed, s08, s09, s10 | ink is the ground; dims and marks in paper white |
+
+**Usage rules.**
+1. **One accent family per screen**: blueprint, pencil yellow, highlighter or ink. Never two on one screen (the highlighter counts as one family whichever colour it is).
+2. **Highlighter**: a pen stroke behind **≤ 1 short phrase per screen** (component 9.18). On light grounds it multiplies over the print, like a real marker; on charcoal it becomes an opaque stroke and the phrase turns graphite (paper-white text on yellow would fail). It is off on the ink ground (`--mark: transparent`), where ink is the accent. Candidates: "Answer: see above." (s03 status line), the "KNOWN ISSUE" entry (s06), the ratio "1.414" (s05). Yellow is the default; pink is the second voice (a reviewer's mark, s13 and the PDF).
+3. **Pencil yellow is the pencil**: the cursor's lacquer, claim card c4's pencil, the s03 CTA underline. Never a text colour on light grounds, never a button fill, never a glow.
+4. **Blueprint is drawing, ink is ink**: blueprint for dimension lines, the loader's blueprint, the √2 ratio lines and the research paper's diagrams; ink-blue stays the drop, The Bleed, the ink world, the 3 mm dot, focus rings and links.
+5. **Ground changes** between sections are scroll-synced cross-fades of `--ground` (and the canvas clear colour / studio floor); The Bleed remains the only change that is *absorbed*.
+6. The sheet stays the brightest, warmest white on every ground; on charcoal its edge reads as a lit hairline.
+
+**For three.js** (linear sRGB): charcoal 0.0137 0.0168 0.0212 · charcoal-raised 0.0232 0.0284 0.0369 · grey-100 0.7913 0.8070 0.8228 · grey-200 0.6939 0.7231 0.7529 · pencil 0.8963 0.5647 0.0168 · blueprint 0.0232 0.1046 0.4233. On charcoal and grey sections the studio floor and clear colour switch to that ground (cross-fade with the DOM ground).
+
+**What each new ground remaps** (`tokens.css`): charcoal: text paper, muted `#A9B0B9`, rules paper 16 % / 44 % (1.64 decorative, 3.94 UI), focus paper, primary buttons paper with charcoal labels, selection paper with charcoal text, accent pencil, dims blueprint-light, marks opaque under graphite text (`--mark-ink`, `--mark-blend: normal`, `--mark-z: 0`, `--mark-layer: -1`). Grey: text graphite, muted `#55534D`, rules `#BFC4CA` / `#72716B` (3.59 on grey-200, 4.49 on a paper card), focus and accent ink, buttons and selection as on paper, surfaces paper (the print dialog stays a white sheet), wells grey-300, dims blueprint, marks on. `grey-light` is the same with grey-100 as the ground and grey-200 for wells.
 
 ---
 
@@ -322,6 +366,54 @@ On paper, under a 1 px rule. Three columns at ≥ 1024 (stacked at 390): **left*
 
 ### 9.17 Small furniture
 Ream status `{n} left in this ream.`: micro, a hairline rectangle on `--ground`, beside the sheet for 3 s. WebGL fallback banner: paper, hairline under, `fb.h` Medium + `fb.body` muted + OK (small button). Context-loss line: small, centred, graphite.
+
+### 9.18 Highlighter mark (v2)
+A real marker stroke behind **one short phrase per screen at most** (one line, ≤ ≈ 28 characters): `<mark class="hl">Answer: see above.</mark>`, `.hl--pink` for the second voice. The stroke is `docs/assets/marks/highlighter.svg` used as a **mask** (alpha = ink: a chisel-tip shape with angled ends, a slight upward drift, a darker landing where the tip touches, a thinner lift, two faint felt streaks; mask alpha ≈ 0.88), filled with `--mark`, so the colour always comes from the tokens. It sits a touch low and wide (−0.2 em left, −0.24 em right, 0.1 em from the top), tilted −0.7°.
+- **Light grounds:** the stroke lies **over** the text with `mix-blend-mode: multiply`, exactly like ink over print: graphite stays graphite, paper turns lemon. Graphite under it: 11.24 (paper), 9.01 (grey-200).
+- **Charcoal:** the roles flip it: the stroke lies **under** the phrase (`--mark-z: 0`, `--mark-layer: -1`), blends normally, and the phrase turns graphite (`--mark-ink`): 9.58 : 1.
+- **Ink ground:** off (`--mark: transparent`).
+- **Motion:** drawn on left to right when it enters (`.is-drawn` from the reveal observer): `clip-path: inset(0 100% 0 0)` → `inset(0 -1% 0 0)`, 620 ms `--ease-in-out`, once. Reduced motion and no-JS: shown drawn.
+- **Never** behind a headline, a whole sentence, a button or a link; never two on one screen; never an animated glow or a fill on hover.
+```css
+.hl { position: relative; z-index: var(--mark-z, auto); color: var(--mark-ink); background: none; white-space: nowrap; }
+.hl::after {
+  content: ""; position: absolute; z-index: var(--mark-layer, auto); pointer-events: none;
+  inset: 0.1em -0.24em -0.04em -0.2em;
+  background: var(--mark);
+  -webkit-mask: url("../assets/marks/highlighter.svg") 0 0 / 100% 100% no-repeat;
+          mask: url("../assets/marks/highlighter.svg") 0 0 / 100% 100% no-repeat;
+  mix-blend-mode: var(--mark-blend);
+  transform: rotate(-0.7deg);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 620ms var(--ease-in-out);
+}
+.hl--pink::after { background: var(--mark-alt); transform: rotate(0.5deg); }
+.hl.is-drawn::after, .no-js .hl::after { clip-path: inset(0 -1% 0 0); }
+@media (prefers-reduced-motion: reduce) { .hl::after { clip-path: none; transition: none; } }
+```
+(The `url()` is relative to `docs/css/`; put the rules in `base.css`.)
+
+### 9.19 Pencil yellow: the pencil and its underline (v2)
+- **The pencil cursor** (`ui.css`, `.pencil__*`): lacquer `--pencil` (`#F3C623`) on the body, the right third shaded `--color-pencil-shade` (a 3.3 px rect on the body's right edge, so the hexagonal barrel reads), the facet line `rgba(255,255,255,0.35)`, the sharpened wood `#E9D9BF` and the graphite lead as now, ferrule `#B9B6AE`, eraser `#E7B9B2`. On light grounds the barrel gets a 0.75 px `rgba(42,41,38,0.45)` outline so the yellow (1.49 : 1 on paper) still reads as an object.
+- **The 3D pencil** (claim card c4, the s03 desk) uses the same lacquer and shade (three.js linear values in 2.1).
+- **The CTA underline** (`.u-pencil`, s03 "Pick up the pencil." on charcoal): a quick hand-drawn pencil-yellow stroke under the label, `docs/assets/marks/pencil-underline.svg` as a mask (tapered ends, a slight rise, heavier mid-stroke), 0.36 em tall, 0.55 em below the text, drawn on after the label arrives (520 ms `--ease-out`, 160 ms delay). Pencil on charcoal: 9.71 : 1.
+```css
+.u-pencil { position: relative; display: inline-block; padding-bottom: 0.55em; }
+.u-pencil::after {
+  content: ""; position: absolute; left: -0.08em; right: -0.2em; bottom: 0; height: 0.36em; pointer-events: none;
+  background: var(--pencil);
+  -webkit-mask: url("../assets/marks/pencil-underline.svg") 0 0 / 100% 100% no-repeat;
+          mask: url("../assets/marks/pencil-underline.svg") 0 0 / 100% 100% no-repeat;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 520ms var(--ease-out) 160ms;
+}
+.u-pencil.is-drawn::after, .no-js .u-pencil::after { clip-path: inset(0 -2% 0 0); }
+@media (prefers-reduced-motion: reduce) { .u-pencil::after { clip-path: none; transition: none; } }
+```
+- Pencil yellow is never a text colour on light grounds, never a button fill and never a glow.
+
+### 9.20 Dimension lines in blueprint (v2)
+Every dimension line, extension line, tick and its label uses `--dims`: blueprint on paper and grey (6.01 / 4.80), blueprint-light on charcoal (7.43), paper white on ink. That covers the s00 loader drawing (crop marks stay graphite: they are the logomark's), the s05 √2 lines and readouts ("1.414" may carry the screen's one highlighter), the s06 v5.0 "1 m²" drawing and the s12 size labels. Lines 1 px (`vector-effect: non-scaling-stroke`), labels micro at `--fs-micro`, Medium; ends are short perpendicular ticks as in the loader, never arrowheads.
 
 ---
 

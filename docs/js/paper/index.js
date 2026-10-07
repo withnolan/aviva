@@ -21,8 +21,18 @@ import { sheetSegments } from './geometry.js';
 import * as folds from './folds.js';
 
 export { LIGHT_PRESETS, blendPresets, folds, Sheet };
+export { createPencil } from './pencil.js';
 
-export const TOKENS = { paper: '#F7F5F0', studio: '#ECEBE7', graphite: '#2A2926', ink: '#283090', inkDeep: '#1B2066' };
+// Colours (sRGB hex). paper / studio / graphite / ink / inkDeep match docs/css/tokens.css. The decision #24 families
+// (charcoal, the cool greys, HB-pencil yellow, blueprint blue) are provisional here until tokens.css carries them:
+// pass the final values with createPaperSystem(renderer, { colors }) or setColors() / setGround().
+export const TOKENS = {
+  paper: '#F7F5F0', studio: '#ECEBE7', graphite: '#2A2926', ink: '#2E2A8E', inkDeep: '#1E1A60',
+  charcoal: '#1F2328', grey: '#CDD1D6', greyLight: '#E3E5E8',
+  pencil: '#F2B820', pencilDeep: '#C98A0B', blueprint: '#2F6DB5',
+};
+/** Named grounds for setGround(): the page ground under each section (decision #24). */
+export const GROUNDS = { white: TOKENS.studio, studio: TOKENS.studio, paper: TOKENS.paper, grey: TOKENS.grey, greyLight: TOKENS.greyLight, charcoal: TOKENS.charcoal, ink: TOKENS.ink };
 
 export const PAPER_TONEMAP_GLSL = /* glsl */`
 vec3 CustomToneMapping( vec3 color ) {
@@ -135,6 +145,20 @@ export async function createPaperSystem(renderer, opts = {}) {
       if (c.inkDeep) shared.uInkDeep.value.set(c.inkDeep);
       if (c.studio) { backdrop.userData.uniforms.uStudio.value.set(c.studio); if (this.scene && this.scene.background && this.scene.background.isColor) this.scene.background.set(c.studio); }
     },
+    /**
+     * The ground under the current section (decision #24: white, cool grey, charcoal, ink): the backdrop's floor and wall,
+     * and the clear colour, become exactly `color` (a hex string, a GROUNDS name or a THREE.Color), so the far field
+     * matches the CSS ground. Light pools add light on dark grounds (presets: backdrop.poolAdd), contact shadows multiply
+     * (they read on white and grey, and fade naturally on charcoal). Cheap: call it every frame while cross-fading.
+     */
+    setGround(color) {
+      const c = color && color.isColor ? color : _gc.set(GROUNDS[color] || color || colors.studio);
+      backdrop.userData.uniforms.uStudio.value.copy(c);
+      if (this.scene && this.scene.background && this.scene.background.isColor) this.scene.background.copy(c);
+      this.groundLuminance = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;   // linear
+      return this;
+    },
+    groundLuminance: 0.83,
     /** the floor print (the giant wordmark): texture (alpha = ink) placed on the floor, centre (x, z) and width in metres */
     setFloorPrint({ texture = null, center = [0, 0], width = 1.0, opacity = 1, visible = true } = {}) {
       if (texture) shared.uFloorPrint.value = texture;
@@ -155,7 +179,11 @@ export async function createPaperSystem(renderer, opts = {}) {
     },
     /** regenerate the procedural tiles with other parameters (look-dev): { tooth: {...}, formation: {...} } */
     regenTextures({ tooth = null, formation = null } = {}) {
-      if (tooth) { const old = tex.tooth; tex.tooth = makeFibreTile(renderer, { size: tier.tooth, ...tooth }); shared.uTooth.value = tex.tooth; old.dispose(); }
+      if (tooth) {
+        const old = tex.tooth; tex.tooth = makeFibreTile(renderer, { size: tier.tooth, ...tooth }); shared.uTooth.value = tex.tooth;
+        for (const p of this.paints) p.uniforms.uTooth.value = tex.tooth;
+        old.dispose();
+      }
       if (formation) { const old = tex.formation; tex.formation = makeFormationMap(renderer, { width: tier.formation[0], height: tier.formation[1], ...formation }); shared.uFormation.value = tex.formation; old.dispose(); }
     },
     /** macro fibres + the fibre-geometry map for the ink front (lazy: ~2 x one full-screen pass at load) */
@@ -200,7 +228,7 @@ export async function createPaperSystem(renderer, opts = {}) {
       envRT.dispose(); contact.dispose(); backdrop.geometry.dispose(); backdrop.material.dispose();
     },
   };
-  const _kd = new THREE.Vector3();
+  const _kd = new THREE.Vector3(), _gc = new THREE.Color();
   sys.setFloorPrint({ center: [0, 0], width: 1.0, visible: false });
   sys.genMs = performance.now() - t0;
   return sys;

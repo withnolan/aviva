@@ -50,9 +50,7 @@ Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 - 2026-10-07 17:12 UTC — User said continue. Inventory: skeleton has index.html + CSS + choreo/state/scene/adapter/placeholder but no main.js/scroll/ui/interactions/fallback (why the page sits on the loader); design system has tokens/fonts/print/icons/logo/illustrations/05 doc but no styleguide or PDF; paper module ~2k lines mid texture rewrite. Relaunched 3 agents with 'what's left' briefs; WD's first priority is a scrollable page wired to the real paper module.
 
 ## Running now
-- web-developer → finish skeleton: main.js, scroll, UI, interactions, fallback, reduced motion; wire the real paper module via the adapter
-- visual-designer (paper) → finish look-dev to the #12 bar; contact sheet; README + 05b
-- visual-designer (design) → research PDF (8 pp) + styleguide + print/icon/contrast checks
+- **Pausing (user said stop, 2026-10-07):** the three Phase 3 agents (web-developer skeleton, paper look-dev, design system/PDF) were sent a PAUSE via SendMessage (decision #22). Resume the SAME agents with SendMessage on "continue".
 
 ## Next step
 - Judge the paper look-dev myself (contact sheet) and iterate until it's clearly real. Send fact-check corrections to the creative-director (new agent; brief owner). Review the skeleton screenshots. Then Phase 4.

@@ -3,18 +3,26 @@
 // turns them into the scene. Screen-space poses (x %, y %, size = projected long side in % of the viewport height,
 // rx/ry/rz in degrees) are resolved against the live camera, so the sheet stays exactly where the brief puts it.
 import * as THREE from 'three';
-import { kf, seg, clamp, lerp, smooth, smoothstep, ease, noise1 } from './util.js';
+import { kf, seg, clamp, lerp, smooth, smoothstep, ease } from './util.js';
 import { E } from './events.js';
 import { DEG, A4, STAGE, heroFraming } from './scene.js';
 
 const FLOOR_ANCHOR = new THREE.Vector3(0, 0, 0);
-const SIZE_SCALE = { A5: Math.SQRT1_2, A4: 1, A3: Math.SQRT2 };
-const STUDIO = new THREE.Color('#ECEBE7'), INK = new THREE.Color('#2E2A8E');
+export const SIZE_SCALE = { A5: Math.SQRT1_2, A4: 1, A3: Math.SQRT2 };
+const STUDIO = new THREE.Color('#ECEBE7'), INK = new THREE.Color('#2E2A8E'), WARM = new THREE.Color('#F2E6D6');
+const LOOPED = new Set(['s04', 's08']);           // sections with time-based motion (sway, breathing)
 
-export function createChoreo({ stage, paper, state, springs, props, sheets, flags }) {
+/** horizontal pitch of the drying-line outputs, in % of the viewport width (brief 2B, design system §10) */
+export function outputSpacing(w) { return w <= 600 ? 74 : w <= 1024 ? 40 : 26; }
+
+export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const { camera, rig, size } = stage;
   const { A, B, F, O } = sheets;              // hero, second instance, falling output 1, outputs 2–8
-  const ctx = { M: false, reduce: false, time: 0, hero: null, W0: null };
+  const ctx = {
+    M: false, reduce: false, time: 0, hero: null, W0: null, loop: false,
+    tear: { p1: 0, s1: 0, p2: 0, s2: 0, live: false, fall: 0 }, rel: { plane: 0, fly: 0, fade: 1 },
+    out: { off: 0, lineY: 118, spacing: 26, drop: 0, on: false }, s07: 0, sizeChoice: 'A4', heroOn: false,
+  };
 
   /* ------------------------------------------------------------------ the hero fall (world space) */
   // W0: the loader's registration pose (50 %, 52 %, 46 vh%) seen from the level stage camera; W1: flat on the floor.
@@ -43,6 +51,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
   const C = {
     s01(S, p) {
       const fall = ctx.reduce ? 1 : Math.max(E.intro.fall, clamp(p / 0.45));
+      if (fall < 1) ctx.loop = true;
       fallPose(fall, _fp);
       S.set('cam.floor', smooth(clamp(fall * 1.12)));
       S.set('cam.pitch', -68 * smooth(clamp(fall * 1.08)));
@@ -51,7 +60,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
         x: 50, y: 52, size: 46, ry: 0, rx: 0, rz: 0 });
       S.set('A.flutter', ctx.reduce ? 0 : 0.008 * Math.sin(Math.PI * clamp(fall)));
       S.set('A.show', 0.14 * (1 - smoothstep(0.0004, 0.0064, _fp.y)));
-      S.set('A.peel', 0.08 * seg(p, 1.0, 1.5));
+      S.set('A.peel', ctx.reduce ? 0 : 0.08 * seg(p, 1.0, 1.5));
       S.set('world.print', 1); S.set('world.shadow', 1);
       S.light('s00', 1 - fall); S.light('s01', fall);
       S.setEnum('A.gen', 'h' + (E.regen.gen || 0));
@@ -63,7 +72,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
       S.many('A.', { on: 1, op: 1, world: 1 - up, wx: 0, wy: 0.0004 + 0.03 * up, wz: 0, wrx: -90, wry: 0, wrz: 0,
         x: 50, y: 50, size: 52, rx: 0, rz: 0 });
       S.set('A.ry', kf(p, [[0.8, 0], [1.6, 90, ease.inOut], [2.2, 90], [3, 180, ease.inOut]]));
-      S.set('A.peel', kf(p, [[0, 0.08], [0.35, 0.72, ease.out], [0.8, 0, ease.inOut]]));
+      S.set('A.peel', ctx.reduce ? 0 : kf(p, [[0, 0.08], [0.35, 0.72, ease.out], [0.8, 0, ease.inOut]]));
       S.set('A.show', 0.14 * (1 - seg(p, 0, 0.06)));
       S.set('world.print', 1 - seg(p, 0.3, 0.8)); S.set('world.shadow', 1 - lift);
       S.set('bg.dark', seg(p, 1.3, 1.6) * (1 - seg(p, 2.2, 2.5)));
@@ -79,7 +88,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
       const sz = M ? kf(p, [[0, 52], [0.8, 32], [5, 32], [5.6, 24]]) : kf(p, [[0, 52], [0.8, 46], [5, 46], [5.6, 30]]);
       S.many('A.', { on: R.hidden ? 0 : 1, op: R.fade, x: 50 - 60 * R.roll, y: y - 70 * (1 - R.drop) + 8 * R.roll, size: sz,
         rx: kf(p, [[0, 0], [0.8, 35], [5, 35], [5.6, 0]]) + 60 * R.roll, ry: 180, rz: 160 * R.roll, crumple: R.crumple,
-        flutter: ctx.reduce ? 0 : 0.006 * (1 - R.drop) * (R.drop > 0 ? 1 : 0), paint: 1, curl: E.think.curl });
+        flutter: ctx.reduce ? 0 : 0.006 * (R.drop < 1 ? 1 : 0), paint: 1, curl: ctx.reduce ? 0 : E.think.curl });
       S.setEnum('A.paintFace', -1); S.setEnum('A.curlCorner', 'tr');
       S.set('bg.warm', inn * (1 - out));
       S.light('s03', 1);
@@ -88,20 +97,21 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
     s04(S, p) {
       const M = ctx.M;
       S.set('A.on', 0);
-      // the fit-width numerals; the "camera pans down" = they move up out of frame while the line rises
+      // the fit-width numerals; "the camera pans down" = they move up out of frame while the line rises
       const pan = seg(p, 2.5, 3.2);
       S.many('N.', { on: p < 3.4 ? 1 : 0, op: seg(p, 0, 0.35), y: 50 - 100 * pan });
       // the falling sheet (it becomes output 1 when the first clip catches it)
       S.many('F.', {
         on: 1,
         x: kf(p, [[0, M ? 42 : 30], [0.8, M ? 30 : 20], [1.6, M ? 58 : 47], [2.5, 52], [3.2, 50]]),
-        y: kf(p, [[0, -22], [0.8, 42], [1.6, 55], [2.5, 76], [3.2, 37]]),
+        y: ctx.reduce ? kf(p, [[0, 37], [3.2, 37]]) : kf(p, [[0, -22], [0.8, 42], [1.6, 55], [2.5, 76], [3.2, 37]]),
         size: kf(p, [[0, 30], [2.5, 30], [3.2, 34]]),
         dz: kf(p, [[0, 0.04], [0.8, 0.12], [1.2, 0], [1.6, -0.1], [2.3, -0.05], [2.8, 0]]),
         rx: ctx.reduce ? 0 : kf(p, [[0, -25], [0.8, 18], [1.6, -20], [2.5, 12], [3.2, 0]]),
         ry: ctx.reduce ? 0 : kf(p, [[0, 30], [0.8, -24], [1.6, 26], [2.5, -10], [3.2, 0]]),
         rz: ctx.reduce ? 0 : kf(p, [[0, -14], [0.8, 12], [1.6, -10], [2.5, 6], [3.2, 0]]),
       });
+      if (ctx.reduce) S.set('F.on', p > 2.4 ? 1 : 0);
       S.set('O.catch', ctx.reduce ? 1 : seg(p, 2.8, 3.2));
       S.many('O.', { on: p > 2.35 ? 1 : 0, line: seg(p, 2.4, 2.8), lineY: 18 + 100 * (1 - pan) - 32 * seg(p, 7.6, 8),
         offset: 7 * seg(p, 3.2, 7.6, ease.linear), drop: seg(p, 7.6, 8) });
@@ -113,15 +123,20 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
     s05(S, p) {
       const M = ctx.M, T = E.tear;
       // the dropped output becomes the hero sheet; it settles, folds in half, unfolds; then the tears
-      S.many('A.', { on: 1, op: 1, x: p < 4.75 ? 50 : (M ? 50 : 70), y: p < 4.75 ? kf(p, [[0, 60], [0.6, 52]]) : kf(p, [[4.75, -32], [5, M ? 50 : 50, ease.out]]),
-        size: p < 4.75 ? kf(p, [[0, 40], [0.6, M ? 40 : 46]]) : (M ? 34 : 40), ry: p < 4.75 ? 0 : -18, rx: 0, rz: 0,
-        halving: kf(p, [[0.6, 0], [1.05, 1, ease.inOut], [1.2, 1], [1.6, 0, ease.inOut]]) });
-      S.setEnum('A.gen', p < 4.75 ? 't' : 'f' + (E.arena.genA || 0));
+      const fresh = p >= 4.75;
+      S.many('A.', { on: 1, op: 1, x: !fresh ? 50 : (M ? 50 : 70),
+        y: !fresh ? kf(p, [[0, 60], [0.6, 52]]) : kf(p, [[4.75, -32], [5, 50, ease.out]]),
+        size: !fresh ? kf(p, [[0, 40], [0.6, M ? 40 : 46]]) : (M ? 34 : 40), ry: !fresh ? 0 : -18, rx: 0, rz: 0,
+        halving: kf(p, [[0.6, 0], [1.05, 1, ease.inOut], [1.2, 1], [1.6, 0, ease.inOut]]),
+        creaseMid: !fresh && p > 1.25 ? 1 : 0 });
+      S.set('O.on', 0); S.set('F.on', 0);
+      S.setEnum('A.gen', !fresh ? 't' : 'f' + (E.arena.genA || 0));
       const p1 = Math.max(T.p1, seg(p, 1.95, 2.4, ease.linear));
       const s1 = Math.max(T.split1, seg(p, 2.4, 2.75));
       const p2 = s1 > 0.98 ? Math.max(T.p2, seg(p, 2.95, 3.4, ease.linear)) : 0;
       const s2 = p2 >= 1 ? Math.max(T.split2, seg(p, 3.4, 3.75)) : 0;
-      const live = p < 4.75 && p > 1.6;
+      const live = !fresh && p > 1.6;
+      Object.assign(ctx.tear, { p1: live ? p1 : 0, s1: live ? s1 : 0, p2: live ? p2 : 0, s2: live ? s2 : 0, live, fall: seg(p, 4.4, 4.75) });
       S.many('T.', { on: live && p1 > 0 ? 1 : 0, p1: live ? p1 : 0, p2: live ? p2 : 0, split1: live ? s1 : 0, split2: live ? s2 : 0, fall: seg(p, 4.4, 4.75) });
       S.setEnum('T.line', !live ? 0 : p1 < 1 ? 1 : (p2 < 1 && s1 > 0.98) ? 2 : (s2 > 0.98 ? 3 : 0));
       S.setEnum('D.mode', p < 0.15 || p > 1.6 ? 'none' : (p > 0.75 && p < 1.3 ? 'fold' : 'a4'));
@@ -134,7 +149,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
         ry: kf(p, [[0, -18], [3.3, 18, ease.linear], [4, 0]]), rx: 0, rz: 0,
         bend: 1.5 * (1 - end), map: c.map || 0, wm: c.wm || 0 });
       const dbl = c.double || 0;
-      S.many('B.', { on: dbl > 0.02 ? 1 : 0, op: 1, x: lerp(M ? 50 : 70, (M ? 50 : 70) + 15 * dbl, 1) + (M ? 0 : 3 * (c.drift || 0)), y: M ? 17 : 50,
+      S.many('B.', { on: dbl > 0.02 ? 1 : 0, op: 1, x: (M ? 50 : 70) + 15 * dbl + (M ? 0 : 3 * (c.drift || 0)), y: M ? 17 : 50,
         size: M ? 19 : 40, ry: kf(p, [[0, -18], [3.3, 18, ease.linear]]), dz: -0.03, rx: 0, rz: 0, bend: 1.5 });
       S.setEnum('D.mode', (c.dims || 0) > 0.5 && end < 0.5 ? 'a4' : 'none');
       S.light('s06', 1 - (c.wm || 0)); if (c.wm) S.light('s06v2', c.wm);
@@ -145,20 +160,21 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
       const dolly = R ? (p > 0.6 ? 1 : 0) : seg(p, 0, 1.2, ease.inOut);
       const back = R ? (p > 3.9 ? 1 : 0) : seg(p, 4.0, 4.5, ease.out);
       const macroSize = 420;
+      ctx.s07 = p < 0.6 ? 0 : p < 2.4 ? 1 : p < 3.9 ? 2 : 3;      // the reduced-motion cross-dissolve steps
       S.many('A.', { on: 1, op: 1,
         x: 50 - (E.loupe.x - 0.5) * 8 * seg(p, 1.2, 1.4) * (1 - back), y: lerp(50, ctx.M ? 26 : 32, back),
         size: back > 0 ? lerp(macroSize, ctx.M ? 22 : 30, back) : lerp(60, macroSize, dolly), rx: 0, ry: 0, rz: 0,
         macro: seg(p, 0.6, 1.2) * (1 - seg(p, 4.0, 4.2)), dot: seg(p, 4.1, 4.3), trans: lerp(0.24, 0.36, back) });
-      S.set('cam.fov', kf(p, [[0, 30], [1.2, 22], [2.8, 22], [3.4, 26], [4.0, 26], [4.5, 30]]));
+      S.set('cam.fov', R ? (p < 0.6 || p > 3.9 ? 30 : 22) : kf(p, [[0, 30], [1.2, 22], [2.8, 22], [3.4, 26], [4.0, 26], [4.5, 30]]));
       const front = R ? (p > 2.4 ? 1 : 0) : seg(p, 2.4, 3.4, ease.linear);
       S.set('ink.dropOn', p > 2.12 && p < 2.62 && !R ? 1 : 0);
       S.set('ink.drop', seg(p, 2.15, 2.4, ease.in));
       S.set('ink.front', p < 4.0 ? front : 1 - seg(p, 4.1, 4.4));
       S.set('ink.grade', seg(p, 2.4, 2.55) * (1 - seg(p, 4.0, 4.1)));
-      const bleed = p < 3.4 || p >= 3.97 ? 0 : (R ? 1 : 0.4 + 0.6 * seg(p, 3.4, 3.95, ease.linear));
+      const bleed = p < 3.4 || p >= 3.97 ? 0 : (R ? 0 : 0.4 + 0.6 * seg(p, 3.4, 3.95, ease.linear));
       S.set('ink.bleed', bleed);
-      S.set('bg.ink', p >= 3.95 ? 1 : 0);
-      S.setEnum('ground', p >= 3.9 ? 'ink' : 'paper');
+      S.set('bg.ink', p >= 3.95 || (R && p >= 3.4) ? 1 : 0);
+      S.setEnum('ground', p >= 3.9 || (R && p >= 3.4) ? 'ink' : 'paper');
       const toInk = seg(p, 3.9, 4.2);
       S.light('s07', 1 - toInk); S.light('s08', toInk);
       S.setEnum('A.gen', 'f' + (E.arena.genA || 0));
@@ -167,7 +183,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
       const M = ctx.M;
       S.many('A.', { on: 1, op: 1, x: 50, y: kf(p, [[0, M ? 26 : 32], [2.4, M ? 22 : 30], [3, 50]]), size: kf(p, [[0, M ? 22 : 30], [2.4, M ? 22 : 30], [3, M ? 22 : 34]]),
         ry: -20 + 40 * seg(p, 0, 3, ease.linear), rx: 0, rz: 0, dot: 1, trans: 0.36,
-        bend: ctx.reduce ? 0 : 1.5 + 0.5 * Math.sin(ctx.time * Math.PI / 3) });
+        bend: ctx.reduce ? 1.5 : 1.5 + 0.5 * Math.sin(ctx.time * Math.PI / 3) });
       S.set('bg.ink', 1); S.setEnum('ground', 'ink');
       S.light('s08', 1);
       S.setEnum('A.gen', 'f' + (E.arena.genA || 0));
@@ -175,7 +191,8 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
     s09(S, p) {
       const M = ctx.M, mv = seg(p, 3.6, 4);
       S.many('A.', { on: 1, op: 1, x: lerp(50, M ? 28 : 35, mv), y: lerp(M ? 22 : 50, M ? 46 : 50, mv), size: lerp(M ? 20 : 34, M ? 24 : 40, mv),
-        ry: 15 * Math.sin(p * 1.7) * (1 - mv), rx: 0, rz: 0, dot: 1, dogEar: (E.cues.dogEar || 0) * (1 - mv) });
+        ry: 15 * Math.sin(p * 1.7) * (1 - mv), rx: 0, rz: 0, dot: 1, dogEar: (E.cues.dogEar || 0) * (1 - mv),
+        creaseDog: E.cues.dogEarSeen && p > 3.7 ? 1 : 0 });
       S.setEnum('A.curlCorner', 'tr');
       S.set('bg.ink', 1); S.setEnum('ground', 'ink');
       S.light('s09', 1);
@@ -194,7 +211,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
           crumple: isLoser ? V.crumple : 0, op: isLoser ? V.fade : 1 };
       };
       const a = pose('A'), b = pose('B');
-      S.many('A.', { on: V.loser === 'A' && V.hidden ? 0 : 1, ...a, dot: 1 });
+      S.many('A.', { on: V.loser === 'A' && V.hidden ? 0 : 1, ...a, dot: 1, creaseDog: E.cues.dogEarSeen ? 1 : 0 });
       S.many('B.', { on: (V.loser === 'B' && V.hidden) || p < 0.02 ? 0 : 1, ...b });
       S.setEnum('A.gen', 'f' + (V.genA || 0)); S.setEnum('B.gen', 'b' + (V.genB || 0));
       S.set('bg.ink', p < 2.96 ? 1 : 0);
@@ -204,7 +221,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
     s11(S, p) {
       const M = ctx.M, out = seg(p, 6.4, 7);
       S.many('A.', { on: 1, op: 1, x: lerp(50, M ? 50 : 62, out), y: lerp(M ? 9 : 18, M ? 64 : 52, out), size: lerp(M ? 12 : 22, M ? 26 : 44, out),
-        ry: 25 * Math.sin(p * 0.9) * (1 - out), rx: lerp(8, -8, out), rz: 0, dot: 1 });
+        ry: ctx.reduce ? 0 : 25 * Math.sin(p * 0.9) * (1 - out), rx: lerp(8, -8, out), rz: 0, dot: 1, creaseDog: E.cues.dogEarSeen ? 1 : 0 });
       S.setEnum('A.gen', 'f' + (E.arena.genA || 0));
       S.light('s11', 1);
     },
@@ -214,7 +231,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
       const choice = E.size.choice || preview;
       const rise = seg(p, 2.4, 3.3), exit = seg(p, 3.4, 4);
       S.many('A.', { on: 1, op: 1, x: lerp(M ? 50 : 62, 50, rise), y: lerp(lerp(M ? 64 : 52, 20, rise), -32, exit), size: lerp(M ? 26 : 44, 26, rise),
-        rx: -8 * (1 - rise), ry: 0, rz: 0, scale: lerp(SIZE_SCALE[choice], 1, rise), dot: 1 });
+        rx: -8 * (1 - rise), ry: 0, rz: 0, scale: lerp(SIZE_SCALE[choice], 1, rise), dot: 1, creaseDog: E.cues.dogEarSeen ? 1 : 0 });
       ctx.sizeChoice = choice;
       S.setEnum('D.mode', rise < 0.2 ? 'size' : 'none');
       S.setEnum('A.gen', 'f' + (E.arena.genA || 0));
@@ -230,10 +247,11 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
       const plane = Math.max(Rl.plane, R ? (p > 2.0 ? 7 : p > 1.85 ? 3.5 : 0) : 7 * seg(p, 1.8, 2.15, ease.linear));
       const fly = R ? 0 : Math.max(Rl.fly, seg(p, 2.15, 2.5, ease.in));
       const fade = R ? Math.min(Rl.fade, 1 - seg(p, 2.2, 2.45)) : 1;
+      Object.assign(ctx.rel, { plane, fly, fade });
       S.many('A.', { on: fly < 0.995 && fade > 0.01 ? 1 : 0, op: fade,
         x: 50 + 78 * fly * fly, y: kf(p, [[0, -32], [0.6, M ? 46 : 48, ease.out]]) - 72 * fly ** 1.3, size: lerp(M ? 34 : 46, M ? 18 : 24, fly),
         rx: 14 * fly, ry: 180, rz: -52 * smooth(clamp(plane / 7)) * (1 - 0.3 * fly) - 18 * fly,
-        plane, paint: 1, dot: 1 });
+        plane, paint: 1, dot: 1, creaseDog: E.cues.dogEarSeen ? 1 : 0 });
       S.setEnum('A.paintFace', -1);
       S.set('P.fly', fly);
       S.set('cam.panY', -3 * fly);
@@ -248,15 +266,18 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
     ctx.M = size.aspect < 0.8;
     ctx.reduce = frame.reduce;
     ctx.time = E.time;
+    ctx.loop = false;
     if (!ctx.W0) ctx.W0 = computeW0();
     state.reset();
+    let total = 0;
     for (const s of secs) {
       if (s.w <= 0) continue;
-      state.w = s.w;
+      state.w = s.w; total += s.w;
+      if (LOOPED.has(s.key) && !ctx.reduce) ctx.loop = true;
       const fn = C[s.key];
       if (fn) fn(state, s.p);
     }
-    state.resolve();
+    state.resolve(total);
   }
 
   /* ------------------------------------------------------------------ apply the damped state to the scene */
@@ -265,21 +286,21 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
   const g = (n) => springs.get(n);
 
   function placeScreen(obj, pre, scale = 1) {
-    stage.screenToWorld(g(pre + 'x'), g(pre + 'y'), g(pre + 'size'), A4.h, g(pre + 'dz'), _pos);
+    const k = stage.screenPlace(g(pre + 'x'), g(pre + 'y'), g(pre + 'size'), A4.h, g(pre + 'dz'), _pos);
     stage.screenQuat(g(pre + 'rx'), g(pre + 'ry'), g(pre + 'rz'), _q);
-    obj.position.copy(_pos); obj.quaternion.copy(_q); obj.scale.setScalar(scale);
+    obj.position.copy(_pos); obj.quaternion.copy(_q); obj.scale.setScalar(scale * k);
   }
   function placeHero() {
     const o = A.object;
-    stage.screenToWorld(g('A.x'), g('A.y'), g('A.size'), A4.h, g('A.dz'), _pos);
+    let k = stage.screenPlace(g('A.x'), g('A.y'), g('A.size'), A4.h, g('A.dz'), _pos);
     stage.screenQuat(g('A.rx'), g('A.ry'), g('A.rz'), _q);
     const w = clamp(g('A.world'));
     if (w > 0.0005) {
       _wp.set(g('A.wx'), g('A.wy'), g('A.wz'));
       _e.set(g('A.wrx') * DEG, g('A.wry') * DEG, g('A.wrz') * DEG, 'XYZ'); _wq.setFromEuler(_e);
-      _pos.lerp(_wp, w); _q.slerp(_wq, w);
+      _pos.lerp(_wp, w); _q.slerp(_wq, w); k = lerp(k, 1, w);
     }
-    o.position.copy(_pos); o.quaternion.copy(_q); o.scale.setScalar(g('A.scale'));
+    o.position.copy(_pos); o.quaternion.copy(_q); o.scale.setScalar(g('A.scale') * k);
     o.updateMatrixWorld(true);
   }
 
@@ -298,12 +319,12 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
 
   // tear pieces: world poses from screen space, written into the hero sheet's local frame
   const piecePose = (x, y, sizePct, L, rz, out) => {
-    stage.screenToWorld(x, y, sizePct, L, 0, out.p);
+    out.k = stage.screenPlace(x, y, sizePct, L, 0, out.p);
     stage.screenQuat(0, 0, rz, out.q);
     return out;
   };
-  const PA = { p: new THREE.Vector3(), q: new THREE.Quaternion() }, PB = { p: new THREE.Vector3(), q: new THREE.Quaternion() };
-  const PC = { p: new THREE.Vector3(), q: new THREE.Quaternion() };
+  const PA = { p: new THREE.Vector3(), q: new THREE.Quaternion(), k: 1 }, PB = { p: new THREE.Vector3(), q: new THREE.Quaternion(), k: 1 };
+  const PC = { p: new THREE.Vector3(), q: new THREE.Quaternion(), k: 1 };
   function setPieceWorld(piece, p, q) {
     _m.compose(p, q, _s);
     _mi.copy(A.object.matrixWorld).invert();
@@ -326,7 +347,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
         const rest = PA; rest.p.set(0, i === 0 ? H / 4 + 0.0015 * p1 : -H / 4 - 0.0015 * p1, 0).applyMatrix4(A.object.matrixWorld);
         rest.q.copy(A.object.quaternion);
         piecePose(hx[i], 52 + fallY, halfSize, W, 90 + (i ? -1 : 1) * fallR * 0.3, PB);
-        PB.p.y += 0; rest.p.lerp(PB.p, smooth(s1)); rest.q.slerp(PB.q, smooth(s1));
+        rest.p.lerp(PB.p, smooth(s1)); rest.q.slerp(PB.q, smooth(s1));
         setPieceWorld(pc, rest.p, rest.q);
       }
     } else {
@@ -350,12 +371,13 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
 
   // outputs on the drying line
   const OUT_FORMS = [
-    { light: 'card1' }, { plane: 7, rz: 180 }, { curl: { corner: 'br', t: 1, r: 0.02, angle: 60, size: 0.07 } }, { boat: 1 },
+    { light: 'card1' }, { plane: 7, rz: 180 }, { curl: { corner: 'br', t: 1, r: 0.02, deg: 60, size: 0.07 } }, { boat: 1 },
     {}, { fan: 1 }, {}, { still: true },
   ];
   function applyOutputs() {
-    const on = g('O.on') > 0.5, M = ctx.M;
-    const spacing = M ? 74 : 26, off = g('O.offset'), lineY = g('O.lineY'), drop = g('O.drop');
+    const on = g('O.on') > 0.5;
+    const spacing = outputSpacing(size.w), off = g('O.offset'), lineY = g('O.lineY'), drop = g('O.drop');
+    Object.assign(ctx.out, { off, lineY, spacing, drop, on: on || g('F.on') > 0.5 });
     const line = props.line;
     line.group.visible = on || g('F.on') > 0.5;
     // the falling sheet F = output 1
@@ -365,36 +387,36 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
       const hx = 50 + (0 - off) * spacing, hy = lineY + 1.4 + 17;
       const fx = g('F.x'), fy = g('F.y'), fs = g('F.size');
       const bonus = 1 + 0.08 * Math.max(0, 1 - Math.abs(off));
-      stage.screenToWorld(lerp(fx, hx, k), lerp(fy, hy, k), lerp(fs, 34 * bonus, k), A4.h, lerp(g('F.dz'), 0, k), _pos);
+      const sc = stage.screenPlace(lerp(fx, hx, k), lerp(fy, hy, k), lerp(fs, 34 * bonus, k), A4.h, lerp(g('F.dz'), 0, k), _pos);
       const sway = ctx.reduce ? 0 : 3 * Math.sin(E.time * 1.3) * k;
       stage.screenQuat(lerp(g('F.rx'), 0, k), lerp(g('F.ry'), sway + E.hover.x * 6 * k * Math.max(0, 1 - Math.abs(off)), k), lerp(g('F.rz'), 0, k), _q);
-      F.object.position.copy(_pos); F.object.quaternion.copy(_q);
+      F.object.position.copy(_pos); F.object.quaternion.copy(_q); F.object.scale.setScalar(sc);
       push(F, { flutter: ctx.reduce ? 0 : lerp(0.008, 0.004, k), translucency: 0.3 });
     } else F.object.visible = false;
     for (let i = 1; i < 8; i++) {
       const s = O[i - 1], f = OUT_FORMS[i];
       if (!on) { s.object.visible = false; continue; }
-      let x = 50 + (i - off) * spacing;
+      const x = 50 + (i - off) * spacing;
       const near = Math.max(0, 1 - Math.abs(i - off));
-      let y = lineY + 1.4 + 17, sz = 34 * (1 + 0.08 * near), rz = f.rz || 0;
+      let y = lineY + 1.4 + 17, sz = 34 * (1 + 0.08 * near);
+      const rz = f.rz || 0;
       if (i === 7 && drop > 0) { y = lerp(y, 60, smooth(drop)); sz = lerp(sz, 40, drop); }
       const vis = x > -40 && x < 140;
       s.object.visible = vis;
       if (!vis) continue;
       const sway = f.still || ctx.reduce ? 0 : 4 * Math.sin(E.time * 1.1 + i * 1.7);
-      stage.screenToWorld(x, y, sz, A4.h, 0, _pos);
-      stage.screenQuat(0, (f.plane ? 10 * Math.sin(E.time * 0.8 + i) : sway) + E.hover.x * 8 * near, rz + (f.still ? 0 : E.hover.y * 2 * near), _q);
-      s.object.position.copy(_pos); s.object.quaternion.copy(_q);
+      const sc = stage.screenPlace(x, y, sz, A4.h, 0, _pos);
+      stage.screenQuat(0, (f.plane ? (ctx.reduce ? 0 : 10 * Math.sin(E.time * 0.8 + i)) : sway) + E.hover.x * 8 * near, rz + (f.still ? 0 : E.hover.y * 2 * near), _q);
+      s.object.position.copy(_pos); s.object.quaternion.copy(_q); s.object.scale.setScalar(sc);
       push(s, { plane: f.plane || 0, boat: f.boat || 0, fan: f.fan || 0, curl: f.curl || null, flutter: f.still || ctx.reduce ? 0 : 0.004 });
     }
     // the cord + clips at the outputs' depth
     if (line.group.visible) {
       const t = Math.tan(camera.fov * DEG / 2), d = A4.h / (0.34 * 2 * t);
-      stage.screenToWorld(50, lineY, 34, A4.h, 0, _pos);
+      stage.screenPlace(50, lineY, 34, A4.h, 0, _pos);
       line.cord.position.copy(_pos); line.cord.quaternion.copy(camera.quaternion);
       line.cord.rotateZ(Math.PI / 2);
       line.cord.scale.set(1, 2 * d * t * size.aspect * 1.3, 1);
-      line.material.opacity = 1;
       line.cord.visible = g('O.line') > 0.02;
       for (let i = 0; i < 8; i++) {
         const c = line.clips[i];
@@ -402,14 +424,16 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
         const hidden = (i === 7 && drop > 0.02) || x < -20 || x > 120 || !on;
         c.visible = !hidden && line.cord.visible;
         if (!c.visible) continue;
-        stage.screenToWorld(x, lineY + 0.9, 34, A4.h, 0.004, _pos);
+        stage.screenPlace(x, lineY + 0.9, 34, A4.h, 0.004, _pos);
         c.position.copy(_pos); c.quaternion.copy(camera.quaternion);
       }
     }
   }
 
-  const bg = new THREE.Color(), warm = new THREE.Color('#F2E6D6');
-  function apply(dt) {
+  const bg = new THREE.Color();
+  const MID_CREASE = [{ n: [0, 1], d: 0, strength: 1 }];
+  const DOG_CREASE = { n: [0.7071, 0.7071], d: 0.7071 * (A4.w / 2 + A4.h / 2 - 0.03), strength: 0.8 };
+  function apply() {
     const M = ctx.M;
     /* camera */
     const fl = clamp(g('cam.floor'));
@@ -424,22 +448,27 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
 
     /* ground colour (the studio, the ink world, the s02 edge-on darkening, the s03 warmth) */
     bg.copy(STUDIO).lerp(INK, clamp(g('bg.ink')));
-    if (g('bg.warm') > 0.001) bg.lerp(warm, 0.12 * g('bg.warm'));
-    if (g('bg.dark') > 0.001) bg.multiplyScalar(1 - 0.045 * g('bg.dark'));
-    stage.scene.background.copy(bg);
+    if (g('bg.warm') > 0.001) bg.lerp(WARM, 0.12 * g('bg.warm'));
+    if (paper.kind === 'placeholder' && g('bg.dark') > 0.001) bg.multiplyScalar(1 - 0.045 * g('bg.dark'));   // the module's s02 preset does it
+    paper.setGround(bg);
 
     /* the hero sheet */
     const aOn = g('A.on') > 0.5 && g('A.op') > 0.003;
+    ctx.heroOn = aOn;
     A.object.visible = aOn;
     if (aOn) {
       placeHero();
       const front = g('ink.front');
+      const creases = [];
+      if (g('A.creaseMid') > 0.5) creases.push(MID_CREASE[0]);
+      if (g('A.creaseDog') > 0.5) creases.push(DOG_CREASE);
       push(A, {
         opacity: g('A.op'), bend: g('A.bend'), flutter: g('A.flutter'), peel: g('A.peel'), dogEar: g('A.dogEar'), halving: g('A.halving'),
         plane: g('A.plane'), crumple: g('A.crumple'), showThrough: g('A.show'), translucency: g('A.trans'), watermark: g('A.wm'),
         map: g('A.map'), inkDot: g('A.dot'), macro: g('A.macro'), paint: g('A.paint') > 0.5, paintFace: state.enum('A.paintFace'),
-        curl: g('A.curl') > 0.001 ? { corner: state.enum('A.curlCorner'), t: g('A.curl'), r: 0.015, angle: 25, size: 0.06 } : null,
+        curl: g('A.curl') > 0.001 ? { corner: state.enum('A.curlCorner'), t: g('A.curl'), r: 0.015, deg: 25, size: 0.06 } : null,
         bleed: front > 0.0005 ? { t: front, at: [0, 0], radiusMM: 9, amount: 1, grade: g('ink.grade') } : null,
+        creases: creases.length ? creases : null,
       });
       applyTear();
     }
@@ -456,7 +485,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
     if (N.mesh.visible) {
       const t = Math.tan(camera.fov * DEG / 2), d = A4.h / (0.30 * 2 * t);
       const w = 2 * d * t * size.aspect * (M ? 0.9 : 0.9375);
-      stage.screenToWorld(50, g('N.y'), 30, A4.h, 0, _pos);
+      stage.screenPlace(50, g('N.y'), 30, A4.h, 0, _pos);
       N.mesh.position.copy(_pos); N.mesh.quaternion.copy(camera.quaternion);
       N.mesh.scale.set(w, w / N.aspect, 1);
       N.mesh.material.opacity = g('N.op');
@@ -467,7 +496,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
     drop.visible = g('ink.dropOn') > 0.5;
     if (drop.visible) {
       const k = g('ink.drop');
-      stage.screenToWorld(50, lerp(-8, 50, k), g('A.size'), A4.h, 0.002, _pos);
+      stage.screenPlace(50, lerp(-8, 50, k), g('A.size'), A4.h, 0.002, _pos);
       drop.position.copy(_pos);
       drop.scale.set(1 + 0.6 * smoothstep(0.9, 1, k), k > 0.97 ? 0.35 : 1.35, 1 + 0.6 * smoothstep(0.9, 1, k));
       drop.quaternion.copy(camera.quaternion);
@@ -490,5 +519,5 @@ export function createChoreo({ stage, paper, state, springs, props, sheets, flag
     paper.lights.aim(aOn ? A.object.position : _v.set(0, STAGE.anchor.y, 0));
   }
 
-  return { claim, apply, ctx, sizeChoice: () => ctx.sizeChoice };
+  return { claim, apply, ctx };
 }

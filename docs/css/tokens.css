@@ -13,7 +13,15 @@
      ink      #2E2A8E   on paper 10.49 · on studio  9.58                                 (focus, links)
      paper on graphite 13.35 (primary button) · paper on ink 10.49 · on ink-deep 14.05
      on-ink-muted #C8C6E4 on ink 6.88 · rule-strong #827F77 on paper 3.67 / studio 3.35  (UI ≥ 3)
-     rule-strong on ink (paper 62 %) 5.00 · decorative rules and disabled labels are exempt. */
+     rule-strong on ink (paper 62 %) 5.00 · decorative rules and disabled labels are exempt.
+   v2 (decision #24: charcoal, grey, pencil, blueprint, highlighter; full table in 05 §2.1):
+     paper on charcoal 14.50 · on charcoal-raised 12.37 · on-charcoal-muted #A9B0B9 7.22 / 6.16 · charcoal on paper 14.50
+     rule-strong on charcoal (paper 44 %) 3.94 · pencil on charcoal 9.71 · blueprint-light on charcoal 7.43
+     graphite on grey-200 10.65 · grey-100 11.84 · grey-300 9.56 · muted-deep #55534D 5.63 / 6.26 / 5.05
+     rule-strong-grey #72716B 3.59 on grey-200 · ink on grey-200 8.37 (focus) · blueprint on paper 6.01 · grey-200 4.80
+     graphite under a highlighter (mask alpha 0.88): yellow 11.24 (paper) / 9.01 (grey-200), pink 7.19 / 5.77;
+     on charcoal (the mark lies under graphite text) yellow 9.58, pink 5.81. Pencil yellow on paper is 1.49: objects
+     only there, never text or UI. */
 
 :root {
   /* ── Palette constants ─────────────────────────────────────────────────────────── */
@@ -26,9 +34,29 @@
   --color-ink-deep: #1E1A60;       /* ink core, pressed states on ink, sunken wells on ink */
   --color-on-ink: #F7F5F0;         /* paper white on ink */
   --color-on-ink-muted: #C8C6E4;   /* secondary text on ink */
+
+  /* [added v2, decision #24] Mixed grounds and three stationery colour families. Never warm brown-black,
+     cork orange, cream or green (ORYZO). One accent family per screen. */
+  --color-charcoal: #1F2328;          /* cool blue-grey dark: s02, s03, s15 grounds (hue 213°) */
+  --color-charcoal-raised: #2A2F36;   /* raised surfaces on charcoal: cards, the tools panel, wells' rims */
+  --color-charcoal-deep: #171A1E;     /* sunken wells and pressed states on charcoal */
+  --color-on-charcoal: #F7F5F0;       /* paper white on charcoal */
+  --color-on-charcoal-muted: #A9B0B9; /* secondary text on charcoal, a cool light grey */
+  --color-grey-100: #E6E8EA;          /* light cool grey: s06 Release notes */
+  --color-grey-200: #D9DDE1;          /* cool grey: s04 Outputs (gallery) and s12 Sizes (print room) */
+  --color-grey-300: #CDD2D7;          /* sunken wells and table heads on the grey grounds */
+  --color-graphite-muted-deep: #55534D; /* secondary text on the grey grounds (the ordinary muted is too light there) */
+  --color-pencil: #F3C623;            /* HB-pencil yellow: the pencil cursor, claim card c4, the s03 CTA underline. Never text on light grounds */
+  --color-pencil-shade: #CFA21A;      /* the pencil's shaded facets */
+  --color-blueprint: #2A5BAE;         /* technical blue (hue 218°), lighter than ink: dimension lines, the loader, the paper's diagrams */
+  --color-blueprint-light: #8FB3F0;   /* blueprint on dark grounds (charcoal) */
+  --color-hl-yellow: #EAF33F;         /* highlighter, fluorescent lemon (hue 63°: yellow, not green). Light grounds only */
+  --color-hl-pink: #FF94CA;           /* highlighter, pink. Light grounds only */
   /* The same colours in linear RGB for three.js (new THREE.Color().setRGB(r, g, b, LinearSRGBColorSpace)):
      paper 0.9301 0.9131 0.8714 · studio 0.8388 0.8308 0.7991 · graphite 0.0232 0.0222 0.0194
-     ink 0.0273 0.0232 0.2705 · ink-deep 0.0130 0.0103 0.1170 */
+     ink 0.0273 0.0232 0.2705 · ink-deep 0.0130 0.0103 0.1170
+     charcoal 0.0137 0.0168 0.0212 · charcoal-raised 0.0232 0.0284 0.0369 · grey-100 0.7913 0.8070 0.8228
+     grey-200 0.6939 0.7231 0.7529 · pencil 0.8963 0.5647 0.0168 · blueprint 0.0232 0.1046 0.4233 */
 
   /* ── Roles (remapped by [data-ground]) ─────────────────────────────────────────── */
   --ground: var(--color-paper);
@@ -48,6 +76,14 @@
   --selection-fg: var(--color-on-ink);
   --press-hi: rgba(255, 255, 255, 0.85);   /* [added] signature reveal: light edge of the blind impression */
   --press-lo: rgba(42, 41, 38, 0.16);      /* [added] signature reveal: shadow edge of the blind impression */
+  --dims: var(--color-blueprint);          /* [added v2] dimension lines and their labels, the loader drawing */
+  --mark: var(--color-hl-yellow);          /* [added v2] the highlighter mark (.hl); off on ink, opaque on charcoal */
+  --mark-alt: var(--color-hl-pink);        /* [added v2] the second highlighter (.hl--pink) */
+  --pencil: var(--color-pencil);           /* [added v2] the pencil's lacquer, the CTA underline (.u-pencil) */
+  --mark-ink: currentColor;                /* [added v2] text colour under a mark: unchanged on light grounds */
+  --mark-blend: multiply;                  /* [added v2] a highlighter multiplies on light grounds (ink over print) */
+  --mark-z: auto;                          /* [added v2] light grounds: the stroke lies over the text (multiply) ... */
+  --mark-layer: auto;                      /* [added v2] ... dark grounds: 0 / -1 put it under graphite text */
 
   /* ── Type ──────────────────────────────────────────────────────────────────────── */
   --font-sans: "Hanken Grotesk", "Hanken Grotesk Fallback", "Helvetica Neue", Arial, system-ui, sans-serif;
@@ -170,7 +206,78 @@
   --press-lo: rgba(10, 8, 40, 0.55);
   --shadow-contact: 0 1px 1px rgba(10, 8, 40, 0.25), 0 18px 32px -16px rgba(10, 8, 40, 0.65);
   --shadow-lift: 0 2px 4px rgba(10, 8, 40, 0.3), 0 28px 56px -24px rgba(10, 8, 40, 0.7);
+  --dims: var(--color-on-ink);             /* one accent family per screen: on ink, dimension lines are paper white */
+  --mark: transparent;                     /* no highlighter on the ink ground: ink is that screen's accent */
+  --mark-alt: transparent;
+  --mark-ink: currentColor;
   color: var(--text);
+}
+
+/* ── [added v2] Charcoal ground (s02 0.1 mm, s03 Intelligence, s15 footer) ─────────────────────── */
+[data-ground="charcoal"] {
+  --ground: var(--color-charcoal);
+  --surface: var(--color-charcoal-raised);
+  --surface-sunken: var(--color-charcoal-deep);
+  --text: var(--color-on-charcoal);
+  --text-muted: var(--color-on-charcoal-muted);
+  --text-disabled: rgba(247, 245, 240, 0.42);
+  --accent: var(--color-pencil);           /* the charcoal screens' accent family is the pencil (s03) */
+  --color-rule: rgba(247, 245, 240, 0.16);
+  --color-rule-strong: rgba(247, 245, 240, 0.44);
+  --color-focus: var(--color-on-charcoal);
+  --button-bg: var(--color-on-charcoal);
+  --button-fg: var(--color-charcoal);
+  --button-bg-hover: #E2E4E7;
+  --selection-bg: var(--color-on-charcoal);
+  --selection-fg: var(--color-charcoal);
+  --press-hi: rgba(255, 255, 255, 0.14);
+  --press-lo: rgba(0, 0, 0, 0.55);
+  --shadow-contact: 0 1px 1px rgba(5, 7, 10, 0.35), 0 18px 32px -16px rgba(5, 7, 10, 0.7);
+  --shadow-lift: 0 2px 4px rgba(5, 7, 10, 0.4), 0 28px 56px -24px rgba(5, 7, 10, 0.75);
+  --dims: var(--color-blueprint-light);
+  --mark: var(--color-hl-yellow);          /* on dark the mark is an opaque stroke and its text turns graphite */
+  --mark-alt: var(--color-hl-pink);
+  --mark-ink: var(--color-graphite);
+  --mark-blend: normal;
+  --mark-z: 0;
+  --mark-layer: -1;
+  color: var(--text);
+}
+
+/* ── [added v2] Cool grey grounds: "grey" = s04 Outputs and s12 Sizes; "grey-light" = s06 Release notes ── */
+[data-ground="grey"],
+[data-ground="grey-light"] {
+  --ground: var(--color-grey-200);
+  --surface: var(--color-paper);           /* sheets and the print dialog stay paper white: the brightest thing */
+  --surface-sunken: var(--color-grey-300);
+  --text: var(--color-graphite);
+  --text-muted: var(--color-graphite-muted-deep);
+  --text-disabled: var(--color-graphite-soft);
+  --accent: var(--color-ink);
+  --color-rule: #BFC4CA;
+  --color-rule-strong: #72716B;
+  --color-focus: var(--color-ink);
+  --button-bg: var(--color-graphite);
+  --button-fg: var(--color-paper);
+  --button-bg-hover: #3B3A36;
+  --selection-bg: var(--color-ink);
+  --selection-fg: var(--color-on-ink);
+  --press-hi: rgba(255, 255, 255, 0.7);
+  --press-lo: rgba(42, 41, 38, 0.2);
+  --shadow-contact: 0 1px 1px rgba(30, 34, 40, 0.07), 0 14px 28px -18px rgba(30, 34, 40, 0.38);
+  --shadow-lift: 0 2px 4px rgba(30, 34, 40, 0.08), 0 24px 48px -24px rgba(30, 34, 40, 0.36);
+  --dims: var(--color-blueprint);
+  --mark: var(--color-hl-yellow);
+  --mark-alt: var(--color-hl-pink);
+  --mark-ink: currentColor;
+  --mark-blend: multiply;
+  --mark-z: auto;
+  --mark-layer: auto;
+  color: var(--text);
+}
+[data-ground="grey-light"] {
+  --ground: var(--color-grey-100);
+  --surface-sunken: var(--color-grey-200);
 }
 
 /* Light roles again, inside an ink region (s08 paper cards) or anywhere a studio-white well is needed. */
@@ -195,6 +302,13 @@
   --press-lo: rgba(42, 41, 38, 0.16);
   --shadow-contact: 0 1px 1px rgba(42, 41, 38, 0.05), 0 14px 28px -18px rgba(42, 41, 38, 0.32);
   --shadow-lift: 0 2px 4px rgba(42, 41, 38, 0.06), 0 24px 48px -24px rgba(42, 41, 38, 0.30);
+  --dims: var(--color-blueprint);
+  --mark: var(--color-hl-yellow);
+  --mark-alt: var(--color-hl-pink);
+  --mark-ink: currentColor;
+  --mark-blend: multiply;
+  --mark-z: auto;
+  --mark-layer: auto;
   color: var(--text);
 }
 [data-ground="studio"] { --ground: var(--color-studio); }

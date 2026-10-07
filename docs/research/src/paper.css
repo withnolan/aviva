@@ -8,8 +8,10 @@
 
    Faces: Hanken Grotesk (the site's face) for headings, captions, tables heads and furniture; STIX Two Text for the
    body; STIX Two Math for the equations (MathML) and the few symbols the text face lacks (√, ≈); DM Mono for
-   Appendix B. All OFL; static instances and subsets live in ./fonts. Graphite text; ink-blue for links and figure
-   accents only. */
+   Appendix B. All OFL; static instances and subsets live in ./fonts.
+   Colour (decision #24): graphite text; blueprint blue for the diagrams' accents and dimension lines; ink-blue for
+   links (citations, cross-references) and for the ink itself (Figure 5); a highlighter twice at most, as a
+   reviewer's mark. */
 
 @font-face { font-family: "STIX Two Text"; src: url("fonts/stix-two-text-400.woff2") format("woff2"); font-weight: 400; font-style: normal; }
 @font-face { font-family: "STIX Two Text"; src: url("fonts/stix-two-text-400-italic.woff2") format("woff2"); font-weight: 400; font-style: italic; }
@@ -29,6 +31,9 @@
   --soft: #A3A099;
   --rule: #D9D6CE;
   --ink: #2E2A8E;
+  --blueprint: #2A5BAE;
+  --hl-yellow: #EAF33F;
+  --hl-pink: #FF94CA;
 
   /* page geometry (mm) */
   --pw: 210mm;  --ph: 297mm;
@@ -303,3 +308,18 @@ th:last-child, td:last-child { padding-right: 0; }
   border-bottom: 0.45pt solid var(--graphite);
   font-variant-ligatures: none;
 }
+
+/* ── a reviewer's highlighter (twice at most; same mask as the site's .hl, 05 §9.18) ───────────────── */
+.hl { position: relative; white-space: nowrap; }
+.hl::after {
+  content: "";
+  position: absolute;
+  inset: 0.08em -0.2em -0.05em -0.16em;
+  background: var(--hl-yellow);
+  -webkit-mask: url("../../assets/marks/highlighter.svg") 0 0 / 100% 100% no-repeat;
+          mask: url("../../assets/marks/highlighter.svg") 0 0 / 100% 100% no-repeat;
+  mix-blend-mode: multiply;
+  transform: rotate(-0.8deg);
+  pointer-events: none;
+}
+.hl--pink::after { background: var(--hl-pink); transform: rotate(0.6deg); }

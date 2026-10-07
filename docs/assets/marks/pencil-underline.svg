@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 8" preserveAspectRatio="none">
+  <!-- aviva pencil underline (mask: alpha = graphite/lacquer). One quick hand stroke: tapered ends, a slight rise,
+       a little heavier where the pressure peaks. Used as mask-image under var(--pencil) (.u-pencil). -->
+  <path d="M1.5 6.1C30 5.2 62 5.6 96 4.6S170 3.2 238.5 2.2C200 4.4 160 4.9 120 5.6S50 6.9 1.5 6.1Z" fill="#000"/>
+  <path d="M3 6.4C40 6.5 80 6.0 120 5.2S190 3.9 236 2.6" fill="none" stroke="#000" stroke-width="1.1" stroke-linecap="round" stroke-opacity="0.85"/>
+</svg>
