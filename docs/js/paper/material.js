@@ -326,8 +326,8 @@ export function createPaperDepthMaterial(uniforms, variant = 'slab') {
 // MAX blending: overlapping layers never darken beyond one sheet.
 const CASTER_VERT_COMMON = /* glsl */`
 uniform vec4 uCS;        // xy: centre (world xz), z: half extent (m), w: floor height (world y)
-uniform vec4 uCSShear;   // xy: shear (dx/dh, dz/dh) toward away-from-light, z: contact falloff (m), w: soft falloff (m)
-uniform vec4 uCSRange;   // x: max height (m)
+uniform vec4 uCSShear;   // xy: shear (dx/dh, dz/dh) toward away-from-light, z: contact falloff (m), w: mid falloff (m)
+uniform vec4 uCSRange;   // x: max height, y: soft falloff, z: soft rise, w: mid rise (m)
 varying float vH;
 vec4 casterClip(vec3 wp) {
   float h = max(wp.y - uCS.w, 0.0); vH = h;
@@ -344,7 +344,10 @@ void main() {
   float pxm_ = max(length(fwidth(vRest)) * 0.7071, 1e-7); float band_ = 0.0;
   if ((uTear0.w != 0.0 || uTear1.w != 0.0) && tearKeep(vRest, pxm_, band_) < 0.0) discard;
   float fade = 1.0 - smoothstep(uCSRange.x * 0.6, uCSRange.x, vH);
-  gl_FragColor = vec4(exp(-vH / uCSShear.z), exp(-vH / uCSShear.w) * fade, 0.0, 1.0);
+  float c = exp(-vH / uCSShear.z);                                         // contact: only within a few mm
+  float m = exp(-vH / uCSShear.w) * (1.0 - exp(-vH / uCSRange.w));        // mid: a sheet a few mm .. cm up
+  float s = exp(-vH / uCSRange.y) * (1.0 - exp(-vH / uCSRange.z)) * fade; // soft: a sheet in the air
+  gl_FragColor = vec4(c, m, s, 1.0);
 }`;
 
 export function createCasterMaterial(uniforms, csUniforms, variant = 'slab') {

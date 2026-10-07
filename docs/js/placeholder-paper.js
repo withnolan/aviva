@@ -266,19 +266,29 @@ export class PlaceholderPaint {
     }
     this._last = [x, y]; this._t = now; this.version++;
   }
-  end() { this._last = null; this.strokes++; }
+  end() { if (this._last) this.strokes++; this._last = null; }
   setEraser(on) { this.eraser = !!on; }
-  /** the pre-baked "quick handwriting" line for the keyboard path; progress 0..1 draws it progressively */
-  bakedLine(from, to, { row = 0 } = {}) {
+  /** wipe the layer (Regenerate: a fresh sheet) */
+  clear() {
+    this.ctx.globalCompositeOperation = 'source-over';
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this._last = null; this.hasInk = false; this.strokes = 0; this.version++;
+  }
+  /** the pre-baked "quick handwriting" line for the keyboard path; progress 0..1 draws it progressively.
+   *  mirror: the drawing face is the verso (seen from behind, u runs right to left), so the line still reads
+   *  left to right for the visitor. */
+  bakedLine(from, to, { row = 0, mirror = false } = {}) {
     const P = BAKED_LINE, n = P.length;
     const i0 = Math.floor(from * (n - 1)), i1 = Math.floor(to * (n - 1));
-    const oy = -row * 0.07;
+    const oy = -row * 0.07, U = (u) => (mirror ? 1 - u : u);
+    const wasEraser = this.eraser; this.eraser = false;
     for (let i = Math.max(1, i0); i <= i1; i++) {
       const [u0, v0] = P[i - 1], [u1, v1] = P[i];
-      if (i === Math.max(1, i0)) this.begin(u0, v0 + oy);
+      if (i === Math.max(1, i0) && !this._last) this.begin(U(u0), v0 + oy);
       this._t = performance.now() - 30;
-      this.to(u1, v1 + oy, 0.8);
+      this.to(U(u1), v1 + oy, 0.8);
     }
+    this.eraser = wasEraser;
     if (to >= 1) this.end();
   }
 }

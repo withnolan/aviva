@@ -64,9 +64,10 @@ uniform vec3 uFloorTint;         // multiplier on the floor part (1 = same as th
 uniform float uGain;             // whole-backdrop gain (s02: the background behind the edge drops ~4 %)
 uniform vec4 uPool[3];           // xyz world centre, w radius (m)
 uniform vec4 uPoolC[3];          // rgb tint, a gain (0 = off)
-uniform sampler2D uContactA; uniform sampler2D uContactB;
+uniform sampler2D uContactA; uniform sampler2D uContactB; uniform sampler2D uContactM;
 uniform vec4 uCS;                // xy centre (world xz), z half extent, w floor y
-uniform vec4 uShadowP;           // x contact opacity, y soft opacity, z on (0/1)
+uniform vec4 uShadowP;           // x contact opacity, y soft opacity, z on (0/1), w mid opacity
+uniform vec4 uLeanA;             // xy world xz lean of the contact lobe, zw of the mid lobe (away from the key, m)
 uniform vec2 uSoftShift;         // world xz shift of the soft lobe, away from the key (m)
 uniform vec3 uShadowTint;        // colour multiplier at full shadow
 uniform sampler2D uFloorPrint; uniform vec4 uFloorRect; uniform vec4 uPrintP;   // x opacity, y on
@@ -92,11 +93,12 @@ void main(){
   if (uShadowP.z > 0.5 && onFloor > 0.0) {
     vec2 c = (vWorld.xz - uCS.xy) / uCS.z;
     if (abs(c.x) < 1.0 && abs(c.y) < 1.0) {
-      vec2 suv = vec2(c.x, -c.y) * 0.5 + 0.5;
       float edge = smoothstep(1.0, 0.85, max(abs(c.x), abs(c.y)));
-      vec2 c2 = (vWorld.xz - uSoftShift - uCS.xy) / uCS.z; vec2 suv2 = vec2(c2.x, -c2.y) * 0.5 + 0.5;
-      float a = texture2D(uContactA, suv).r * uShadowP.x, b = texture2D(uContactB, suv2).g * uShadowP.y;
-      float sh = (1.0 - (1.0 - a) * (1.0 - b)) * edge * onFloor;
+      vec2 ca = (vWorld.xz - uLeanA.xy - uCS.xy) / uCS.z, cm = (vWorld.xz - uLeanA.zw - uCS.xy) / uCS.z, cb = (vWorld.xz - uSoftShift - uCS.xy) / uCS.z;
+      float a = texture2D(uContactA, vec2(ca.x, -ca.y) * 0.5 + 0.5).r * uShadowP.x;
+      float m = texture2D(uContactM, vec2(cm.x, -cm.y) * 0.5 + 0.5).g * uShadowP.w;
+      float b = texture2D(uContactB, vec2(cb.x, -cb.y) * 0.5 + 0.5).b * uShadowP.y;
+      float sh = (1.0 - (1.0 - a) * (1.0 - m) * (1.0 - b)) * edge * onFloor;
       col *= mix(vec3(1.0), uShadowTint, sh);
     }
   }
@@ -112,9 +114,10 @@ export function createBackdrop({ studio = '#ECEBE7', graphite = '#2A2926', floor
     uGain: { value: 1 },
     uPool: { value: [new THREE.Vector4(0, 0, 0, 1), new THREE.Vector4(0, 0, 0, 1), new THREE.Vector4(0, 0, 0, 1)] },
     uPoolC: { value: [new THREE.Vector4(0, 0, 0, 0), new THREE.Vector4(0, 0, 0, 0), new THREE.Vector4(0, 0, 0, 0)] },
-    uContactA: { value: null }, uContactB: { value: null },
+    uContactA: { value: null }, uContactB: { value: null }, uContactM: { value: null },
     uCS: { value: new THREE.Vector4(0, 0, 0.45, floorY) },
-    uShadowP: { value: new THREE.Vector4(0.5, 0.3, 0, 0) },
+    uShadowP: { value: new THREE.Vector4(0.5, 0.3, 0, 0.3) },
+    uLeanA: { value: new THREE.Vector4(0, 0, 0, 0) },
     uSoftShift: { value: new THREE.Vector2(0, 0) },
     uShadowTint: { value: new THREE.Color(0.5, 0.49, 0.47) },
     uFloorPrint: shared.uFloorPrint, uFloorRect: shared.uFloorRect,

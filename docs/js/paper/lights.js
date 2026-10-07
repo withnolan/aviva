@@ -22,7 +22,7 @@ const base = {
   rim: { dir: D(-0.9, 0.2, -0.4), color: '#ffffff', intensity: 0 },
   env: 0.48, exposure: 1.0,
   backdrop: { gain: 1, pool: 0.07, poolColor: '#fff8f0', poolOffset: [-0.25, 0.25, -0.6], poolRadius: 1.4 },
-  contact: { contact: 0.42, soft: 0.2 },
+  contact: { contact: 0.34, mid: 0.2, soft: 0.13 },
 };
 
 const merge = (a, b) => {
@@ -50,7 +50,7 @@ export const LIGHT_PRESETS = {
   // s07 the microscope: grazing key ~80 deg from the normal, from the left
   s07: P({ key: { dir: D(-0.98, 0.05, 0.18), dist: 0.9, color: '#fff8ee', intensity: 1.68, angle: 0.8, softness: 3 }, fill: { intensity: 0.04 }, env: 0.21 }),
   // s08 glow on ink: back-light dominant, soft front fill
-  s08: P({ key: { intensity: 0.31, color: '#f2f4ff' }, back: { dir: D(0.05, 0.3, -1), intensity: 1.88, color: '#fff0d8' }, fill: { intensity: 0.12 }, env: 0.29, contact: { contact: 0, soft: 0 } }),
+  s08: P({ key: { intensity: 0.31, color: '#f2f4ff' }, back: { dir: D(0.05, 0.3, -1), intensity: 1.88, color: '#fff0d8' }, fill: { intensity: 0.12 }, env: 0.29, contact: { contact: 0, mid: 0, soft: 0 } }),
   // s09 evening on ink: soft overhead key + low back-light
   s09: P({ key: { dir: D(-0.15, 0.95, 0.25), dist: 1.6, intensity: 1.12, color: '#fff4e6', softness: 9 }, back: { dir: D(0, -0.15, -1), intensity: 0.62 }, fill: { intensity: 0.1 }, env: 0.35 }),
   // s10 a fair fight: two identical soft spots (the developer duplicates the key per sheet if needed)
@@ -72,7 +72,7 @@ export const LIGHT_PRESETS = {
   card8: P({ key: { dir: D(-0.2, 0.75, 0.62), dist: 1.2, color: '#ffd9a8', intensity: 1.75, angle: 0.24, penumbra: 0.55, softness: 4 }, fill: { intensity: 0.04 }, env: 0.18, backdrop: { pool: 0.16, poolColor: '#ffe2bf', poolRadius: 0.55, poolOffset: [0, 0.1, -0.9] } }),  // a warm gallery spotlight
 
   // look-dev utilities
-  backlit: P({ key: { intensity: 0 }, back: { dir: D(0.05, 0.25, -1), intensity: 2.09 }, fill: { intensity: 0 }, env: 0.12, contact: { contact: 0, soft: 0 } }),
+  backlit: P({ key: { intensity: 0 }, back: { dir: D(0.05, 0.25, -1), intensity: 2.09 }, fill: { intensity: 0 }, env: 0.12, contact: { contact: 0, mid: 0, soft: 0 } }),
   raking: P({ key: { dir: D(-0.97, 0.12, 0.2), dist: 1.0, intensity: 1.8, softness: 3 }, fill: { intensity: 0.04 }, env: 0.18 }),
 };
 
@@ -170,7 +170,7 @@ export class LightRig {
       const pc = b.poolColor ? (b.poolColor.isColor ? b.poolColor : C(b.poolColor)) : C('#ffffff');
       U.uPoolC.value[0].set(pc.r, pc.g, pc.b, b.pool ?? 0);
     }
-    if (contact && S.contact) contact.setStrength(S.contact.contact, S.contact.soft);
+    if (contact && S.contact) contact.setStrength(S.contact.contact, S.contact.soft, S.contact.mid);
     return this;
   }
   /** world-space direction FROM the target TOWARD the key light (used to shear the contact shadow) */

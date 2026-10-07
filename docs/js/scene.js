@@ -1,5 +1,5 @@
-// scene.js: the renderer, the camera rig and the screen-space ↔ world helpers; render on demand; resize rules;
-// context loss. One fixed full-screen canvas behind the DOM (CLAUDE.md rule 4).
+// scene.js: the renderer, the camera rig and the screen-space ↔ world helpers; resize rules; context loss.
+// One fixed full-screen canvas behind the DOM (CLAUDE.md rule 4).
 //
 // Camera rig: "keep this world point (anchor) at this screen position (sx %, sy %), this far away, at this pitch".
 // The choreography blends two framings: the STAGE (a level camera on the floating sheet) and the FLOOR (the hero,
@@ -10,6 +10,9 @@ import * as THREE from 'three';
 export const DEG = Math.PI / 180;
 export const A4 = { w: 0.21, h: 0.297 };
 export const STAGE = { anchor: new THREE.Vector3(0, 0.42, 0), sx: 50, sy: 50, dist: 1.2 };
+// Screen-space poses never put a sheet further than this from the camera: a small sheet is brought closer and
+// scaled down instead (same projected size), so it can never slip behind the studio's curved back wall.
+export const DMAX = 2.3;
 
 export function createStage(canvas, { tier = 2, onLost, onRestored } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, stencil: false, powerPreference: 'high-performance' });
@@ -25,7 +28,7 @@ export function createStage(canvas, { tier = 2, onLost, onRestored } = {}) {
   const size = { w: 1, h: 1, aspect: 1, dpr: renderer.getPixelRatio() };
 
   const rig = { anchor: STAGE.anchor.clone(), sx: 50, sy: 50, dist: STAGE.dist, pitch: 0, yaw: 0, roll: 0, fov: 30 };
-  const _e = new THREE.Euler(0, 0, 0, 'YXZ'), _p = new THREE.Vector3(), _q = new THREE.Quaternion();
+  const _e = new THREE.Euler(0, 0, 0, 'YXZ'), _p = new THREE.Vector3();
 
   function applyRig() {
     if (camera.fov !== rig.fov) { camera.fov = rig.fov; camera.updateProjectionMatrix(); }
@@ -38,17 +41,21 @@ export function createStage(canvas, { tier = 2, onLost, onRestored } = {}) {
     camera.updateMatrixWorld(true);
   }
 
-  /** world position of a point shown at (x %, y %) whose depth makes a long side L metres project to sizePct % of
-   *  the viewport height; dz moves it toward the camera along the same ray (the screen position does not change). */
-  function screenToWorld(x, y, sizePct, L, dz, out) {
+  /** World position of a point shown at (x %, y %) whose depth makes a long side L metres project to sizePct % of
+   *  the viewport height; dz moves it toward the camera along the same ray. Returns the scale the object needs
+   *  (1, or < 1 when the distance was clamped to DMAX: closer and smaller reads exactly the same on screen). */
+  function screenPlace(x, y, sizePct, L, dz, out) {
     const t = Math.tan(camera.fov * DEG / 2);
-    const d = Math.max(0.02, L / (Math.max(0.5, sizePct) / 100 * 2 * t));
-    const k = Math.max(0.02, d - (dz || 0)) / d;
-    out.set(((x - 50) / 50) * t * size.aspect * d * k, ((50 - y) / 50) * t * d * k, -d * k);
-    return out.applyMatrix4(camera.matrixWorld);
+    const d0 = Math.max(0.02, L / (Math.max(0.5, sizePct) / 100 * 2 * t));
+    const d = Math.max(0.02, d0 - (dz || 0));
+    const dc = Math.min(d, DMAX);
+    out.set(((x - 50) / 50) * t * size.aspect * dc, ((50 - y) / 50) * t * dc, -dc).applyMatrix4(camera.matrixWorld);
+    return dc / d;
   }
+  function screenToWorld(x, y, sizePct, L, dz, out) { screenPlace(x, y, sizePct, L, dz, out); return out; }
+
   /** camera-relative orientation per brief 2B: rx > 0 tips the top edge away, ry > 0 turns the right edge away,
-   *  rz rolls in plane. The tilt is about the screen's horizontal axis, applied last. */
+   *  rz rolls in plane. */
   const _qa = new THREE.Quaternion(), _qb = new THREE.Quaternion(), _ax = new THREE.Vector3();
   function screenQuat(rx, ry, rz, out) {
     out.copy(camera.quaternion);
@@ -76,7 +83,7 @@ export function createStage(canvas, { tier = 2, onLost, onRestored } = {}) {
   canvasEl.addEventListener('webglcontextlost', (e) => { e.preventDefault(); onLost && onLost(); }, false);
   canvasEl.addEventListener('webglcontextrestored', () => { onRestored && onRestored(); }, false);
 
-  return { renderer, scene, camera, rig, size, applyRig, screenToWorld, screenQuat, toScreen, resize, maxDpr };
+  return { renderer, scene, camera, rig, size, applyRig, screenPlace, screenToWorld, screenQuat, toScreen, resize, maxDpr };
 }
 
 /** Hero framing (s01): the floor print spans `frac` of the viewport width; the sheet lands at (50 %, 55 %).
