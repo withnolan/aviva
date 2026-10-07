@@ -27,7 +27,7 @@ Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 - [ ] **Phase 6 — Final QA + hand-over**: QA run, README, CREDITS, LICENSE, `git rm -r reference`, PR ready.
 
 ## Log
-- 2026-10-01 — Phase 0 done. Placeholder `docs/index.html`; `docs/.nojekyll`; `work/reviews/`. Draft PR: https://github.com/RelentlessYunn/aviva/pull/1
+- 2026-10-01 — Phase 0 done. Placeholder `docs/index.html`; `docs/.nojekyll`; `work/reviews/`. Draft PR: https://github.com/RelentlessYunn/aviva/pull/1 (now https://github.com/withnolan/aviva/pull/1)
 - 2026-10-01 — Pinned three 0.186.1 / gsap 3.15.0 / lenis 1.3.26 as devDependencies (exact). Phase 1 launched.
 - 2026-10-01 19:12 UTC — All three Phase 1 agents hit an API usage limit before writing anything; resumed after the reset with their context intact, and told to write their files incrementally.
 - 2026-10-01 — Research A accepted (sourced, confidence-tagged). Teardown accepted (measured 63 vh scroll map, 54 signature elements, 48-item checklist). Collision decisions #7–#10 logged (no fold-to-encrypt, no blank-A4 weights, no power-draw card, no Pro Max/glowing pills). Concepts brief sent.
@@ -40,6 +40,8 @@ Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 - 2026-10-02 12:50 UTC — User said continue. The stopped agents could not be resumed, so four fresh agents were launched with standalone briefs that build on the partial files: paper look-dev (VD #1), design system (VD #2), skeleton (WD), brief fact-check (WR). Local server restarted on :8080.
 - 2026-10-02 — Brief fact-check done (`work/reviews/brief-factcheck.md`, ~78 claims, 14 must-fixes: one-direction 'six folds' (alternate allows 7 on A4; lead verified), Priestley wording, 'Nothing else does', distillation wording, 'nearly doubled', 5–7 cycles hedge, ±2.5 %, Cai Lun materials, 'oldest surviving', Sellen & Harper 2002, paper-cut cite, A10 rounding, Fangmatan map, CO₂e figure). Part 8 reference details confirmed. Sent to the creative-director.
 - 2026-10-02 — Brief updated with all fact-check corrections; **Part 9 changelog** (51 entries, old → new, grouped by owner). Web-developer and design-system designer told to apply 9.1 / 9.2.
+- 2026-10-02 → 10-07 — VD #1, VD #2 and WD hit the API usage limit mid-task; their partial work was committed on 2026-10-07 (paper module files, lab, icons, logo, favicons, CSS, index.html in progress).
+- 2026-10-07 — Found the user's GitHub account renamed RelentlessYunn → withnolan (decision #21). PR: https://github.com/withnolan/aviva/pull/1. Live URL will be https://withnolan.github.io/aviva/. Server restarted; agents resumed.
 
 ## Running now
 - visual-designer #1 → paper module `docs/js/paper/`, lab `docs/lab/paper.html`, `work/05b-paper-module.md`, contact sheet `work/screenshots/lab/contact-final.jpg`
