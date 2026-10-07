@@ -17,6 +17,9 @@ Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 | WebFetch (wikipedia, threejs.org, …) | **Mostly no** | Egress proxy blocks most hosts. Researchers rely on WebSearch + GitHub-hosted sources + node_modules docs. |
 | Local tooling | Yes | `npm install` done; `npm run serve` on :8080; `tools/shoot.mjs` works with software WebGL (SwiftShader). |
 
+## Working rules
+- **Pause/resume (decision #22):** on the user's "stop", pause running agents via SendMessage (finish step, save, report, end turn); on "continue", resume the same agents via SendMessage. Don't launch new agents for paused work.
+
 ## Phase checklist
 - [x] **Phase 0 — Setup**: mission saved, folders, npm install, shoot tool verified, network checked, ORYZO-1 repo cloned, commit + push, draft PR (#1).
 - [x] **Phase 1 — Discovery**: reference teardown (reference-analyst), paper + parody research (web-researcher A), tech research (web-researcher B). Lead reviews all three.
