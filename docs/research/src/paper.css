@@ -1,0 +1,305 @@
+/* paper.css: print stylesheet for "Void of All Characters" (aviva Research, technical report AV-A4-001).
+   Owner: visual-designer. Source of the words: work/04-creative-brief.md, Part 4 (as corrected in Part 9).
+   Printed to docs/research/void-of-all-characters.pdf by work/scripts/design/build-paper.mjs (Playwright page.pdf).
+
+   Page model: eight fixed A4 pages (section.page), each composed by hand to follow the brief's page plan (4.1).
+   Inside a page: running head, the text block (.frame) and the folio. Text runs in two balanced columns (.cols);
+   full-width figures and tables sit in bands above or below them, as figure* floats do in LaTeX.
+
+   Faces: Hanken Grotesk (the site's face) for headings, captions, tables heads and furniture; STIX Two Text for the
+   body; STIX Two Math for the equations (MathML) and the few symbols the text face lacks (√, ≈); DM Mono for
+   Appendix B. All OFL; static instances and subsets live in ./fonts. Graphite text; ink-blue for links and figure
+   accents only. */
+
+@font-face { font-family: "STIX Two Text"; src: url("fonts/stix-two-text-400.woff2") format("woff2"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "STIX Two Text"; src: url("fonts/stix-two-text-400-italic.woff2") format("woff2"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "STIX Two Math"; src: url("fonts/stix-two-math-400.woff2") format("woff2"); font-weight: 400; font-style: normal; }
+/* Hanken Grotesk: static instances of the site's variable font (Chromium's PDF backend embeds variable fonts as Type 3). */
+@font-face { font-family: "Hanken Grotesk"; src: url("fonts/hanken-grotesk-300.woff2") format("woff2"); font-weight: 300; font-style: normal; }
+@font-face { font-family: "Hanken Grotesk"; src: url("fonts/hanken-grotesk-400.woff2") format("woff2"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Hanken Grotesk"; src: url("fonts/hanken-grotesk-500.woff2") format("woff2"); font-weight: 500; font-style: normal; }
+@font-face { font-family: "DM Mono"; src: url("../../assets/fonts/dm-mono-400-latin.woff2") format("woff2"); font-weight: 400; font-style: normal; }
+
+@page { size: A4; margin: 0; }
+
+:root {
+  /* palette: the site tokens (docs/css/tokens.css), print values */
+  --graphite: #2A2926;
+  --muted: #615F58;
+  --soft: #A3A099;
+  --rule: #D9D6CE;
+  --ink: #2E2A8E;
+
+  /* page geometry (mm) */
+  --pw: 210mm;  --ph: 297mm;
+  --m-side: 19mm;  --m-top: 25mm;  --m-bottom: 24mm;
+  --gap: 7mm;
+
+  /* type */
+  --serif: "STIX Two Text", "STIX Two Math", "Times New Roman", serif;
+  --math: "STIX Two Math", "STIX Two Text", serif;
+  --sans: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --mono: "DM Mono", "Menlo", monospace;
+  --body: 9.8pt;
+  --lead: 12.9pt;            /* the baseline step; vertical spacing uses multiples and halves of it */
+}
+
+* { box-sizing: border-box; }
+html { background: #EDECE8; }
+body {
+  margin: 0;
+  color: var(--graphite);
+  font-family: var(--serif);
+  font-size: var(--body);
+  line-height: var(--lead);
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+p, h1, h2, h3, h4, figure, figcaption, table, ol, ul, li, blockquote, pre, dl, dd { margin: 0; padding: 0; }
+a { color: var(--ink); text-decoration: none; }
+sup, sub { line-height: 0; }
+svg { display: block; overflow: visible; }
+
+/* ── the page ─────────────────────────────────────────────────────────────────────────────────────── */
+.page {
+  position: relative;
+  width: var(--pw);
+  height: var(--ph);
+  overflow: hidden;
+  background: #fff;
+  break-after: page;
+}
+.page:last-child { break-after: auto; }
+@media screen {
+  body { padding: 12mm 0; }
+  .page { margin: 0 auto 10mm; box-shadow: 0 1px 2px rgba(42, 41, 38, 0.12), 0 12px 32px -14px rgba(42, 41, 38, 0.35); }
+}
+
+/* running head and folio */
+.rh {
+  position: absolute;
+  top: 12.5mm; left: var(--m-side); right: var(--m-side);
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 1.7mm;
+  border-bottom: 0.4pt solid var(--rule);
+  font-family: var(--sans); font-weight: 400; font-size: 7.4pt; line-height: 1; letter-spacing: 0.02em;
+  color: var(--muted);
+}
+.rh--first { border-bottom: 0; }
+.folio {
+  position: absolute;
+  bottom: 13mm; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--sans); font-weight: 400; font-size: 7.6pt; line-height: 1; letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+/* the text block */
+.frame {
+  position: absolute;
+  top: var(--m-top); bottom: var(--m-bottom); left: var(--m-side); right: var(--m-side);
+  display: flex; flex-direction: column;
+}
+.cols {
+  columns: 2;
+  column-gap: var(--gap);
+  column-fill: balance;
+  orphans: 2; widows: 2;
+}
+.cols > *:first-child { margin-top: 0 !important; }
+.band { flex: none; }
+.band--top { margin-bottom: calc(var(--lead) * 1.25); }
+.band--bottom { margin-top: calc(var(--lead) * 1.25); }
+.band + .band { margin-top: calc(var(--lead) * 1); }
+.spacer { flex: 1 1 auto; }
+
+/* ── running text ─────────────────────────────────────────────────────────────────────────────────── */
+.cols p, .prose p {
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+  text-wrap: pretty;
+}
+.cols p + p, .prose p + p { text-indent: 1.1em; }
+p.noindent { text-indent: 0 !important; }
+em, i { font-style: italic; }
+.runin { font-style: italic; }
+.sc { font-variant-caps: all-small-caps; letter-spacing: 0.04em; }   /* synthesised; used sparingly */
+.nobr { white-space: nowrap; }
+.sym { font-family: var(--math); font-style: normal; }               /* √ and ≈ from the math face */
+
+/* headings */
+h2.sec, h3.sub, .refs__h, .app__h {
+  font-family: var(--sans);
+  font-weight: 500;
+  color: var(--graphite);
+  break-after: avoid;
+  text-align: left;
+  hyphens: manual;
+}
+h2.sec { font-size: 10.6pt; line-height: var(--lead); letter-spacing: -0.003em; margin: calc(var(--lead) * 1.15) 0 calc(var(--lead) * 0.5); }
+h3.sub { font-size: 9.7pt; line-height: var(--lead); margin: calc(var(--lead) * 0.75) 0 calc(var(--lead) * 0.3); }
+.sec__n, .sub__n { display: inline-block; min-width: 1.75em; font-feature-settings: "tnum" 1; }
+h2.sec + p, h3.sub + p, h2.sec + h3.sub + p { text-indent: 0; }
+h2.sec + h3.sub { margin-top: 0; }
+
+/* the contributions list */
+.contrib { list-style: none; margin: calc(var(--lead) * 0.25) 0 calc(var(--lead) * 0.25); }
+.contrib li { position: relative; padding-left: 2.1em; text-align: justify; hyphens: auto; }
+.contrib li + li { margin-top: calc(var(--lead) * 0.12); }
+.contrib__n { position: absolute; left: 0.35em; top: 0; }
+.contrib + p { text-indent: 0; }
+
+/* citations and cross-references */
+.cite, .xref { color: var(--ink); white-space: nowrap; }
+.cite a, .xref a { color: inherit; }
+
+/* MathML */
+math { font-family: var(--math); font-size: 1.04em; math-style: normal; }
+math[display="inline"], math:not([display]) { math-style: compact; }
+.eq {
+  display: flex; align-items: center;
+  margin: calc(var(--lead) * 0.45) 0 calc(var(--lead) * 0.45);
+  break-inside: avoid;
+}
+.eq math { flex: 1 1 auto; display: block; text-align: center; }
+.eq__n { flex: none; font-family: var(--serif); }
+.eq + p { text-indent: 0; }
+
+/* ── front matter (page 1) ───────────────────────────────────────────────────────────────────────── */
+.titleblock { text-align: center; padding-top: 3mm; }
+.title {
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 21pt;
+  line-height: 25.5pt;
+  letter-spacing: -0.018em;
+  color: var(--graphite);
+  text-wrap: balance;
+  margin: 0 auto;
+  max-width: 150mm;
+}
+.title__l { display: block; }
+.authors {
+  margin-top: 6.2mm;
+  font-family: var(--sans); font-weight: 400; font-size: 10.6pt; line-height: 14pt; letter-spacing: 0.002em;
+}
+.authors sup, .affil sup { font-size: 0.66em; vertical-align: 0.55em; margin-left: 0.06em; }
+.affil { margin-top: 1.6mm; font-family: var(--sans); font-weight: 400; font-size: 8.6pt; line-height: 12pt; color: var(--muted); }
+.dateline { margin-top: 1mm; font-family: var(--sans); font-weight: 400; font-size: 8.6pt; line-height: 12pt; color: var(--muted); }
+
+.abstract { width: 132mm; margin: 0 auto; }
+.abstract__h {
+  font-family: var(--sans); font-weight: 500; font-size: 9.6pt; line-height: var(--lead);
+  text-align: center; margin-bottom: calc(var(--lead) * 0.4);
+}
+.abstract p { font-size: 9.6pt; line-height: 12.8pt; text-align: justify; hyphens: auto; text-wrap: pretty; }
+.keywords { margin-top: calc(var(--lead) * 0.6); font-size: 9.2pt !important; text-align: left !important; }
+.keywords__l { font-family: var(--sans); font-weight: 500; font-size: 8.2pt; letter-spacing: 0.01em; margin-right: 0.45em; }
+
+.footnote {
+  margin-top: auto;
+  width: 81mm;
+  padding-top: 1.6mm;
+  border-top: 0.4pt solid var(--graphite);
+  font-family: var(--serif); font-size: 8pt; line-height: 10.4pt;
+}
+.footnote__l { font-family: var(--sans); font-weight: 500; font-size: 7.2pt; letter-spacing: 0.01em; margin-right: 0.35em; }
+
+/* ── figures and tables ──────────────────────────────────────────────────────────────────────────── */
+.fig { break-inside: avoid; }
+.fig .art { display: flex; justify-content: center; }
+.fig .art svg { max-width: 100%; height: auto; }
+.cols .fig { margin: calc(var(--lead) * 0.8) 0 calc(var(--lead) * 0.9); }
+.cols .fig:first-child { margin-top: 0.3mm; }
+figcaption, .tcap {
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 7.9pt;
+  line-height: 10.6pt;
+  letter-spacing: 0.004em;
+  color: var(--graphite);
+  text-align: left;
+  hyphens: manual;
+}
+figcaption { margin-top: 2.6mm; }
+.fig--wide figcaption { text-align: center; }
+.fig__n { font-weight: 500; margin-right: 0.3em; }
+
+/* Figure 5: three microscope panels */
+.panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3.2mm; }
+.panel { position: relative; }
+.panel img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.panel__l {
+  margin-top: 1.6mm; text-align: center;
+  font-family: var(--sans); font-size: 7.4pt; line-height: 1; color: var(--graphite);
+}
+.panel__l i { font-family: var(--serif); font-size: 8.6pt; }
+.panel__bar {
+  position: absolute; left: 3.2mm; bottom: calc(7.4pt + 1.6mm + 3mm);
+  height: 0; border-top: 0.9pt solid #fff;
+  font-family: var(--sans); font-size: 6.6pt; line-height: 1; color: #fff;
+}
+.panel__bar span { position: absolute; left: 0; right: 0; bottom: 1.2mm; text-align: center; white-space: nowrap; }
+
+/* tables: booktabs */
+.tbl { break-inside: avoid; }
+.cols .tbl { margin: calc(var(--lead) * 0.8) 0 calc(var(--lead) * 0.9); }
+.tcap { margin-bottom: 2.2mm; }
+.tbl--wide .tcap { text-align: center; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--serif);
+  font-size: 8.9pt;
+  line-height: 11.4pt;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+thead th {
+  font-family: var(--sans); font-weight: 500; font-size: 7.5pt; line-height: 9.6pt; letter-spacing: 0.01em;
+  text-align: left; vertical-align: bottom;
+  padding: 1.5mm 2.2mm 1.4mm;
+  border-top: 0.8pt solid var(--graphite);
+  border-bottom: 0.45pt solid var(--graphite);
+}
+tbody td, tbody th { padding: 1.05mm 2.2mm; text-align: left; vertical-align: baseline; font-weight: 400; }
+tbody tr:first-child > * { padding-top: 1.7mm; }
+tbody tr:last-child > * { padding-bottom: 1.7mm; border-bottom: 0.8pt solid var(--graphite); }
+th:first-child, td:first-child { padding-left: 0; }
+th:last-child, td:last-child { padding-right: 0; }
+.num { text-align: right !important; }
+.tbl--wide table { width: 100%; }
+.unit { color: var(--muted); }
+
+/* ── references (page 8) ─────────────────────────────────────────────────────────────────────────── */
+.refs__h, .app__h { font-size: 10.6pt; line-height: var(--lead); margin: 0 0 calc(var(--lead) * 0.5); }
+.app__h { margin-top: calc(var(--lead) * 1.15); }
+.refs { list-style: none; font-size: 8pt; line-height: 10.3pt; }
+.refs li { padding-left: 1.6em; text-indent: -1.6em; text-align: left; hyphens: manual; overflow-wrap: break-word; }
+.refs li + li { margin-top: 0.9mm; }
+.refs i { font-style: italic; }
+
+/* Appendix A: response to reviewers */
+.reply { margin: 0; }
+.reply dt { font-family: var(--sans); font-weight: 500; font-size: 8.4pt; line-height: var(--lead); margin-top: calc(var(--lead) * 0.35); }
+.reply dt:first-child { margin-top: 0; }
+.reply dd { margin: 0; text-align: left; }
+
+/* Appendix B: the model listing */
+.listing { break-inside: avoid; margin-top: calc(var(--lead) * 0.35); }
+.listing__name { font-family: var(--mono); font-size: 7.4pt; line-height: 1; color: var(--muted); margin-bottom: 1.6mm; }
+.listing pre {
+  font-family: var(--mono);
+  font-size: 7.25pt;
+  line-height: 9.8pt;
+  white-space: pre;
+  padding: 2.4mm 3mm;
+  border-top: 0.45pt solid var(--graphite);
+  border-bottom: 0.45pt solid var(--graphite);
+  font-variant-ligatures: none;
+}
