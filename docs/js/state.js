@@ -26,6 +26,7 @@ const CHANNELS = [
   ['A.scale', 1, 9, 0.8], ['A.bend', 0, 8], ['A.flutter', 0, 6], ['A.peel', 0, 10], ['A.curl', 0, 9], ['A.dogEar', 0, 9],
   ['A.halving', 0, 10], ['A.plane', 0, 0], ['A.crumple', 0, 0], ['A.show', 0, 10], ['A.trans', 0.24, 6], ['A.wm', 0, 6],
   ['A.map', 0, 6], ['A.dot', 0, 6], ['A.paint', 0, 0], ['A.macro', 0, 6], ['A.thick', 0.0001, 8], ['A.gain', 1, 6],
+  ['A.creaseMid', 0, 0], ['A.creaseDog', 0, 0],
   // the second instance B (Arena, the release-notes "known issue")
   ['B.on', 0, 0], ['B.op', 1, 10], ['B.x', 65, 7], ['B.y', 50, 7], ['B.size', 40, 7], ['B.rx', 0, 7], ['B.ry', 0, 7],
   ['B.rz', 0, 7], ['B.dz', 0, 7], ['B.crumple', 0, 0], ['B.bend', 0, 8],
@@ -46,6 +47,10 @@ const ENUMS = [
   ['A.gen', ''], ['B.gen', ''],
 ];
 
+// Presence channels: a section that does not claim one implicitly claims its default, so a sheet owned by one
+// section (the drying line, the twin, the tear pieces) hands over at the exact midpoint of the blend window.
+const PRESENCE = new Set(['A.on', 'B.on', 'T.on', 'O.on', 'F.on', 'N.on', 'ink.dropOn']);
+
 export class SceneState {
   constructor() {
     const n = CHANNELS.length;
@@ -54,6 +59,7 @@ export class SceneState {
     this.def = Float64Array.from(CHANNELS, (c) => c[1]);
     this.omega = Float64Array.from(CHANNELS, (c) => c[2]);
     this.zeta = Float64Array.from(CHANNELS, (c) => c[3] ?? 1);
+    this.presence = Uint8Array.from(CHANNELS, (c) => (PRESENCE.has(c[0]) ? 1 : 0));
     this.sum = new Float64Array(n);
     this.wsum = new Float64Array(n);
     this.target = Float64Array.from(this.def);   // resolved targets
@@ -87,9 +93,14 @@ export class SceneState {
   }
   /** claim a light preset (a name from the paper module's LIGHT_PRESETS) */
   light(name, w = this.w) { if (w > 0) this.lightW.set(name, (this.lightW.get(name) || 0) + w); return this; }
-  resolve() {
-    const { sum, wsum, target, def } = this;
-    for (let i = 0; i < target.length; i++) target[i] = wsum[i] > 1e-9 ? sum[i] / wsum[i] : def[i];
+  /** total = the summed weight of every section on screen this frame (≈ 1) */
+  resolve(total = 1) {
+    const { sum, wsum, target, def, presence } = this;
+    const T = Math.max(1e-9, total);
+    for (let i = 0; i < target.length; i++) {
+      if (presence[i]) target[i] = (sum[i] + Math.max(0, T - wsum[i]) * def[i]) / Math.max(T, wsum[i]);
+      else target[i] = wsum[i] > 1e-9 ? sum[i] / wsum[i] : def[i];
+    }
     return this;
   }
   get(name) { return this.target[this.index.get(name)]; }

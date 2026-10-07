@@ -121,6 +121,16 @@ async function apply(search) {
   if (num('macro', 0) > 0 || bleedT > 0) paper.ensureMacro();
   if (bleedT > 0) paper.ensureFibreGeo();
   paper.shared.uToothP.value.y = num('tooth', 1.3);
+  // look-dev: regenerate the tiles (tgen=low,felt,fibre,strength  fgen=flocMM,contrast)
+  const tgen = str('tgen', ''), fgen = str('fgen', '');
+  if (tgen !== (apply._tgen || '') || fgen !== (apply._fgen || '')) {
+    const t = tgen ? tgen.split(',').map(Number) : null, f = fgen ? fgen.split(',').map(Number) : null;
+    paper.regenTextures({ tooth: t ? { low: t[0], felt: t[1], fibre: t[2], strength: t[3] ?? 14 } : (apply._tgen ? {} : null),
+      formation: f ? { flocMM: f[0], contrast: f[1] } : (apply._fgen ? {} : null) });
+    apply._tgen = tgen; apply._fgen = fgen;
+  }
+  if (P.has('mottle')) sheet.uniforms.uFormP.value.z = num('mottle'); else sheet.uniforms.uFormP.value.z = 0.05;
+  if (P.has('edge')) { const [bw, bs, wb] = vec('edge'); sheet.uniforms.uEdgeP.value.set(bw, bs, wb, 0.5); } else sheet.uniforms.uEdgeP.value.set(1.4, 0.18, 0.1, 0.5);
   sheet.reset();
   sheet.set({
     bend: num('bend', 0), bendAxis: rad(num('axis', 90)), twist: num('twist', 0),
@@ -158,7 +168,7 @@ async function apply(search) {
   if (P.has('back')) L.back.intensity = num('back');
   if (P.has('env')) L.env = num('env');
   if (P.has('exp')) L.exposure = num('exp');
-  if (P.has('cop')) { const [a, b] = vec('cop'); L.contact = { contact: a, soft: b }; }
+  if (P.has('cop')) { const [a, b, c] = vec('cop'); L.contact = c === undefined ? { contact: a, soft: b } : { contact: a, mid: b, soft: c }; }
   paper.lights.aim(new THREE.Vector3(...vec('aim', vec('pos', [0, 0.5, 0]))));
 
   // render: a couple of frames (contact shadow, async crumple / textures)

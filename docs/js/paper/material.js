@@ -56,8 +56,8 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uHalfThick: { value: 0.00005 }, uDeformEps: { value: 0.0008 },
     uFoldCount: { value: 0 }, uFoldQ: { value: arr4(MAX_FOLDS) }, uFoldA: { value: arr4(MAX_FOLDS) }, uFoldM: { value: arr4(MAX_FOLDS) }, uFoldR: { value: arr4(MAX_FOLDS) },
     uBend: { value: v4() }, uPleat: { value: v4(0.015, 0, 0, 0.05) }, uFlutter: { value: v4(0, 9, 0, 0) }, uCockle: { value: v4(0.00045, 16, 3.7, 0) },
-    uFormP: { value: v4(0, 0, 0.035, 0.37) },
-    uEdgeP: { value: v4(1.6, 0.55, 0.06, 0.5) },
+    uFormP: { value: v4(0, 0, 0.05, 0.37) },
+    uEdgeP: { value: v4(1.4, 0.18, 0.1, 0.5) },
     uTransP: { value: v4(0.22, 0.35, 0.3, 0) },
     uWatermarkRect: { value: v4(0, -0.035, 0.034, 0.048) },
     uPaint: { value: shared.uBlank.value }, uPaintP: { value: v4(0, 1, 0.12, 0.92) },
@@ -105,10 +105,17 @@ if (uMacroP.z > 0.0) {
   paperMacroFade = uMacroP.z * (1.0 - smoothstep(0.8, 3.2, max(dm.x, dm.y)));
   if (paperMacroFade > 0.001) paperMacroS = texture2D(uMacro, muv);
 }
-vec3 alb = uPaperColor * (1.0 + (paperForm.r - 0.5) * uFormP.z);
+vec3 alb = uPaperColor * (1.0 + (paperForm.r - 0.5) * uFormP.z + (paperForm.a - 0.5) * uFormP.z * 0.4);   // formation mottle + fine fill
 alb *= 1.0 + (paperTooth.b - 0.5) * 0.05;                                   // micro-shadowing in the tooth valleys
 alb *= 1.0 + ((paperMacroS.b - 0.5) * 0.16 + (paperMacroS.a - 0.5) * 0.06) * paperMacroFade;   // fibre cavities / fibre-to-fibre tone
-if (paperFace == 0.0) alb = min(alb * (1.0 + uEdgeP.z), vec3(1.0));          // the cut edge
+if (paperFace == 0.0) alb = min(alb * (1.0 + uEdgeP.z), vec3(1.0));          // the cut edge: raw fibres, a touch brighter
+#ifndef PAPER_CRUMPLE
+else {                                                                      // a crisp, slightly brighter rim on the face (~1 px)
+  vec2 ad = 0.5 * uSheet - abs(vRest);
+  float rim = 1.0 - smoothstep(0.4 * paperPx, 1.3 * paperPx, min(ad.x, ad.y));
+  alb = min(alb * (1.0 + uEdgeP.z * 0.5 * rim), vec3(1.0));
+}
+#endif
 alb = mix(alb, min(alb * 1.05 + 0.03, vec3(0.98)), tearBand * uEdgeP.w);     // torn edge: raw, whiter fibres
 // remembered creases: a faint line where the sheet was folded and unfolded
 for (int i = 0; i < ${MAX_CREASES}; i++) {
@@ -148,7 +155,7 @@ if (uShow.x > 0.0) {
     vec2 wuv = (vPaperWorld.xz - uFloorRect.xy) / uFloorRect.zw;
     float lod = clamp(log2(1.0 + max(gap, 0.0) / 0.0004), 0.0, 6.0) + uShow.w;   // seen through fibres: always a little soft
     float ink = textureLod(uFloorPrint, wuv, lod).a;
-    float k = uShow.x * mix(0.85, 1.15, paperForm.r) * contact;
+    float k = uShow.x * 2.05 * mix(0.8, 1.2, paperForm.r) * contact;          // seen through fibres: cloudy, never printed-on
     alb = mix(alb, uShowTint, clamp(ink * k, 0.0, 1.0));
   }
 }
@@ -178,6 +185,16 @@ if (paperFace != 0.0) {
   }
   normal = normalize(ptbn * vec3(tn, 1.0));
 }
+#ifndef PAPER_CRUMPLE
+else {
+  // the 0.1 mm cut edge: light that enters the lit face scatters out of the cut, so the edge shades like the face the
+  // key light falls on (tilted a little outward): a crisp, bright hairline from any side, and at edge-on (s02)
+  vec3 fn = normalize(vPaperFaceN);
+  vec3 kv = normalize((viewMatrix * vec4(uKeyDir, 0.0)).xyz);
+  float ks = dot(fn, kv); fn *= ks < 0.0 ? -1.0 : 1.0;
+  normal = normalize(normal * 0.45 + fn * 0.9);
+}
+#endif
 `;
 
 const FRAG_PHYS = /* glsl */`
@@ -189,7 +206,7 @@ material.specularColorBlended = mix(material.specularColorBlended, vec3(0.11), p
 // light through the paper: warm, cloudy (formation-modulated), not shadowed by the sheet itself
 const FRAG_TRANS = /* glsl */`
 if (uTransP.x > 0.0) {
-  float thick = mix(0.62, 1.38, paperForm.b);
+  float thick = mix(0.82, 1.18, paperForm.b);
   if (uTransP.w > 0.0) {
     vec2 wuv = (vRest - uWatermarkRect.xy) / uWatermarkRect.zw + 0.5;
     if (wuv.x > 0.0 && wuv.y > 0.0 && wuv.x < 1.0 && wuv.y < 1.0) thick *= 1.0 - 0.5 * uTransP.w * texture2D(uWatermark, wuv).a;
@@ -229,6 +246,7 @@ const FRAG_AO = /* glsl */`
 /* ------------------------------------------------------------------------------------------------ vertex snippets */
 const VERT_SLAB = /* glsl */`
 ${DEFORM_VERTEX}
+vPaperFaceN = normalize(normalMatrix * paperN);
 vec3 objectNormal = paperNormal;
 #ifdef USE_TANGENT
   vec3 objectTangent = vec3(1.0, 0.0, 0.0);
@@ -236,19 +254,19 @@ vec3 objectNormal = paperNormal;
 `;
 const VERT_CRUMPLE_PARS = /* glsl */`
 attribute vec2 aRest;
-varying vec2 vRest; varying float vShell; varying vec3 vPaperWorld;
+varying vec2 vRest; varying float vShell; varying vec3 vPaperWorld; varying vec3 vPaperFaceN;
 uniform vec2 uSheet;
 `;
 
 function patchVertex(shader, variant) {
   let vs = shader.vertexShader;
   if (variant === 'slab') {
-    vs = vs.replace('#include <common>', '#include <common>\n' + VERTEX_VARYINGS + DEFORM_PARS)
+    vs = vs.replace('#include <common>', '#include <common>\n' + VERTEX_VARYINGS + 'varying vec3 vPaperFaceN;\n' + DEFORM_PARS)
       .replace('#include <beginnormal_vertex>', VERT_SLAB)
       .replace('#include <begin_vertex>', 'vec3 transformed = paperPos;');
   } else {
     vs = vs.replace('#include <common>', '#include <common>\n' + VERT_CRUMPLE_PARS)
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRest = aRest; vShell = 1.0;');
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRest = aRest; vShell = 1.0; vPaperFaceN = vec3(0.0, 0.0, 1.0);');
   }
   vs = vs.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvPaperWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;');
   shader.vertexShader = vs;
@@ -288,7 +306,7 @@ export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.
     patchFragment(shader);
     mat.userData.shader = shader;
   };
-  mat.customProgramCacheKey = () => 'aviva-paper-' + variant + '-v3';
+  mat.customProgramCacheKey = () => 'aviva-paper-' + variant + '-v4';
   return mat;
 }
 

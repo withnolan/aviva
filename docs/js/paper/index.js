@@ -84,6 +84,7 @@ export async function createPaperSystem(renderer, opts = {}) {
   const lin = (hex) => new THREE.Color(hex);
   const shared = {
     uBlank: { value: blank },
+    uKeyDir: { value: new THREE.Vector3(-0.5, 0.7, 0.5).normalize() },
     uPaperColor: { value: lin(colors.paper).multiplyScalar(opts.albedo ?? 0.97) },
     uGraphite: { value: lin(colors.graphite).multiplyScalar(0.62) },
     uInkColor: { value: lin(colors.ink) }, uInkDeep: { value: lin(colors.inkDeep) },
@@ -152,6 +153,11 @@ export async function createPaperSystem(renderer, opts = {}) {
         shared.uFloorPrint.value = t; return true;
       } catch { return false; }
     },
+    /** regenerate the procedural tiles with other parameters (look-dev): { tooth: {...}, formation: {...} } */
+    regenTextures({ tooth = null, formation = null } = {}) {
+      if (tooth) { const old = tex.tooth; tex.tooth = makeFibreTile(renderer, { size: tier.tooth, ...tooth }); shared.uTooth.value = tex.tooth; old.dispose(); }
+      if (formation) { const old = tex.formation; tex.formation = makeFormationMap(renderer, { width: tier.formation[0], height: tier.formation[1], ...formation }); shared.uFormation.value = tex.formation; old.dispose(); }
+    },
     /** macro fibres + the fibre-geometry map for the ink front (lazy: ~2 x one full-screen pass at load) */
     ensureMacro() {
       if (!tex.macro) {
@@ -176,6 +182,7 @@ export async function createPaperSystem(renderer, opts = {}) {
     /** per frame: lights -> contact shadow -> sheets. dt in seconds. */
     update(scene, camera, dt = 1 / 60) {
       lights.apply({ camera, renderer, scene, backdrop, contact });
+      lights.keyDirection(shared.uKeyDir.value);
       for (const s of sheets) { s.shadowOffset(lights.shadowOffset || 3); s.update(camera, dt); }
       if (contact.enabled) {
         contact.setLight(lights.keyDirection(_kd), 1);

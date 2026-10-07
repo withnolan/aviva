@@ -140,8 +140,9 @@ float tearKeep(vec2 r, float pxm, out float band) {
 
 /* ------------------------------------------------------------------------------------------------ fragment pars (paper look) */
 export const PAPER_FRAG_PARS = /* glsl */`
-varying vec2 vRest; varying float vShell; varying vec3 vPaperWorld;
+varying vec2 vRest; varying float vShell; varying vec3 vPaperWorld; varying vec3 vPaperFaceN;
 uniform vec2 uSheet;
+uniform vec3 uKeyDir;                              // world direction toward the key light (the cut edge shades like the lit face)
 uniform vec3 uPaperColor;                          // linear albedo
 uniform float uGain;                               // per-sheet light gain (drying-line focus etc.)
 uniform sampler2D uTooth;  uniform vec4 uToothP;   // x tile (m), y strength, zw bottom-face offset (tiles)
