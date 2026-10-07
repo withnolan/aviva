@@ -42,11 +42,10 @@ Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 - 2026-10-02 — Brief updated with all fact-check corrections; **Part 9 changelog** (51 entries, old → new, grouped by owner). Web-developer and design-system designer told to apply 9.1 / 9.2.
 - 2026-10-02 → 10-07 — VD #1, VD #2 and WD hit the API usage limit mid-task; their partial work was committed on 2026-10-07 (paper module files, lab, icons, logo, favicons, CSS, index.html in progress).
 - 2026-10-07 — Found the user's GitHub account renamed RelentlessYunn → withnolan (decision #21). PR: https://github.com/withnolan/aviva/pull/1. Live URL will be https://withnolan.github.io/aviva/. Server restarted; agents resumed.
+- 2026-10-07 — **Paused by the user again**: skeleton, design-system and paper agents stopped from the user's side. Partial work committed (paper module in progress incl. texture rewrite, lab, illustrations, icons, logo, favicons, CSS, index.html in progress, sheet adapter not yet written).
 
 ## Running now
-- visual-designer #1 → paper module `docs/js/paper/`, lab `docs/lab/paper.html`, `work/05b-paper-module.md`, contact sheet `work/screenshots/lab/contact-final.jpg`
-- visual-designer #2 → tokens (final), fonts, print.css, 2D assets, `docs/research/` PDF + .bib + .obj, `work/05-design-system.md`, `docs/lab/styleguide.html`
-- web-developer → technical skeleton (index.html with all copy, Lenis+ScrollTrigger, fixed canvas, placeholder sheet through all sections, fallback, reduced motion)
+- Nothing. Paused by the user (2026-10-07).
 
 ## Next step
 - Judge the paper look-dev myself (contact sheet) and iterate until it's clearly real. Send fact-check corrections to the creative-director (new agent; brief owner). Review the skeleton screenshots. Then Phase 4.
