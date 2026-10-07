@@ -168,7 +168,25 @@ async function apply(search) {
   window.__ready = true;
 }
 
+const dbgScene = new THREE.Scene(), dbgCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+const dbgMat = new THREE.ShaderMaterial({ uniforms: { t: { value: null }, mode: { value: 0 }, rep: { value: 1 } }, depthTest: false,
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+  fragmentShader: `precision highp float; varying vec2 vUv; uniform sampler2D t; uniform int mode; uniform float rep;
+  void main(){ vec4 c = texture2D(t, vUv * rep); vec3 o;
+    if (mode == 0) { vec3 n = normalize(vec3(c.rg * 2.0 - 1.0, 0.35)); o = vec3(0.5 + 0.5 * dot(n, normalize(vec3(-0.7, 0.5, 0.5)))); }   // normal, lit
+    else if (mode == 1) o = vec3(c.b); else if (mode == 2) o = vec3(c.a); else if (mode == 3) o = vec3(c.r); else o = c.rgb;
+    gl_FragColor = vec4(o, 1.0); }` });
+dbgScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), dbgMat));
 function frame() {
+  const dbg = str('debug', '');
+  if (dbg) {
+    const [name, mode, rep] = dbg.split(',');
+    if (name === 'macro' || name === 'geo') paper.ensureMacro();
+    if (name === 'geo') paper.ensureFibreGeo();
+    dbgMat.uniforms.t.value = { tooth: paper.textures.tooth, macro: paper.textures.macro, formation: paper.textures.formation, geo: paper.textures.fibreGeo, watermark: paper.textures.watermark, print: paper.shared.uFloorPrint.value }[name];
+    dbgMat.uniforms.mode.value = +(mode || 0); dbgMat.uniforms.rep.value = +(rep || 1);
+    const tm = renderer.toneMapping; renderer.toneMapping = THREE.NoToneMapping; renderer.render(dbgScene, dbgCam); renderer.toneMapping = tm; return;
+  }
   paper.update(scene, camera, 1 / 60);
   renderer.info.reset();
   renderer.render(scene, camera);

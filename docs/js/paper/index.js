@@ -124,7 +124,7 @@ export async function createPaperSystem(renderer, opts = {}) {
     async loadFloorPrint(url) {
       try {
         const r = await fetch(url, { method: 'GET' }); if (!r.ok) return false;
-        const bmp = await createImageBitmap(await r.blob());
+        const bmp = await createImageBitmap(await r.blob(), { imageOrientation: 'flipY' });   // v = 0 at the bottom, like a canvas texture
         const t = new THREE.Texture(bmp); t.colorSpace = THREE.NoColorSpace; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.anisotropy = 8; t.flipY = false; t.needsUpdate = true;
         shared.uFloorPrint.value = t; return true;
       } catch { return false; }

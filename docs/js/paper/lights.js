@@ -4,8 +4,9 @@
 // light through the paper) + rim (DirectionalLight), plus environment intensity, exposure, the backdrop's light pool
 // and the contact-shadow strength. Directions are given in VIEW space by default (x right, y up, z toward the camera),
 // so "key from the top left" stays top left whatever the camera does; `space: 'world'` is also accepted.
-// `intensity` is the illuminance AT THE TARGET: the spot's candela is scaled by distance^2 internally, so moving a light
-// never changes the exposure, only the gradient across the sheet (closer = stronger falloff).
+// Intensities are in 'albedo units': 1.0 = a white surface facing the light renders at its albedo (three's Lambert term
+// is albedo / PI, so the lights get PI x). Spots are also scaled by distance^2, so moving a light never changes the
+// exposure at the target, only the gradient across the sheet (closer = stronger falloff).
 import * as THREE from 'three';
 
 const C = (hex) => new THREE.Color(hex);
@@ -135,7 +136,7 @@ export class LightRig {
       const dist = s.dist ?? dflt;
       L.position.copy(this.focus).addScaledVector(toWorld(s.dir), dist);
       L.color.copy(s.color.isColor ? s.color : C(s.color));
-      L.intensity = (s.intensity || 0) * dist * dist;
+      L.intensity = (s.intensity || 0) * Math.PI * dist * dist;
       L.angle = s.angle ?? 0.6; L.penumbra = s.penumbra ?? 1; L.decay = 2; L.distance = 0;
       L.visible = L.intensity > 0;
     };
@@ -147,7 +148,7 @@ export class LightRig {
     }
     const dir = (L, s) => {
       L.position.copy(this.focus).addScaledVector(toWorld(s.dir), 3);
-      L.color.copy(s.color.isColor ? s.color : C(s.color)); L.intensity = s.intensity || 0; L.visible = L.intensity > 0;
+      L.color.copy(s.color.isColor ? s.color : C(s.color)); L.intensity = (s.intensity || 0) * Math.PI; L.visible = L.intensity > 0;
     };
     dir(this.fill, S.fill); dir(this.rim, S.rim);
     if (scene) scene.environmentIntensity = S.env;
