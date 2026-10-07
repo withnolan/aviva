@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 
 /** Soft boxes with HDR values in a dim room; PMREM blurs them into gentle gradients on the sheet. */
-export function makeStudioEnvironment({ warm = [1, 0.965, 0.92], cool = [0.9, 0.95, 1] } = {}) {
+export function makeStudioEnvironment({ warm = [1, 0.985, 0.962], cool = [0.92, 0.955, 1] } = {}) {
   const s = new THREE.Scene();
   const room = new THREE.Mesh(new THREE.BoxGeometry(24, 14, 24), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.42, 0.415, 0.41), side: THREE.BackSide }));
   room.position.y = 5; s.add(room);
@@ -20,7 +20,7 @@ export function makeStudioEnvironment({ warm = [1, 0.965, 0.92], cool = [0.9, 0.
   box(4, 9, [8.5, 3, 3], 1.7, cool);       // cool strip, right
   box(12, 3, [0, 9, -7], 2.4, [1, 1, 1]);  // top-back bar (rim on curls and folds)
   box(7, 7, [0, 11, 0], 1.3, [1, 0.99, 0.97]);   // overhead fill
-  box(10, 4, [0, -1.2, 6], 0.9, [1, 0.98, 0.95]); // floor bounce in front
+  box(10, 4, [0, -1.2, 6], 0.9, [1, 0.99, 0.975]); // floor bounce in front
   return s;
 }
 
@@ -67,6 +67,7 @@ uniform vec4 uPoolC[3];          // rgb tint, a gain (0 = off)
 uniform sampler2D uContactA; uniform sampler2D uContactB;
 uniform vec4 uCS;                // xy centre (world xz), z half extent, w floor y
 uniform vec4 uShadowP;           // x contact opacity, y soft opacity, z on (0/1)
+uniform vec2 uSoftShift;         // world xz shift of the soft lobe, away from the key (m)
 uniform vec3 uShadowTint;        // colour multiplier at full shadow
 uniform sampler2D uFloorPrint; uniform vec4 uFloorRect; uniform vec4 uPrintP;   // x opacity, y on
 uniform vec3 uPrintColor;
@@ -93,7 +94,8 @@ void main(){
     if (abs(c.x) < 1.0 && abs(c.y) < 1.0) {
       vec2 suv = vec2(c.x, -c.y) * 0.5 + 0.5;
       float edge = smoothstep(1.0, 0.85, max(abs(c.x), abs(c.y)));
-      float a = texture2D(uContactA, suv).r * uShadowP.x, b = texture2D(uContactB, suv).g * uShadowP.y;
+      vec2 c2 = (vWorld.xz - uSoftShift - uCS.xy) / uCS.z; vec2 suv2 = vec2(c2.x, -c2.y) * 0.5 + 0.5;
+      float a = texture2D(uContactA, suv).r * uShadowP.x, b = texture2D(uContactB, suv2).g * uShadowP.y;
       float sh = (1.0 - (1.0 - a) * (1.0 - b)) * edge * onFloor;
       col *= mix(vec3(1.0), uShadowTint, sh);
     }
@@ -113,6 +115,7 @@ export function createBackdrop({ studio = '#ECEBE7', graphite = '#2A2926', floor
     uContactA: { value: null }, uContactB: { value: null },
     uCS: { value: new THREE.Vector4(0, 0, 0.45, floorY) },
     uShadowP: { value: new THREE.Vector4(0.5, 0.3, 0, 0) },
+    uSoftShift: { value: new THREE.Vector2(0, 0) },
     uShadowTint: { value: new THREE.Color(0.5, 0.49, 0.47) },
     uFloorPrint: shared.uFloorPrint, uFloorRect: shared.uFloorRect,
     uPrintP: { value: new THREE.Vector4(1, 0, 0, 0) },

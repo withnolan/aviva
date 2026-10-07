@@ -42,6 +42,7 @@ export class ContactShadows {
     tri.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 2, 0, 0, 2], 2));
     this.quad = new THREE.Mesh(tri, this.blurMat); this.quad.frustumCulled = false; this.quadScene = new THREE.Scene(); this.quadScene.add(this.quad);
     this.enabled = true; this.dirty = true;
+    this.softLean = 0.006; this.softShift = new THREE.Vector2();
   }
   get textureA() { return this.a.texture; }
   get textureB() { return this.b.texture; }
@@ -54,6 +55,9 @@ export class ContactShadows {
     const ly = Math.max(dirToLight.y, 0.25);
     const sx = -dirToLight.x / ly * amount, sz = -dirToLight.z / ly * amount;
     const S = this.uniforms.uCSShear.value; S.x = THREE.MathUtils.clamp(sx, -2.5, 2.5); S.y = THREE.MathUtils.clamp(sz, -2.5, 2.5);
+    // the soft lobe also leans away from the light, even for a sheet lying flat (as if lit from h0 above)
+    const h0 = this.softLean, len = Math.hypot(dirToLight.x, dirToLight.z) || 1;
+    this.softShift.set(-dirToLight.x / len * h0 * Math.min(1, len / ly), -dirToLight.z / len * h0 * Math.min(1, len / ly));
   }
   _blur(src, dst, tmp, blurMM) {
     const r = this.renderer, U = this.blurMat.uniforms;
@@ -87,6 +91,7 @@ export class ContactShadows {
   syncBackdrop() {
     if (!this._backdrop) return; const U = this._backdrop.userData.uniforms;
     U.uShadowP.value.set(this.strength.contact, this.strength.soft, this.enabled ? 1 : 0, 0);
+    U.uSoftShift.value.copy(this.softShift);
   }
   dispose() { [this.raw, this.a, this.a2, this.b, this.b2].forEach((t) => t.dispose()); this.blurMat.dispose(); this.quad.geometry.dispose(); }
 }

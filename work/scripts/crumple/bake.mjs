@@ -1,24 +1,27 @@
 #!/usr/bin/env node
-// bake.mjs: offline crumple of one A4 sheet (aviva). No Houdini: a small XPBD sheet simulation in plain JS.
-//   - inextensible triangle mesh (distance constraints on every edge)
-//   - signed dihedral bending with PLASTIC yield and STRAIN SOFTENING: once a hinge has yielded it becomes weaker,
-//     so later bending concentrates on existing creases -> flat facets and sharp ridges (paper), not smooth wrinkles (cloth)
-//   - particle self-collision (spatial hash) so layers stack instead of interpenetrating
-//   - a "two hands" driver: alternating squeezes along random axes + a central pull + a soft confinement sphere
-// Output: docs/assets/paper/crumple.bin (K keyframes, DPCM int8, per-vertex AO front/back), plus a JSON report.
+// bake.mjs (v2): offline crumple of one A4 sheet for aviva. No Houdini: a quasi-static position-based simulation in plain JS.
+//   - inextensible triangle mesh (distance constraints on every edge, many Gauss-Seidel sweeps per step)
+//   - signed dihedral bending with PLASTIC yield and STRAIN SOFTENING: once a hinge yields it gets weaker, so later
+//     bending concentrates on existing creases -> flat facets and sharp ridges (paper), not smooth wrinkles (cloth / foil)
+//   - particle self-collision (spatial hash) so layers stack instead of passing through each other
+//   - driver: soft "hands" gather the corners and edges into a loose bundle (big folds first, like a person scrunching
+//     a sheet), then a shrinking sphere compacts it into a ball, then it springs back a little.
+// Output: docs/assets/paper/crumple.bin.gz (K keyframes, row-DPCM int8, per-vertex AO front/back) + crumple.json report.
 //
-// Usage: node work/scripts/crumple/bake.mjs [--nx 57 --ny 81 --steps 5000 --K 9 --seed 7 --out docs/assets/paper/crumple.bin --preview]
+// Usage: node work/scripts/crumple/bake.mjs [--nx 57 --ny 81 --steps 6000 --K 9 --seed 7 --out docs/assets/paper/crumple.bin]
+//        (--nx 31 --ny 44 --steps 1500 for a quick look)
 
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { makeCrumpleGrid, encodeCrumple, mulberry32 } from '../../../docs/js/paper/crumple-grid.js';
 
 const argv = process.argv.slice(2);
 const arg = (k, d) => { const i = argv.indexOf('--' + k); return i < 0 ? d : (argv[i + 1] === undefined || argv[i + 1].startsWith('--') ? true : argv[i + 1]); };
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-const NX = +arg('nx', 57), NY = +arg('ny', 81), STEPS = +arg('steps', 5000), K = +arg('K', 9), SEED = +arg('seed', 7);
-const ITER = +arg('iter', 12);
+const NX = +arg('nx', 57), NY = +arg('ny', 81), STEPS = +arg('steps', 6000), K = +arg('K', 9), SEED = +arg('seed', 7);
+const ITER = +arg('iter', 24), BEND_EVERY = +arg('bendEvery', 3);
 const OUT = path.resolve(ROOT, arg('out', 'docs/assets/paper/crumple.bin'));
 const JITTER = 0.32;
 
@@ -28,103 +31,82 @@ const cell = 0.21 / (NX - 1);
 const rnd = mulberry32(SEED * 7919 + 13);
 
 /* ---------- topology: edges + hinges ---------- */
-const edgeMap = new Map();
-const edges = [];        // [i, j, L0]
-const hingeRaw = [];
+const edgeMap = new Map(), edges = [];
 const key = (a, b) => (a < b ? a * N + b : b * N + a);
 for (let t = 0; t < tris.length; t += 3) {
   const tri = [tris[t], tris[t + 1], tris[t + 2]];
   for (let e = 0; e < 3; e++) {
-    const a = tri[e], b = tri[(e + 1) % 3], c = tri[(e + 2) % 3];
-    const k = key(a, b);
-    if (!edgeMap.has(k)) { edgeMap.set(k, { a, b, opp: [c], dir: [[a, b]] }); edges.push([a, b]); }
+    const a = tri[e], b = tri[(e + 1) % 3], c = tri[(e + 2) % 3], k = key(a, b);
+    if (!edgeMap.has(k)) { edgeMap.set(k, { opp: [c], dir: [[a, b]] }); edges.push([a, b]); }
     else { const E = edgeMap.get(k); E.opp.push(c); E.dir.push([a, b]); }
   }
 }
 const E = edges.length;
 const eI = new Int32Array(E * 2), eL = new Float64Array(E);
 edges.forEach(([a, b], i) => { eI[i * 2] = a; eI[i * 2 + 1] = b; eL[i] = Math.hypot(rest[a * 2] - rest[b * 2], rest[a * 2 + 1] - rest[b * 2 + 1]); });
-// hinge: shared edge (x0 -> x1 as oriented in triangle A), x2 = opposite in A, x3 = opposite in B
-for (const H of edgeMap.values()) {
-  if (H.opp.length !== 2) continue;
-  const [x0, x1] = H.dir[0];
-  hingeRaw.push([x0, x1, H.opp[0], H.opp[1]]);
+// shear-ish "skip" constraints (vertex to vertex two cells apart) keep in-plane distances honest -> less rubbery stretch
+const skips = [];
+for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+  const v = j * NX + i;
+  if (i + 2 < NX) skips.push([v, v + 2]); if (j + 2 < NY) skips.push([v, v + 2 * NX]);
 }
+const S2 = skips.length, sI = new Int32Array(S2 * 2), sL = new Float64Array(S2);
+skips.forEach(([a, b], i) => { sI[i * 2] = a; sI[i * 2 + 1] = b; sL[i] = Math.hypot(rest[a * 2] - rest[b * 2], rest[a * 2 + 1] - rest[b * 2 + 1]); });
+const hingeRaw = [];
+for (const H of edgeMap.values()) { if (H.opp.length !== 2) continue; const [x0, x1] = H.dir[0]; hingeRaw.push([x0, x1, H.opp[0], H.opp[1]]); }
 const HN = hingeRaw.length;
 const hI = new Int32Array(HN * 4); hingeRaw.forEach((h, i) => hI.set(h, i * 4));
-const hTheta0 = new Float64Array(HN);   // plastic rest angle
-const hDamage = new Float64Array(HN);   // accumulated plastic rotation (softening)
-const hRestLen = new Float64Array(HN);
-for (let h = 0; h < HN; h++) { const a = hI[h * 4], b = hI[h * 4 + 1]; hRestLen[h] = Math.hypot(rest[a * 2] - rest[b * 2], rest[a * 2 + 1] - rest[b * 2 + 1]); }
-// per-hinge random weakness (paper is not uniform; seeds where creases nucleate)
-const hWeak = new Float64Array(HN); for (let h = 0; h < HN; h++) hWeak[h] = 0.75 + 0.5 * rnd();
-
-console.log(`grid ${NX}x${NY} = ${N} verts, ${tris.length / 3} tris, ${E} edges, ${HN} hinges, cell ${(cell * 1000).toFixed(2)} mm`);
+const hTheta0 = new Float64Array(HN), hDamage = new Float64Array(HN), hWeak = new Float64Array(HN);
+for (let h = 0; h < HN; h++) hWeak[h] = 0.7 + 0.6 * rnd();
+console.log(`grid ${NX}x${NY} = ${N} verts, ${tris.length / 3} tris, ${E} edges, ${S2} skip links, ${HN} hinges, cell ${(cell * 1000).toFixed(2)} mm`);
 
 /* ---------- state ---------- */
-const X = new Float64Array(N * 3), P = new Float64Array(N * 3), V = new Float64Array(N * 3);
-// tiny low-frequency initial waviness to break symmetry (a real sheet is never perfectly flat)
-const ph = [rnd() * 6.28, rnd() * 6.28, rnd() * 6.28];
+const X = new Float64Array(N * 3), P = new Float64Array(N * 3);
+const ph = [rnd() * 6.28, rnd() * 6.28, rnd() * 6.28, rnd() * 6.28];
 for (let i = 0; i < N; i++) {
   const x = rest[i * 2], y = rest[i * 2 + 1];
   X[i * 3] = x; X[i * 3 + 1] = y;
-  X[i * 3 + 2] = 0.0015 * Math.sin(x * 23 + ph[0]) * Math.cos(y * 17 + ph[1]) + 0.001 * Math.sin((x + y) * 31 + ph[2]);
+  // a real sheet is never flat: long, gentle waves break the symmetry so the sheet buckles globally, not at the rim
+  X[i * 3 + 2] = 0.004 * Math.sin(x * 14 + ph[0]) * Math.cos(y * 9 + ph[1]) + 0.0025 * Math.sin((x - y) * 21 + ph[2]) + 0.002 * Math.cos(x * 31 + y * 7 + ph[3]);
 }
 
 /* ---------- signed dihedral angle + gradient ---------- */
 const g = new Float64Array(12);
-function sub(o, a, b) { o[0] = X_[a] - X_[b]; }
-let X_ = P; // constraint projection works on predicted positions
-const tmp = new Float64Array(30);
+let X_ = P;
 function dihedral(i0, i1, i2, i3, wantGrad) {
   const X = X_;
   const ex = X[i1 * 3] - X[i0 * 3], ey = X[i1 * 3 + 1] - X[i0 * 3 + 1], ez = X[i1 * 3 + 2] - X[i0 * 3 + 2];
-  const ax = X[i2 * 3] - X[i0 * 3], ay = X[i2 * 3 + 1] - X[i0 * 3 + 1], az = X[i2 * 3 + 2] - X[i0 * 3 + 2];   // x2 - x0
-  const bx = X[i3 * 3] - X[i1 * 3], by = X[i3 * 3 + 1] - X[i1 * 3 + 1], bz = X[i3 * 3 + 2] - X[i1 * 3 + 2];   // x3 - x1
-  // nA = e x (x2-x0) ; nB = (x3-x1) x e
+  const ax = X[i2 * 3] - X[i0 * 3], ay = X[i2 * 3 + 1] - X[i0 * 3 + 1], az = X[i2 * 3 + 2] - X[i0 * 3 + 2];
+  const bx = X[i3 * 3] - X[i1 * 3], by = X[i3 * 3 + 1] - X[i1 * 3 + 1], bz = X[i3 * 3 + 2] - X[i1 * 3 + 2];
   const nAx = ey * az - ez * ay, nAy = ez * ax - ex * az, nAz = ex * ay - ey * ax;
   const nBx = by * ez - bz * ey, nBy = bz * ex - bx * ez, nBz = bx * ey - by * ex;
   const lA2 = nAx * nAx + nAy * nAy + nAz * nAz, lB2 = nBx * nBx + nBy * nBy + nBz * nBz, le = Math.hypot(ex, ey, ez);
   if (lA2 < 1e-24 || lB2 < 1e-24 || le < 1e-12) return NaN;
   const lA = Math.sqrt(lA2), lB = Math.sqrt(lB2);
   const cosT = (nAx * nBx + nAy * nBy + nAz * nBz) / (lA * lB);
-  // cross(nA, nB) . e / |e|
   const cx = nAy * nBz - nAz * nBy, cy = nAz * nBx - nAx * nBz, cz = nAx * nBy - nAy * nBx;
   const sinT = (cx * ex + cy * ey + cz * ez) / (lA * lB * le);
   const theta = Math.atan2(sinT, cosT);
   if (!wantGrad) return theta;
-  // gradients (verified numerically by selfTest)
   const kA = le / lA2, kB = le / lB2;
-  const g2x = -kA * nAx, g2y = -kA * nAy, g2z = -kA * nAz;
-  const g3x = -kB * nBx, g3y = -kB * nBy, g3z = -kB * nBz;
-  // projections along e
+  const g2x = -kA * nAx, g2y = -kA * nAy, g2z = -kA * nAz, g3x = -kB * nBx, g3y = -kB * nBy, g3z = -kB * nBz;
   const x2mx1 = [X[i2 * 3] - X[i1 * 3], X[i2 * 3 + 1] - X[i1 * 3 + 1], X[i2 * 3 + 2] - X[i1 * 3 + 2]];
   const x3mx0 = [X[i3 * 3] - X[i0 * 3], X[i3 * 3 + 1] - X[i0 * 3 + 1], X[i3 * 3 + 2] - X[i0 * 3 + 2]];
-  const dA1 = (x2mx1[0] * ex + x2mx1[1] * ey + x2mx1[2] * ez) / le;   // (x2-x1).e/|e|
-  const dA0 = (ax * ex + ay * ey + az * ez) / le;                      // (x2-x0).e/|e|
-  const dB1 = (bx * ex + by * ey + bz * ez) / le;                      // (x3-x1).e/|e|
-  const dB0 = (x3mx0[0] * ex + x3mx0[1] * ey + x3mx0[2] * ez) / le;   // (x3-x0).e/|e|
-  // x0: -( dA1/|e| g2 + dB1/|e| g3 ) ; x1: ( dA0/|e| g2 + dB0/|e| g3 )   (signs from translation invariance + numeric check)
+  const dA1 = (x2mx1[0] * ex + x2mx1[1] * ey + x2mx1[2] * ez) / le, dA0 = (ax * ex + ay * ey + az * ez) / le;
+  const dB1 = (bx * ex + by * ey + bz * ez) / le, dB0 = (x3mx0[0] * ex + x3mx0[1] * ey + x3mx0[2] * ez) / le;
   const s = 1 / le;
   g[0] = (dA1 * s) * g2x + (dB1 * s) * g3x; g[1] = (dA1 * s) * g2y + (dB1 * s) * g3y; g[2] = (dA1 * s) * g2z + (dB1 * s) * g3z;
   g[3] = -(dA0 * s) * g2x - (dB0 * s) * g3x; g[4] = -(dA0 * s) * g2y - (dB0 * s) * g3y; g[5] = -(dA0 * s) * g2z - (dB0 * s) * g3z;
-  g[6] = g2x; g[7] = g2y; g[8] = g2z;
-  g[9] = g3x; g[10] = g3y; g[11] = g3z;
+  g[6] = g2x; g[7] = g2y; g[8] = g2z; g[9] = g3x; g[10] = g3y; g[11] = g3z;
   return theta;
 }
-
 function selfTest() {
-  const save = X_; const T = new Float64Array(12); X_ = T; const r = mulberry32(3);
-  let worst = 0;
+  const save = X_; const T = new Float64Array(12); X_ = T; const r = mulberry32(3); let worst = 0;
   for (let trial = 0; trial < 50; trial++) {
     for (let i = 0; i < 12; i++) T[i] = r() * 2 - 1;
-    const th = dihedral(0, 1, 2, 3, true); if (isNaN(th)) continue;
-    const ga = Float64Array.from(g);
-    for (let i = 0; i < 12; i++) {
-      const h = 1e-6, o = T[i]; T[i] = o + h; const tp = dihedral(0, 1, 2, 3, false); T[i] = o - h; const tm = dihedral(0, 1, 2, 3, false); T[i] = o;
-      let d = tp - tm; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI;
-      worst = Math.max(worst, Math.abs(d / (2 * h) - ga[i]) / (1 + Math.abs(ga[i])));
-    }
+    const th = dihedral(0, 1, 2, 3, true); if (isNaN(th)) continue; const ga = Float64Array.from(g);
+    for (let i = 0; i < 12; i++) { const h = 1e-6, o = T[i]; T[i] = o + h; const tp = dihedral(0, 1, 2, 3, false); T[i] = o - h; const tm = dihedral(0, 1, 2, 3, false); T[i] = o;
+      let d = tp - tm; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; worst = Math.max(worst, Math.abs(d / (2 * h) - ga[i]) / (1 + Math.abs(ga[i]))); }
   }
   X_ = save; return worst;
 }
@@ -133,19 +115,15 @@ console.log('dihedral gradient self-test, max rel error:', gradErr.toExponential
 if (gradErr > 1e-3) { console.error('gradient check FAILED'); process.exit(1); }
 
 /* ---------- spatial hash for self collision ---------- */
-const RC = +arg('rc', 0.45 * cell);        // particle radius
-const HCELL = 2 * RC, HSIZE = 1 << 18;
+const RC = +arg('rc', 0.5 * cell), HCELL = 2 * RC, HSIZE = 1 << 18;
 const hHead = new Int32Array(HSIZE), hNext = new Int32Array(N);
 const hashOf = (ix, iy, iz) => (((ix * 73856093) ^ (iy * 19349663) ^ (iz * 83492791)) >>> 0) & (HSIZE - 1);
 let pairs = new Int32Array(1 << 20), pairCount = 0;
-const EXCL2 = (2 * RC * 1.6) ** 2;   // ignore pairs that are close in REST space (sheet neighbours)
+const EXCL2 = (2 * RC * 1.6) ** 2;
 function buildPairs() {
   hHead.fill(-1);
-  for (let i = 0; i < N; i++) {
-    const h = hashOf(Math.floor(P[i * 3] / HCELL), Math.floor(P[i * 3 + 1] / HCELL), Math.floor(P[i * 3 + 2] / HCELL));
-    hNext[i] = hHead[h]; hHead[h] = i;
-  }
-  pairCount = 0; const R2 = (2 * RC * 1.15) ** 2;
+  for (let i = 0; i < N; i++) { const h = hashOf(Math.floor(P[i * 3] / HCELL), Math.floor(P[i * 3 + 1] / HCELL), Math.floor(P[i * 3 + 2] / HCELL)); hNext[i] = hHead[h]; hHead[h] = i; }
+  pairCount = 0; const R2 = (2 * RC * 1.2) ** 2;
   for (let i = 0; i < N; i++) {
     const ix = Math.floor(P[i * 3] / HCELL), iy = Math.floor(P[i * 3 + 1] / HCELL), iz = Math.floor(P[i * 3 + 2] / HCELL);
     for (let dz = -1; dz <= 1; dz++) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
@@ -155,10 +133,7 @@ function buildPairs() {
           const qx = P[i * 3] - P[j * 3], qy = P[i * 3 + 1] - P[j * 3 + 1], qz = P[i * 3 + 2] - P[j * 3 + 2];
           if (qx * qx + qy * qy + qz * qz < R2) {
             const rx = rest[i * 2] - rest[j * 2], ry = rest[i * 2 + 1] - rest[j * 2 + 1];
-            if (rx * rx + ry * ry > EXCL2) {
-              if (pairCount * 2 + 2 > pairs.length) { const np = new Int32Array(pairs.length * 2); np.set(pairs); pairs = np; }
-              pairs[pairCount * 2] = i; pairs[pairCount * 2 + 1] = j; pairCount++;
-            }
+            if (rx * rx + ry * ry > EXCL2) { if (pairCount * 2 + 2 > pairs.length) { const np = new Int32Array(pairs.length * 2); np.set(pairs); pairs = np; } pairs[pairCount * 2] = i; pairs[pairCount * 2 + 1] = j; pairCount++; }
           }
         }
         j = hNext[j];
@@ -168,141 +143,123 @@ function buildPairs() {
 }
 
 /* ---------- parameters ---------- */
-const BEND_K = +arg('bk', 0.25);               // PBD bending stiffness per iteration (0..1) for an undamaged hinge
-const YIELD = +arg('yield', 0.06);             // elastic range of a hinge (rad) before it creases
-const SOFTEN = +arg('soften', 8.0);            // stiffness /= 1 + SOFTEN * damage
-const FRICTION = +arg('friction', 0.3);
-const SHRINK = +arg('shrink', 0.27);           // final rms radius / initial rms radius
-const SQUEEZE = +arg('squeeze', 2.5);          // extra compression along the current squeeze axis, relative to isotropic
-const RELAX = +arg('relax', 0.12);             // share of steps at the end with no compression (spring-back, settle)
-const NOISE = +arg('noise', 0.00025);
-const MODE = arg('mode', 'contact');
-const SPH0 = +arg('sph0', 0.3);              // when the closing sphere starts (share of the run)
-const SPHEND = +arg('sphend', 1.02);          // final sphere radius / natural radius
-const R0 = Math.hypot(0.105, 0.1485) * 1.001;          // m, out-of-plane seed noise per step during the first 15 %
-// natural ball radius from the excluded volume of the collision particles (random close packing ~0.55)
-const R_NAT = Math.cbrt(N * RC ** 3 / 0.55);
-console.log(`R_NAT ${(R_NAT * 1000).toFixed(1)}mm  RC ${(RC * 1000).toFixed(2)}mm  bk ${BEND_K} yield ${YIELD} soften ${SOFTEN}`);
+const BEND_K = +arg('bk', 0.55);          // bending stiffness per bend pass, undamaged hinge (0..1)
+const YIELD = +arg('yield', 0.32);        // elastic range of a hinge (rad) before it creases
+const SOFTEN = +arg('soften', 7.0);       // stiffness /= 1 + SOFTEN * accumulated plastic rotation
+const FRICTION = +arg('friction', 0.35);
+const HAND_END = +arg('handEnd', 0.42), SPH0 = +arg('sph0', 0.3), SPH1 = +arg('sph1', 0.9), RELAX = +arg('relax', 0.08);
+const R_NAT = Math.cbrt(N * RC ** 3 / 0.5);    // natural ball radius for this particle size (random close packing)
+const R_END = +arg('rend', R_NAT * 0.98);
+console.log(`RC ${(RC * 1000).toFixed(2)}mm  R_NAT ${(R_NAT * 1000).toFixed(1)}mm  R_END ${(R_END * 1000).toFixed(1)}mm  bk ${BEND_K} yield ${YIELD} soften ${SOFTEN}`);
 
-// squeeze axes: "two hands", a new axis every ~6-10 % of the run; early axes lie in the sheet plane
-const squeezes = [];
-{
-  let t = 0.0; const r = mulberry32(SEED * 31 + 5);
-  while (t < 1.0) {
-    const z = r() * 2 - 1, a = r() * Math.PI * 2, s2 = Math.sqrt(1 - z * z);
-    const inPlane = t < 0.3 ? 0.85 : 0.0;
-    let ax = [s2 * Math.cos(a), s2 * Math.sin(a), z * (1 - inPlane)]; const l = Math.hypot(...ax); ax = ax.map((c) => c / l);
-    const dur = 0.06 + 0.05 * r();
-    squeezes.push({ t0: t, t1: t + dur, ax });
-    t += dur * 0.8;
+/* ---------- hands: soft grips that gather corners and edges into a loose bundle ---------- */
+const smooth = (a, b, x) => { const t = Math.min(Math.max((x - a) / (b - a), 0), 1); return t * t * (3 - 2 * t); };
+const hr = mulberry32(SEED * 31 + 5);
+const anchors = [[-0.085, 0.125], [0.085, 0.125], [-0.085, -0.125], [0.085, -0.125], [-0.1, 0.0], [0.1, 0.01]];
+const hands = anchors.map(([ax, ay], h) => {
+  const members = []; for (let i = 0; i < N; i++) if (Math.hypot(rest[i * 2] - ax, rest[i * 2 + 1] - ay) < 0.02) members.push(i);
+  // goal: a point on a loose sphere (r ~ 4.5 cm), alternating above / below the sheet plane
+  const th = (h / anchors.length) * Math.PI * 2 + hr() * 0.8, up = (h % 2 ? 1 : -1) * (0.3 + 0.5 * hr());
+  const r = 0.045 + 0.015 * hr();
+  const goal = [Math.cos(th) * r * Math.sqrt(1 - up * up), Math.sin(th) * r * Math.sqrt(1 - up * up), up * r];
+  const axis = (() => { const z = hr() * 2 - 1, a = hr() * 6.283, s = Math.sqrt(1 - z * z); return [s * Math.cos(a), s * Math.sin(a), z]; })();
+  const ang = (hr() - 0.5) * 2.2;
+  const t0 = 0.02 + 0.08 * hr();                   // hands do not all start at once
+  return { ax, ay, members, goal, axis, ang, t0 };
+});
+const rotate = (v, ax, a) => { const c = Math.cos(a), s = Math.sin(a), d = v[0] * ax[0] + v[1] * ax[1] + v[2] * ax[2];
+  const cx = ax[1] * v[2] - ax[2] * v[1], cy = ax[2] * v[0] - ax[0] * v[2], cz = ax[0] * v[1] - ax[1] * v[0];
+  return [v[0] * c + cx * s + ax[0] * d * (1 - c), v[1] * c + cy * s + ax[1] * d * (1 - c), v[2] * c + cz * s + ax[2] * d * (1 - c)]; };
+const handStart = hands.map((H) => H.members.map((i) => [X[i * 3], X[i * 3 + 1], X[i * 3 + 2]]));
+
+/* ---------- quasi-static simulation ---------- */
+const snapshots = [];
+const SNAP_EVERY = Math.max(1, Math.floor(STEPS / 160));
+const t0 = Date.now();
+let maxStretch = 0, R_bound = 0.19;
+X_ = P;
+function stretchSweep(fwd) {
+  for (let q = 0; q < E; q++) {
+    const e = fwd ? q : E - 1 - q, a = eI[e * 2], b = eI[e * 2 + 1];
+    const dx = P[b * 3] - P[a * 3], dy = P[b * 3 + 1] - P[a * 3 + 1], dz = P[b * 3 + 2] - P[a * 3 + 2];
+    const d = Math.sqrt(dx * dx + dy * dy + dz * dz); if (d < 1e-12) continue;
+    const corr = 0.5 * (d - eL[e]) / d;
+    P[a * 3] += dx * corr; P[a * 3 + 1] += dy * corr; P[a * 3 + 2] += dz * corr;
+    P[b * 3] -= dx * corr; P[b * 3 + 1] -= dy * corr; P[b * 3 + 2] -= dz * corr;
   }
 }
-const smooth = (a, b, x) => { const t = Math.min(Math.max((x - a) / (b - a), 0), 1); return t * t * (3 - 2 * t); };
-
-/* ---------- quasi-static simulation (no velocities: compress a little, then project the constraints) ---------- */
-const snapshots = [];
-const SNAP_EVERY = Math.max(1, Math.floor(STEPS / 150));
-const t0 = Date.now();
-let maxStretch = 0;
-const workSteps = Math.floor(STEPS * (1 - RELAX));
-const perStep = Math.pow(SHRINK, 1 / workSteps);
-const nr = mulberry32(SEED + 101);
-// smooth random field for seeding buckles
-const waves = Array.from({ length: 6 }, () => ({ kx: (nr() * 2 - 1) * 60, ky: (nr() * 2 - 1) * 60, ph: nr() * 6.283 }));
-X_ = P;
+function skipSweep() {   // only resists stretching beyond rest (paper cannot stretch, but it can fold, so no compression term)
+  for (let q = 0; q < S2; q++) {
+    const a = sI[q * 2], b = sI[q * 2 + 1];
+    const dx = P[b * 3] - P[a * 3], dy = P[b * 3 + 1] - P[a * 3 + 1], dz = P[b * 3 + 2] - P[a * 3 + 2];
+    const d = Math.sqrt(dx * dx + dy * dy + dz * dz); if (d <= sL[q] || d < 1e-12) continue;
+    const corr = 0.5 * (d - sL[q]) / d;
+    P[a * 3] += dx * corr; P[a * 3 + 1] += dy * corr; P[a * 3 + 2] += dz * corr;
+    P[b * 3] -= dx * corr; P[b * 3 + 1] -= dy * corr; P[b * 3 + 2] -= dz * corr;
+  }
+}
+const ids = [0, 0, 0, 0];
+function bendSweep() {
+  for (let h = 0; h < HN; h++) {
+    const i0 = hI[h * 4], i1 = hI[h * 4 + 1], i2 = hI[h * 4 + 2], i3 = hI[h * 4 + 3];
+    const th = dihedral(i0, i1, i2, i3, true); if (isNaN(th)) continue;
+    let C = th - hTheta0[h]; if (C > Math.PI) C -= 2 * Math.PI; if (C < -Math.PI) C += 2 * Math.PI;
+    const k = BEND_K * hWeak[h] / (1 + SOFTEN * hDamage[h]);
+    let den = 0; for (let m = 0; m < 12; m++) den += g[m] * g[m]; if (den < 1e-20) continue;
+    const dl = -k * C / den; ids[0] = i0; ids[1] = i1; ids[2] = i2; ids[3] = i3;
+    for (let m = 0; m < 4; m++) { const v = ids[m] * 3; P[v] += g[m * 3] * dl; P[v + 1] += g[m * 3 + 1] * dl; P[v + 2] += g[m * 3 + 2] * dl; }
+  }
+}
+function collide() {
+  for (let q = 0; q < pairCount; q++) {
+    const i = pairs[q * 2], j = pairs[q * 2 + 1];
+    const dx = P[i * 3] - P[j * 3], dy = P[i * 3 + 1] - P[j * 3 + 1], dz = P[i * 3 + 2] - P[j * 3 + 2];
+    const d2 = dx * dx + dy * dy + dz * dz, D = 2 * RC; if (d2 >= D * D || d2 < 1e-16) continue;
+    const d = Math.sqrt(d2), corr = 0.5 * (D - d) / d;
+    P[i * 3] += dx * corr; P[i * 3 + 1] += dy * corr; P[i * 3 + 2] += dz * corr; P[j * 3] -= dx * corr; P[j * 3 + 1] -= dy * corr; P[j * 3 + 2] -= dz * corr;
+    const nx = dx / d, ny = dy / d, nz = dz / d;
+    const rx = (P[i * 3] - X[i * 3]) - (P[j * 3] - X[j * 3]), ry = (P[i * 3 + 1] - X[i * 3 + 1]) - (P[j * 3 + 1] - X[j * 3 + 1]), rz = (P[i * 3 + 2] - X[i * 3 + 2]) - (P[j * 3 + 2] - X[j * 3 + 2]);
+    const rn = rx * nx + ry * ny + rz * nz, tx = rx - rn * nx, ty = ry - rn * ny, tz = rz - rn * nz, f = FRICTION * 0.5;
+    P[i * 3] -= tx * f; P[i * 3 + 1] -= ty * f; P[i * 3 + 2] -= tz * f; P[j * 3] += tx * f; P[j * 3 + 1] += ty * f; P[j * 3 + 2] += tz * f;
+  }
+}
 for (let step = 0; step <= STEPS; step++) {
   const prog = step / STEPS;
   if (step % SNAP_EVERY === 0 || step === STEPS) snapshots.push({ prog, pos: Float64Array.from(X) });
   if (step === STEPS) break;
   P.set(X);
-  // centroid
   let cx = 0, cy = 0, cz = 0; for (let i = 0; i < N; i++) { cx += P[i * 3]; cy += P[i * 3 + 1]; cz += P[i * 3 + 2]; } cx /= N; cy /= N; cz /= N;
-  let slab = null, Rsph = 1e9;
-  if (step < workSteps) {
-    const S = squeezes.find((q) => prog >= q.t0 && prog < q.t1) || squeezes[squeezes.length - 1];
-    const w = Math.sin(Math.PI * Math.min(1, Math.max(0, (prog - S.t0) / (S.t1 - S.t0))));
-    if (MODE === 'body') {
-      const iso = 1 - perStep, sq = iso * SQUEEZE * w;
-      for (let i = 0; i < N; i++) {
-        const dx = P[i * 3] - cx, dy = P[i * 3 + 1] - cy, dz = P[i * 3 + 2] - cz;
-        const d = dx * S.ax[0] + dy * S.ax[1] + dz * S.ax[2];
-        P[i * 3] -= dx * iso + d * S.ax[0] * sq; P[i * 3 + 1] -= dy * iso + d * S.ax[1] * sq; P[i * 3 + 2] -= dz * iso + d * S.ax[2] * sq;
-      }
-    } else {
-      // contact driver: two "hands" (a slab |x.a| <= h) squeeze along the current axis, and a sphere slowly closes in
-      if (S.h0 === undefined) { let m = 0; for (let i = 0; i < N; i++) m = Math.max(m, Math.abs((P[i * 3] - cx) * S.ax[0] + (P[i * 3 + 1] - cy) * S.ax[1] + (P[i * 3 + 2] - cz) * S.ax[2])); S.h0 = m; }
-      slab = { ax: S.ax, h: S.h0 * (1 - SQUEEZE * 0.1 * w), c: [cx, cy, cz] };
-      const pw = Math.max(0, (prog - SPH0) / (1 - RELAX - SPH0));
-      Rsph = R0 + (R_NAT * SPHEND - R0) * (1 - Math.pow(1 - Math.min(1, pw), 1.6));
-    }
-    if (prog < 0.15) {
-      const amp = NOISE * (1 - prog / 0.15);
-      for (let i = 0; i < N; i++) {
-        const x = rest[i * 2], y = rest[i * 2 + 1]; let f = 0;
-        for (const W of waves) f += Math.sin(x * W.kx + y * W.ky + W.ph + step * 0.01);
-        P[i * 3 + 2] += amp * f / 3;
-      }
-    }
+  // hands: targets move along an eased path; their grip fades out after HAND_END
+  const grip = 1 - smooth(HAND_END, HAND_END + 0.12, prog);
+  const handTargets = [];
+  if (grip > 0) hands.forEach((H, h) => {
+    const e = smooth(H.t0, HAND_END, prog), lift = Math.sin(Math.PI * e) * 0.03 * (h % 2 ? 1 : -1);
+    const A = [H.ax, H.ay, 0], G = H.goal;
+    const c = [A[0] + (G[0] - A[0]) * e, A[1] + (G[1] - A[1]) * e, A[2] + (G[2] - A[2]) * e + lift];
+    handTargets.push(H.members.map((i, m) => { const s0 = handStart[h][m]; const off = rotate([s0[0] - H.ax, s0[1] - H.ay, s0[2]], H.axis, H.ang * e); return [c[0] + off[0], c[1] + off[1], c[2] + off[2]]; }));
+  });
+  // the sphere: from the bundle's bound to the ball, then a small spring-back
+  let Rs = 1e9;
+  if (prog > SPH0) {
+    if (Math.abs(prog - SPH0) < 1.5 / STEPS) { let m = 0; for (let i = 0; i < N; i++) m = Math.max(m, Math.hypot(P[i * 3] - cx, P[i * 3 + 1] - cy, P[i * 3 + 2] - cz)); R_bound = m; }
+    const w = smooth(SPH0, SPH1, prog);
+    Rs = R_bound + (R_END - R_bound) * w;
+    if (prog > 1 - RELAX) Rs = R_END * (1 + 0.07 * smooth(1 - RELAX, 1, prog));
   }
   if (step % 2 === 0) buildPairs();
   for (let it = 0; it < ITER; it++) {
-    const fwd = it % 2 === 0;
-    for (let q = 0; q < E; q++) {
-      const e = fwd ? q : E - 1 - q;
-      const a = eI[e * 2], b = eI[e * 2 + 1];
-      const dx = P[b * 3] - P[a * 3], dy = P[b * 3 + 1] - P[a * 3 + 1], dz = P[b * 3 + 2] - P[a * 3 + 2];
-      const d = Math.hypot(dx, dy, dz); if (d < 1e-12) continue;
-      const corr = 0.5 * (d - eL[e]) / d;
-      P[a * 3] += dx * corr; P[a * 3 + 1] += dy * corr; P[a * 3 + 2] += dz * corr;
-      P[b * 3] -= dx * corr; P[b * 3 + 1] -= dy * corr; P[b * 3 + 2] -= dz * corr;
-    }
-    if (it % 2 === 0) {
-      for (let h = 0; h < HN; h++) {
-        const i0 = hI[h * 4], i1 = hI[h * 4 + 1], i2 = hI[h * 4 + 2], i3 = hI[h * 4 + 3];
-        const th = dihedral(i0, i1, i2, i3, true); if (isNaN(th)) continue;
-        let C = th - hTheta0[h]; if (C > Math.PI) C -= 2 * Math.PI; if (C < -Math.PI) C += 2 * Math.PI;
-        const k = BEND_K * hWeak[h] / (1 + SOFTEN * hDamage[h]);
-        let den = 0; for (let m = 0; m < 12; m++) den += g[m] * g[m];
-        if (den < 1e-20) continue;
-        const dl = -k * C / den;
-        const ids = [i0, i1, i2, i3];
-        for (let m = 0; m < 4; m++) { const v = ids[m] * 3; P[v] += g[m * 3] * dl; P[v + 1] += g[m * 3 + 1] * dl; P[v + 2] += g[m * 3 + 2] * dl; }
-      }
-    }
-    for (let q = 0; q < pairCount; q++) {
-      const i = pairs[q * 2], j = pairs[q * 2 + 1];
-      const dx = P[i * 3] - P[j * 3], dy = P[i * 3 + 1] - P[j * 3 + 1], dz = P[i * 3 + 2] - P[j * 3 + 2];
-      const d2 = dx * dx + dy * dy + dz * dz, D = 2 * RC; if (d2 >= D * D || d2 < 1e-16) continue;
-      const d = Math.sqrt(d2), corr = 0.5 * (D - d) / d;
-      P[i * 3] += dx * corr; P[i * 3 + 1] += dy * corr; P[i * 3 + 2] += dz * corr;
-      P[j * 3] -= dx * corr; P[j * 3 + 1] -= dy * corr; P[j * 3 + 2] -= dz * corr;
-      const nx = dx / d, ny = dy / d, nz = dz / d;
-      const rx = (P[i * 3] - X[i * 3]) - (P[j * 3] - X[j * 3]), ry = (P[i * 3 + 1] - X[i * 3 + 1]) - (P[j * 3 + 1] - X[j * 3 + 1]), rz = (P[i * 3 + 2] - X[i * 3 + 2]) - (P[j * 3 + 2] - X[j * 3 + 2]);
-      const rn = rx * nx + ry * ny + rz * nz, tx = rx - rn * nx, ty = ry - rn * ny, tz = rz - rn * nz, f = FRICTION * 0.5;
-      P[i * 3] -= tx * f; P[i * 3 + 1] -= ty * f; P[i * 3 + 2] -= tz * f; P[j * 3] += tx * f; P[j * 3 + 1] += ty * f; P[j * 3 + 2] += tz * f;
-    }
-    if (slab || Rsph < 1e8) {
-      for (let i = 0; i < N; i++) {
-        if (slab) {
-          const d = (P[i * 3] - slab.c[0]) * slab.ax[0] + (P[i * 3 + 1] - slab.c[1]) * slab.ax[1] + (P[i * 3 + 2] - slab.c[2]) * slab.ax[2];
-          if (Math.abs(d) > slab.h) { const k = (Math.abs(d) - slab.h) * Math.sign(d); P[i * 3] -= k * slab.ax[0]; P[i * 3 + 1] -= k * slab.ax[1]; P[i * 3 + 2] -= k * slab.ax[2]; }
-        }
-        const dx = P[i * 3] - cx, dy = P[i * 3 + 1] - cy, dz = P[i * 3 + 2] - cz, r = Math.hypot(dx, dy, dz);
-        if (r > Rsph) { const k = (r - Rsph) / r; P[i * 3] -= dx * k; P[i * 3 + 1] -= dy * k; P[i * 3 + 2] -= dz * k; }
-      }
+    stretchSweep(it % 2 === 0);
+    if (it % 4 === 1) skipSweep();
+    if (it % BEND_EVERY === 0) bendSweep();
+    collide();
+    if (grip > 0) hands.forEach((H, h) => { const T = handTargets[h]; const s = 0.22 * grip; H.members.forEach((i, m) => { P[i * 3] += (T[m][0] - P[i * 3]) * s; P[i * 3 + 1] += (T[m][1] - P[i * 3 + 1]) * s; P[i * 3 + 2] += (T[m][2] - P[i * 3 + 2]) * s; }); });
+    if (Rs < 1e8) for (let i = 0; i < N; i++) {
+      const dx = P[i * 3] - cx, dy = P[i * 3 + 1] - cy, dz = P[i * 3 + 2] - cz, r = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (r > Rs) { const k = 0.6 * (r - Rs) / r; P[i * 3] -= dx * k; P[i * 3 + 1] -= dy * k; P[i * 3 + 2] -= dz * k; }
     }
   }
-  // final stretch sweeps so the sheet stays inextensible (paper does not rubber)
-  for (let it = 0; it < 4; it++) {
-    for (let q = 0; q < E; q++) {
-      const e = it % 2 ? E - 1 - q : q, a = eI[e * 2], b = eI[e * 2 + 1];
-      const dx = P[b * 3] - P[a * 3], dy = P[b * 3 + 1] - P[a * 3 + 1], dz = P[b * 3 + 2] - P[a * 3 + 2];
-      const d = Math.hypot(dx, dy, dz); if (d < 1e-12) continue;
-      const corr = 0.5 * (d - eL[e]) / d;
-      P[a * 3] += dx * corr; P[a * 3 + 1] += dy * corr; P[a * 3 + 2] += dz * corr; P[b * 3] -= dx * corr; P[b * 3 + 1] -= dy * corr; P[b * 3 + 2] -= dz * corr;
-    }
-  }
-  // plasticity
+  for (let it = 0; it < 6; it++) stretchSweep(it % 2 === 1);   // end on inextensibility
+  // plasticity: hinges beyond their elastic range take a permanent set (and get weaker)
   for (let h = 0; h < HN; h++) {
     const th = dihedral(hI[h * 4], hI[h * 4 + 1], hI[h * 4 + 2], hI[h * 4 + 3], false); if (isNaN(th)) continue;
     let C = th - hTheta0[h]; if (C > Math.PI) C -= 2 * Math.PI; if (C < -Math.PI) C += 2 * Math.PI;
@@ -311,42 +268,24 @@ for (let step = 0; step <= STEPS; step++) {
   }
   X.set(P);
   if (step % Math.max(1, Math.floor(STEPS / 12)) === 0) {
-    let ms = 0; for (let e = 0; e < E; e++) { const a = eI[e * 2], b = eI[e * 2 + 1]; const d = Math.hypot(X[b * 3] - X[a * 3], X[b * 3 + 1] - X[a * 3 + 1], X[b * 3 + 2] - X[a * 3 + 2]); ms = Math.max(ms, Math.abs(d / eL[e] - 1)); }
     let rr = 0; for (let i = 0; i < N; i++) rr += (X[i * 3] - cx) ** 2 + (X[i * 3 + 1] - cy) ** 2 + (X[i * 3 + 2] - cz) ** 2; rr = Math.sqrt(rr / N);
-    let creased = 0; for (let h = 0; h < HN; h++) if (Math.abs(hTheta0[h]) > 0.5) creased++;
-    maxStretch = Math.max(maxStretch, ms);
-    { const st = []; for (let e = 0; e < E; e++) { const a = eI[e * 2], b = eI[e * 2 + 1]; st.push(Math.abs(Math.hypot(X[b * 3] - X[a * 3], X[b * 3 + 1] - X[a * 3 + 1], X[b * 3 + 2] - X[a * 3 + 2]) / eL[e] - 1)); }
-      st.sort((a, b) => a - b); globalThis.__p = `p50 ${(st[E >> 1] * 100).toFixed(2)}% p99 ${(st[Math.floor(E * 0.99)] * 100).toFixed(2)}% p999 ${(st[Math.floor(E * 0.999)] * 100).toFixed(2)}%`; }
-    console.log(`step ${step}/${STEPS} prog ${prog.toFixed(2)} rms ${(rr * 1000).toFixed(1)}mm  maxStretch ${(ms * 100).toFixed(2)}%  pairs ${pairCount}  creased>0.5rad ${creased}  ${globalThis.__p}  ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+    const st = []; for (let e = 0; e < E; e++) { const a = eI[e * 2], b = eI[e * 2 + 1]; st.push(Math.abs(Math.hypot(X[b * 3] - X[a * 3], X[b * 3 + 1] - X[a * 3 + 1], X[b * 3 + 2] - X[a * 3 + 2]) / eL[e] - 1)); }
+    st.sort((a, b) => a - b); maxStretch = Math.max(maxStretch, st[E - 1]);
+    let creased = 0; for (let h = 0; h < HN; h++) if (Math.abs(hTheta0[h]) > 0.6) creased++;
+    console.log(`step ${step}/${STEPS} prog ${prog.toFixed(2)} rms ${(rr * 1000).toFixed(1)}mm Rs ${Rs < 1e8 ? (Rs * 1000).toFixed(0) : '-'} stretch p50 ${(st[E >> 1] * 100).toFixed(2)}% p99 ${(st[Math.floor(E * 0.99)] * 100).toFixed(2)}% max ${(st[E - 1] * 100).toFixed(1)}%  pairs ${pairCount} creased ${creased}  ${((Date.now() - t0) / 1000).toFixed(0)}s`);
   }
 }
 console.log(`sim done in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
-// recentre every snapshot on its centroid (the playback places the ball itself)
 for (const sn of snapshots) { let cx = 0, cy = 0, cz = 0; const p = sn.pos; for (let i = 0; i < N; i++) { cx += p[i * 3]; cy += p[i * 3 + 1]; cz += p[i * 3 + 2]; } cx /= N; cy /= N; cz /= N; for (let i = 0; i < N; i++) { p[i * 3] -= cx; p[i * 3 + 1] -= cy; p[i * 3 + 2] -= cz; } }
 
-/* ---------- choose K keyframes evenly by visual change ---------- */
+/* ---------- K keyframes, evenly spaced by visual change ---------- */
 const cum = [0];
-for (let s = 1; s < snapshots.length; s++) {
-  let acc2 = 0; const A = snapshots[s - 1].pos, B = snapshots[s].pos;
-  for (let i = 0; i < N * 3; i++) acc2 += (A[i] - B[i]) ** 2;
-  cum.push(cum[s - 1] + Math.sqrt(acc2 / N));
-}
-const total = cum[cum.length - 1];
-const chosen = [];
-for (let k = 0; k < K; k++) {
-  const target = total * (k / (K - 1));
-  let s = cum.findIndex((c) => c >= target - 1e-12); if (s < 0) s = snapshots.length - 1;
-  chosen.push(s);
-}
-// first keyframe = exactly flat rest (so the playback starts from the real sheet)
-const frames = chosen.map((s, k) => {
-  const p = Float32Array.from(snapshots[s].pos);
-  if (k === 0) for (let i = 0; i < N; i++) { p[i * 3] = rest[i * 2]; p[i * 3 + 1] = rest[i * 2 + 1]; p[i * 3 + 2] = 0; }
-  return p;
-});
+for (let s = 1; s < snapshots.length; s++) { let acc2 = 0; const A = snapshots[s - 1].pos, B = snapshots[s].pos; for (let i = 0; i < N * 3; i++) acc2 += (A[i] - B[i]) ** 2; cum.push(cum[s - 1] + Math.sqrt(acc2 / N)); }
+const total = cum[cum.length - 1], chosen = [];
+for (let k = 0; k < K; k++) { const target = total * (k / (K - 1)); let s = cum.findIndex((c) => c >= target - 1e-12); if (s < 0) s = snapshots.length - 1; chosen.push(s); }
+const frames = chosen.map((s, k) => { const p = Float32Array.from(snapshots[s].pos); if (k === 0) for (let i = 0; i < N; i++) { p[i * 3] = rest[i * 2]; p[i * 3 + 1] = rest[i * 2 + 1]; p[i * 3 + 2] = 0; } return p; });
 console.log('keyframes at sim progress', chosen.map((s) => snapshots[s].prog.toFixed(3)).join(' '));
 
-/* ---------- ambient occlusion per vertex (front = along +normal, back = along -normal), ray cast against the mesh ---------- */
 function vertexNormals(p) {
   const nrm = new Float32Array(N * 3);
   for (let t = 0; t < tris.length; t += 3) {
@@ -426,21 +365,28 @@ const aoFront = [], aoBack = [];
 const tAO = Date.now();
 for (let k = 0; k < K; k++) {
   if (k === 0) { aoFront.push(new Float32Array(N).fill(1)); aoBack.push(new Float32Array(N).fill(1)); continue; }
-  const { front, back } = computeAO(frames[k], +arg('rays', 40));
+  const { front, back } = computeAO(frames[k], +arg('rays', 48));
   aoFront.push(front); aoBack.push(back);
 }
 console.log(`AO done in ${((Date.now() - tAO) / 1000).toFixed(1)} s`);
 
-// quantisation step: the largest neighbour delta along rows must fit in an int8
 let maxDelta = 0;
 for (const p of frames) for (let j = 0; j < NY; j++) for (let i = 1; i < NX; i++) { const a = (j * NX + i) * 3, b = a - 3; for (let c = 0; c < 3; c++) maxDelta = Math.max(maxDelta, Math.abs(p[a + c] - p[b + c])); }
 const STEP = Math.ceil(maxDelta / 126 * 1e7) / 1e7;
-console.log('max row delta', (maxDelta * 1000).toFixed(2), 'mm -> step', (STEP * 1000).toFixed(4), 'mm');
 const enc = encodeCrumple({ nx: NX, ny: NY, seed: SEED, jitter: JITTER, frames, aoFront, aoBack, step: STEP });
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
-fs.writeFileSync(OUT, Buffer.from(enc.buffer));
-let rEnd = 0; { const p = frames[K - 1]; for (let i = 0; i < N; i++) rEnd = Math.max(rEnd, Math.hypot(p[i * 3], p[i * 3 + 1], p[i * 3 + 2])); }
-const report = { nx: NX, ny: NY, N, K, steps: STEPS, seed: SEED, bytes: enc.buffer.byteLength, maxQuantErrMM: +(enc.maxErr * 1000).toFixed(3), clipped: enc.clipped,
-  maxStretchPct: +(maxStretch * 100).toFixed(2), finalRadiusMM: +(rEnd * 1000).toFixed(1), params: { BEND_K, YIELD, SOFTEN, SHRINK, SQUEEZE, RC, ITER, MODE } };
+const gz = zlib.gzipSync(Buffer.from(enc.buffer), { level: 9 });
+fs.writeFileSync(OUT + '.gz', gz);
+if (arg('raw', false)) fs.writeFileSync(OUT, Buffer.from(enc.buffer)); else if (fs.existsSync(OUT)) fs.unlinkSync(OUT);
+// final quality numbers
+const last = frames[K - 1]; let rEnd = 0; for (let i = 0; i < N; i++) rEnd = Math.max(rEnd, Math.hypot(last[i * 3], last[i * 3 + 1], last[i * 3 + 2]));
+const st = []; for (let e = 0; e < E; e++) { const a = eI[e * 2], b = eI[e * 2 + 1]; st.push(Math.abs(Math.hypot(last[b * 3] - last[a * 3], last[b * 3 + 1] - last[a * 3 + 1], last[b * 3 + 2] - last[a * 3 + 2]) / eL[e] - 1)); }
+st.sort((a, b) => a - b);
+let creased = 0; for (let h = 0; h < HN; h++) if (Math.abs(hTheta0[h]) > 0.6) creased++;
+const report = { nx: NX, ny: NY, N, K, steps: STEPS, seed: SEED, rawBytes: enc.buffer.byteLength, gzBytes: gz.length, maxQuantErrMM: +(enc.maxErr * 1000).toFixed(3), clipped: enc.clipped,
+  finalStretch: { p50: +(st[E >> 1] * 100).toFixed(2), p99: +(st[Math.floor(E * 0.99)] * 100).toFixed(2), max: +(st[E - 1] * 100).toFixed(2) }, maxStretchDuringPct: +(maxStretch * 100).toFixed(2),
+  finalRadiusMM: +(rEnd * 1000).toFixed(1), creasedHinges: creased, hinges: HN,
+  keyframesAt: chosen.map((s) => +snapshots[s].prog.toFixed(3)),
+  params: { BEND_K, YIELD, SOFTEN, RC, ITER, BEND_EVERY, HAND_END, SPH0, SPH1, RELAX, R_END } };
 fs.writeFileSync(OUT.replace(/\.bin$/, '.json'), JSON.stringify(report, null, 2));
 console.log(report);

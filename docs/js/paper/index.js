@@ -24,6 +24,25 @@ export { LIGHT_PRESETS, blendPresets, folds, Sheet };
 
 export const TOKENS = { paper: '#F7F5F0', studio: '#ECEBE7', graphite: '#2A2926', ink: '#283090', inkDeep: '#1B2066' };
 
+export const PAPER_TONEMAP_GLSL = /* glsl */`
+vec3 CustomToneMapping( vec3 color ) {
+  color *= toneMappingExposure;
+  float peak = max( color.r, max( color.g, color.b ) );
+  const float K = 0.82;
+  if ( peak <= K ) return color;
+  float d = 1.0 - K;
+  float newPeak = K + d * ( 1.0 - exp( - ( peak - K ) / d ) );
+  color *= newPeak / peak;
+  float g = 1.0 - 1.0 / ( 0.6 * ( peak - newPeak ) + 1.0 );
+  return mix( color, vec3( newPeak ), g );
+}`;
+let _tmInstalled = false;
+export function installPaperToneMapping() {
+  if (_tmInstalled) return; _tmInstalled = true;
+  const c = THREE.ShaderChunk.tonemapping_pars_fragment;
+  THREE.ShaderChunk.tonemapping_pars_fragment = c.replace(/vec3 CustomToneMapping\( vec3 color \) \{ return color; \}/, PAPER_TONEMAP_GLSL);
+}
+
 /** Cheap device tiering (no benchmark download): 0 low phone, 1 phone / tablet, 2 desktop. */
 export function detectTier() {
   const coarse = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches;
@@ -44,7 +63,11 @@ export async function createPaperSystem(renderer, opts = {}) {
   const floorY = opts.floorY ?? 0;
   const t0 = performance.now();
 
-  renderer.toneMapping = THREE.NeutralToneMapping;
+  // tone mapping: 'paper' (default) is linear to a 0.82 knee, then a smooth hue-preserving shoulder. Whites keep their
+  // detail (tooth, formation, show-through) instead of being flattened in PBR Neutral's shoulder (which also subtracts a
+  // 0.04 toe). It is installed as THREE.CustomToneMapping; pass { toneMapping: 'neutral' } to keep three's Neutral.
+  if ((opts.toneMapping ?? 'paper') === 'paper') { installPaperToneMapping(); renderer.toneMapping = THREE.CustomToneMapping; }
+  else renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = tier.shadow > 0;
   renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -65,7 +88,7 @@ export async function createPaperSystem(renderer, opts = {}) {
     uGraphite: { value: lin(colors.graphite).multiplyScalar(0.62) },
     uInkColor: { value: lin(colors.ink) }, uInkDeep: { value: lin(colors.inkDeep) },
     uTransTint: { value: new THREE.Color(1.0, 0.9, 0.76) },
-    uTooth: { value: tex.tooth }, uToothP: { value: new THREE.Vector4(0.03, opts.toothStrength ?? 0.32, 0.37, 0.61) },
+    uTooth: { value: tex.tooth }, uToothP: { value: new THREE.Vector4(0.03, opts.toothStrength ?? 1.3, 0.37, 0.61) },
     uMacro: { value: blank }, uMacroP: { value: new THREE.Vector4(0.006, 0.9, 0, 1024) },
     uFormation: { value: tex.formation },
     uWatermark: { value: tex.watermark },
@@ -153,7 +176,7 @@ export async function createPaperSystem(renderer, opts = {}) {
     /** per frame: lights -> contact shadow -> sheets. dt in seconds. */
     update(scene, camera, dt = 1 / 60) {
       lights.apply({ camera, renderer, scene, backdrop, contact });
-      for (const s of sheets) s.update(camera, dt);
+      for (const s of sheets) { s.shadowOffset(lights.shadowOffset || 3); s.update(camera, dt); }
       if (contact.enabled) {
         contact.setLight(lights.keyDirection(_kd), 1);
         contact.follow(lights.focus.x, lights.focus.z);

@@ -16,11 +16,11 @@ const D = (x, y, z) => new THREE.Vector3(x, y, z).normalize();
 // key.dist is in metres from the target; angle (rad) is the spot cone; softness = PCF radius; shadow 0..1.
 const base = {
   space: 'view',
-  key: { dir: D(-0.58, 0.62, 0.52), dist: 1.5, color: '#fff4e8', intensity: 2.6, angle: 0.62, penumbra: 1, shadow: 1, softness: 6 },
-  fill: { dir: D(0.85, 0.15, 0.5), color: '#eef3ff', intensity: 0.32 },
+  key: { dir: D(-0.58, 0.62, 0.52), dist: 1.05, color: '#fffdf9', intensity: 1.47, angle: 0.62, penumbra: 1, shadow: 1, softness: 5 },
+  fill: { dir: D(0.85, 0.15, 0.5), color: '#eef3ff', intensity: 0.18 },
   back: { dir: D(0.15, 0.35, -1), dist: 1.6, color: '#fff2df', intensity: 0, angle: 0.75, penumbra: 1 },
   rim: { dir: D(-0.9, 0.2, -0.4), color: '#ffffff', intensity: 0 },
-  env: 0.5, exposure: 1.0,
+  env: 0.48, exposure: 1.0,
   backdrop: { gain: 1, pool: 0.07, poolColor: '#fff8f0', poolOffset: [-0.25, 0.25, -0.6], poolRadius: 1.4 },
   contact: { contact: 0.42, soft: 0.2 },
 };
@@ -35,45 +35,45 @@ const P = (over) => merge(base, over);
 export const LIGHT_PRESETS = {
   studio: P({}),
   // s00 neutral, technical: flat studio
-  s00: P({ key: { intensity: 2.2, dir: D(-0.3, 0.5, 0.8), dist: 2.4 }, fill: { intensity: 0.5 }, env: 0.6 }),
+  s00: P({ key: { intensity: 1.24, dir: D(-0.3, 0.5, 0.8), dist: 2.4 }, fill: { intensity: 0.29 }, env: 0.59 }),
   // s01 morning in a white room: warm key top-left raking 60 deg, cool fill right, soft contact shadow (camera pitched -68 deg)
-  s01: P({ key: { dir: D(-0.62, 0.74, 0.25), dist: 1.3, color: '#fff0dc', intensity: 2.7, softness: 7 }, fill: { dir: D(0.9, 0.2, 0.4), color: '#e8f0ff', intensity: 0.38 }, env: 0.48 }),
+  s01: P({ key: { dir: D(-0.62, 0.74, 0.25), dist: 1.0, color: '#fffaf2', intensity: 1.52, softness: 7 }, fill: { dir: D(0.9, 0.2, 0.4), color: '#e8f0ff', intensity: 0.22 }, env: 0.47 }),
   // s02 precise: the key swings to a left rim so the 0.1 mm edge reads; background ~4 % darker
-  s02: P({ key: { dir: D(-0.95, 0.25, -0.15), dist: 1.4, intensity: 2.4, color: '#fffaf2' }, rim: { dir: D(-1, 0.1, -0.3), intensity: 1.2 }, fill: { intensity: 0.22 }, env: 0.42, backdrop: { gain: 0.96 } }),
+  s02: P({ key: { dir: D(-0.95, 0.25, -0.15), dist: 1.4, intensity: 1.35, color: '#fffaf2' }, rim: { dir: D(-1, 0.1, -0.3), intensity: 0.52 }, fill: { intensity: 0.13 }, env: 0.41, backdrop: { gain: 0.96 } }),
   // s03 a desk at night (still white): warmer, closer key, soft falloff, low fill
-  s03: P({ key: { dir: D(-0.45, 0.7, 0.55), dist: 0.75, color: '#ffe6c4', intensity: 2.6, angle: 0.9, softness: 8 }, fill: { intensity: 0.16 }, env: 0.38, backdrop: { pool: 0.09, poolColor: '#ffeedd' } }),
+  s03: P({ key: { dir: D(-0.45, 0.7, 0.55), dist: 0.75, color: '#fff2e2', intensity: 1.47, angle: 0.9, softness: 8 }, fill: { intensity: 0.09 }, env: 0.37, backdrop: { pool: 0.09, poolColor: '#fff3e6' } }),
   // s05 the measuring room: neutral ~5600 K, crisp shadows, pure white
-  s05: P({ key: { dir: D(-0.5, 0.65, 0.58), dist: 2.2, color: '#fbfbff', intensity: 2.5, softness: 2.5 }, fill: { color: '#ffffff', intensity: 0.42 }, env: 0.55 }),
+  s05: P({ key: { dir: D(-0.5, 0.65, 0.58), dist: 2.2, color: '#fbfbff', intensity: 1.41, softness: 2.5 }, fill: { color: '#ffffff', intensity: 0.23 }, env: 0.54 }),
   // s06 archival: soft, slightly cool; back-light only for v2.0 (use s06v2)
-  s06: P({ key: { dir: D(-0.55, 0.55, 0.62), dist: 1.8, color: '#f4f6ff', intensity: 2.3, softness: 8 }, fill: { color: '#eef2ff', intensity: 0.36 }, env: 0.5 }),
-  s06v2: P({ key: { dir: D(-0.55, 0.55, 0.62), dist: 1.8, color: '#f4f6ff', intensity: 0.7 }, back: { dir: D(0.1, 0.25, -1), intensity: 3.4, color: '#fff1dc' }, fill: { intensity: 0.15 }, env: 0.25 }),
+  s06: P({ key: { dir: D(-0.55, 0.55, 0.62), dist: 1.8, color: '#f4f6ff', intensity: 1.29, softness: 8 }, fill: { color: '#eef2ff', intensity: 0.21 }, env: 0.48 }),
+  s06v2: P({ key: { dir: D(-0.55, 0.55, 0.62), dist: 1.8, color: '#f4f6ff', intensity: 0.39 }, back: { dir: D(0.1, 0.25, -1), intensity: 1.78, color: '#fff1dc' }, fill: { intensity: 0.09 }, env: 0.25 }),
   // s07 the microscope: grazing key ~80 deg from the normal, from the left
-  s07: P({ key: { dir: D(-0.98, 0.05, 0.18), dist: 0.9, color: '#fff8ee', intensity: 3.0, angle: 0.8, softness: 3 }, fill: { intensity: 0.08 }, env: 0.22 }),
+  s07: P({ key: { dir: D(-0.98, 0.05, 0.18), dist: 0.9, color: '#fff8ee', intensity: 1.68, angle: 0.8, softness: 3 }, fill: { intensity: 0.04 }, env: 0.21 }),
   // s08 glow on ink: back-light dominant, soft front fill
-  s08: P({ key: { intensity: 0.55, color: '#f2f4ff' }, back: { dir: D(0.05, 0.3, -1), intensity: 3.6, color: '#fff0d8' }, fill: { intensity: 0.2 }, env: 0.3, contact: { contact: 0, soft: 0 } }),
+  s08: P({ key: { intensity: 0.31, color: '#f2f4ff' }, back: { dir: D(0.05, 0.3, -1), intensity: 1.88, color: '#fff0d8' }, fill: { intensity: 0.12 }, env: 0.29, contact: { contact: 0, soft: 0 } }),
   // s09 evening on ink: soft overhead key + low back-light
-  s09: P({ key: { dir: D(-0.15, 0.95, 0.25), dist: 1.6, intensity: 2.0, color: '#fff4e6', softness: 9 }, back: { dir: D(0, -0.15, -1), intensity: 1.2 }, fill: { intensity: 0.18 }, env: 0.36 }),
+  s09: P({ key: { dir: D(-0.15, 0.95, 0.25), dist: 1.6, intensity: 1.12, color: '#fff4e6', softness: 9 }, back: { dir: D(0, -0.15, -1), intensity: 0.62 }, fill: { intensity: 0.1 }, env: 0.35 }),
   // s10 a fair fight: two identical soft spots (the developer duplicates the key per sheet if needed)
-  s10: P({ key: { dir: D(0, 0.75, 0.66), dist: 1.6, intensity: 2.5, angle: 0.95, softness: 8 }, fill: { intensity: 0.3 }, env: 0.45 }),
+  s10: P({ key: { dir: D(0, 0.75, 0.66), dist: 1.6, intensity: 1.41, angle: 0.95, softness: 8 }, fill: { intensity: 0.17 }, env: 0.44 }),
   // s11 catalogue / s12 the print room: neutral, crisp
   s11: P({}),
-  s12: P({ key: { dir: D(-0.5, 0.6, 0.62), dist: 2.0, color: '#fdfcfa', intensity: 2.55, softness: 3 }, fill: { intensity: 0.4 } }),
+  s12: P({ key: { dir: D(-0.5, 0.6, 0.62), dist: 2.0, color: '#fdfcfa', intensity: 1.44, softness: 3 }, fill: { intensity: 0.22 } }),
   // s14 the end of the day: a low, warm, golden key from the right
-  s14: P({ key: { dir: D(0.9, 0.22, 0.38), dist: 1.4, color: '#ffc98a', intensity: 2.9, softness: 6 }, fill: { dir: D(-0.8, 0.3, 0.5), color: '#dfe6ff', intensity: 0.25 }, back: { dir: D(0.6, 0.2, -1), intensity: 0.8, color: '#ffcf96' }, env: 0.32, backdrop: { pool: 0.1, poolColor: '#ffe9cf', poolOffset: [0.8, 0.2, -0.6] } }),
+  s14: P({ key: { dir: D(0.9, 0.22, 0.38), dist: 1.4, color: '#ffc98a', intensity: 1.64, softness: 6 }, fill: { dir: D(-0.8, 0.3, 0.5), color: '#dfe6ff', intensity: 0.14 }, back: { dir: D(0.6, 0.2, -1), intensity: 0.42, color: '#ffcf96' }, env: 0.31, backdrop: { pool: 0.1, poolColor: '#ffe9cf', poolOffset: [0.8, 0.2, -0.6] } }),
 
   // drying line (s04), card by card (brief 5.4)
-  card1: P({ key: { intensity: 0.6, color: '#eef2ff' }, back: { dir: D(0.05, 0.45, -1), intensity: 3.2, color: '#f0f4ff' }, fill: { intensity: 0.16 }, env: 0.28 }),            // cool back-light: glow + formation clouds
-  card2: P({ key: { dir: D(0.94, 0.2, 0.28), dist: 1.6, color: '#ffe9cc', intensity: 2.9, softness: 2 }, fill: { intensity: 0.18 }, env: 0.36 }),                                    // warm raking key from the right, crisp wing shadows
-  card3: P({ key: { dir: D(0, 0.97, 0.22), dist: 1.3, intensity: 2.6, softness: 10 }, fill: { intensity: 0.22 }, env: 0.4 }),                                                      // soft overhead key, deep soft shadow under the curl
-  card4: P({ key: { dir: D(-0.96, 0.12, 0.25), dist: 1.8, color: '#dfe9ff', intensity: 2.5, softness: 5 }, fill: { color: '#fff3e0', intensity: 0.18 }, env: 0.34 }),             // low, cool light from the left (late-afternoon water light)
-  card5: P({ key: { dir: D(0, 0.35, 0.94), dist: 3.0, color: '#ffffff', intensity: 2.0, shadow: 0 }, fill: { dir: D(0, -0.2, 1), intensity: 0.7, color: '#ffffff' }, env: 0.7 }), // bright, even, shadowless "office" light
-  card6: P({ key: { dir: D(-0.1, 0.96, 0.28), dist: 1.4, color: '#ffeccf', intensity: 2.8, softness: 2 }, fill: { intensity: 0.2 }, env: 0.38 }),                                  // warm top light, pleats cast fine stripes
-  card7: P({ key: { dir: D(-0.97, 0.06, 0.2), dist: 3.0, color: '#ffffff', intensity: 3.0, angle: 0.3, softness: 0.6 }, fill: { intensity: 0.1 }, env: 0.26 }),                     // hard side light, one long sharp shadow
-  card8: P({ key: { dir: D(-0.2, 0.75, 0.62), dist: 1.2, color: '#ffd9a8', intensity: 3.1, angle: 0.24, penumbra: 0.55, softness: 4 }, fill: { intensity: 0.08 }, env: 0.18, backdrop: { pool: 0.16, poolColor: '#ffe2bf', poolRadius: 0.55, poolOffset: [0, 0.1, -0.9] } }),  // a warm gallery spotlight
+  card1: P({ key: { intensity: 0.34, color: '#eef2ff' }, back: { dir: D(0.05, 0.45, -1), intensity: 1.66, color: '#f0f4ff' }, fill: { intensity: 0.09 }, env: 0.27 }),            // cool back-light: glow + formation clouds
+  card2: P({ key: { dir: D(0.94, 0.2, 0.28), dist: 1.6, color: '#ffe9cc', intensity: 1.64, softness: 2 }, fill: { intensity: 0.1 }, env: 0.35 }),                                    // warm raking key from the right, crisp wing shadows
+  card3: P({ key: { dir: D(0, 0.97, 0.22), dist: 1.3, intensity: 1.47, softness: 10 }, fill: { intensity: 0.13 }, env: 0.39 }),                                                      // soft overhead key, deep soft shadow under the curl
+  card4: P({ key: { dir: D(-0.96, 0.12, 0.25), dist: 1.8, color: '#dfe9ff', intensity: 1.41, softness: 5 }, fill: { color: '#fff3e0', intensity: 0.1 }, env: 0.33 }),             // low, cool light from the left (late-afternoon water light)
+  card5: P({ key: { dir: D(0, 0.35, 0.94), dist: 3.0, color: '#ffffff', intensity: 1.12, shadow: 0 }, fill: { dir: D(0, -0.2, 1), intensity: 0.39, color: '#ffffff' }, env: 0.68 }), // bright, even, shadowless "office" light
+  card6: P({ key: { dir: D(-0.1, 0.96, 0.28), dist: 1.4, color: '#ffeccf', intensity: 1.58, softness: 2 }, fill: { intensity: 0.12 }, env: 0.37 }),                                  // warm top light, pleats cast fine stripes
+  card7: P({ key: { dir: D(-0.97, 0.06, 0.2), dist: 3.0, color: '#ffffff', intensity: 1.68, angle: 0.3, softness: 0.6 }, fill: { intensity: 0.05 }, env: 0.26 }),                     // hard side light, one long sharp shadow
+  card8: P({ key: { dir: D(-0.2, 0.75, 0.62), dist: 1.2, color: '#ffd9a8', intensity: 1.75, angle: 0.24, penumbra: 0.55, softness: 4 }, fill: { intensity: 0.04 }, env: 0.18, backdrop: { pool: 0.16, poolColor: '#ffe2bf', poolRadius: 0.55, poolOffset: [0, 0.1, -0.9] } }),  // a warm gallery spotlight
 
   // look-dev utilities
-  backlit: P({ key: { intensity: 0.0 }, back: { dir: D(0.05, 0.25, -1), intensity: 4.0 }, fill: { intensity: 0.0 }, env: 0.12, contact: { contact: 0, soft: 0 } }),
-  raking: P({ key: { dir: D(-0.97, 0.12, 0.2), dist: 1.0, intensity: 3.2, softness: 3 }, fill: { intensity: 0.06 }, env: 0.18 }),
+  backlit: P({ key: { intensity: 0 }, back: { dir: D(0.05, 0.25, -1), intensity: 2.09 }, fill: { intensity: 0 }, env: 0.12, contact: { contact: 0, soft: 0 } }),
+  raking: P({ key: { dir: D(-0.97, 0.12, 0.2), dist: 1.0, intensity: 1.8, softness: 3 }, fill: { intensity: 0.04 }, env: 0.18 }),
 };
 
 /* ------------------------------------------------------------------------------------------------ blending */
@@ -106,10 +106,10 @@ export class LightRig {
     this.group = new THREE.Group(); this.group.name = 'paper.lights';
     this.target = new THREE.Object3D(); this.group.add(this.target);
     this.key = new THREE.SpotLight(0xffffff, 1, 0, 0.6, 1, 2);
-    this.key.castShadow = shadowSize > 0;
+    this.key.castShadow = shadowSize > 0; this.shadowEnabled = shadowSize > 0; this.shadowExtent = 0.6;
     if (shadowSize > 0) {
       this.key.shadow.mapSize.set(shadowSize, shadowSize);
-      this.key.shadow.bias = -0.00008; this.key.shadow.normalBias = 0.0006; this.key.shadow.radius = 6;
+      this.key.shadow.bias = -0.00002; this.key.shadow.normalBias = 0.0005; this.key.shadow.radius = 4;
       this.key.shadow.camera.near = 0.2; this.key.shadow.camera.far = 6;
     }
     this.key.target = this.target;
@@ -141,10 +141,18 @@ export class LightRig {
       L.visible = L.intensity > 0;
     };
     spot(this.key, S.key, 1.5); spot(this.back, S.back, 1.6);
-    if (this.key.castShadow) {
-      this.key.shadow.radius = S.key.softness ?? 6;
-      this.key.shadow.intensity = S.key.shadow ?? 1;
-      const d = S.key.dist ?? 1.5; this.key.shadow.camera.near = Math.max(0.05, d * 0.35); this.key.shadow.camera.far = d * 3 + 1;
+    if (this.key.shadow.mapSize.x > 0 && this.shadowEnabled) {
+      const sh = this.key.shadow, d = S.key.dist ?? 1.5;
+      // focus the shadow frustum on the subject (default: a 0.6 m window), whatever the spot's cone
+      const half = Math.atan((this.shadowExtent * 0.5) / d);
+      sh.focus = THREE.MathUtils.clamp(half / Math.max(0.05, this.key.angle), 0.05, 1);
+      const texelMM = (2 * d * Math.tan(this.key.angle * sh.focus) * 1000) / sh.mapSize.x;
+      sh.radius = THREE.MathUtils.clamp((S.key.softness ?? 4) / texelMM, 1, 32);   // softness = penumbra in mm
+      this.shadowOffset = sh.radius + 2.5;                                            // slope-scaled offset >= the kernel: no acne
+      sh.intensity = S.key.shadow ?? 1;
+      sh.camera.near = Math.max(0.05, d * 0.4); sh.camera.far = d * 2.5 + 0.5;
+      sh.normalBias = Math.max(0.0003, texelMM * 0.0008);
+      this.key.castShadow = (S.key.shadow ?? 1) > 0;
     }
     const dir = (L, s) => {
       L.position.copy(this.focus).addScaledVector(toWorld(s.dir), 3);

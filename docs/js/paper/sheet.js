@@ -23,7 +23,7 @@ import { MAX_FOLDS } from './glsl.js';
 import * as F from './folds.js';
 
 const DEFAULT_STATE = () => ({
-  bend: 0, bendAxis: Math.PI / 2, twist: 0, flutter: 0, flutterFreq: 9, flutterTime: 0, flutterAuto: false, cockle: 0.0003,
+  bend: 0, bendAxis: Math.PI / 2, twist: 0, flutter: 0, flutterFreq: 9, flutterTime: 0, flutterAuto: false, cockle: 0.00045,
   folds: null, plane: 0, halving: 0, sixfold: 0, dogEar: 0, dogEarCorner: 'tr', peel: 0, curl: null, fan: 0, crumple: 0,
   thickness: 0.0001, translucency: 0.24, watermark: 0, showThrough: 0, inkDot: 0, inkDotAt: [0.072, -0.118], inkDotRadius: 0.0015,
   bleed: null, macro: 0, paint: false, paintFace: 1, overlay: null, creases: null, gain: 1, visible: true, tear: null,
@@ -220,6 +220,12 @@ export class Sheet {
     U.uHalfThick.value = this.halfThick;
     if (this._dirtyFolds) this._collectFolds();
     this._uploadFolds();
+  }
+
+  /** slope-scaled offset of this sheet's shadow-map depth (set by the system from the key's PCF radius) */
+  shadowOffset(f) {
+    for (const p of this.pieces) { const m = p.mesh.customDepthMaterial; if (m && m.polygonOffsetFactor !== f) { m.polygonOffsetFactor = f; m.polygonOffsetUnits = 4; } }
+    if (this.crumpleMesh && this.crumpleMesh.customDepthMaterial) this.crumpleMesh.customDepthMaterial.polygonOffsetFactor = f;
   }
 
   /* ------------------------------------------------------------------ helpers */

@@ -19,9 +19,10 @@ import * as THREE from 'three';
 import { createPaperSystem, TOKENS } from '../js/paper/index.js';
 
 const STATES = {
-  flat: 'cam=0,0,1.22&pos=0,0.5,0&light=studio',
-  hero: 'cam=0,68,1.18&target=0,0,0.02&pos=0,0.0004,0&rot=-90,0,0&light=s01&print=1&printw=0.96&printz=-0.01&show=0.14&cockle=0.00025',
-  heroair: 'cam=0,68,1.18&target=0,0,0.02&pos=0,0.04,0&rot=-90,0,-8&light=s01&print=1&printw=0.96&printz=-0.01&show=0.14&flutter=0.006&ftime=2',
+  flat: 'cam=-14,6,1.22&pos=0,0.5,0&rot=0,-14,0&bend=0.7&light=studio',
+  front: 'cam=0,0,1.22&pos=0,0.5,0&light=studio',
+  hero: 'cam=0,68,1.18&target=0,0,0.02&pos=0,0.0004,0&rot=-90,0,0&light=s01&print=1&printw=0.9&printz=0&show=0.16&cockle=0.0002',
+  heroair: 'cam=0,68,1.18&target=0,0,0.02&pos=0,0.04,0&rot=-90,0,-8&light=s01&print=1&printw=0.9&printz=0&show=0.16&flutter=0.006&ftime=2',
   slope: 'cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03',
   bend: 'cam=-18,10,1.25&pos=0,0.5,0&rot=0,-18,0&bend=1.6&light=s06',
   edge: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,84,0&light=s02',
@@ -29,7 +30,7 @@ const STATES = {
   curl: 'cam=-10,20,1.25&pos=0,0.5,0&rot=-12,0,0&curl=br,1,0.02,60&light=card3',
   think: 'cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&curl=tr,1,0.015,25&light=s03',
   dogear: 'cam=0,0,1.22&pos=0,0.5,0&rot=0,-12,0&dogear=1&light=s09',
-  peel: 'cam=0,40,1.25&target=0,0.05,0&pos=0,0.0004,0&rot=-90,0,0&peel=0.45&light=s01&print=1&printw=0.96',
+  peel: 'cam=0,40,1.25&target=0,0.05,0&pos=0,0.0004,0&rot=-90,0,0&peel=0.45&light=s01&print=1&printw=0.9',
   plane: 'cam=35,22,0.95&pos=0,0.5,0&rot=-90,0,30&plane=7&light=card2',
   planestep: 'cam=0,30,1.1&pos=0,0.5,0&rot=-60,0,0&plane=3.5&light=studio',
   halving: 'cam=0,25,1.05&pos=0,0.45,0&rot=-30,0,0&halving=1.5&light=s05',
@@ -119,11 +120,11 @@ async function apply(search) {
   const bleedT = num('bleed', 0);
   if (num('macro', 0) > 0 || bleedT > 0) paper.ensureMacro();
   if (bleedT > 0) paper.ensureFibreGeo();
-  if (P.has('tooth')) paper.shared.uToothP.value.y = num('tooth', 0.32);
+  paper.shared.uToothP.value.y = num('tooth', 1.3);
   sheet.reset();
   sheet.set({
     bend: num('bend', 0), bendAxis: rad(num('axis', 90)), twist: num('twist', 0),
-    flutter: num('flutter', 0), flutterFreq: num('ffreq', 9), flutterTime: num('ftime', 0), cockle: num('cockle', 0.0003),
+    flutter: num('flutter', 0), flutterFreq: num('ffreq', 9), flutterTime: num('ftime', 0), cockle: num('cockle', 0.00045),
     plane: num('plane', 0), halving: num('halving', 0), sixfold: num('sixfold', 0), dogEar: num('dogear', 0), peel: num('peel', 0), curl,
     fan: num('fan', 0), crumple: num('crumple', 0), thickness: num('thick', 0.1) / 1000,
     translucency: num('trans', 0.24), watermark: num('wm', 0), showThrough: num('show', 0), inkDot: num('dot', 0),
@@ -153,6 +154,7 @@ async function apply(search) {
   if (P.has('keydir')) L.key.dir = new THREE.Vector3(...vec('keydir')).normalize();
   if (P.has('keydist')) L.key.dist = num('keydist');
   if (P.has('soft')) L.key.softness = num('soft');
+  if (P.has('shadow')) L.key.shadow = num('shadow');
   if (P.has('back')) L.back.intensity = num('back');
   if (P.has('env')) L.env = num('env');
   if (P.has('exp')) L.exposure = num('exp');

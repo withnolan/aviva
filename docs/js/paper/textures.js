@@ -89,51 +89,54 @@ function heightToNormal(renderer, heightRT, size, strength) {
   return out;
 }
 
-/* ---------- 30 mm tooth tile: felt + fibre streaks ---------- */
+/* ---------- 30 mm tooth tile: calendered felt + a dense mat of short fibres ----------
+ * Prime lattice periods per octave (and offsets) so no two octaves share a grid: no lattice pattern at any mip.
+ * The fibres are summed (a felt), not drawn as distinct needles; heavy overlaps saturate like real flattened fibres.
+ */
 const TOOTH_FRAG = /* glsl */`
 precision highp float; varying vec2 vUv;
 uniform float uTileMM, uSeed, uFibreAmt, uGrain;
 ${NOISE_GLSL}
-// tileable felt: anisotropic gradient noise, wavelengths 4 mm .. 0.25 mm, elongated along x (the machine direction)
 float felt(vec2 uv){
-  float h = 0.0, amp = 0.5;
-  for (int o = 0; o < 5; o++) {
-    float f = 0.25 * pow(2.0, float(o));                  // cycles per mm
-    vec2 per = max(vec2(1.0), floor(vec2(uTileMM * f * 0.72, uTileMM * f * 1.25) + 0.5));
-    h += amp * pnoise(uv * per, per, uSeed + float(o) * 17.0);
-    amp *= 0.62;
-  }
+  float h = 0.0;
+  h += 0.30 * pnoise(uv * vec2(11.0, 13.0) + vec2(0.37, 0.71), vec2(11.0, 13.0), uSeed);
+  h += 0.30 * pnoise(uv * vec2(23.0, 29.0) + vec2(0.13, 0.29), vec2(23.0, 29.0), uSeed + 17.0);
+  h += 0.24 * pnoise(uv * vec2(47.0, 59.0) + vec2(0.61, 0.07), vec2(47.0, 59.0), uSeed + 31.0);
+  h += 0.17 * pnoise(uv * vec2(97.0, 127.0) + vec2(0.29, 0.53), vec2(97.0, 127.0), uSeed + 47.0);
+  h += 0.10 * pnoise(uv * vec2(193.0, 241.0) + vec2(0.83, 0.41), vec2(193.0, 241.0), uSeed + 59.0);
   return h;
 }
 void main(){
   vec2 uv = vUv;
-  float h = 0.5 + 0.30 * felt(uv);
-  // short fibre streaks: 1.2 mm cells, 3 fibres each, half length <= 0.6 mm -> 3x3 neighbourhood
-  float cells = floor(uTileMM / 1.2 + 0.5), fib = 0.0;
+  float h = 0.5 + 0.55 * felt(uv);
+  float cells = floor(uTileMM / 0.5 + 0.5), fib = 0.0;            // 0.5 mm cells, 6 short fibres each
   vec2 p = uv * cells, ip = floor(p);
   for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) {
     vec2 cell = ip + vec2(float(i), float(j)), wc = mod(cell, cells);
-    for (int k = 0; k < 3; k++) {
+    for (int k = 0; k < 6; k++) {
       vec4 r = hash42(wc * 3.0 + float(k) * 7.31 + uSeed);
       vec4 s = hash42(wc * 5.0 + float(k) * 3.17 + uSeed + 11.0);
       vec2 c = cell + r.xy;
-      float ang = (s.x < uGrain ? 0.0 : s.y * 3.14159) + (s.z - 0.5) * 0.5;
+      float ang = (s.x < uGrain ? 0.0 : s.y * 3.14159) + (s.z - 0.5) * 0.6;
       vec2 d = vec2(cos(ang), sin(ang)), n = vec2(-d.y, d.x);
-      float len = mix(0.25, 0.5, r.z);                       // in cells (x1.2 mm)
-      vec2 q = p - c; float t = dot(q, d), w = dot(q, n) + 0.06 * s.w * (t * t - len * len) / len;
-      float inSeg = 1.0 - smoothstep(len * 0.7, len, abs(t));
-      float wid = 0.022 * (0.7 + 0.6 * r.w);                 // ~26 um in cells of 1.2 mm
-      fib = max(fib, inSeg * exp(-w * w / (wid * wid)) * (0.5 + 0.5 * s.w));
+      float len = mix(0.45, 0.95, r.z);
+      vec2 q = p - c; float t = dot(q, d);
+      float w = dot(q, n) + 0.1 * (s.w - 0.5) * (t * t - len * len) / len;
+      float inSeg = 1.0 - smoothstep(len * 0.55, len, abs(t));
+      float wid = 0.05 * (0.7 + 0.6 * r.w);
+      fib += inSeg * exp(-w * w / (wid * wid)) * (0.35 + 0.65 * s.w);
     }
   }
-  h += uFibreAmt * fib;
+  fib = 1.0 - exp(-fib * 0.9);                                      // saturate overlaps (flattened by calendering)
+  h += uFibreAmt * (fib - 0.35);
+  h = h - 0.35 * max(h - 0.72, 0.0);                                // calender: the peaks are pressed flat
   gl_FragColor = vec4(encode16(clamp(h, 0.0, 1.0)), fib, 1.0);
 }`;
 
 /**
  * @returns {THREE.Texture} RGBA8, 1 texel = tileMM/size. RG normal, B height, A fibre mask.
  */
-export function makeFibreTile(renderer, { size = 1024, tileMM = 30, seed = 3, strength = 22, fibre = 0.22, grain = 0.4 } = {}) {
+export function makeFibreTile(renderer, { size = 1024, tileMM = 30, seed = 3, strength = 16, fibre = 0.16, grain = 0.4 } = {}) {
   const h = rt(size, size, { mip: false });
   const m = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: TOOTH_FRAG, depthTest: false, depthWrite: false,
     uniforms: { uTileMM: { value: tileMM }, uSeed: { value: seed }, uFibreAmt: { value: fibre }, uGrain: { value: grain } } });
@@ -234,23 +237,21 @@ float fbm(vec2 uv, float baseMM, int oct, float seed){
   float h = 0.0, amp = 0.5, norm = 0.0;
   for (int o = 0; o < 6; o++) {
     if (o >= oct) break;
-    float wl = baseMM / pow(2.0, float(o));
-    vec2 per = max(vec2(1.0), floor(uSheetMM / wl + 0.5));
-    h += amp * pnoise(uv * per, per, seed + float(o) * 23.0); norm += amp; amp *= 0.55;
+    float wl = baseMM / pow(2.03, float(o));
+    vec2 per = max(vec2(1.0), floor(uSheetMM / wl * vec2(0.85, 1.0) + 0.5));   // flocs a little longer along x (machine direction)
+    h += amp * pnoise(uv * per + vec2(0.31, 0.17) * float(o + 1), per, seed + float(o) * 23.0); norm += amp; amp *= 0.62;
   }
   return h / norm;
 }
 void main(){
-  // flocs: 1.5 - 24 mm, slightly elongated along x (fibres align with the machine direction)
   vec2 uv = vUv;
-  float floc = fbm(uv, 24.0, 5, uSeed);
-  float fine = fbm(uv * vec2(1.0, 1.0), 2.0, 3, uSeed + 50.0);
-  float f = 0.5 + 0.9 * floc + 0.25 * fine;
-  // flocs are clumpy: sharpen the distribution a little
-  f = smoothstep(0.05, 0.95, f);
-  float rough = 0.5 + 0.5 * fbm(uv, 6.0, 4, uSeed + 90.0);
-  float thick = clamp(0.5 + 1.1 * floc + 0.35 * fine, 0.0, 1.0);
-  float fill = 0.5 + 0.5 * fbm(uv, 0.8, 2, uSeed + 130.0);
+  float floc = fbm(uv, 7.0, 4, uSeed);              // 7 mm .. 1 mm flocs: the look-through cloudiness of copy paper
+  float broad = fbm(uv, 36.0, 2, uSeed + 70.0);     // a gentle large-scale variation
+  float fine = fbm(uv, 1.2, 2, uSeed + 50.0);
+  float f = clamp(0.5 + 0.95 * floc + 0.35 * broad + 0.2 * fine, 0.0, 1.0);
+  float rough = clamp(0.5 + 0.6 * fbm(uv, 5.0, 3, uSeed + 90.0), 0.0, 1.0);
+  float thick = clamp(0.5 + 1.05 * floc + 0.3 * broad + 0.25 * fine, 0.0, 1.0);
+  float fill = clamp(0.5 + 0.6 * fbm(uv, 0.8, 2, uSeed + 130.0), 0.0, 1.0);
   gl_FragColor = vec4(f, rough, thick, fill);
 }`;
 

@@ -13,6 +13,38 @@ import * as THREE from 'three';
 import { DEFORM_PARS, DEFORM_VERTEX, VERTEX_VARYINGS, TEAR_PARS, PAPER_FRAG_PARS, INK_FRONT, MAX_FOLDS } from './glsl.js';
 
 const v4 = (x = 0, y = 0, z = 0, w = 0) => new THREE.Vector4(x, y, z, w);   // NB: new Vector4() defaults to w = 1
+
+/* ------------------------------------------------------------------------------------------------ smooth PCF for paper
+ * three 0.186's PCF takes 5 taps rotated by interleaved-gradient noise per pixel: on a raking-lit white sheet that
+ * shows as a regular dither. The paper gets 16 hardware-PCF taps on a fixed Vogel disk (smooth, no noise). Acne is
+ * handled in the shadow map itself (slope-scaled polygon offset that grows with the kernel, see lights.js).
+ */
+function paperShadowChunk(taps = 16) {
+  const src = THREE.ShaderChunk.shadowmap_pars_fragment;
+  const a = src.indexOf('float getShadow( sampler2DShadow shadowMap');
+  if (a < 0) return src;
+  const end = src.indexOf('return mix( 1.0, shadow, shadowIntensity );', a);
+  if (end < 0) return src;
+  const close = src.indexOf('}', end);
+  const fn = `float getShadow( sampler2DShadow shadowMap, vec2 shadowMapSize, float shadowIntensity, float shadowBias, float shadowRadius, vec4 shadowCoord ) {
+    float shadow = 1.0;
+    shadowCoord.xyz /= shadowCoord.w;
+    shadowCoord.z += shadowBias;
+    bool inFrustum = shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0;
+    if ( inFrustum && shadowCoord.z <= 1.0 ) {
+      float radius = shadowRadius / shadowMapSize.x;
+      float acc = 0.0;
+      for ( int i = 0; i < ${taps}; i ++ ) {
+        float r = sqrt( ( float( i ) + 0.5 ) / ${taps}.0 ), th = float( i ) * 2.399963229728653;
+        acc += texture( shadowMap, vec3( shadowCoord.xy + vec2( cos( th ), sin( th ) ) * r * radius, shadowCoord.z ) );
+      }
+      shadow = acc / ${taps}.0;
+    }
+    return mix( 1.0, shadow, shadowIntensity );
+  `;
+  return src.slice(0, a) + fn + src.slice(close);
+}
+let SHADOW_CHUNK = null;
 const arr4 = (n) => Array.from({ length: n }, () => v4());
 export const MAX_CREASES = 4;
 
@@ -23,7 +55,7 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uSheet: { value: new THREE.Vector2(size.w, size.h) },
     uHalfThick: { value: 0.00005 }, uDeformEps: { value: 0.0008 },
     uFoldCount: { value: 0 }, uFoldQ: { value: arr4(MAX_FOLDS) }, uFoldA: { value: arr4(MAX_FOLDS) }, uFoldM: { value: arr4(MAX_FOLDS) }, uFoldR: { value: arr4(MAX_FOLDS) },
-    uBend: { value: v4() }, uPleat: { value: v4(0.015, 0, 0, 0.05) }, uFlutter: { value: v4(0, 9, 0, 0) }, uCockle: { value: v4(0.00025, 11, 3.7, 0) },
+    uBend: { value: v4() }, uPleat: { value: v4(0.015, 0, 0, 0.05) }, uFlutter: { value: v4(0, 9, 0, 0) }, uCockle: { value: v4(0.00045, 16, 3.7, 0) },
     uFormP: { value: v4(0, 0, 0.035, 0.37) },
     uEdgeP: { value: v4(1.6, 0.55, 0.06, 0.5) },
     uTransP: { value: v4(0.22, 0.35, 0.3, 0) },
@@ -32,7 +64,7 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uOverlay: { value: shared.uBlank.value }, uOverlayP: { value: v4(0, 1, 0, 0) },
     uInkDot: { value: v4(0.072, -0.118, 0.0015, 0) },
     uBleed: { value: v4(0, 0, 0, 8) }, uBleedP: { value: v4(0, 0, 0, 0) },
-    uShow: { value: v4(0, 0, 0.006, 0) },
+    uShow: { value: v4(0, 0, 0.006, 1.2) },
     uCrease: { value: arr4(MAX_CREASES) },
     uTear0: { value: v4() }, uTear1: { value: v4() }, uTearFx0: { value: v4(1, 0, 0.0016, 55) }, uTearFx1: { value: v4(1, 0, 0.0016, 55) },
     uGain: { value: 1 },
@@ -64,7 +96,8 @@ const FRAG_COLOR = /* glsl */`
 vec2 paperUv = vRest / uSheet + 0.5;
 vec4 paperForm = texture2D(uFormation, paperUv + uFormP.xy + (paperFace < 0.0 ? vec2(uFormP.w, uFormP.w * 1.618) : vec2(0.0)));
 vec2 paperToothUv = vRest / uToothP.x + (paperFace < 0.0 ? uToothP.zw : vec2(0.0));
-vec4 paperTooth = texture2D(uTooth, paperToothUv);
+// two samples at incommensurate scales: the 30 mm tile never visibly repeats across the sheet
+vec4 paperTooth = texture2D(uTooth, paperToothUv) * 0.62 + texture2D(uTooth, paperToothUv * 0.7692 + vec2(0.43, 0.19)) * 0.38;
 vec4 paperMacroS = vec4(0.5, 0.5, 0.5, 0.5); float paperMacroFade = 0.0;
 if (uMacroP.z > 0.0) {
   vec2 muv = vRest / uMacroP.x + (paperFace < 0.0 ? vec2(0.31, 0.57) : vec2(0.0));
@@ -113,7 +146,7 @@ if (uShow.x > 0.0) {
   float contact = 1.0 - smoothstep(0.0, uShow.z, gap);
   if (contact > 0.0) {
     vec2 wuv = (vPaperWorld.xz - uFloorRect.xy) / uFloorRect.zw;
-    float lod = clamp(log2(1.0 + max(gap, 0.0) / 0.0004), 0.0, 6.0) + uShow.w;
+    float lod = clamp(log2(1.0 + max(gap, 0.0) / 0.0004), 0.0, 6.0) + uShow.w;   // seen through fibres: always a little soft
     float ink = textureLod(uFloorPrint, wuv, lod).a;
     float k = uShow.x * mix(0.85, 1.15, paperForm.r) * contact;
     alb = mix(alb, uShowTint, clamp(ink * k, 0.0, 1.0));
@@ -224,6 +257,7 @@ function patchVertex(shader, variant) {
 function patchFragment(shader) {
   shader.fragmentShader = shader.fragmentShader
     .replace('#include <common>', '#include <common>\n' + PAPER_FRAG_PARS + FRAG_PARS_EXTRA)
+    .replace('#include <shadowmap_pars_fragment>', SHADOW_CHUNK || (SHADOW_CHUNK = paperShadowChunk(16)))
     .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\n' + FRAG_CLIP)
     .replace('#include <color_fragment>', FRAG_COLOR)
     .replace('#include <roughnessmap_fragment>', FRAG_ROUGH)
@@ -264,7 +298,8 @@ const DEPTH_FRAG_DISCARD = /* glsl */`
   if ((uTear0.w != 0.0 || uTear1.w != 0.0) && tearKeep(vRest, pxm_, band_) < 0.0) discard;
 `;
 export function createPaperDepthMaterial(uniforms, variant = 'slab') {
-  const m = new THREE.MeshDepthMaterial({ depthPacking: THREE.BasicDepthPacking, side: variant === 'slab' ? THREE.FrontSide : THREE.DoubleSide });
+  // slope-scaled offset: no self-shadow acne on a sheet lit at a raking angle
+  const m = new THREE.MeshDepthMaterial({ depthPacking: THREE.BasicDepthPacking, side: variant === 'slab' ? THREE.FrontSide : THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 2.0, polygonOffsetUnits: 3.0 });
   m.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
     if (variant === 'slab') {
