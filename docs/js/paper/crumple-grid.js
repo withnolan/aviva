@@ -54,14 +54,16 @@ export function makeCrumpleGrid(nx = 57, ny = 81, seed = 7, size = { w: 0.21, h:
  */
 export const CRUMPLE_MAGIC = 0x52435641; // 'AVCR'
 
-export function encodeCrumple({ nx, ny, seed, jitter, frames, aoFront, aoBack, step = 0.00005 }) {
+export function encodeCrumple({ nx, ny, seed, jitter, frames, aoFront, aoBack, step = 0.00005, center = null, swap = 0 }) {
   const n = nx * ny, K = frames.length;
   const rowBytes = 6 + (nx - 1) * 3;
   const frameBytes = ny * rowBytes + n * 2;
-  const buf = new ArrayBuffer(32 + K * frameBytes), dv = new DataView(buf);
-  dv.setUint32(0, CRUMPLE_MAGIC, true); dv.setUint16(4, 1, true); dv.setUint16(6, nx, true); dv.setUint16(8, ny, true); dv.setUint16(10, K, true);
+  const HDR = center ? 48 : 32;                  // v2: + the packet centre (sheet frame) the frames were re-centred by
+  const buf = new ArrayBuffer(HDR + K * frameBytes), dv = new DataView(buf);
+  dv.setUint32(0, CRUMPLE_MAGIC, true); dv.setUint16(4, center ? 2 : 1, true); dv.setUint16(6, nx, true); dv.setUint16(8, ny, true); dv.setUint16(10, K, true);
   dv.setUint32(12, seed, true); dv.setFloat32(16, jitter, true); dv.setFloat32(20, step, true); dv.setFloat32(24, 1, true);
-  let o = 32, maxErr = 0, clipped = 0;
+  if (center) { dv.setFloat32(28, center[0], true); dv.setFloat32(32, center[1], true); dv.setFloat32(36, center[2], true); dv.setFloat32(40, swap, true); }
+  let o = HDR, maxErr = 0, clipped = 0;
   for (let k = 0; k < K; k++) {
     const P = frames[k];
     for (let j = 0; j < ny; j++) {
@@ -90,14 +92,17 @@ export function encodeCrumple({ nx, ny, seed, jitter, frames, aoFront, aoBack, s
   return { buffer: buf, maxErr, clipped };
 }
 
-/** @returns {{nx,ny,n,K,seed,jitter, positions: Float32Array[] (n*3 each), ao: Float32Array[] (n*2 each: front, back)}} */
+/** @returns {{nx,ny,n,K,seed,jitter, center: number[]|null, swap: number, positions: Float32Array[] (n*3 each), ao: Float32Array[] (n*2 each: front, back)}} */
 export function decodeCrumple(buffer) {
   const dv = new DataView(buffer);
   if (dv.getUint32(0, true) !== CRUMPLE_MAGIC) throw new Error('not an aviva crumple file');
+  const version = dv.getUint16(4, true);
   const nx = dv.getUint16(6, true), ny = dv.getUint16(8, true), K = dv.getUint16(10, true);
   const seed = dv.getUint32(12, true), jitter = dv.getFloat32(16, true), step = dv.getFloat32(20, true);
+  const center = version >= 2 ? [dv.getFloat32(28, true), dv.getFloat32(32, true), dv.getFloat32(36, true)] : null;
+  const swap = version >= 2 ? dv.getFloat32(40, true) : 0;
   const n = nx * ny, positions = [], ao = [];
-  let o = 32;
+  let o = version >= 2 ? 48 : 32;
   for (let k = 0; k < K; k++) {
     const P = new Float32Array(n * 3), A = new Float32Array(n * 2);
     for (let j = 0; j < ny; j++) {
@@ -112,5 +117,5 @@ export function decodeCrumple(buffer) {
     for (let v = 0; v < n; v++) A[v * 2 + 1] = dv.getUint8(o++) / 255;
     positions.push(P); ao.push(A);
   }
-  return { nx, ny, n, K, seed, jitter, positions, ao };
+  return { nx, ny, n, K, seed, jitter, center, swap, positions, ao };
 }

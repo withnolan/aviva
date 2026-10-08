@@ -23,6 +23,10 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.
 const NX = +arg('nx', 57), NY = +arg('ny', 81), STEPS = +arg('steps', 6000), K = +arg('K', 9), SEED = +arg('seed', 7);
 const ITER = +arg('iter', 24), BEND_EVERY = +arg('bendEvery', 3);
 const OUT = path.resolve(ROOT, arg('out', 'docs/assets/paper/crumple.bin'));
+// --init folds: phase 2 of the runtime crumple. The sheet starts as the phase-1 packet (folds.crumpleFolds(1), the
+// same fold maths as the shader), its creases are the plastic rest state, and a shrinking sphere crushes it into the
+// ball. Keyframe 0 is that packet, so the runtime swap from the folding slab (t = CRUMPLE_SWAP) is seamless.
+const INIT = arg('init', 'flat');
 const JITTER = 0.32;
 const WAVE = +arg('wave', 1);            // scale of the initial long, gentle waves (they pre-shape smooth bumps)
 
@@ -141,6 +145,22 @@ const gradErr = selfTest();
 console.log('dihedral gradient self-test, max rel error:', gradErr.toExponential(2));
 if (gradErr > 1e-3) { console.error('gradient check FAILED'); process.exit(1); }
 
+let FOLDS_SWAP = 0;
+if (INIT === 'folds') {
+  const { crumpleFolds, foldPoint, CRUMPLE_SWAP } = await import('../../../docs/js/paper/folds.js');
+  FOLDS_SWAP = CRUMPLE_SWAP;
+  const F1 = crumpleFolds(1, { seed: +arg('fseed', 5), sheet: { w: 0.21, h: 0.297 } });
+  const o = [0, 0, 0];
+  for (let i = 0; i < N; i++) { foldPoint([rest[i * 2], rest[i * 2 + 1]], F1, o); X[i * 3] = o[0]; X[i * 3 + 1] = o[1]; X[i * 3 + 2] = o[2]; }
+  X_ = X; let creasedInit = 0;
+  for (let h = 0; h < HN; h++) {
+    const th = dihedral(hI[h * 4], hI[h * 4 + 1], hI[h * 4 + 2], hI[h * 4 + 3], false); if (isNaN(th)) continue;
+    hTheta0[h] = th; if (Math.abs(th) > 0.35) { hDamage[h] = Math.max(hDamage[h], 0.8); creasedInit++; }
+  }
+  X_ = P;
+  console.log(`init: the phase-1 packet (${F1.length} folds), ${creasedInit} hinges already creased`);
+}
+
 /* ---------- spatial hash for self collision ---------- */
 const RC = +arg('rc', 0.5 * cell), HCELL = 2 * RC, HSIZE = 1 << 18;
 const hHead = new Int32Array(HSIZE), hNext = new Int32Array(N);
@@ -174,7 +194,8 @@ const BEND_K = +arg('bk', 0.55);          // bending stiffness per bend pass, un
 const YIELD = +arg('yield', 0.32);        // elastic range of a hinge (rad) before it creases
 const SOFTEN = +arg('soften', 7.0);       // stiffness /= 1 + SOFTEN * accumulated plastic rotation
 const FRICTION = +arg('friction', 0.35);
-const HAND_END = +arg('handEnd', 0.42), SPH0 = +arg('sph0', 0.3), SPH1 = +arg('sph1', 0.9), RELAX = +arg('relax', 0.08);
+const HAND_END = +arg('handEnd', 0.42), SPH0 = +arg('sph0', INIT === 'folds' ? 0 : 0.3), SPH1 = +arg('sph1', 0.9), RELAX = +arg('relax', 0.08);
+let COLL = 1;                          // collision radius scale (ramped in from 0 for a packet whose layers touch)
 const R_NAT = Math.cbrt(N * RC ** 3 / 0.5);    // natural ball radius for this particle size (random close packing)
 const R_END = +arg('rend', R_NAT * 0.98);
 console.log(`RC ${(RC * 1000).toFixed(2)}mm  R_NAT ${(R_NAT * 1000).toFixed(1)}mm  R_END ${(R_END * 1000).toFixed(1)}mm  bk ${BEND_K} yield ${YIELD} soften ${SOFTEN}`);
@@ -241,7 +262,7 @@ function collide() {
   for (let q = 0; q < pairCount; q++) {
     const i = pairs[q * 2], j = pairs[q * 2 + 1];
     const dx = P[i * 3] - P[j * 3], dy = P[i * 3 + 1] - P[j * 3 + 1], dz = P[i * 3 + 2] - P[j * 3 + 2];
-    const d2 = dx * dx + dy * dy + dz * dz, D = 2 * RC; if (d2 >= D * D || d2 < 1e-16) continue;
+    const d2 = dx * dx + dy * dy + dz * dz, D = 2 * RC * COLL; if (d2 >= D * D || d2 < 1e-16) continue;
     const d = Math.sqrt(d2), corr = 0.5 * (D - d) / d;
     P[i * 3] += dx * corr; P[i * 3 + 1] += dy * corr; P[i * 3 + 2] += dz * corr; P[j * 3] -= dx * corr; P[j * 3 + 1] -= dy * corr; P[j * 3 + 2] -= dz * corr;
     const nx = dx / d, ny = dy / d, nz = dz / d;
@@ -257,7 +278,8 @@ for (let step = 0; step <= STEPS; step++) {
   P.set(X);
   let cx = 0, cy = 0, cz = 0; for (let i = 0; i < N; i++) { cx += P[i * 3]; cy += P[i * 3 + 1]; cz += P[i * 3 + 2]; } cx /= N; cy /= N; cz /= N;
   // hands: targets move along an eased path; their grip fades out after HAND_END
-  const grip = 1 - smooth(HAND_END, HAND_END + 0.12, prog);
+  const grip = INIT === 'folds' ? 0 : 1 - smooth(HAND_END, HAND_END + 0.12, prog);
+  COLL = INIT === 'folds' ? 0.15 + 0.85 * smooth(0, 0.15, prog) : 1;
   const handTargets = [];
   if (grip > 0) hands.forEach((H, h) => {
     const e = smooth(H.t0, HAND_END, prog), lift = Math.sin(Math.PI * e) * 0.03 * (h % 2 ? 1 : -1);
@@ -303,7 +325,14 @@ for (let step = 0; step <= STEPS; step++) {
   }
 }
 console.log(`sim done in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
-for (const sn of snapshots) { let cx = 0, cy = 0, cz = 0; const p = sn.pos; for (let i = 0; i < N; i++) { cx += p[i * 3]; cy += p[i * 3 + 1]; cz += p[i * 3 + 2]; } cx /= N; cy /= N; cz /= N; for (let i = 0; i < N; i++) { p[i * 3] -= cx; p[i * 3 + 1] -= cy; p[i * 3 + 2] -= cz; } }
+let CENTER = null;
+if (INIT === 'folds') {
+  // one constant shift for every frame (the ball's centroid): keyframe 0 stays exactly the packet (offset by CENTER,
+  // which the runtime applies to the folding slab), and the ball ends centred on the sheet's origin for rolling
+  const p = snapshots[snapshots.length - 1].pos; let cx = 0, cy = 0, cz = 0; for (let i = 0; i < N; i++) { cx += p[i * 3]; cy += p[i * 3 + 1]; cz += p[i * 3 + 2]; }
+  CENTER = [cx / N, cy / N, cz / N];
+  for (const sn of snapshots) { const q = sn.pos; for (let i = 0; i < N; i++) { q[i * 3] -= CENTER[0]; q[i * 3 + 1] -= CENTER[1]; q[i * 3 + 2] -= CENTER[2]; } }
+} else for (const sn of snapshots) { let cx = 0, cy = 0, cz = 0; const p = sn.pos; for (let i = 0; i < N; i++) { cx += p[i * 3]; cy += p[i * 3 + 1]; cz += p[i * 3 + 2]; } cx /= N; cy /= N; cz /= N; for (let i = 0; i < N; i++) { p[i * 3] -= cx; p[i * 3 + 1] -= cy; p[i * 3 + 2] -= cz; } }
 
 /* ---------- K keyframes, evenly spaced by visual change ---------- */
 const cum = [0];
@@ -315,7 +344,7 @@ if (KF) {
   if (chosen.length !== K) console.log(`(--kf gives ${chosen.length} keyframes; K set to match)`);
 } else for (let k = 0; k < K; k++) { const target = total * (k / (K - 1)); let s = cum.findIndex((c) => c >= target - 1e-12); if (s < 0) s = snapshots.length - 1; chosen.push(s); }
 const K_OUT = chosen.length;
-const frames = chosen.map((s, k) => { const p = Float32Array.from(snapshots[s].pos); if (k === 0) for (let i = 0; i < N; i++) { p[i * 3] = rest[i * 2]; p[i * 3 + 1] = rest[i * 2 + 1]; p[i * 3 + 2] = 0; } return p; });
+const frames = chosen.map((s, k) => { const p = Float32Array.from(snapshots[s].pos); if (k === 0 && INIT !== 'folds') for (let i = 0; i < N; i++) { p[i * 3] = rest[i * 2]; p[i * 3 + 1] = rest[i * 2 + 1]; p[i * 3 + 2] = 0; } return p; });
 console.log('keyframes at sim progress', chosen.map((s) => snapshots[s].prog.toFixed(3)).join(' '));
 
 function vertexNormals(p) {
@@ -405,7 +434,7 @@ console.log(`AO done in ${((Date.now() - tAO) / 1000).toFixed(1)} s`);
 let maxDelta = 0;
 for (const p of frames) for (let j = 0; j < NY; j++) for (let i = 1; i < NX; i++) { const a = (j * NX + i) * 3, b = a - 3; for (let c = 0; c < 3; c++) maxDelta = Math.max(maxDelta, Math.abs(p[a + c] - p[b + c])); }
 const STEP = Math.ceil(maxDelta / 126 * 1e7) / 1e7;
-const enc = encodeCrumple({ nx: NX, ny: NY, seed: SEED, jitter: JITTER, frames, aoFront, aoBack, step: STEP });
+const enc = encodeCrumple({ nx: NX, ny: NY, seed: SEED, jitter: JITTER, frames, aoFront, aoBack, step: STEP, center: CENTER, swap: FOLDS_SWAP });
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 const gz = zlib.gzipSync(Buffer.from(enc.buffer), { level: 9 });
 fs.writeFileSync(OUT + '.gz', gz);
@@ -417,7 +446,7 @@ st.sort((a, b) => a - b);
 let creased = 0; for (let h = 0; h < HN; h++) if (Math.abs(hTheta0[h]) > 0.6) creased++;
 const report = { nx: NX, ny: NY, N, K: K_OUT, steps: STEPS, seed: SEED, rawBytes: enc.buffer.byteLength, gzBytes: gz.length, maxQuantErrMM: +(enc.maxErr * 1000).toFixed(3), clipped: enc.clipped,
   finalStretch: { p50: +(st[E >> 1] * 100).toFixed(2), p99: +(st[Math.floor(E * 0.99)] * 100).toFixed(2), max: +(st[E - 1] * 100).toFixed(2) }, maxStretchDuringPct: +(maxStretch * 100).toFixed(2),
-  finalRadiusMM: +(rEnd * 1000).toFixed(1), creasedHinges: creased, hinges: HN,
+  finalRadiusMM: +(rEnd * 1000).toFixed(1), creasedHinges: creased, hinges: HN, init: INIT, center: CENTER, swap: FOLDS_SWAP,
   keyframesAt: chosen.map((s) => +snapshots[s].prog.toFixed(3)),
   params: { BEND_K, YIELD, SOFTEN, RC, ITER, BEND_EVERY, HAND_END, SPH0, SPH1, RELAX, R_END } };
 fs.writeFileSync(OUT.replace(/\.bin$/, '.json'), JSON.stringify(report, null, 2));

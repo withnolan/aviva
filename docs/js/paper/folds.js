@@ -144,3 +144,32 @@ export function crumpleFolds(t = 1, { sheet = A4, seed = 5 } = {}) {
 }
 /** progress at which sheet.set({ crumple }) hands over from the folding slab to the baked crush */
 export const CRUMPLE_SWAP = 0.4;
+
+/* ------------------------------------------------------------------------------------------------ CPU folding */
+/**
+ * The hinge fold of glsl.js (paperFold), on the CPU: where a rest point [x, y] (m) lands after `folds` (fold2D
+ * results with their progress t). Same maths, same order, so a JS result matches the shader to float precision:
+ * used by the crumple bake (the phase-2 crush starts from exactly the phase-1 packet) and for DOM labels on folds.
+ * @returns {number[]} [x, y, z] in the sheet frame
+ */
+export function foldPoint(rest, folds, out = [0, 0, 0]) {
+  let px = rest[0], py = rest[1], pz = 0;
+  for (const f of folds) {
+    const th = f.a.w * (f.t ?? 1); if (Math.abs(th) < 1e-5) continue;
+    if (f.m.w > 0.5 && rest[0] * f.r.x + rest[1] * f.r.y + f.r.z < 0) continue;
+    const ax = f.a.x, ay = f.a.y, az = f.a.z, mx = f.m.x, my = f.m.y, mz = f.m.z;
+    let ux = ay * mz - az * my, uy = az * mx - ax * mz, uz = ax * my - ay * mx; const ul = Math.hypot(ux, uy, uz) || 1, sg = Math.sign(th);
+    ux = ux / ul * sg; uy = uy / ul * sg; uz = uz / ul * sg;
+    const dx = px - f.q.x, dy = py - f.q.y, dz = pz - f.q.z, s = dx * mx + dy * my + dz * mz; if (s <= 0) continue;
+    const g = dx * ax + dy * ay + dz * az, h = dx * ux + dy * uy + dz * uz;
+    const r = Math.max(f.q.w * (1 + f.r.w * g), 1e-4), t = Math.abs(th);
+    const phi = Math.min(s / r, t), tail = Math.max(s - r * t, 0);
+    const ct = Math.cos(t), st = Math.sin(t), cp = Math.cos(phi), sp = Math.sin(phi);
+    const tx = mx * ct + ux * st, ty = my * ct + uy * st, tz = mz * ct + uz * st;
+    const nx = ux * cp - mx * sp, ny = uy * cp - my * sp, nz = uz * cp - mz * sp;
+    px = f.q.x + ax * g + mx * r * sp + ux * r * (1 - cp) + tx * tail + nx * h;
+    py = f.q.y + ay * g + my * r * sp + uy * r * (1 - cp) + ty * tail + ny * h;
+    pz = f.q.z + az * g + mz * r * sp + uz * r * (1 - cp) + tz * tail + nz * h;
+  }
+  out[0] = px; out[1] = py; out[2] = pz; return out;
+}

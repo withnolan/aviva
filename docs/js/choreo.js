@@ -182,7 +182,9 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     },
     s08(S, p) {
       const M = ctx.M;
-      S.many('A.', { on: 1, op: 1, x: 50, y: kf(p, [[0, M ? 26 : 32], [2.4, M ? 22 : 30], [3, 50]]), size: kf(p, [[0, M ? 22 : 30], [2.4, M ? 22 : 30], [3, M ? 22 : 34]]),
+      // phones: the copy and cards scroll through the middle of the screen, so the sheet steps out of their way
+      const y = M ? kf(p, [[0, 26], [0.5, 24], [0.95, -30], [2.4, -30], [3, 52]]) : kf(p, [[0, 32], [2.4, 30], [3, 50]]);
+      S.many('A.', { on: 1, op: 1, x: 50, y, size: M ? kf(p, [[0, 22], [2.4, 18]]) : kf(p, [[0, 30], [2.4, 30], [3, 34]]),
         ry: -20 + 40 * seg(p, 0, 3, ease.linear), rx: 0, rz: 0, dot: 1, trans: 0.36,
         bend: ctx.reduce ? 1.5 : 1.5 + 0.5 * Math.sin(ctx.time * Math.PI / 3) });
       S.set('bg.ink', 1); S.setEnum('ground', 'ink');
@@ -191,7 +193,8 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     },
     s09(S, p) {
       const M = ctx.M, mv = seg(p, 3.6, 4);
-      S.many('A.', { on: 1, op: 1, x: lerp(50, M ? 28 : 35, mv), y: lerp(M ? 22 : 50, M ? 46 : 50, mv), size: lerp(M ? 20 : 34, M ? 24 : 40, mv),
+      const yM = kf(p, [[0, 52], [0.35, 52], [0.8, -30], [3.4, -30], [4, 46]]);
+      S.many('A.', { on: 1, op: 1, x: lerp(50, M ? 28 : 35, mv), y: M ? yM : 50, size: M ? kf(p, [[0, 18], [3.4, 18], [4, 24]]) : lerp(34, 40, mv),
         ry: 15 * Math.sin(p * 1.7) * (1 - mv), rx: 0, rz: 0, dot: 1, dogEar: (E.cues.dogEar || 0) * (1 - mv),
         creaseDog: E.cues.dogEarSeen && p > 3.7 ? 1 : 0 });
       S.setEnum('A.curlCorner', 'tr');

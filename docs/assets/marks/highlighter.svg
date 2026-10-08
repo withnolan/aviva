@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 40" preserveAspectRatio="none">
-  <!-- aviva highlighter stroke, used as a mask (alpha = ink) under a background of var(--mark).
+  <!-- aviva highlighter stroke, used as a mask (alpha = ink) under a background of the mark colour token.
        A chisel tip drawn left to right: angled ends, a slight upward drift, a darker landing where the tip first
        touches, a thinner lift at the end, two faint felt streaks. Spec: work/05-design-system.md, "Highlighter mark". -->
   <defs>

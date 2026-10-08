@@ -5,6 +5,7 @@
    screen-space poses in brief 2B, so copy sits beside the sheet, never on it. */
 
 .main { position: relative; z-index: var(--z-content); }
+.sec--flow > .wrap, .paper, .paper__block { min-width: 0; }
 .anchor-top { position: absolute; top: 0; left: 0; width: 1px; height: 1px; }
 .sec { position: relative; }
 .js .sec--pin { height: calc(var(--len) * var(--vh100)); }
@@ -716,7 +717,7 @@
   .dlg__row:not(.dlg__row--size) { display: none; }
   .dlg__foot { padding-top: var(--space-2); display: flex; align-items: center; gap: var(--space-3); }
   .dlg__foot .tip { margin: 0; }
-  .tier { position: fixed; top: 86%; left: var(--gutter); right: var(--gutter); min-height: 0; }
+  .tier { position: static; min-height: 0; margin-top: calc(-1 * var(--space-1)); }   /* fixed inside the transformed column would land mid-dialog */
   .tier__t { grid-template-columns: auto 1fr; column-gap: var(--space-3); align-items: baseline; }
   .tier__t .body { grid-column: 1 / -1; font-size: var(--fs-small); }
   .tier__name { font-size: 1.125rem; }
@@ -725,8 +726,8 @@
   .cmp__t tbody th { position: sticky; left: 0; background: var(--color-paper); }
 
   .s13 { padding-top: calc(var(--nav-h) + 8vh); }
-  .paper__links { display: grid; grid-template-columns: 1fr 1fr; }
-  .paper__links .btn { width: 100%; padding: 0 8px; }
+  .paper__links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .paper__links .btn { width: 100%; min-height: 44px; padding: 8px; white-space: normal; text-align: center; line-height: 1.25; }
   .paper__weights .tip { position: static; white-space: normal; }
 
   .s14__head { top: calc(var(--nav-h) + 1%); }
