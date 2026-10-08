@@ -33,6 +33,7 @@ for (const p of report.pages) {
   const cols = p.cols.map((c) => `${c.left}/${c.right}`).join(' ');
   console.log(`${p.page}: ${String(p.fill).padStart(3)} % of the text block (${p.usedMM} of ${p.frameMM} mm)  columns L/R mm: ${cols || '-'}${p.overflow.length ? '  OVERFLOW' : ''}`);
 }
+console.log('soft hyphens:', JSON.stringify(report.hyphens));
 if (report.problems.length) console.log('PROBLEMS:\n  ' + report.problems.join('\n  '));
 if (msgs.length) console.log(msgs.join('\n'));
 
