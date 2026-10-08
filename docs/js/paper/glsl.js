@@ -38,6 +38,7 @@ uniform vec4  uBend;                       // x: curvature (1/m), y: bend-line a
 uniform vec4  uPleat;                      // x: period (m), y: gamma (rad), z: fan opening (rad/m), w: fan pivot (m)
 uniform vec4  uFlutter;                    // x: amplitude (m), y: frequency (1/m), z: time, w: seed
 uniform vec4  uCockle;                     // x: amplitude (m), y: frequency (1/m), z: seed
+uniform vec3  uShift;                      // a rigid shift after everything (the crumple slides onto the ball's centre)
 ${NOISE}
 void paperFold(inout vec3 p, vec2 rest, vec4 Q, vec4 A, vec4 M, vec4 R) {
   float th = A.w; if (abs(th) < 1e-5) return;
@@ -77,7 +78,7 @@ vec3 paperDeform(vec2 rest) {
     vec2 q = p.xy * uFlutter.y;
     p.z += uFlutter.x * ((pp_vn3(vec3(q, uFlutter.z + uFlutter.w)) - 0.5) * 1.6 + (pp_vn3(vec3(q * 1.9 + 4.0, uFlutter.z * 1.3)) - 0.5) * 0.5);
   }
-  return p;
+  return p + uShift;
 }
 void paperSurface(vec2 rest, out vec3 P, out vec3 N) {
   float e = uDeformEps;

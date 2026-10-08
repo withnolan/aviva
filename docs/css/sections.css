@@ -102,6 +102,7 @@
   gap: var(--space-5);
   width: min(300px, 24vw);
 }
+.tools > * { min-width: 0; }
 .tools__row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: flex-start; }
 .tools__pair { display: grid; gap: 6px; justify-items: start; }
 .tools__help { color: var(--text-muted); }
@@ -387,7 +388,7 @@
 .s10__res { min-height: 1.4em; }
 .s10__out { display: grid; gap: 4px; }
 .lb {
-  position: fixed;
+  position: absolute;               /* a stage child: fixed inside a transformed block would land on the result text */
   top: 40%;
   right: calc(var(--gutter) + 44px);
   width: min(240px, 17vw);
@@ -701,7 +702,7 @@
   .s10__label--a { left: 28%; } .s10__label--b { left: 72%; }
   .s10__vote { top: 65.5%; gap: var(--space-3); }
   .s10__vote .seg__opt { padding: 0 10px; }
-  .lb { position: static; width: 100%; max-width: 300px; }
+  .lb { top: 79%; left: var(--gutter); right: var(--gutter); width: auto; gap: var(--space-2); }
   .s10__coda { bottom: calc(var(--hint-h) + 2%); font-size: var(--fs-body); }
 
   .claims { top: 14%; height: 66%; gap: 16px; }

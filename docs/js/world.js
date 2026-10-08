@@ -58,15 +58,9 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
   }
 
   async function rebuild() {
-    const old = W;
-    if (old) {
-      try {
-        for (const s of [old.A, old.B, old.F, ...old.O]) stage.scene.remove(s.object);
-        stage.scene.remove(old.props.numerals.mesh, old.props.line.group, old.props.drop);
-        old.paper.dispose();
-      } catch { /* the old context is gone anyway */ }
-      stage.scene.clear();
-    }
+    // after a context loss every GL object of the old world died with the context: drop them, never dispose them
+    // (deleting them in the new context only produces "object does not belong to this context" warnings)
+    if (W) stage.scene.clear();
     W = await build();
     await prepare();
   }

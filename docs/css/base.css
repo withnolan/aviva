@@ -192,9 +192,10 @@ cite { font-style: italic; }
 .icon--printer { --icon: url("../assets/icons/printer.svg"); }
 
 /* ---------- inputs: a ruled line, like lined paper ---------- */
-.kb-line { display: grid; gap: var(--space-2); }
+.kb-line { display: grid; gap: var(--space-2); min-width: 0; }
 .kb-line__label { color: var(--text-muted); }
 .kb-line__field {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -205,6 +206,7 @@ cite { font-style: italic; }
 .kb-line__input {
   flex: 1;
   min-width: 0;
+  width: 100%;
   border: 0;
   padding: 6px 0;
   background: transparent;

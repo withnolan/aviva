@@ -223,6 +223,11 @@ export class Sheet {
     }
     this.halfThick = 0.5 * Math.max(S.thickness, 1.2 * this.pixelSize);
     U.uHalfThick.value = this.halfThick;
+    // crumple phase 1: slide the folding sheet onto the ball's centre, so the baked crush (re-centred on it) takes over
+    // seamlessly and the ball ends on the sheet's origin (roll it by rotating sheet.object)
+    const C = this.sys.crumple && this.sys.crumple.center;
+    if (C && S.crumple > 0 && S.crumple < F.CRUMPLE_SWAP) { const k = THREE.MathUtils.smoothstep(S.crumple / F.CRUMPLE_SWAP, 0, 1); U.uShift.value.set(-C[0] * k, -C[1] * k, -C[2] * k); }
+    else if (U.uShift.value.lengthSq() > 0) U.uShift.value.set(0, 0, 0);
     if (this._dirtyFolds) this._collectFolds();
     this._uploadFolds();
   }

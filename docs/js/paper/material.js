@@ -67,7 +67,7 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uShow: { value: v4(0, 0, 0.006, 1.9) },
     uCrease: { value: arr4(MAX_CREASES) },
     uTear0: { value: v4() }, uTear1: { value: v4() }, uTearFx0: { value: v4(1, 0, 0.0016, 55) }, uTearFx1: { value: v4(1, 0, 0.0016, 55) },
-    uGain: { value: 1 }, uFacet: { value: 0.65 },
+    uGain: { value: 1 }, uFacet: { value: 0.65 }, uShift: { value: new THREE.Vector3() },
   };
 }
 

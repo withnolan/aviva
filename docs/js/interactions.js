@@ -244,7 +244,13 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
     tearLine.addEventListener('pointerup', stop); tearLine.addEventListener('pointercancel', stop);
   }
   if (hold) {
-    const start = (e) => { if (e) e.preventDefault(); const st = tearStage(); if (!st) return; if (st === 3) { advance(3, 0); return; } T.holding = true; hold.classList.add('is-holding'); };
+    const start = (e) => {
+      if (e) e.preventDefault();
+      const st = tearStage(); if (!st) return;
+      if (st === 3) { advance(3, 0); return; }
+      T.holding = true; T.holdStage = st; T.holdT0 = performance.now(); T.holdV0 = stageValue(st);   // wall-clock: 1.5 s per tear at any frame rate
+      hold.classList.add('is-holding');
+    };
     const stop = () => { T.holding = false; hold.classList.remove('is-holding'); };
     hold.addEventListener('pointerdown', start);
     hold.addEventListener('pointerup', stop); hold.addEventListener('pointerleave', stop); hold.addEventListener('pointercancel', stop);
@@ -392,7 +398,10 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
     // s05: the hold, the perforation, the results
     if (s05) {
       const t = world.ctx.tear, stage = tearStage();
-      if (T.holding && stage && stage < 3) advance(stage, stageValue(stage) + dt / 1.5);
+      if (T.holding && stage && stage < 3) {
+        if (stage !== T.holdStage) { T.holdStage = stage; T.holdT0 = performance.now(); T.holdV0 = stageValue(stage); }
+        advance(stage, T.holdV0 + (performance.now() - T.holdT0) / 1500);
+      }
       const showLine = stage > 0 && s05.p >= 1.75 && s05.p < 4.4;
       if (tear) tear.classList.toggle('is-off', !showLine);
       if (showLine && tearLine) {

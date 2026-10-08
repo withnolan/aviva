@@ -150,7 +150,16 @@ function wrapReal(sys, m, renderer) {
     async createPaint() {
       // the module's GPU pencil (paint.js) has the same method names as the placeholder's canvas pencil
       if (FEATURES.paperPaint && sys.createPaint) {
-        try { const p = await sys.createPaint(); if (p && p.begin && p.bakedLine) return p; } catch (e) { console.warn('[aviva] module paint failed:', e && e.message); }
+        try {
+          const p = await sys.createPaint();
+          if (p && p.begin && p.bakedLine) {
+            // PaintLayer.clear() empties the render target's base level but not its mip levels, so a small sheet kept
+            // showing the old strokes: an invisible eraser dab off the sheet forces one render, which rebuilds the mips
+            const clear = p.clear.bind(p);
+            p.clear = () => { clear(); const tool = p.tool; p.setTool('eraser'); p.begin(-2, -2); p.end(); p.setTool(tool); };
+            return p;
+          }
+        } catch (e) { console.warn('[aviva] module paint failed:', e && e.message); }
       }
       const { PlaceholderPaint } = await import('./placeholder-paper.js');
       paintRef = new PlaceholderPaint();

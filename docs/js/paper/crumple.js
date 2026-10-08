@@ -62,9 +62,9 @@ export async function loadCrumple(sys, url) {
   geo.morphAttributes.position = P.slice(1); geo.morphAttributes.normal = N.slice(1); geo.morphAttributes.color = A.slice(1);
   geo.morphTargetsRelative = false;
   geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 0.2);
-  const data = { geometry: geo, K, n, radius };
+  const data = { geometry: geo, K, n, radius, center: D.center, swap: D.swap };
   return {
-    data, radius,
+    data, radius, center: D.center, swap: D.swap,
     /** a crumple mesh bound to a sheet's uniforms (pencil, ink dot, formation follow the sheet) */
     createMesh(d, uniforms, contact) {
       const mesh = new THREE.Mesh(d.geometry, createPaperMaterial(uniforms, { variant: 'crumple' }));

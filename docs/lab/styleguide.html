@@ -45,8 +45,11 @@ body { background: var(--color-paper); color: var(--color-graphite); }
 .sg-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .sg-frame { position: relative; border: var(--hairline) solid var(--color-rule); background: var(--ground); color: var(--text); padding: var(--space-6); overflow: hidden; }
 .sg-frame__l { display: block; margin: calc(-1 * var(--space-6)) calc(-1 * var(--space-6)) var(--space-5); padding: 8px var(--space-6) 7px; border-bottom: var(--hairline) solid var(--color-rule); color: var(--text-muted); }
+.sg-frame--flush { padding: 0; }
+.sg-frame--flush > .sg-frame__l { margin: 0; }
 .sg-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
 .sg-stack > * + * { margin-top: var(--space-4); }
+.sg-stack > .seg { display: flex; width: fit-content; max-width: 100%; }
 
 /* palette */
 .sg-sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-5) var(--space-4); }
@@ -74,7 +77,8 @@ body { background: var(--color-paper); color: var(--color-graphite); }
 .sg-ground__dims { position: relative; height: 34px; margin-top: var(--space-2); color: var(--dims); }
 .sg-ground__dims svg { width: 100%; height: 14px; }
 .sg-ground__dims span { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); }
-.sg-ground .kb-line { max-width: 320px; }
+.sg-ground .kb-line { max-width: 360px; }
+.sg .kb-line { grid-template-columns: minmax(0, 1fr); }      /* see the note in 06: the field's min-content can't overflow */
 .sg-forcefocus { outline: 2px solid var(--color-focus) !important; outline-offset: 3px; border-radius: var(--radius-1); }
 
 /* type */
@@ -105,14 +109,17 @@ body { background: var(--color-paper); color: var(--color-graphite); }
 @keyframes sg-slide { from { left: 0; } to { left: calc(100% - 7px); } }
 
 /* furniture specimens: the site's fixed furniture, pinned inside frames */
-.sg-navframe { height: 120px; padding: 0; }
+.sg-navframe { height: 132px; padding: 0; }
 .sg-navframe .nav { position: absolute; }
 .sg-lockup { height: 18px; width: auto; display: block; }
-.sg-rulerframe { height: 360px; padding: 0; }
-.sg-rulerframe .ruler { position: absolute; top: 24px; bottom: 24px; right: 18px; }
+.sg-rulerframe { height: 380px; padding: 0; }
+.sg-rulerframe .ruler { position: absolute; top: 56px; bottom: 24px; right: 18px; }
+.sg-rulerframe .sg-ruler-note { top: calc(var(--space-6) + 34px) !important; }
+/* SPEC (request 15.9): the readout carries a ground-coloured backing, so it covers the 50 mm labels it passes */
+.sg-spec .ruler__readout { background: var(--ground); padding: 2px 6px; margin-right: -2px; }
 .sg-rulerframe .ruler__marker { transform: translate3d(0, calc(var(--ruler-y, 0) * 1px - 50%), 0); }
 .sg-rulerframe .sg-ruler-note { position: absolute; left: var(--space-6); top: var(--space-6); max-width: 46ch; color: var(--text-muted); }
-.sg-hintframe { height: 120px; padding: 0; }
+.sg-hintframe { height: 132px; padding: 0; }
 .sg-hintframe .hint { position: absolute; }
 
 /* component fixes so positioned site components sit still in a guide frame */
@@ -122,7 +129,7 @@ body { background: var(--color-paper); color: var(--color-graphite); }
 .sg .s09__scale { justify-content: flex-start; margin: 0 0 var(--space-5); }
 .sg .tip { opacity: 1; transform: none; }
 .sg .lb { position: static; width: auto; }
-.sg-claims { display: flex; gap: 28px; align-items: flex-start; padding: 22px; overflow-x: auto; }
+.sg-claims { display: flex; gap: 40px; align-items: flex-start; padding: 22px; overflow-x: auto; }
 .sg-claims .claim { height: 440px; flex: none; }
 .sg-claims .claim__fig { display: grid; place-items: center; }
 .sg-claims .claim__fig::after { content: ""; height: 72%; aspect-ratio: 210 / 297; background: var(--color-paper); transform: rotate(-2deg); box-shadow: 0 1px 1px rgba(30, 30, 28, 0.06), 0 16px 28px -16px rgba(30, 30, 28, 0.35); }
@@ -141,7 +148,12 @@ body { background: var(--color-paper); color: var(--color-graphite); }
     var(--c) right 0 bottom var(--e) / var(--crop-mark) 1px no-repeat, var(--c) right var(--e) bottom 0 / 1px var(--crop-mark) no-repeat;
 }
 .sg-spec .corners--3 i:nth-child(2) { border-color: transparent; background: linear-gradient(225deg, transparent calc(50% - 0.5px), currentColor calc(50% - 0.5px), currentColor calc(50% + 0.5px), transparent calc(50% + 0.5px)); }
-.sg-spec .card { aspect-ratio: 210 / 297; min-height: 0; background: var(--color-ink-deep); }
+.sg-spec .card { aspect-ratio: 210 / 297; min-height: 0; background: var(--color-ink-deep); display: flex; flex-direction: column; }
+.sg-spec .card__l { margin-top: auto; }   /* a spec sheet: the value at the head, the label, body and source settle at the foot */
+@media (max-width: 600px) { .sg-spec .card { aspect-ratio: 297 / 210; } }   /* on phones every card is the same sheet, turned */
+
+/* SPEC (request 15.10): inside an uppercase label the stroke covers the cap height, not the x-height */
+:is(.label, .micro, .eyebrow) .hl::after { inset: -0.28em -0.36em -0.26em -0.32em; }
 
 /* pencil cursor, v2 colours (05 §9.19) */
 .sg-pencil { width: 24px; height: 96px; }
@@ -151,8 +163,8 @@ body { background: var(--color-paper); color: var(--color-graphite); }
 [data-ground="charcoal"] .sg-pencil .po { stroke: none; }
 
 /* assets */
-.sg-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 1px; background: var(--color-rule); border: var(--hairline) solid var(--color-rule); }
-.sg-icons figure { margin: 0; padding: var(--space-5) var(--space-3) var(--space-4); background: var(--ground); display: grid; justify-items: center; gap: var(--space-3); }
+.sg-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); background: var(--ground); border-top: var(--hairline) solid var(--color-rule); border-left: var(--hairline) solid var(--color-rule); }
+.sg-icons figure { margin: 0; padding: var(--space-5) var(--space-3) var(--space-4); border-right: var(--hairline) solid var(--color-rule); border-bottom: var(--hairline) solid var(--color-rule); display: grid; justify-items: center; gap: var(--space-3); }
 .sg-icons svg { width: 24px; height: 24px; }
 .sg-icons .sg-i16 { width: 16px; height: 16px; }
 .sg-icons figcaption { color: var(--text-muted); text-align: center; }
@@ -311,8 +323,8 @@ body { background: var(--color-paper); color: var(--color-graphite); }
       <p class="sg-sec__lede small">No bar behind the nav. The active link wears a folded corner. A millimetre ruler replaces the scrollbar; the hint at the foot asks you to turn over.</p>
     </div>
     <div class="sg-stack">
-      <div class="sg-frame sg-navframe"><span class="sg-frame__l micro">NAV · ACTIVE: SPECS · <span class="sg-tag sg-tag--pend">SPEC</span> LOCKUP INLINE (REQUEST 15.1)</span>
-        <header class="nav" style="top:40px">
+      <div class="sg-frame sg-frame--flush sg-navframe"><span class="sg-frame__l micro">NAV · ACTIVE: SPECS · <span class="sg-tag sg-tag--pend">SPEC</span> LOCKUP INLINE (REQUEST 15.1)</span>
+        <header class="nav" style="top:52px">
           <a class="nav__logo" href="#furniture" aria-label="aviva, back to the top">
             <svg class="sg-lockup" viewBox="0 -697 2960.7 861.73" aria-hidden="true"><use href="#sg-lockup-g"/></svg>
           </a>
@@ -325,27 +337,25 @@ body { background: var(--color-paper); color: var(--color-graphite); }
         </header>
       </div>
       <div class="sg-grid sg-grid--2">
-        <div class="sg-frame sg-rulerframe"><span class="sg-frame__l micro">MILLIMETRE RULER · 297 MM OVER THE TRACK</span>
+        <div class="sg-frame sg-frame--flush sg-rulerframe sg-spec"><span class="sg-frame__l micro">MILLIMETRE RULER · 297 MM OVER THE TRACK · <span class="sg-tag sg-tag--pend">SPEC</span> READOUT BACKING (REQUEST 15.9)</span>
           <p class="sg-ruler-note small">Ticks every 10&nbsp;mm, longer every 50&nbsp;mm with micro labels (≥ 768&nbsp;px). The marker reads the scroll position in millimetres of A4: “297&nbsp;mm. End of sheet.” at the bottom, “0&nbsp;mm. Blank again.” back at the top.</p>
           <div class="ruler" id="sg-ruler" aria-hidden="true">
             <div class="ruler__track"><div class="ruler__ticks"></div></div>
             <div class="ruler__marker"><span class="ruler__tick"></span><span class="ruler__readout">112 mm</span></div>
           </div>
         </div>
-        <div class="sg-frame" data-ground="charcoal" style="padding:0"><span class="sg-frame__l micro" style="margin:0">MILLIMETRE RULER ON CHARCOAL</span>
-          <div class="sg-rulerframe" style="position:relative;border:0">
-            <div class="ruler" aria-hidden="true">
+        <div class="sg-frame sg-frame--flush sg-rulerframe sg-spec" data-ground="charcoal"><span class="sg-frame__l micro">MILLIMETRE RULER ON CHARCOAL · THE END OF THE SHEET</span>
+            <div class="ruler" id="sg-ruler-end" aria-hidden="true">
               <div class="ruler__track"><div class="ruler__ticks"></div></div>
-              <div class="ruler__marker" style="--ruler-y:220"><span class="ruler__tick"></span><span class="ruler__readout">297 mm. End of sheet.</span></div>
+              <div class="ruler__marker"><span class="ruler__tick"></span><span class="ruler__readout">297 mm. End of sheet.</span></div>
             </div>
-          </div>
         </div>
       </div>
       <div class="sg-grid sg-grid--2">
-        <div class="sg-frame sg-hintframe"><span class="sg-frame__l micro">SCROLL HINT</span>
+        <div class="sg-frame sg-frame--flush sg-hintframe"><span class="sg-frame__l micro">SCROLL HINT</span>
           <div class="hint" style="bottom:22px"><svg class="hint__icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.25 3.25h13.5v10.5c-3 .1-5.6 2.4-6 7H5.25z"/><path d="M18.75 13.75c-2.8 1.2-4.9 3.3-6 7"/></svg><span class="hint__label">PLEASE TURN OVER</span></div>
         </div>
-        <div class="sg-frame sg-hintframe" data-ground="ink"><span class="sg-frame__l micro">SCROLL HINT · DIMMED DURING A TRANSITION (32 %)</span>
+        <div class="sg-frame sg-frame--flush sg-hintframe" data-ground="ink"><span class="sg-frame__l micro">SCROLL HINT · DIMMED DURING A TRANSITION (32 %)</span>
           <div class="hint is-dim" style="bottom:22px"><svg class="hint__icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.25 3.25h13.5v10.5c-3 .1-5.6 2.4-6 7H5.25z"/><path d="M18.75 13.75c-2.8 1.2-4.9 3.3-6 7"/></svg><span class="hint__label">PLEASE TURN OVER</span></div>
         </div>
       </div>
@@ -476,10 +486,10 @@ body { background: var(--color-paper); color: var(--color-graphite); }
       </ol>
     </div>
 
-    <div class="sg-grid sg-grid--2" style="margin-top:var(--space-5)">
+    <div class="sg-grid" style="margin-top:var(--space-5)">
       <div class="sg-frame" data-ground="grey"><span class="sg-frame__l micro">COMPARISON TABLE · 9.13 · ON THE COOL GREY OF s12</span>
         <div class="cmp"><div class="cmp__scroll" tabindex="0" role="region" aria-label="Example comparison">
-          <table class="cmp__t" style="min-width:0">
+          <table class="cmp__t">
             <thead><tr><td></td><th scope="col">aviva A5</th><th scope="col" class="is-sel">aviva A4</th><th scope="col">aviva A3</th></tr></thead>
             <tbody>
               <tr><th scope="row">Size</th><td>148 × 210 mm</td><td>210 × 297 mm</td><td>297 × 420 mm</td></tr>
@@ -540,7 +550,7 @@ body { background: var(--color-paper); color: var(--color-graphite); }
         <p class="lead">Status: <mark class="hl">Answer: see above.</mark></p>
         <p class="small muted" style="margin-top:var(--space-3)">The stroke lies over the print and multiplies, like ink: graphite stays graphite.</p>
       </div>
-      <div class="sg-frame" data-ground="grey-light"><span class="sg-frame__l micro">HIGHLIGHTER ON LIGHT GREY · s06</span>
+      <div class="sg-frame" data-ground="grey-light"><span class="sg-frame__l micro">HIGHLIGHTER ON LIGHT GREY · s06 · <span class="sg-tag sg-tag--pend">SPEC</span> CAPS INSET (15.10)</span>
         <p class="lead"><span class="label"><mark class="hl">KNOWN ISSUE</mark></span>&nbsp; Predicted to be replaced by the paperless office.</p>
       </div>
       <div class="sg-frame" data-ground="charcoal"><span class="sg-frame__l micro">HIGHLIGHTER ON CHARCOAL · OPAQUE, GRAPHITE TEXT</span>
@@ -656,11 +666,23 @@ body { background: var(--color-paper); color: var(--color-graphite); }
     'graphite-muted-deep': 'secondary text on grey', pencil: 'the HB pencil; s03 underline', 'pencil-shade': 'the pencil’s shaded facet',
     blueprint: 'dimension lines, diagrams', 'blueprint-light': 'blueprint on charcoal', 'hl-yellow': 'highlighter', 'hl-pink': 'highlighter, second voice',
   };
+  // each swatch is measured where it is used: [foreground, background, label]; 'self' = this colour
+  const PAIR = {
+    paper: ['graphite', 'self', 'GRAPHITE ON IT'], studio: ['graphite', 'self', 'GRAPHITE ON IT'], graphite: ['self', 'paper', 'ON PAPER'],
+    'graphite-muted': ['self', 'paper', 'ON PAPER'], 'graphite-soft': ['self', 'paper', 'ON PAPER, DISABLED ONLY'], ink: ['self', 'paper', 'ON PAPER'],
+    'ink-deep': ['paper', 'self', 'PAPER ON IT'], 'on-ink-muted': ['self', 'ink', 'ON INK'], charcoal: ['paper', 'self', 'PAPER ON IT'],
+    'charcoal-raised': ['paper', 'self', 'PAPER ON IT'], 'charcoal-deep': ['paper', 'self', 'PAPER ON IT'], 'on-charcoal-muted': ['self', 'charcoal', 'ON CHARCOAL'],
+    'grey-100': ['graphite', 'self', 'GRAPHITE ON IT'], 'grey-200': ['graphite', 'self', 'GRAPHITE ON IT'], 'grey-300': ['graphite', 'self', 'GRAPHITE ON IT'],
+    'graphite-muted-deep': ['self', 'grey-200', 'ON COOL GREY'], pencil: ['self', 'charcoal', 'ON CHARCOAL'], 'pencil-shade': null,
+    blueprint: ['self', 'paper', 'ON PAPER'], 'blueprint-light': ['self', 'charcoal', 'ON CHARCOAL'], 'hl-yellow': ['graphite', 'self', 'GRAPHITE UNDER IT'], 'hl-pink': ['graphite', 'self', 'GRAPHITE UNDER IT'],
+  };
   for (const box of $$('[data-swatches]')) {
     for (const k of box.dataset.swatches.split(' ')) {
-      const val = v('--color-' + k); const c = rgba(val);
+      const c = rgba(v('--color-' + k)), pr = PAIR[k];
+      let meas = 'AN OBJECT COLOUR, NOT FOR TEXT';
+      if (pr) { const col = (t) => (t === 'self' ? c : rgba(v('--color-' + t))); meas = `${ratio(col(pr[0]), col(pr[1])).toFixed(2)} ${pr[2]}`; }
       const fig = document.createElement('figure'); fig.style.margin = '0';
-      fig.innerHTML = `<div class="sg-sw__chip" style="background:var(--color-${k})"></div><p class="sg-sw__n">--color-${k}</p><p class="sg-sw__hex micro">${hex(c)} · ${ratio(c, rgba(v('--color-paper'))).toFixed(2)} ON PAPER</p><p class="sg-sw__role">${ROLE[k] || ''}</p>`;
+      fig.innerHTML = `<div class="sg-sw__chip" style="background:var(--color-${k})"></div><p class="sg-sw__n">--color-${k}</p><p class="sg-sw__hex micro">${hex(c)} · ${meas}</p><p class="sg-sw__role">${ROLE[k] || ''}</p>`;
       box.appendChild(fig);
     }
   }
@@ -721,7 +743,7 @@ body { background: var(--color-paper); color: var(--color-graphite); }
     sp.insertAdjacentHTML('beforeend', `<div><span class="micro">--space-${i}</span><span class="micro muted">${px.toFixed(0)} PX</span><i style="width:${px}px"></i></div>`);
   }
   // ---------- crop-mark sample: borrow the claim card's spec rule
-  $('#sg-crop').outerHTML = '<div class="sg-spec" style="padding:16px"><div class="claim" style="height:118px;aspect-ratio:210/297;box-shadow:none"></div></div>';
+  $('#sg-crop').outerHTML = '<div class="sg-spec" style="padding:16px"><div class="claim" style="width:83px;height:118px;aspect-ratio:210/297;box-shadow:none"></div></div>';
 
   // ---------- easing curves
   const EASE = [['--ease-out', '--dur-slow', 'arrivals'], ['--ease-in-out', '--dur-draw', 'draws, cross-fades'], ['--ease-press', '--dur-press', 'the Impression reveal'], ['--ease-spring', '--dur-base', 'the UI echoes of the sheet']];
@@ -733,7 +755,7 @@ body { background: var(--color-paper); color: var(--color-graphite); }
     if (m) { const [x1, y1, x2, y2] = m[1].split(',').map(parseFloat); path = `M4 76 C ${4 + x1 * 152} ${76 - y1 * 64} ${4 + x2 * 152} ${76 - y2 * 64} 156 12`; }
     else { const pts = [...val.matchAll(/(-?[\d.]+)\s+([\d.]+)%/g)].map((q) => [parseFloat(q[2]) / 100, parseFloat(q[1])]); path = 'M4 76 ' + pts.map(([x, y]) => `L${4 + x * 152} ${76 - y * 64}`).join(' ') + ' L156 12'; }
     const f = document.createElement('figure');
-    f.innerHTML = `<svg viewBox="0 0 160 84" aria-hidden="true"><path d="M4 12H156M4 76H156" stroke="var(--color-rule)" stroke-width="1"/><path d="${path}" fill="none" stroke="var(--text)" stroke-width="1.5"/></svg><figcaption><span class="micro">${e} · ${d} ${dur}</span><span class="small">${use}</span></figcaption><div class="sg-ease__track" style="--e:var(${e});--d:var(${d})"><span class="sg-ease__dot"></span></div>`;
+    f.innerHTML = `<svg viewBox="0 0 160 84" aria-hidden="true"><path d="M4 12H156M4 76H156" stroke="var(--color-rule)" stroke-width="1"/><path d="${path}" fill="none" stroke="var(--text)" stroke-width="1.5"/></svg><figcaption><span class="micro" style="display:block">${e}</span><span class="micro muted" style="display:block;margin-top:2px">${d} · ${dur}</span><span class="small">${use}</span></figcaption><div class="sg-ease__track" style="--e:var(${e});--d:var(${d})"><span class="sg-ease__dot"></span></div>`;
     f.addEventListener('click', () => { f.classList.remove('sg-play'); void f.offsetWidth; f.classList.add('sg-play'); });
     f.style.cursor = 'pointer'; ez.appendChild(f);
   }
@@ -745,7 +767,9 @@ body { background: var(--color-paper); color: var(--color-graphite); }
   for (const [n, ver] of GLYPHS) $('#sg-glyphs').insertAdjacentHTML('beforeend', `<figure><svg class="sg-i16" style="width:16px;height:16px" aria-hidden="true"><use href="../assets/illustrations/glyphs/sprite.svg#g-${n}"/></svg><figcaption class="micro">${n.toUpperCase()} · ${ver}</figcaption></figure>`);
 
   // ---------- ruler marker position (light frame)
-  const rl = $('#sg-ruler'); if (rl) { const h = rl.getBoundingClientRect().height; $('.ruler__marker', rl).style.setProperty('--ruler-y', (h * 112 / 297).toFixed(0));
+  const rl = $('#sg-ruler'), re = $('#sg-ruler-end');
+  if (rl) { const h = rl.getBoundingClientRect().height; $('.ruler__marker', rl).style.setProperty('--ruler-y', (h * 112 / 297).toFixed(0));
+    $('.ruler__marker', re).style.setProperty('--ruler-y', re.getBoundingClientRect().height.toFixed(0));
     for (const n of [50, 100, 150, 200, 250]) for (const r of $$('.ruler')) { const l = document.createElement('span'); l.className = 'ruler__lab'; l.textContent = n; l.style.top = (n / 297 * 100) + '%'; $('.ruler__track', r).appendChild(l); } }
 
   // ---------- marks: drawn on load; REPLAY re-draws them
