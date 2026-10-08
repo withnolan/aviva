@@ -1,0 +1,10 @@
+<!doctype html><html><head><meta charset="utf-8"><script type="importmap">{ "imports": { "three": "../vendor/three/three.module.js" } }</script>
+<style>html,body{margin:0}canvas{display:block}</style></head><body><canvas id="c"></canvas><script type="module">
+import * as THREE from 'three'; import { InkSim } from './ink.js';
+const q = new URLSearchParams(location.search), steps = +(q.get('steps') || 400);
+const canvas = document.getElementById('c'); const r = new THREE.WebGLRenderer({ canvas, antialias: false }); r.setSize(900, 900, false); canvas.style.width = '900px'; canvas.style.height = '900px';
+const ink = new InkSim(r, 512); ink.drop(0.5, 0.5, 0.02, 1.5); ink.advance(1);
+const t0 = performance.now(); for (let i = 0; i < steps / 4; i++) ink.advance(4); ink.render(null);
+const px = new Uint16Array(4); r.readRenderTargetPixels(ink.a, 256, 256, 1, 1, px); const toF = (h) => { const s = (h >> 15) ? -1 : 1, e = (h >> 10) & 31, f = h & 1023; return e === 0 ? s * 5.96e-8 * f : s * Math.pow(2, e - 15) * (1 + f / 1024); }; console.log('centre C', toF(px[0]), 'ext', !!r.extensions.get('EXT_color_buffer_float'), !!r.extensions.get('EXT_color_buffer_half_float'));
+window.__ready = true; window.__info = { steps, ms: Math.round(performance.now() - t0) };
+</script></body></html>

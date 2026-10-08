@@ -1,0 +1,8 @@
+<!doctype html><html><head><meta charset="utf-8"><script type="importmap">{ "imports": { "three": "../vendor/three/three.module.js" } }</script>
+<style>html,body{margin:0}canvas{display:block}</style></head><body><canvas id="c"></canvas><script type="module">
+import * as THREE from 'three'; import { createInkFront } from './ink-front.js';
+const q = new URLSearchParams(location.search), t = +(q.get('t') || 0.5);
+const canvas = document.getElementById('c'); const r = new THREE.WebGLRenderer({ canvas, antialias: false }); r.setSize(700, 700, false); canvas.style.width = '700px'; canvas.style.height = '700px';
+const mesh = createInkFront(); mesh.material.uniforms.uT.value = t; const sc = new THREE.Scene(); sc.add(mesh); r.render(sc, new THREE.Camera());
+window.__ready = true;
+</script></body></html>

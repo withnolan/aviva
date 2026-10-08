@@ -1,0 +1,221 @@
+// folds.js: authoring folds in the plane of the (flat-folded) sheet, and the fold presets of the brief.
+// A fold is a hinge with a bend radius (glsl.js paperFold): a crease is r ~ 0.4 mm, a page curl r ~ 20 mm.
+// Every fold carries a progress `t` (0..1) that scales its angle, so sequences are just timelines over t.
+import * as THREE from 'three';
+
+export const A4 = { w: 0.21, h: 0.297 };
+const ease = (x) => { x = Math.min(Math.max(x, 0), 1); return x * x * (3 - 2 * x); };
+const _d = new THREE.Vector3(), _m = new THREE.Vector3(), _a = new THREE.Vector3(), _c = new THREE.Vector3();
+
+/**
+ * One fold, defined in the XY plane of the current flat state.
+ * p:[x,y] a point on the crease; dir:[dx,dy] the crease direction; side:[sx,sy] points to the part that MOVES;
+ * toward: +1 valley (the flap comes toward +z, the front), -1 mountain; angle (rad); radius (m);
+ * mask:[nx,ny,d] optional rest-space half-plane (dot(rest, n) + d > 0) for stacked layers that move differently;
+ * taper (1/m): cone curl, the radius grows along the crease (corner curls).
+ */
+export function fold2D({ p, dir, side, toward = 1, angle = Math.PI, radius = 0.0004, mask = null, taper = 0, t = 1, minRadius = true }) {
+  _d.set(dir[0], dir[1], 0).normalize();
+  _m.set(-_d.y, _d.x, 0); if (_m.x * side[0] + _m.y * side[1] < 0) _m.negate();
+  _a.copy(_d); if (_c.crossVectors(_a, _m).z < 0) _a.negate();
+  return {
+    q: new THREE.Vector4(p[0], p[1], 0, radius),
+    a: new THREE.Vector4(_a.x, _a.y, _a.z, toward * angle),
+    m: new THREE.Vector4(_m.x, _m.y, _m.z, mask ? 1 : 0),
+    r: new THREE.Vector4(mask ? mask[0] : 0, mask ? mask[1] : 0, mask ? mask[2] : 0, taper),
+    t, minRadius,
+  };
+}
+
+/** Dart paper plane on A4 as 7 folds (verified step by step). t in 0..7 runs the sequence. */
+export function dartPlane(t = 7, { size = A4, wing = 0.045, dihedral = 0.0, r = 0.0004 } = {}) {
+  const hw = size.w / 2, hh = size.h / 2, f = [];
+  f.push(fold2D({ p: [0, hh], dir: [1, -1], side: [1, 1], toward: 1, radius: r }));
+  f.push(fold2D({ p: [0, hh], dir: [-1, -1], side: [-1, 1], toward: 1, radius: r }));
+  const s = Math.sin(Math.PI / 8), c = Math.cos(Math.PI / 8);
+  f.push(fold2D({ p: [0, hh], dir: [s, -c], side: [c, s], toward: 1, radius: r }));
+  f.push(fold2D({ p: [0, hh], dir: [-s, -c], side: [-c, s], toward: 1, radius: r }));
+  f.push(fold2D({ p: [0, 0], dir: [0, 1], side: [1, 0], toward: -1, radius: r }));
+  const nose = [0, hh], tail = [-wing, -hh], dir = [tail[0] - nose[0], tail[1] - nose[1]];
+  const wingAngle = Math.PI * 0.5 - dihedral;
+  f.push(fold2D({ p: nose, dir, side: [-1, 0], toward: 1, angle: wingAngle, radius: 0.0011, mask: [-1, 0, 0] }));
+  f.push(fold2D({ p: nose, dir, side: [-1, 0], toward: -1, angle: wingAngle, radius: 0.0011, mask: [1, 0, 0] }));
+  f.forEach((x, i) => (x.t = ease(t - i)));
+  return f;
+}
+/**
+ * Where the finished dart plane sits in the sheet frame, so it can be flown as a rigid object:
+ * returns { forward, up, origin } (sheet-local) for t = 7: the nose points +y, the keel hangs toward -x/+z.
+ */
+export function dartPlaneFrame({ size = A4, wing = 0.045 } = {}) {
+  const hh = size.h / 2;
+  // after fold 5 the plane lies in the x <= 0 half, keel along x = 0; the wing hinge runs nose -> (-wing, -hh)
+  const forward = new THREE.Vector3(0, 1, 0);
+  const up = new THREE.Vector3(0, 0, 1);            // wings open toward +z; keel below
+  return { forward, up, origin: new THREE.Vector3(-wing * 0.5, hh * 0.15, 0) };
+}
+
+/** A4 -> A5 -> A6: two flat folds that land the edges exactly on each other (sqrt 2). t in 0..2. */
+export function halving(t = 2, { r = 0.0004, size = A4 } = {}) {
+  const f = [
+    fold2D({ p: [0, 0], dir: [1, 0], side: [0, 1], toward: 1, radius: r }),
+    fold2D({ p: [0, 0], dir: [0, 1], side: [1, 0], toward: 1, radius: r }),
+  ];
+  f.forEach((x, i) => (x.t = ease(t - i)));
+  return f;
+}
+
+/** A4 halved n times (A10 after 6: 26 x 37 mm, 64 layers). Real thickness wants r ~ 0.06 mm. t in 0..n */
+export function sixfold(t = 6, { n = 6, r = 0.00007, size = A4 } = {}) {
+  const f = []; let x0 = -size.w / 2, x1 = size.w / 2, y0 = -size.h / 2, y1 = size.h / 2;
+  for (let i = 0; i < n; i++) {
+    if (i % 2 === 0) { const ym = (y0 + y1) / 2; f.push(fold2D({ p: [0, ym], dir: [1, 0], side: [0, 1], toward: 1, radius: r * (1 + i * 0.6) })); y1 = ym; }
+    else { const xm = (x0 + x1) / 2; f.push(fold2D({ p: [xm, 0], dir: [0, 1], side: [1, 0], toward: 1, radius: r * (1 + i * 0.6) })); x1 = xm; }
+  }
+  f.forEach((x, i) => (x.t = ease(t - i)));
+  return { folds: f, box: { x0, x1, y0, y1 } };
+}
+
+const CORNERS = { tr: [1, 1], tl: [-1, 1], br: [1, -1], bl: [-1, -1] };
+/** The dog-ear (s09): a 45 deg crease cutting `size` off both edges at the corner, up to 165 deg, r 0.6 mm. t 0..1 */
+export function dogEar(t = 1, { corner = 'tr', size = 0.03, angle = THREE.MathUtils.degToRad(165), r = 0.0006, toward = 1, sheet = A4 } = {}) {
+  const [sx, sy] = CORNERS[corner], cx = sx * sheet.w / 2, cy = sy * sheet.h / 2;
+  return [fold2D({ p: [cx - sx * size / 2, cy - sy * size / 2], dir: [sx, -sy], side: [sx, sy], toward, angle, radius: r, t: ease(t) })];
+}
+
+/** A lifting corner (the s03 "thinking" curl, card 3): a cone curl across a corner. t 0..1 */
+export function cornerCurl(t = 1, { corner = 'tr', size = 0.06, r = 0.015, angle = THREE.MathUtils.degToRad(25), taper = 0, toward = 1, sheet = A4 } = {}) {
+  const [sx, sy] = CORNERS[corner], cx = sx * sheet.w / 2, cy = sy * sheet.h / 2;
+  return [fold2D({ p: [cx - sx * size / 2, cy - sy * size / 2], dir: [sx, -sy], side: [sx, sy], toward, angle, radius: r, taper, t: ease(t), minRadius: false })];
+}
+
+const EDGES = { bottom: [0, -1], top: [0, 1], left: [-1, 0], right: [1, 0] };
+/**
+ * A curl from an edge (page curl, the s02 peel): the hinge runs parallel to `edge`, `at` 0..1 moves it from the edge
+ * across the sheet; everything between the edge and the hinge rolls up toward `toward` with radius r.
+ */
+export function edgeCurl({ edge = 'bottom', at = 0.2, r = 0.025, angle = Math.PI * 0.6, toward = 1, sheet = A4 } = {}) {
+  const [ex, ey] = EDGES[edge];
+  const ext = ex ? sheet.w : sheet.h;
+  const pos = (ext / 2) - at * ext;                     // distance of the hinge from the centre, toward the edge
+  return [fold2D({ p: [ex * pos, ey * pos], dir: [ey, ex], side: [ex, ey], toward, angle, radius: r, minRadius: false })];
+}
+
+/** The s02 peel: the near (bottom) edge lifts and the curl sweeps across. t 0..1 */
+export function peel(t = 1, { r = 0.025, angle = Math.PI * 0.55, toward = 1, sheet = A4 } = {}) {
+  const at = THREE.MathUtils.clamp(t * 1.05, 0, 1);
+  const a = angle * ease(Math.min(1, t * 3.0));
+  return edgeCurl({ edge: 'bottom', at, r, angle: a, toward, sheet });
+}
+
+/** The pleated fan (card 6): uniform uPleat. gamma 0 (flat) .. ~0.75 (tight pleats); open 0 .. ~4 rad/m */
+export function fan(t = 1, { period = 0.015, gamma = 0.62, open = 3.4, pivot = 0.05 } = {}) {
+  const e = ease(t);
+  return { period, gamma: gamma * Math.min(1, e * 1.6), open: open * ease((t - 0.35) / 0.65), pivot };
+}
+
+/* ------------------------------------------------------------------------------------------------ crumpling, phase 1 */
+function mulberry(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const win = (t, a, b) => ease((t - a) / (b - a));
+/**
+ * The first phase of a crumple (sheet.set({ crumple }) uses it below CRUMPLE_SWAP): a hand closing on the sheet.
+ * Seven creases fold its corners and edges inward (valley and mountain, 115-160 deg, r 2.5-6 mm) while two broad bends
+ * cup the folded stack, all staggered so several flaps move at once. Paper never stretches here: every fold is the
+ * hinge primitive, so the creases are sharp and the facets stay flat. The baked crush (crumple.bin) starts from
+ * exactly this packet (work/scripts/crumple/bake.mjs --init folds), so the hand-over is seamless. t in 0..1.
+ */
+export function crumpleFolds(t = 1, { sheet = A4, seed = 5 } = {}) {
+  const rnd = mulberry(seed * 7717 + 1), W = sheet.w, H = sheet.h, creases = [], bends = [];
+  const R = (a, b) => a + (b - a) * rnd();
+  // the creases come FIRST in the deform chain (they are exact on the flat sheet), the broad bends LAST (they cup the
+  // folded stack). Timing is separate from order: the bends start first, as a closing hand does.
+  const targets = [[1, 1], [-1, -1], [-1, 1], [1, -1], [0, 1], [1, 0], [0, -1]];
+  targets.forEach(([cx, cy], i) => {
+    const cut = R(0.3, 0.5);                                    // how much of the half-width / half-height is folded in
+    const px = cx * W / 2 * (1 - cut), py = cy * H / 2 * (1 - cut);
+    const along = cx && cy ? [cx, -cy] : (cx ? [R(-0.3, 0.3), 1] : [1, R(-0.3, 0.3)]);
+    const jit = R(-0.3, 0.3), d = [along[0] + jit * along[1], along[1] - jit * along[0]];
+    const toward = i % 2 ? -1 : 1, t0 = 0.1 + i * 0.075;
+    creases.push({ ...fold2D({ p: [px, py], dir: d, side: [cx || R(-0.2, 0.2), cy || R(-0.2, 0.2)], toward, angle: R(2.0, 2.8), radius: R(0.0025, 0.006) }), w: [t0, Math.min(1, t0 + R(0.3, 0.42))] });
+  });
+  bends.push({ ...fold2D({ p: [R(-0.008, 0.008), R(-0.015, 0.015)], dir: [1, R(-0.3, 0.3)], side: [0, 1], toward: 1, angle: R(1.25, 1.55), radius: 0.026, minRadius: false }), w: [0.0, 0.55] });
+  bends.push({ ...fold2D({ p: [R(-0.008, 0.008), 0], dir: [R(-0.3, 0.3), 1], side: [1, 0], toward: 1, angle: R(0.95, 1.25), radius: 0.02, minRadius: false }), w: [0.08, 0.7] });
+  return [...creases, ...bends].map((x) => ({ ...x, t: win(t, x.w[0], x.w[1]) }));
+}
+/** progress at which sheet.set({ crumple }) hands over from the folding slab to the baked crush */
+export const CRUMPLE_SWAP = 0.4;
+
+/* ------------------------------------------------------------------------------------------------ CPU folding */
+/**
+ * The hinge fold of glsl.js (paperFold), on the CPU: where a rest point [x, y] (m) lands after `folds` (fold2D
+ * results with their progress t). Same maths, same order, so a JS result matches the shader to float precision:
+ * used by the crumple bake (the phase-2 crush starts from exactly the phase-1 packet) and for DOM labels on folds.
+ * @returns {number[]} [x, y, z] in the sheet frame
+ */
+export function foldPoint(rest, folds, out = [0, 0, 0]) {
+  let px = rest[0], py = rest[1], pz = 0;
+  for (const f of folds) {
+    const th = f.a.w * (f.t ?? 1); if (Math.abs(th) < 1e-5) continue;
+    if (f.m.w > 0.5 && rest[0] * f.r.x + rest[1] * f.r.y + f.r.z < 0) continue;
+    const ax = f.a.x, ay = f.a.y, az = f.a.z, mx = f.m.x, my = f.m.y, mz = f.m.z;
+    let ux = ay * mz - az * my, uy = az * mx - ax * mz, uz = ax * my - ay * mx; const ul = Math.hypot(ux, uy, uz) || 1, sg = Math.sign(th);
+    ux = ux / ul * sg; uy = uy / ul * sg; uz = uz / ul * sg;
+    const dx = px - f.q.x, dy = py - f.q.y, dz = pz - f.q.z, s = dx * mx + dy * my + dz * mz; if (s <= 0) continue;
+    const g = dx * ax + dy * ay + dz * az, h = dx * ux + dy * uy + dz * uz;
+    const r = Math.max(f.q.w * (1 + f.r.w * g), 1e-4), t = Math.abs(th);
+    const phi = Math.min(s / r, t), tail = Math.max(s - r * t, 0);
+    const ct = Math.cos(t), st = Math.sin(t), cp = Math.cos(phi), sp = Math.sin(phi);
+    const tx = mx * ct + ux * st, ty = my * ct + uy * st, tz = mz * ct + uz * st;
+    const nx = ux * cp - mx * sp, ny = uy * cp - my * sp, nz = uz * cp - mz * sp;
+    px = f.q.x + ax * g + mx * r * sp + ux * r * (1 - cp) + tx * tail + nx * h;
+    py = f.q.y + ay * g + my * r * sp + uy * r * (1 - cp) + ty * tail + ny * h;
+    pz = f.q.z + az * g + mz * r * sp + uz * r * (1 - cp) + tz * tail + nz * h;
+  }
+  out[0] = px; out[1] = py; out[2] = pz; return out;
+}
+
+/* ------------------------------------------------------------------------------------------------ folded letters (hero) */
+const _qa = new THREE.Quaternion(), _m4 = new THREE.Matrix4(), _vb = new THREE.Vector3(), _vc = new THREE.Vector3(), _vw = new THREE.Vector3();
+/**
+ * The hero letters (decision #31): AVIVA spelled by five folded sheets standing on the studio floor.
+ *   A  a tent: the sheet folded in half across its length (mountain), the halves ~55 deg apart, crease on top
+ *   V  a trough: the same fold as a valley, resting on its crease, halves rising
+ *   I  the same valley closed flat (178 deg), standing on its crease, its end edge toward the camera: one hairline
+ * t = 0 is the flat sheet lying face up on the floor; t = 1 is the letter. Every t is a physically standing pose
+ * (the sheet never leaves the floor while it folds or unfolds), so the hero can unfold the letters and slide them
+ * together into one flat A4 by animating t and the floor position only.
+ * The letter's crease runs along `yaw` (default PI/2: toward the camera, the end-on view that spells the letter).
+ * @returns {{ folds, quaternion: THREE.Quaternion, lift: number, height: number, width: number }}
+ *   apply: sheet.set({ folds }); sheet.object.quaternion.copy(quaternion); sheet.object.position.set(x, floorY + lift, z)
+ */
+export function letterPose(letter = 'A', t = 1, { sheet = A4, apex = THREE.MathUtils.degToRad(55), yaw = Math.PI / 2, radius = 0.0006 } = {}) {
+  const L = String(letter).toUpperCase(), mountain = L === 'A';
+  const full = L === 'I' ? THREE.MathUtils.degToRad(178) : Math.PI - apex;
+  const th = full * ease(t);
+  const f = fold2D({ p: [0, 0], dir: [1, 0], side: [0, 1], toward: mountain ? -1 : 1, angle: Math.PI, radius });
+  f.a.w = (mountain ? -1 : 1) * Math.PI; f.t = th / Math.PI;               // one crease across the middle (y = 0)
+  // the two halves' directions from the crease (sheet frame) and their bisector: it points down (A) or up (V, I)
+  const s2 = Math.sin(th), c2 = Math.cos(th);
+  _vb.set(0, c2 - 1, mountain ? -s2 : s2);
+  if (_vb.lengthSq() < 1e-10) _vb.set(0, 0, mountain ? -1 : 1); else _vb.normalize();
+  const down = mountain;                                                   // the A's halves go down from the crease
+  // basis: crease axis a = sheet +x -> world X (then yaw); bisector -> world -Y (A) or +Y (V, I)
+  const ax = new THREE.Vector3(1, 0, 0), bw = new THREE.Vector3(0, down ? -1 : 1, 0);
+  _vc.crossVectors(ax, _vb);                                               // sheet-frame third axis
+  const wc = new THREE.Vector3().crossVectors(new THREE.Vector3(1, 0, 0), bw);
+  const S = new THREE.Matrix4().makeBasis(ax, _vb, _vc), Wm = new THREE.Matrix4().makeBasis(new THREE.Vector3(1, 0, 0), bw, wc);
+  const q = new THREE.Quaternion().setFromRotationMatrix(_m4.copy(Wm).multiply(S.clone().transpose()));
+  q.premultiply(_qa.setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw));
+  // lift: the lowest point (outer edges of the tent, the crease arc of the trough) touches the floor
+  const folds = [f], o = [0, 0, 0];
+  let minY = Infinity, maxY = -Infinity;
+  for (const x of [-sheet.w / 2, sheet.w / 2]) for (const y of [-sheet.h / 2, -sheet.h / 4, -0.002, -0.001, 0, 0.0005, 0.001, 0.002, sheet.h / 4, sheet.h / 2]) {
+    foldPoint([x, y], folds, o); _vw.set(o[0], o[1], o[2]).applyQuaternion(q);
+    minY = Math.min(minY, _vw.y); maxY = Math.max(maxY, _vw.y);
+  }
+  const lift = -minY + 0.00008;
+  return { folds, quaternion: q, lift, height: maxY - minY, width: L === 'I' ? 0.0002 : 2 * (sheet.h / 2) * Math.sin(th / 2) };
+}
+export const letterA = (t = 1, o) => letterPose('A', t, o);
+export const letterV = (t = 1, o) => letterPose('V', t, o);
+export const letterI = (t = 1, o) => letterPose('I', t, o);

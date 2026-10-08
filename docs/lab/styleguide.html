@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AVIVA Design System</title>
+<meta name="description" content="The living style guide for AVIVA: tokens, grounds, type, components and assets, rendered from the site's own CSS.">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/ui.css">
+<link rel="stylesheet" href="../css/sections.css">
+<link rel="stylesheet" href="../css/states.css">
+<style>
+/* ── Guide-only layout (prefix sg-). Everything else on this page is the site's own CSS. ─────────────────── */
+html { background: var(--color-paper); scrollbar-width: auto; }
+html::-webkit-scrollbar { display: initial; }
+body { background: var(--color-paper); color: var(--color-graphite); }
+.sg { max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter) var(--space-9); }
+.sg-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); padding: var(--space-6) 0 var(--space-5); border-bottom: var(--line); }
+.sg-top__lockup { height: 22px; width: auto; color: var(--text); }
+.sg-top__meta { color: var(--text-muted); text-align: right; }
+.sg-intro { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-7); padding: var(--space-8) 0 var(--space-7); align-items: end; }
+.sg-intro__h { font-size: var(--fs-h1); line-height: var(--lh-h1); letter-spacing: var(--tracking-h1); font-weight: var(--fw-light); text-wrap: balance; }
+.sg-intro__p { color: var(--text-muted); }
+.sg-index { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: var(--space-4) 0; border-top: var(--line); border-bottom: var(--line); position: sticky; top: 0; z-index: 50; background: var(--color-paper); }
+.sg-index a { text-decoration: none; color: var(--text-muted); }
+.sg-index a:hover { color: var(--text); }
+.sg-sec { padding-top: var(--space-8); scroll-margin-top: 56px; }
+.sg-sec__head { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: var(--space-4); align-items: baseline; margin-bottom: var(--space-6); }
+.sg-sec__n { color: var(--text-muted); }
+.sg-sec__h { font-size: var(--fs-h2); line-height: var(--lh-h2); letter-spacing: var(--tracking-h2); font-weight: var(--fw-light); }
+.sg-sec__lede { grid-column: 2; color: var(--text-muted); max-width: var(--measure); margin-top: var(--space-3); }
+.sg-sub { margin: var(--space-7) 0 var(--space-4); display: flex; align-items: baseline; gap: var(--space-4); flex-wrap: wrap; }
+.sg-sub h3 { font-size: var(--fs-h3); line-height: var(--lh-h3); letter-spacing: var(--tracking-h3); font-weight: var(--fw-book); }
+.sg-sub .micro { color: var(--text-muted); }
+.sg-tag { display: inline-block; padding: 3px 6px 2px; border: var(--hairline) solid var(--color-rule-strong); color: var(--text-muted); }
+.sg-tag--pend { border-color: var(--color-blueprint); color: var(--color-blueprint); }
+.sg-note { color: var(--text-muted); max-width: 64ch; margin-top: var(--space-3); }
+.sg-grid { display: grid; gap: var(--space-5); }
+.sg-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sg-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sg-frame { position: relative; border: var(--hairline) solid var(--color-rule); background: var(--ground); color: var(--text); padding: var(--space-6); overflow: hidden; }
+.sg-frame__l { display: block; margin: calc(-1 * var(--space-6)) calc(-1 * var(--space-6)) var(--space-5); padding: 8px var(--space-6) 7px; border-bottom: var(--hairline) solid var(--color-rule); color: var(--text-muted); }
+.sg-frame--flush { padding: 0; }
+.sg-frame--flush > .sg-frame__l { margin: 0; }
+.sg-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+.sg-stack > * + * { margin-top: var(--space-4); }
+.sg-stack > .seg { display: flex; width: fit-content; max-width: 100%; }
+
+/* palette */
+.sg-sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-5) var(--space-4); }
+.sg-sw__chip { aspect-ratio: 210 / 297; width: 64px; border: var(--hairline) solid rgba(42, 41, 38, 0.14); margin-bottom: var(--space-3); box-shadow: var(--shadow-contact); }
+.sg-sw__n { font-size: var(--fs-small); font-weight: var(--fw-medium); }
+.sg-sw__hex, .sg-sw__role { color: var(--text-muted); }
+.sg-sw__role { font-size: var(--fs-small); line-height: var(--lh-small); margin-top: 2px; }
+.sg-new { color: var(--color-blueprint); }
+
+/* contrast matrix */
+.sg-cx { width: 100%; font-size: var(--fs-small); border-collapse: collapse; }
+.sg-cx th, .sg-cx td { padding: 10px 12px; border-bottom: var(--line); text-align: left; font-weight: var(--fw-regular); vertical-align: middle; }
+.sg-cx thead th { font-size: var(--fs-micro); letter-spacing: var(--tracking-micro); font-weight: var(--fw-medium); color: var(--text-muted); border-bottom-color: var(--color-rule-strong); }
+.sg-cx td { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sg-cx .sg-fail { color: #9B1C1C; font-weight: var(--fw-medium); }
+.sg-cx .sg-req { color: var(--text-muted); font-size: var(--fs-micro); margin-left: 4px; }
+.sg-cx__g { display: inline-flex; align-items: center; gap: 10px; }
+.sg-cx__dot { width: 14px; height: 20px; border: var(--hairline) solid rgba(42, 41, 38, 0.2); }
+.sg-scroll { overflow-x: auto; }
+
+/* grounds */
+.sg-ground { display: grid; gap: var(--space-4); align-content: start; min-height: 100%; }
+.sg-ground .eyebrow { margin: 0; }
+.sg-ground .h3 { font-weight: var(--fw-book); }
+.sg-ground__dims { position: relative; height: 34px; margin-top: var(--space-2); color: var(--dims); }
+.sg-ground__dims svg { width: 100%; height: 14px; }
+.sg-ground__dims span { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); }
+.sg-ground .kb-line { max-width: 360px; }
+.sg .kb-line { grid-template-columns: minmax(0, 1fr); }      /* see the note in 06: the field's min-content can't overflow */
+.sg-forcefocus { outline: 2px solid var(--color-focus) !important; outline-offset: 3px; border-radius: var(--radius-1); }
+
+/* type */
+.sg-type { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--space-3) var(--space-5); align-items: baseline; padding: var(--space-4) 0; border-bottom: var(--line); }
+.sg-type__k { color: var(--text-muted); }
+.sg-type__k b { display: block; font-weight: var(--fw-medium); color: var(--text); font-size: var(--fs-small); letter-spacing: 0; }
+.sg-type__s { min-width: 0; overflow-wrap: anywhere; }
+
+/* scales */
+.sg-space { display: grid; gap: 10px; }
+.sg-space div { display: grid; grid-template-columns: 6rem 5rem 1fr; align-items: center; gap: var(--space-4); }
+.sg-space i { display: block; height: 10px; background: var(--color-blueprint); opacity: 0.85; }
+.sg-shape { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-end; }
+.sg-shape figure { margin: 0; display: grid; gap: var(--space-3); justify-items: start; }
+.sg-shape figcaption { color: var(--text-muted); }
+.sg-sheet { width: 84px; aspect-ratio: 210 / 297; background: var(--color-paper); }
+.sg-crop { position: relative; width: 84px; aspect-ratio: 210 / 297; }
+.sg-dog { position: relative; width: 84px; aspect-ratio: 210 / 297; background: var(--color-ink); clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%); }
+.sg-dog::after { content: ""; position: absolute; top: 0; right: 0; width: 22px; height: 22px; background: linear-gradient(225deg, transparent 50%, rgba(247, 245, 240, 0.32) 50%); }
+.sg-ease { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: var(--space-5); }
+.sg-ease figure { margin: 0; }
+.sg-ease svg { width: 100%; height: auto; border-bottom: var(--line); }
+.sg-ease figcaption { margin-top: var(--space-2); }
+.sg-ease figcaption .small { color: var(--text-muted); display: block; }
+.sg-ease__track { position: relative; height: 2px; background: var(--color-rule); margin-top: var(--space-3); }
+.sg-ease__dot { position: absolute; top: -4px; left: 0; width: 7px; height: 10px; background: var(--text); }
+.sg-play .sg-ease__dot { animation: sg-slide var(--d, 720ms) var(--e) both; }
+@keyframes sg-slide { from { left: 0; } to { left: calc(100% - 7px); } }
+
+/* furniture specimens: the site's fixed furniture, pinned inside frames */
+.sg-navframe { height: 132px; padding: 0; }
+.sg-navframe .nav { position: absolute; }
+.sg-lockup { height: 18px; width: auto; display: block; }
+.sg-rulerframe { height: 380px; padding: 0; }
+.sg-rulerframe .ruler { position: absolute; top: 56px; bottom: 24px; right: 18px; }
+.sg-rulerframe .sg-ruler-note { top: calc(var(--space-6) + 34px) !important; }
+/* SPEC (request 15.9): the readout carries a ground-coloured backing, so it covers the 50 mm labels it passes */
+.sg-spec .ruler__readout { background: var(--ground); padding: 2px 6px; margin-right: -2px; }
+.sg-rulerframe .ruler__marker { transform: translate3d(0, calc(var(--ruler-y, 0) * 1px - 50%), 0); }
+.sg-rulerframe .sg-ruler-note { position: absolute; left: var(--space-6); top: var(--space-6); max-width: 46ch; color: var(--text-muted); }
+.sg-hintframe { height: 132px; padding: 0; }
+.sg-hintframe .hint { position: absolute; }
+
+/* component fixes so positioned site components sit still in a guide frame */
+.sg .metrics { position: static; transform: none; width: auto; }
+.sg .cmp { position: static; transform: none; width: auto; }
+.sg .review { position: relative; top: auto; left: auto; right: auto; width: auto; max-width: 440px; }
+.sg .s09__scale { justify-content: flex-start; margin: 0 0 var(--space-5); }
+.sg .tip { opacity: 1; transform: none; }
+.sg .lb { position: static; width: auto; }
+.sg-claims { display: flex; gap: 40px; align-items: flex-start; padding: 22px; overflow-x: auto; }
+.sg-claims .claim { height: 440px; flex: none; }
+.sg-claims .claim__fig { display: grid; place-items: center; }
+.sg-claims .claim__fig::after { content: ""; height: 72%; aspect-ratio: 210 / 297; background: var(--color-paper); transform: rotate(-2deg); box-shadow: 0 1px 1px rgba(30, 30, 28, 0.06), 0 16px 28px -16px rgba(30, 30, 28, 0.35); }
+.sg-claims .claim--l .claim__fig::after { aspect-ratio: 297 / 210; height: 62%; transform: rotate(1.5deg); }
+
+/* SPEC patches for requests the build has not applied yet (05 §15); each is tagged on the page */
+.sg-spec .claim::after { content: none; }
+.sg-spec .claim::before {
+  content: ""; position: absolute; pointer-events: none; border: 0; width: auto; height: auto;
+  --e: calc(var(--crop-gap) + var(--crop-mark)); --c: linear-gradient(var(--color-graphite), var(--color-graphite));
+  inset: calc(-1 * var(--e));
+  background:
+    var(--c) left 0 top var(--e) / var(--crop-mark) 1px no-repeat,  var(--c) left var(--e) top 0 / 1px var(--crop-mark) no-repeat,
+    var(--c) right 0 top var(--e) / var(--crop-mark) 1px no-repeat, var(--c) right var(--e) top 0 / 1px var(--crop-mark) no-repeat,
+    var(--c) left 0 bottom var(--e) / var(--crop-mark) 1px no-repeat, var(--c) left var(--e) bottom 0 / 1px var(--crop-mark) no-repeat,
+    var(--c) right 0 bottom var(--e) / var(--crop-mark) 1px no-repeat, var(--c) right var(--e) bottom 0 / 1px var(--crop-mark) no-repeat;
+}
+.sg-spec .corners--3 i:nth-child(2) { border-color: transparent; background: linear-gradient(225deg, transparent calc(50% - 0.5px), currentColor calc(50% - 0.5px), currentColor calc(50% + 0.5px), transparent calc(50% + 0.5px)); }
+.sg-spec .card { aspect-ratio: 210 / 297; min-height: 0; background: var(--color-ink-deep); display: flex; flex-direction: column; }
+.sg-spec .card__l { margin-top: auto; }   /* a spec sheet: the value at the head, the label, body and source settle at the foot */
+@media (max-width: 600px) { .sg-spec .card { aspect-ratio: 297 / 210; } }   /* on phones every card is the same sheet, turned */
+
+/* SPEC (request 15.10): inside an uppercase label the stroke covers the cap height, not the x-height */
+:is(.label, .micro, .eyebrow) .hl::after { inset: -0.28em -0.36em -0.26em -0.32em; }
+
+/* pencil cursor, v2 colours (05 §9.19) */
+.sg-pencil { width: 24px; height: 96px; }
+.sg-pencil .pw { fill: #E9D9BF; } .sg-pencil .pl { fill: var(--color-graphite); } .sg-pencil .pb { fill: var(--pencil); }
+.sg-pencil .ps { fill: var(--color-pencil-shade); } .sg-pencil .pf { stroke: rgba(255, 255, 255, 0.35); stroke-width: 1; }
+.sg-pencil .pfe { fill: #B9B6AE; } .sg-pencil .pr { fill: #E7B9B2; } .sg-pencil .po { fill: none; stroke: rgba(42, 41, 38, 0.45); stroke-width: 0.75; }
+[data-ground="charcoal"] .sg-pencil .po { stroke: none; }
+
+/* assets */
+.sg-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); background: var(--ground); border-top: var(--hairline) solid var(--color-rule); border-left: var(--hairline) solid var(--color-rule); }
+.sg-icons figure { margin: 0; padding: var(--space-5) var(--space-3) var(--space-4); border-right: var(--hairline) solid var(--color-rule); border-bottom: var(--hairline) solid var(--color-rule); display: grid; justify-items: center; gap: var(--space-3); }
+.sg-icons svg { width: 24px; height: 24px; }
+.sg-icons .sg-i16 { width: 16px; height: 16px; }
+.sg-icons figcaption { color: var(--text-muted); text-align: center; }
+.sg-draw { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-5); }
+.sg-draw figure { margin: 0; display: grid; justify-items: center; gap: var(--space-3); }
+.sg-draw img { width: 96px; height: 96px; }
+.sg-draw figcaption { color: var(--text-muted); }
+.sg-logo { display: flex; flex-wrap: wrap; gap: var(--space-7); align-items: flex-end; }
+.sg-logo figure { margin: 0; display: grid; gap: var(--space-3); }
+.sg-logo figcaption { color: var(--text-muted); }
+
+.sg-foot { margin-top: var(--space-9); padding-top: var(--space-5); border-top: var(--line); display: flex; justify-content: space-between; gap: var(--space-5); flex-wrap: wrap; color: var(--text-muted); }
+
+@media (max-width: 900px) {
+  .sg-intro { grid-template-columns: 1fr; gap: var(--space-4); }
+  .sg-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .sg-grid--2, .sg-grid--3 { grid-template-columns: minmax(0, 1fr); }
+  .sg-sec__head { grid-template-columns: 1fr; gap: var(--space-2); }
+  .sg-sec__lede { grid-column: 1; }
+  .sg-type { grid-template-columns: 1fr; gap: var(--space-2); }
+  .sg-frame { padding: var(--space-5); }
+  .sg-frame__l { margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) var(--space-4); padding-inline: var(--space-5); }
+  .sg-top__meta { display: none; }
+  .sg-index { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; }
+  .sg-claims .claim { height: 380px; }
+  .sg-claims .claim--l { aspect-ratio: 297 / 210; height: 250px; }
+  .sg-space div { grid-template-columns: 5rem 4rem 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="sg">
+
+  <header class="sg-top">
+    <!-- the lockup, inline so it follows `color` (docs/assets/logo/lockup.svg) -->
+    <svg class="sg-top__lockup" viewBox="0 -780.64 3134.07 864.28" role="img" aria-label="AVIVA"><use href="#sg-lockup-g"/></svg>
+    <p class="sg-top__meta micro">DESIGN SYSTEM v2 · LIVE FROM docs/css/</p>
+  </header>
+
+  <section class="sg-intro">
+    <h1 class="sg-intro__h">A white room, set light, printed precisely.</h1>
+    <p class="sg-intro__p small">Everything below is drawn by the site’s own stylesheets: <code>tokens.css</code>, <code>fonts.css</code>, <code>base.css</code>, <code>ui.css</code>, <code>sections.css</code> and <code>states.css</code>. Hex values, sizes and contrast ratios are read from the live CSS variables, so this page is always the current system. The written spec is <code>work/05-design-system.md</code>. Items tagged <span class="sg-tag sg-tag--pend micro">SPEC</span> show the design where the build has not caught up yet.</p>
+  </section>
+
+  <nav class="sg-index micro" aria-label="Sections">
+    <a href="#colour">01 COLOUR</a><a href="#grounds">02 GROUNDS</a><a href="#type">03 TYPE</a><a href="#space">04 SPACE · SHAPE · MOTION</a>
+    <a href="#furniture">05 FURNITURE</a><a href="#controls">06 CONTROLS</a><a href="#content">07 CONTENT</a><a href="#marks">08 MARKS</a><a href="#assets">09 ASSETS</a>
+  </nav>
+
+  <!-- ═══════════════════════════════════════ 01 COLOUR ═══════════════════════════════════════ -->
+  <section class="sg-sec" id="colour" aria-labelledby="colour-h">
+    <div class="sg-sec__head">
+      <p class="sg-sec__n micro">01</p>
+      <h2 class="sg-sec__h" id="colour-h">Colour</h2>
+      <p class="sg-sec__lede small">Paper white, graphite and one ink. Version 2 adds a cool charcoal, cool greys and three stationery colours: pencil yellow, blueprint blue and a highlighter. One accent family per screen; the sheet is always the brightest, warmest white.</p>
+    </div>
+
+    <div class="sg-sub"><h3>Palette v1</h3><span class="micro">THE ORIGINAL FIVE ROLES</span></div>
+    <div class="sg-sw" data-swatches="paper studio graphite graphite-muted graphite-soft ink ink-deep on-ink-muted"></div>
+    <div class="sg-sub"><h3>Palette v2</h3><span class="micro sg-new">DECISION #24 · ADDED</span></div>
+    <div class="sg-sw" data-swatches="charcoal charcoal-raised charcoal-deep on-charcoal-muted grey-100 grey-200 grey-300 graphite-muted-deep pencil pencil-shade blueprint blueprint-light hl-yellow hl-pink"></div>
+
+    <div class="sg-sub"><h3>Contrast, every ground</h3><span class="micro">WCAG 2.x · COMPUTED LIVE FROM THE ROLE VARIABLES</span></div>
+    <div class="sg-scroll"><table class="sg-cx" id="sg-cx"><thead><tr><th>Ground</th><th>Text</th><th>Muted</th><th>Accent</th><th>Dims</th><th>Focus ring</th><th>UI boundary</th><th>Primary button</th><th>Under a mark</th></tr></thead><tbody></tbody></table></div>
+    <p class="sg-note small">Text and labels need 4.5 : 1 at any size; focus rings, UI boundaries and the pencil accent (a non-text mark) need 3 : 1. Alpha colours are composited over their ground; the mark is the highlighter (mask alpha 0.88) multiplied over light grounds, or lying under graphite text on charcoal. The same table, with every pair the site uses, is printed by <code>node work/scripts/design/contrast-table.mjs</code>.</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════ 02 GROUNDS ═══════════════════════════════════════ -->
+  <section class="sg-sec" id="grounds" aria-labelledby="grounds-h">
+    <div class="sg-sec__head">
+      <p class="sg-sec__n micro">02</p>
+      <h2 class="sg-sec__h" id="grounds-h">Grounds</h2>
+      <p class="sg-sec__lede small">The same markup on every ground. Components only use role variables, so <code>data-ground</code> recolours them: paper (default), light grey, cool grey, charcoal and ink.</p>
+    </div>
+    <div class="sg-grid sg-grid--3" id="sg-grounds"></div>
+    <template id="sg-ground-tpl">
+      <div class="sg-frame">
+        <span class="sg-frame__l micro" data-l></span>
+        <div class="sg-ground">
+          <p class="eyebrow" data-eyebrow></p>
+          <p class="h3" data-h></p>
+          <p class="body">Every AVIVA is 1&nbsp;:&nbsp;<span data-hl>√2</span>. Only the context window changes.</p>
+          <p class="small muted">Dimensions: ISO&nbsp;216. Areas and weights calculated at 80&nbsp;g/m², not weighed.</p>
+          <div class="sg-row">
+            <button class="btn btn--primary" type="button">RELEASE IT</button>
+            <button class="btn" type="button">REGENERATE</button>
+            <button class="btn sg-forcefocus" type="button">FOCUS</button>
+          </div>
+          <form class="kb-line" onsubmit="return false">
+            <label class="kb-line__label small" data-for>Type a line</label>
+            <span class="kb-line__field"><span class="icon icon--pencil" aria-hidden="true"></span><input class="kb-line__input" type="text" placeholder="Ask AVIVA anything" data-id><button class="btn btn--small" type="button">WRITE IT</button></span>
+          </form>
+          <div class="sg-ground__dims" aria-hidden="true"><svg viewBox="0 0 300 14" preserveAspectRatio="none"><path d="M1 1V13M299 1V13M1 7H299" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><span class="micro">210 mm</span></div>
+        </div>
+      </div>
+    </template>
+  </section>
+
+  <!-- ═══════════════════════════════════════ 03 TYPE ═══════════════════════════════════════ -->
+  <section class="sg-sec" id="type" aria-labelledby="type-h">
+    <div class="sg-sec__head">
+      <p class="sg-sec__n micro">03</p>
+      <h2 class="sg-sec__h" id="type-h">Type</h2>
+      <p class="sg-sec__lede small">Hanken Grotesk, variable 300–500, self-hosted (30&nbsp;KB). Light for display and headings, Regular for body, Medium for labels. Nothing is bold. Figures are tabular by default. DM Mono appears only in the BibTeX box. Sizes are fluid from 390 to 1440&nbsp;px; the readouts show this viewport.</p>
+    </div>
+    <div id="sg-type">
+      <div class="sg-type"><p class="sg-type__k micro" data-fs="--fs-display"><b>--fs-display</b></p><p class="sg-type__s" style="font-size:var(--fs-display);line-height:var(--lh-display);letter-spacing:var(--tracking-display);font-weight:var(--fw-light)">4.99&nbsp;g</p></div>
+      <div class="sg-type"><p class="sg-type__k micro" data-fs="--fs-h1"><b>--fs-h1</b></p><p class="sg-type__s h1">Every great product starts with a blank sheet of paper.</p></div>
+      <div class="sg-type"><p class="sg-type__k micro" data-fs="--fs-h2"><b>--fs-h2</b></p><p class="sg-type__s h2">Halve it. It’s still AVIVA.</p></div>
+      <div class="sg-type"><p class="sg-type__k micro" data-fs="--fs-h3"><b>--fs-h3</b></p><p class="sg-type__s h3">AVIVA&nbsp;A4 · the reference model</p></div>
+      <div class="sg-type"><p class="sg-type__k micro" data-fs="--fs-lead"><b>--fs-lead</b></p><p class="sg-type__s lead">Early feedback from one novelist, one cat and several pieces of office equipment.</p></div>
+      <div class="sg-type"><p class="sg-type__k micro" data-fs="--fs-body"><b>--fs-body</b></p><p class="sg-type__s body" style="max-width:var(--measure)">Fold AVIVA in half and the shape survives, because 297 ÷ 210 = 1.414, the square root of two. Lichtenberg wrote it down in 1786.</p></div>
+      <div class="sg-type"><p class="sg-type__k micro" data-fs="--fs-small"><b>--fs-small</b></p><p class="sg-type__s small muted" style="max-width:var(--measure)">Pencil mostly sits on the fibres, so it mostly erases. Ink soaks in, so it doesn’t.</p></div>
+      <div class="sg-type"><p class="sg-type__k micro" data-fs="--fs-label"><b>--fs-label</b></p><p class="sg-type__s label">INTRODUCING AVIVA A4 · PLEASE TURN OVER</p></div>
+      <div class="sg-type"><p class="sg-type__k micro" data-fs="--fs-micro"><b>--fs-micro</b></p><p class="sg-type__s micro">62,370&nbsp;mm² · NO TRUNCATION · 0&nbsp;mm. BLANK AGAIN.</p></div>
+      <div class="sg-type"><p class="sg-type__k micro" data-fs="--fs-mono"><b>--fs-mono</b></p><p class="sg-type__s" style="font-family:var(--font-mono);font-size:var(--fs-mono);line-height:var(--lh-mono)">note = {{AVIVA} A4: 210 x 297 mm, 80 g/m^2.}</p></div>
+    </div>
+
+    <div class="sg-sub"><h3>Impression, the signature reveal</h3><span class="micro">DESIGN SYSTEM 7.2 · BLIND IMPRESSION, THEN INK</span><button class="btn btn--small" type="button" id="sg-press-replay">REPLAY</button></div>
+    <div class="sg-frame" id="sg-press">
+      <span class="sg-frame__l micro">EACH LINE IS PRESSED INTO THE SHEET WITHOUT INK, THEN INKED. NOTHING MOVES.</span>
+      <h2 class="h2 is-pressed"><span class="press__line" style="--i:0">Intelligence not included.</span><span class="press__line" style="--i:1">Pick up the pencil.</span></h2>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ 04 SPACE · SHAPE · MOTION ═══════════════════════════════════════ -->
+  <section class="sg-sec" id="space" aria-labelledby="space-h">
+    <div class="sg-sec__head">
+      <p class="sg-sec__n micro">04</p>
+      <h2 class="sg-sec__h" id="space-h">Space, shape and motion</h2>
+      <p class="sg-sec__lede small">Measured gutters, square corners (2&nbsp;px at most), solid hairlines, crop marks and dog-ears. Two soft shadows. Motion arrives and settles; anything tied to scroll is scrubbed, never timed.</p>
+    </div>
+    <div class="sg-grid sg-grid--2">
+      <div class="sg-frame"><span class="sg-frame__l micro">SPACING · LIVE PX</span><div class="sg-space" id="sg-space"></div></div>
+      <div class="sg-frame"><span class="sg-frame__l micro">SHAPE AND DEPTH</span>
+        <div class="sg-shape">
+          <figure><div class="sg-sheet" style="box-shadow:var(--shadow-contact)"></div><figcaption class="micro">--shadow-contact</figcaption></figure>
+          <figure><div class="sg-sheet" style="box-shadow:var(--shadow-lift)"></div><figcaption class="micro">--shadow-lift</figcaption></figure>
+          <figure><div class="sg-crop claim-like" id="sg-crop"></div><figcaption class="micro">--crop-mark · --crop-gap</figcaption></figure>
+          <figure><div class="sg-dog"></div><figcaption class="micro">--dog-ear</figcaption></figure>
+          <figure><button class="btn" type="button">2 PX</button><figcaption class="micro">--radius-1</figcaption></figure>
+        </div>
+      </div>
+    </div>
+    <div class="sg-sub"><h3>Easing and duration</h3><span class="micro">TAP A CURVE TO PLAY IT</span></div>
+    <div class="sg-ease" id="sg-ease"></div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ 05 FURNITURE ═══════════════════════════════════════ -->
+  <section class="sg-sec" id="furniture" aria-labelledby="furn-h">
+    <div class="sg-sec__head">
+      <p class="sg-sec__n micro">05</p>
+      <h2 class="sg-sec__h" id="furn-h">Furniture</h2>
+      <p class="sg-sec__lede small">No bar behind the nav. The active link wears a folded corner. A millimetre ruler replaces the scrollbar; the hint at the foot asks you to turn over.</p>
+    </div>
+    <div class="sg-stack">
+      <div class="sg-frame sg-frame--flush sg-navframe"><span class="sg-frame__l micro">NAV · ACTIVE: SPECS · <span class="sg-tag sg-tag--pend">SPEC</span> LOCKUP INLINE (REQUEST 15.1)</span>
+        <header class="nav" style="top:52px">
+          <a class="nav__logo" href="#furniture" aria-label="AVIVA, back to the top">
+            <svg class="sg-lockup" viewBox="0 -780.64 3134.07 864.28" aria-hidden="true"><use href="#sg-lockup-g"/></svg>
+          </a>
+          <nav class="nav__links" aria-label="Example"><ul>
+            <li><a href="#furniture">SHEET<span class="nav__dog" aria-hidden="true"></span></a></li>
+            <li><a href="#furniture" aria-current="true">SPECS<span class="nav__dog" aria-hidden="true"></span></a></li>
+            <li><a href="#furniture">SIZES<span class="nav__dog" aria-hidden="true"></span></a></li>
+            <li><a href="#furniture">PAPER<span class="nav__dog" aria-hidden="true"></span></a></li>
+          </ul></nav>
+        </header>
+      </div>
+      <div class="sg-grid sg-grid--2">
+        <div class="sg-frame sg-frame--flush sg-rulerframe sg-spec"><span class="sg-frame__l micro">MILLIMETRE RULER · 297 MM OVER THE TRACK · <span class="sg-tag sg-tag--pend">SPEC</span> READOUT BACKING (REQUEST 15.9)</span>
+          <p class="sg-ruler-note small">Ticks every 10&nbsp;mm, longer every 50&nbsp;mm with micro labels (≥ 768&nbsp;px). The marker reads the scroll position in millimetres of A4: “297&nbsp;mm. End of sheet.” at the bottom, “0&nbsp;mm. Blank again.” back at the top.</p>
+          <div class="ruler" id="sg-ruler" aria-hidden="true">
+            <div class="ruler__track"><div class="ruler__ticks"></div></div>
+            <div class="ruler__marker"><span class="ruler__tick"></span><span class="ruler__readout">112 mm</span></div>
+          </div>
+        </div>
+        <div class="sg-frame sg-frame--flush sg-rulerframe sg-spec" data-ground="charcoal"><span class="sg-frame__l micro">MILLIMETRE RULER ON CHARCOAL · THE END OF THE SHEET</span>
+            <div class="ruler" id="sg-ruler-end" aria-hidden="true">
+              <div class="ruler__track"><div class="ruler__ticks"></div></div>
+              <div class="ruler__marker"><span class="ruler__tick"></span><span class="ruler__readout">297 mm. End of sheet.</span></div>
+            </div>
+        </div>
+      </div>
+      <div class="sg-grid sg-grid--2">
+        <div class="sg-frame sg-frame--flush sg-hintframe"><span class="sg-frame__l micro">SCROLL HINT</span>
+          <div class="hint" style="bottom:22px"><svg class="hint__icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.25 3.25h13.5v10.5c-3 .1-5.6 2.4-6 7H5.25z"/><path d="M18.75 13.75c-2.8 1.2-4.9 3.3-6 7"/></svg><span class="hint__label">PLEASE TURN OVER</span></div>
+        </div>
+        <div class="sg-frame sg-frame--flush sg-hintframe" data-ground="ink"><span class="sg-frame__l micro">SCROLL HINT · DIMMED DURING A TRANSITION (32 %)</span>
+          <div class="hint is-dim" style="bottom:22px"><svg class="hint__icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.25 3.25h13.5v10.5c-3 .1-5.6 2.4-6 7H5.25z"/><path d="M18.75 13.75c-2.8 1.2-4.9 3.3-6 7"/></svg><span class="hint__label">PLEASE TURN OVER</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ 06 CONTROLS ═══════════════════════════════════════ -->
+  <section class="sg-sec" id="controls" aria-labelledby="ctl-h">
+    <div class="sg-sec__head">
+      <p class="sg-sec__n micro">06</p>
+      <h2 class="sg-sec__h" id="ctl-h">Controls</h2>
+      <p class="sg-sec__lede small">Hairline rectangles with crisp corners and uppercase labels. Never pills, never shadows, never glows. Inputs are ruled lines, like lined paper.</p>
+    </div>
+    <div class="sg-grid sg-grid--2">
+      <div class="sg-frame"><span class="sg-frame__l micro">BUTTONS · 9.4</span>
+        <div class="sg-stack">
+          <div class="sg-row">
+            <button class="btn" type="button"><span class="icon icon--regenerate" aria-hidden="true"></span>REGENERATE</button>
+            <button class="btn btn--primary" type="button"><span class="icon icon--plane" aria-hidden="true"></span>RELEASE IT</button>
+            <button class="btn" type="button" aria-pressed="true"><span class="icon icon--eraser" aria-hidden="true"></span>ERASE</button>
+          </div>
+          <div class="sg-row">
+            <button class="btn btn--primary hold" type="button" style="--hold:0.42"><span class="hold__fill" aria-hidden="true"></span><span class="icon icon--tear" aria-hidden="true"></span>HOLD TO TEAR</button>
+            <button class="btn btn--small" type="button"><span class="icon icon--copy" aria-hidden="true"></span>COPY</button>
+            <a class="btn" href="#controls"><span class="icon icon--download" aria-hidden="true"></span>PAPER · PDF, 8 PAGES</a>
+          </div>
+          <div>
+            <button class="btn btn--primary btn--disabled" type="button" aria-disabled="true" aria-describedby="sg-tip1"><span class="icon icon--printer" aria-hidden="true"></span>PRINT</button>
+            <span class="tip micro" id="sg-tip1">Nothing to print. Nothing is for sale.</span>
+          </div>
+          <div>
+            <button class="btn btn--disabled" type="button" aria-disabled="true" aria-describedby="sg-tip2">WEIGHTS · 4.99 g</button>
+            <span class="tip micro" id="sg-tip2">Not downloadable. They weigh 4.99 g, by calculation.</span>
+          </div>
+        </div>
+      </div>
+      <div class="sg-frame" data-ground="ink"><span class="sg-frame__l micro">BUTTONS ON INK: PAPER FILLS, INK LABELS</span>
+        <div class="sg-stack">
+          <div class="sg-row">
+            <button class="btn" type="button">A IS BETTER</button>
+            <button class="btn btn--primary" type="button"><span class="icon icon--plane" aria-hidden="true"></span>RELEASE IT</button>
+            <button class="btn sg-forcefocus" type="button">FOCUS</button>
+          </div>
+          <div class="seg" role="group" aria-label="Example vote">
+            <button class="seg__opt" type="button">A IS BETTER</button><button class="seg__opt is-on" type="button" aria-pressed="true">TIE</button><button class="seg__opt" type="button">B IS BETTER</button>
+          </div>
+          <p class="status">Both responses were AVIVA A4.</p>
+        </div>
+      </div>
+      <div class="sg-frame"><span class="sg-frame__l micro">SEGMENTED CONTROL (ARENA) · RADIO GROUP (PAPER SIZE) · 9.5</span>
+        <div class="sg-stack">
+          <div class="seg" role="group" aria-label="Example vote, light">
+            <button class="seg__opt" type="button">A IS BETTER</button><button class="seg__opt" type="button">TIE</button><button class="seg__opt" type="button">B IS BETTER</button>
+          </div>
+          <div class="seg seg--size" role="radiogroup" aria-label="Paper size">
+            <label class="seg__opt"><input type="radio" name="sg-size" value="A5"><span class="sheet-ico sheet-ico--a5" aria-hidden="true"></span><span>A5</span></label>
+            <label class="seg__opt"><input type="radio" name="sg-size" value="A4" checked><span class="sheet-ico sheet-ico--a4" aria-hidden="true"></span><span>A4</span></label>
+            <label class="seg__opt"><input type="radio" name="sg-size" value="A3"><span class="sheet-ico sheet-ico--a3" aria-hidden="true"></span><span>A3</span></label>
+          </div>
+          <p class="small muted">Each size option carries a sheet drawn at its relative size: A5 9&nbsp;px, A4 12.7&nbsp;px, A3 18&nbsp;px tall, 1&nbsp;:&nbsp;√2.</p>
+        </div>
+      </div>
+      <div class="sg-frame"><span class="sg-frame__l micro">RULED INPUT · STATUS LINE · 9.6, 9.7</span>
+        <div class="sg-stack">
+          <form class="kb-line" onsubmit="return false">
+            <label class="kb-line__label small" for="sg-kb">Type a line</label>
+            <span class="kb-line__field"><span class="icon icon--pencil" aria-hidden="true"></span><input class="kb-line__input" id="sg-kb" type="text" placeholder="Ask AVIVA anything"><button class="btn btn--small" type="button">WRITE IT</button></span>
+          </form>
+          <p class="status" aria-live="off">AVIVA is waiting. It is very good at that.</p>
+          <p class="small muted">One line at a time, centred under the sheet in the site, <code>aria-live="polite"</code>, a fixed one-line height so nothing jumps.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ 07 CONTENT ═══════════════════════════════════════ -->
+  <section class="sg-sec" id="content" aria-labelledby="cnt-h">
+    <div class="sg-sec__head">
+      <p class="sg-sec__n micro">07</p>
+      <h2 class="sg-sec__h" id="cnt-h">Content components</h2>
+      <p class="sg-sec__lede small">Measurement notes, sheet-shaped cards, corner ratings, claim cards made of A-series rectangles, a plainly ruled table, the BibTeX well and the colophon.</p>
+    </div>
+
+    <div class="sg-frame"><span class="sg-frame__l micro">METRIC TRIPLET · 9.8</span>
+      <dl class="metrics">
+        <div class="metric"><dt class="metric__l micro">ASPECT RATIO</dt><dd class="metric__v">1 : √2</dd><dd class="metric__n small">297 ÷ 210 = 1.4143. √2 = 1.4142.</dd></div>
+        <div class="metric"><dt class="metric__l micro">AREA</dt><dd class="metric__v">1/16 m²</dd><dd class="metric__n small">A0 is one square metre. AVIVA A4 is A0 halved four times: 0.06237 m², because ISO rounds down to the millimetre.</dd></div>
+        <div class="metric"><dt class="metric__l micro">SIZES, ONE SHAPE</dt><dd class="metric__v">11</dd><dd class="metric__n small">A0 to A10. Every one is 1 : √2, to the nearest millimetre.</dd></div>
+      </dl>
+    </div>
+
+    <div class="sg-sub"><h3>Dog-eared cards, on ink</h3><span class="micro">9.9 · <span class="sg-tag sg-tag--pend">SPEC</span> SHEET-SHAPED, INK SURFACE (REQUEST 15.3)</span></div>
+    <div class="sg-frame sg-spec" data-ground="ink">
+      <ul class="cards">
+        <li class="card"><p class="card__v">5–7</p><p class="card__l micro">LIVES</p><p class="card__b small">Paper fibres are usually said to survive five to seven trips through recycling, each one leaving them shorter and stiffer. Researchers are aiming for 25.</p></li>
+        <li class="card"><p class="card__v">≈ ¾</p><p class="card__l micro">RECYCLED IN EUROPE</p><p class="card__b small">About three-quarters of the paper and board used in Europe is recycled: 75.1&nbsp;% in 2024, according to the European Paper Recycling Council.</p></li>
+        <li class="card"><p class="card__v">≈ 4.6 g</p><p class="card__l micro">CO₂e PER SHEET (ISO METHOD)</p><p class="card__b small">One study of an A4 sheet of office paper found 4.3–4.7&nbsp;g of CO₂e, depending on the method: 4.6&nbsp;g by ISO’s. The sheet itself weighs about 5&nbsp;g.</p><p class="card__cite micro">Dias &amp; Arroja, <cite>Journal of Cleaner Production</cite>, 2012.</p></li>
+      </ul>
+    </div>
+
+    <div class="sg-sub"><h3>Review rows and the corner rating</h3><span class="micro">9.10 · <span class="sg-tag sg-tag--pend">SPEC</span> 3/4 = A FOLD LINE (REQUEST 15.4)</span></div>
+    <div class="sg-frame sg-spec" data-ground="ink">
+      <p class="s09__scale micro"><span class="corners corners--4" aria-hidden="true"><i></i><i></i><i></i><i></i></span>4/4: all corners intact. A dog-ear costs one.</p>
+      <div class="sg-grid sg-grid--2">
+        <div class="review">
+          <img class="review__art" src="../assets/illustrations/printer.svg" alt="" width="96" height="96">
+          <p class="review__rating"><span class="corners corners--4" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sr-only">Rated 4 out of 4 corners.</span></p>
+          <blockquote class="review__q"><p>“It went through first time. I have nothing else to report.”</p></blockquote>
+          <p class="review__who micro">THE PRINTER ON THE THIRD FLOOR</p>
+          <p class="review__role small muted">14 years in service, 2,031 jams</p>
+        </div>
+        <div class="review">
+          <img class="review__art" src="../assets/illustrations/shredder.svg" alt="" width="96" height="96">
+          <p class="review__rating"><span class="corners corners--3" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sr-only">Rated 3 out of 4 corners.</span></p>
+          <blockquote class="review__q"><p>“Went down beautifully.”</p></blockquote>
+          <p class="review__who micro">THE SHREDDER</p>
+          <p class="review__role small muted">Accounts department</p>
+          <p class="review__note small muted">(One corner dog-eared in testing.)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sg-sub"><h3>Claim cards</h3><span class="micro">9.11 · PORTRAIT 1 : √2 AND LANDSCAPE √2 : 1 AT ONE HEIGHT · <span class="sg-tag sg-tag--pend">SPEC</span> CROP MARKS AT ALL FOUR CORNERS (REQUEST 15.5)</span></div>
+    <div class="sg-frame sg-spec" data-ground="studio" style="padding:0">
+      <ol class="sg-claims" aria-label="Example claim cards">
+        <li class="claim claim--p"><figure class="claim__fig" aria-hidden="true"></figure><div class="claim__txt"><h3 class="claim__h">Context window: 210 × 297 mm.</h3><p class="claim__cap small">Edge to edge. Nothing falls off the end.</p><p class="claim__meta micro">62,370 mm² · NO TRUNCATION</p></div></li>
+        <li class="claim claim--l"><figure class="claim__fig" aria-hidden="true"></figure><div class="claim__txt"><h3 class="claim__h">Zero hallucinations.</h3><p class="claim__cap small">Whatever you see in the fibres is your own.</p><p class="claim__meta micro">HALLUCINATION RATE 0.00 % · n = 0 OUTPUTS</p></div></li>
+      </ol>
+    </div>
+
+    <div class="sg-grid" style="margin-top:var(--space-5)">
+      <div class="sg-frame" data-ground="grey"><span class="sg-frame__l micro">COMPARISON TABLE · 9.13 · ON THE COOL GREY OF s12</span>
+        <div class="cmp"><div class="cmp__scroll" tabindex="0" role="region" aria-label="Example comparison">
+          <table class="cmp__t">
+            <thead><tr><td></td><th scope="col">AVIVA A5</th><th scope="col" class="is-sel">AVIVA A4</th><th scope="col">AVIVA A3</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Size</th><td>148 × 210 mm</td><td>210 × 297 mm</td><td>297 × 420 mm</td></tr>
+              <tr><th scope="row">Weight at 80 g/m²</th><td>2.49 g</td><td>4.99 g</td><td>9.98 g</td></tr>
+              <tr><th scope="row">Aspect ratio</th><td>1 : √2</td><td>1 : √2</td><td>1 : √2</td></tr>
+              <tr><th scope="row">Knowledge</th><td>None</td><td>None</td><td>None</td></tr>
+            </tbody>
+          </table>
+        </div><p class="cmp__foot micro">Dimensions: ISO 216. Areas and weights calculated at 80 g/m², not weighed.</p></div>
+      </div>
+      <div class="sg-frame"><span class="sg-frame__l micro">CODE BOX (BIBTEX) · 9.14</span>
+        <div class="paper__bibhead"><p class="paper__l micro">BibTeX</p><button class="btn btn--small" type="button"><span class="icon icon--copy" aria-hidden="true"></span><span class="btn__txt">COPY</span></button></div>
+<pre class="bib" tabindex="0" style="margin-top:var(--space-3)"><code>@inproceedings{margin2026void,
+  title     = {Void of All Characters: ...},
+  author    = {Margin, Ada and Gutter, Gus and
+               Leading, Lena and Bleed, Bea},
+  year      = {2026},
+  pages     = {1--8},
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="sg-sub"><h3>Footer and colophon</h3><span class="micro">9.15 · A SOLID CHARCOAL BLOCK (DECISION #24)</span></div>
+    <div class="sg-frame" data-ground="charcoal" style="padding:0">
+      <footer class="foot" style="min-height:0">
+        <div class="wrap foot__in" style="border-top:0">
+          <div class="foot__col foot__col--main">
+            <p class="small">Colophon: set in one typeface, rendered in real time, printed on nothing.</p>
+            <p class="small">Sheets used during your visit: 3 of 500.</p>
+            <p class="foot__disc small">AVIVA is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale.</p>
+          </div>
+          <ul class="foot__links small">
+            <li><a href="../research/aviva-a4.pdf">Research paper (PDF)</a></li>
+            <li><a href="../research/citation.bib">BibTeX</a></li>
+            <li><a href="../research/aviva-a4.obj">Model (.obj)</a></li>
+            <li><a href="https://github.com/withnolan/aviva">Source on GitHub</a></li>
+          </ul>
+          <div class="foot__col foot__col--end">
+            <p class="micro muted">Our code: MIT licence. Libraries: see Credits.</p>
+            <p class="micro muted">© 2026 withnolan.</p>
+            <a class="btn btn--small foot__top" href="#colour">BACK TO 0 MM</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ 08 MARKS ═══════════════════════════════════════ -->
+  <section class="sg-sec" id="marks" aria-labelledby="marks-h">
+    <div class="sg-sec__head">
+      <p class="sg-sec__n micro">08</p>
+      <h2 class="sg-sec__h" id="marks-h">Marks</h2>
+      <p class="sg-sec__lede small">Version 2’s stationery. A highlighter behind one short phrase per screen at most, a pencil-yellow underline under the s03 call to action, the yellow pencil itself, and blueprint dimension lines.</p>
+    </div>
+    <div class="sg-row" style="margin-bottom:var(--space-4)"><button class="btn btn--small" type="button" id="sg-mark-replay">REPLAY THE MARKS</button><span class="micro muted">THEY DRAW ON ONCE, LEFT TO RIGHT, AS THEY ENTER</span></div>
+    <div class="sg-grid sg-grid--3">
+      <div class="sg-frame"><span class="sg-frame__l micro">HIGHLIGHTER ON PAPER · MULTIPLY</span>
+        <p class="lead">Status: <mark class="hl">Answer: see above.</mark></p>
+        <p class="small muted" style="margin-top:var(--space-3)">The stroke lies over the print and multiplies, like ink: graphite stays graphite.</p>
+      </div>
+      <div class="sg-frame" data-ground="grey-light"><span class="sg-frame__l micro">HIGHLIGHTER ON LIGHT GREY · s06 · <span class="sg-tag sg-tag--pend">SPEC</span> CAPS INSET (15.10)</span>
+        <p class="lead"><span class="label"><mark class="hl">KNOWN ISSUE</mark></span>&nbsp; Predicted to be replaced by the paperless office.</p>
+      </div>
+      <div class="sg-frame" data-ground="charcoal"><span class="sg-frame__l micro">HIGHLIGHTER ON CHARCOAL · OPAQUE, GRAPHITE TEXT</span>
+        <p class="lead">AVIVA has thought about it. <mark class="hl">Answer: see above.</mark></p>
+      </div>
+      <div class="sg-frame"><span class="sg-frame__l micro">THE SECOND VOICE · .hl--pink</span>
+        <p class="lead">Reviewer 2: <mark class="hl hl--pink">Respectfully, no.</mark></p>
+      </div>
+      <div class="sg-frame" data-ground="charcoal"><span class="sg-frame__l micro">PENCIL UNDERLINE · s03 CTA · .u-pencil</span>
+        <p class="eyebrow" style="color:var(--text-muted)">INTELLIGENCE</p>
+        <p class="label"><span class="u-pencil">Pick up the pencil.</span></p>
+      </div>
+      <div class="sg-frame" data-ground="charcoal"><span class="sg-frame__l micro">THE PENCIL · CURSOR COLOURS · 9.19</span>
+        <div class="sg-row" style="gap:var(--space-6)">
+          <svg class="sg-pencil" viewBox="0 0 24 96" aria-hidden="true"><path class="pw" d="M7 18 L12 1 L17 18 Z"/><path class="pl" d="M10.6 5.6 L12 1 L13.4 5.6 Z"/><rect class="pb" x="7" y="18" width="10" height="64"/><rect class="ps" x="13.7" y="18" width="3.3" height="64"/><path class="pf" d="M12 18V82"/><rect class="pfe" x="7" y="82" width="10" height="6"/><rect class="pr" x="7" y="88" width="10" height="6" rx="1.2"/><path class="po" d="M7 18H17V82H7Z"/></svg>
+          <p class="small muted" style="max-width:24ch">HB lacquer <code>--pencil</code>, shaded facet <code>--color-pencil-shade</code>, graphite lead. On paper the barrel gets a 0.75&nbsp;px outline.</p>
+        </div>
+      </div>
+    </div>
+    <div class="sg-grid sg-grid--2" style="margin-top:var(--space-5)">
+      <div class="sg-frame"><span class="sg-frame__l micro">DIMENSION LINES · --dims (BLUEPRINT ON PAPER) · 9.20</span>
+        <svg viewBox="0 0 420 210" style="width:100%;max-width:520px;height:auto;color:var(--dims)" aria-label="A sheet of A4 with blueprint dimension lines of 210 and 297 millimetres" role="img">
+          <rect x="150" y="34" width="105" height="148.5" fill="var(--color-paper)" stroke="var(--color-graphite)" stroke-width="1" style="filter:drop-shadow(0 6px 8px rgba(42,41,38,.16))"/>
+          <path d="M150 28V12M255 28V12M150 18H255M146 22L154 14M251 22L259 14" fill="none" stroke="currentColor" stroke-width="1"/>
+          <path d="M261 34H285M261 182.5H285M279 34V182.5M275 38L283 30M275 186.5L283 178.5" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="202.5" y="10" text-anchor="middle" fill="currentColor" style="font:var(--fw-medium) 11px var(--font-sans);letter-spacing:.08em">210 MM</text>
+          <text x="292" y="112" fill="currentColor" style="font:var(--fw-medium) 11px var(--font-sans);letter-spacing:.08em">297 MM</text>
+        </svg>
+        <p class="label" style="color:var(--dims);margin:var(--space-2) 0 var(--space-3)">297 ÷ 210 = <mark class="hl">1.414</mark></p>
+        <p class="small muted">Lines 1&nbsp;px, ticks not arrowheads, labels in micro. The ratio may carry the screen’s one highlighter.</p>
+      </div>
+      <div class="sg-frame" data-ground="charcoal"><span class="sg-frame__l micro">DIMENSION LINES ON CHARCOAL · BLUEPRINT-LIGHT · s02</span>
+        <svg viewBox="0 0 420 210" style="width:100%;max-width:520px;height:auto;color:var(--dims)" aria-label="The sheet seen edge-on as a bright hairline, with a dimension reading 0.1 millimetres" role="img">
+          <path d="M60 105H360" stroke="var(--color-paper)" stroke-width="1.4"/>
+          <path d="M60 99H360" stroke="var(--color-paper)" stroke-opacity=".08" stroke-width="10"/>
+          <path d="M210 60V96M210 114V150M204 96H216M204 114H216" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="222" y="66" fill="currentColor" style="font:var(--fw-medium) 11px var(--font-sans);letter-spacing:.08em">0.1 MM</text>
+        </svg>
+        <p class="small muted">On charcoal the dims are <code>--color-blueprint-light</code> (7.43 : 1); on ink they are paper white.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ 09 ASSETS ═══════════════════════════════════════ -->
+  <section class="sg-sec" id="assets" aria-labelledby="assets-h">
+    <div class="sg-sec__head">
+      <p class="sg-sec__n micro">09</p>
+      <h2 class="sg-sec__h" id="assets-h">Assets</h2>
+      <p class="sg-sec__lede small">The logomark is four crop marks around nothing. The wordmark is AVIVA in capitals (decision #30): one drawing for both A’s, one for both V’s, mirror-symmetric about the I. Icons are 1.5&nbsp;px line drawings on a 24&nbsp;px grid; the drawings are graphite objects, never people.</p>
+    </div>
+    <div class="sg-frame"><span class="sg-frame__l micro">LOGO · docs/assets/logo/</span>
+      <div class="sg-logo">
+        <figure><svg viewBox="0 0 26 30" style="width:52px;height:60px" aria-hidden="true"><path d="M6.05 8H0.05 M8.05 6V0 M6.05 22H0.05 M8.05 24V30 M19.95 8H25.95 M17.95 6V0 M19.95 22H25.95 M17.95 24V30" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><figcaption class="micro">LOGOMARK</figcaption></figure>
+        <figure><img src="../assets/logo/wordmark.svg" alt="AVIVA" style="height:46px;width:auto"><figcaption class="micro">WORDMARK · SYMMETRIC ABOUT THE I</figcaption></figure>
+        <figure><svg class="sg-lockup" viewBox="0 -780.64 3134.07 864.28" style="height:30px" aria-hidden="true"><use href="#sg-lockup-g"/></svg><figcaption class="micro">LOCKUP · NAV 18 PX</figcaption></figure>
+        <figure><img src="../favicon.svg" alt="" width="32" height="32"><figcaption class="micro">FAVICON</figcaption></figure>
+        <figure><img src="../assets/apple-touch-icon.png" alt="" width="60" height="60" style="box-shadow:var(--shadow-contact)"><figcaption class="micro">APPLE TOUCH</figcaption></figure>
+      </div>
+    </div>
+    <div class="sg-sub"><h3>Icons</h3><span class="micro">docs/assets/icons/sprite.svg · 24 PX AND 16 PX</span></div>
+    <div class="sg-icons" id="sg-icons"></div>
+    <div class="sg-sub"><h3>Icons on charcoal</h3><span class="micro">currentColor: THEY FOLLOW THE GROUND</span></div>
+    <div class="sg-icons" id="sg-icons-dark" data-ground="charcoal"></div>
+    <div class="sg-sub"><h3>Drawings</h3><span class="micro">s09 · 96 PX · THEY DRAW THEMSELVES ON, ONCE</span></div>
+    <div class="sg-frame" data-ground="ink"><div class="sg-draw">
+      <figure><img src="../assets/illustrations/printer.svg" alt="A desktop laser printer with one sheet emerging" width="96" height="96"><figcaption class="micro">PRINTER</figcaption></figure>
+      <figure><img src="../assets/illustrations/cat.svg" alt="A cat asleep, curled on a sheet" width="96" height="96"><figcaption class="micro">CAT</figcaption></figure>
+      <figure><img src="../assets/illustrations/lamp.svg" alt="A desk lamp over a blank page" width="96" height="96"><figcaption class="micro">LAMP</figcaption></figure>
+      <figure><img src="../assets/illustrations/shredder.svg" alt="A shredder with strips beneath" width="96" height="96"><figcaption class="micro">SHREDDER</figcaption></figure>
+      <figure><img src="../assets/illustrations/pencil.svg" alt="A half-length HB pencil" width="96" height="96"><figcaption class="micro">HB PENCIL</figcaption></figure>
+      <figure><img src="../assets/illustrations/bin.svg" alt="A recycling bin with one crumpled ball inside" width="96" height="96"><figcaption class="micro">BIN</figcaption></figure>
+    </div></div>
+    <div class="sg-sub"><h3>Release-notes glyphs</h3><span class="micro">s06 · 16 PX · glyphs/sprite.svg</span></div>
+    <div class="sg-icons" id="sg-glyphs" data-ground="grey-light"></div>
+  </section>
+
+  <footer class="sg-foot micro">
+    <span>AVIVA is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale.</span>
+    <span>DESIGN SYSTEM v2 · docs/lab/styleguide.html</span>
+  </footer>
+</div>
+
+<!-- shared lockup drawing for <use> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><g id="sg-lockup-g"><g transform="translate(0 -780.64) scale(28.81)"><path d="M6.05 8H0.05 M8.05 6V0 M6.05 22H0.05 M8.05 24V30 M19.95 8H25.95 M17.95 6V0 M19.95 22H25.95 M17.95 24V30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="butt"/></g><g transform="translate(916.32 0)"><g fill="currentColor"><path d="M0 0 261.4 -697H322.4L584 0H502.6L292.8 -591.8L82.2 0ZM136 -172.8 159 -239.8H425L449.6 -172.8Z"/><path d="M667.47 0 390.27 -697H472.27L707.27 -90.2H687.27L919.87 -697H1001.87L726.47 0Z"/><path d="M1071.57 0V-697H1145.97V0Z"/><path d="M1492.86 0 1215.66 -697H1297.66L1532.66 -90.2H1512.66L1745.26 -697H1827.26L1551.86 0Z"/><path d="M1633.75 0 1895.15 -697H1956.14L2217.74 0H2136.35L1926.55 -591.8L1715.94 0ZM1769.74 -172.8 1792.74 -239.8H2058.75L2083.35 -172.8Z"/></g></g></g></defs></svg>
+
+<script>
+(function () {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const root = getComputedStyle(document.documentElement);
+  const v = (name, el) => (el ? getComputedStyle(el) : root).getPropertyValue(name).trim();
+
+  // ---------- colour maths (WCAG 2.x)
+  const probe = document.createElement('i'); probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none'; document.body.appendChild(probe);
+  function rgba(css) {              // any CSS colour → [r, g, b, a] in 0..1, via the browser's own parser
+    probe.style.color = ''; probe.style.color = css; const c = getComputedStyle(probe).color;
+    let m = c.match(/rgba?\(([^)]+)\)/); if (m) { const p = m[1].split(/[\s,/]+/).filter(Boolean).map(parseFloat); return [p[0] / 255, p[1] / 255, p[2] / 255, p.length > 3 ? p[3] : 1]; }
+    m = c.match(/color\(srgb ([^)]+)\)/); if (m) { const p = m[1].split(/[\s/]+/).filter(Boolean).map(parseFloat); return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1]; }
+    return [0, 0, 0, 1];
+  }
+  const over = (f, b) => [0, 1, 2].map((i) => f[i] * f[3] + b[i] * (1 - f[3])).concat(1);
+  const lin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const L = (c) => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
+  const ratio = (a, b) => { const x = L(a), y = L(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const hex = (c) => '#' + c.slice(0, 3).map((x) => Math.round(x * 255).toString(16).padStart(2, '0')).join('').toUpperCase();
+
+  // ---------- swatches (hex read live from tokens.css)
+  const ROLE = {
+    paper: 'the sheet, the white ground, cards', studio: '3D floor and backdrop, sunken wells', graphite: 'all type, lines, icons',
+    'graphite-muted': 'secondary text, labels', 'graphite-soft': 'disabled, ghost marks', ink: 'the one accent; s07–s10 ground', 'ink-deep': 'ink core, wells on ink',
+    'on-ink-muted': 'secondary text on ink', charcoal: 'dark ground: s02, s03, s15', 'charcoal-raised': 'raised surfaces on charcoal', 'charcoal-deep': 'wells on charcoal',
+    'on-charcoal-muted': 'secondary text on charcoal', 'grey-100': 'light grey ground: s06', 'grey-200': 'cool grey ground: s04, s12', 'grey-300': 'wells on grey',
+    'graphite-muted-deep': 'secondary text on grey', pencil: 'the HB pencil; s03 underline', 'pencil-shade': 'the pencil’s shaded facet',
+    blueprint: 'dimension lines, diagrams', 'blueprint-light': 'blueprint on charcoal', 'hl-yellow': 'highlighter', 'hl-pink': 'highlighter, second voice',
+  };
+  // each swatch is measured where it is used: [foreground, background, label]; 'self' = this colour
+  const PAIR = {
+    paper: ['graphite', 'self', 'GRAPHITE ON IT'], studio: ['graphite', 'self', 'GRAPHITE ON IT'], graphite: ['self', 'paper', 'ON PAPER'],
+    'graphite-muted': ['self', 'paper', 'ON PAPER'], 'graphite-soft': ['self', 'paper', 'ON PAPER, DISABLED ONLY'], ink: ['self', 'paper', 'ON PAPER'],
+    'ink-deep': ['paper', 'self', 'PAPER ON IT'], 'on-ink-muted': ['self', 'ink', 'ON INK'], charcoal: ['paper', 'self', 'PAPER ON IT'],
+    'charcoal-raised': ['paper', 'self', 'PAPER ON IT'], 'charcoal-deep': ['paper', 'self', 'PAPER ON IT'], 'on-charcoal-muted': ['self', 'charcoal', 'ON CHARCOAL'],
+    'grey-100': ['graphite', 'self', 'GRAPHITE ON IT'], 'grey-200': ['graphite', 'self', 'GRAPHITE ON IT'], 'grey-300': ['graphite', 'self', 'GRAPHITE ON IT'],
+    'graphite-muted-deep': ['self', 'grey-200', 'ON COOL GREY'], pencil: ['self', 'charcoal', 'ON CHARCOAL'], 'pencil-shade': null,
+    blueprint: ['self', 'paper', 'ON PAPER'], 'blueprint-light': ['self', 'charcoal', 'ON CHARCOAL'], 'hl-yellow': ['graphite', 'self', 'GRAPHITE UNDER IT'], 'hl-pink': ['graphite', 'self', 'GRAPHITE UNDER IT'],
+  };
+  for (const box of $$('[data-swatches]')) {
+    for (const k of box.dataset.swatches.split(' ')) {
+      const c = rgba(v('--color-' + k)), pr = PAIR[k];
+      let meas = 'AN OBJECT COLOUR, NOT FOR TEXT';
+      if (pr) { const col = (t) => (t === 'self' ? c : rgba(v('--color-' + t))); meas = `${ratio(col(pr[0]), col(pr[1])).toFixed(2)} ${pr[2]}`; }
+      const fig = document.createElement('figure'); fig.style.margin = '0';
+      fig.innerHTML = `<div class="sg-sw__chip" style="background:var(--color-${k})"></div><p class="sg-sw__n">--color-${k}</p><p class="sg-sw__hex micro">${hex(c)} · ${meas}</p><p class="sg-sw__role">${ROLE[k] || ''}</p>`;
+      box.appendChild(fig);
+    }
+  }
+
+  // ---------- grounds (one template, five grounds)
+  const GROUNDS = [
+    { g: null, l: 'PAPER · DEFAULT', e: 'ARCHITECTURE', h: 'Halve it. It’s still AVIVA.', hl: true },
+    { g: 'grey-light', l: 'LIGHT GREY · data-ground="grey-light" · s06', e: 'RELEASE NOTES', h: 'Release notes.', hl: true },
+    { g: 'grey', l: 'COOL GREY · data-ground="grey" · s04, s12', e: 'PAPER SIZE', h: 'One shape. Three sizes.', hl: false },
+    { g: 'charcoal', l: 'CHARCOAL · data-ground="charcoal" · s02, s03, s15', e: 'INTELLIGENCE', h: 'Intelligence not included.', hl: false },
+    { g: 'ink', l: 'INK · data-ground="ink" · s07–s10', e: 'AFTERLIFE', h: 'It comes back.', hl: false },
+    { g: 'studio', l: 'STUDIO · data-ground="studio" · WELLS AND THE 3D FLOOR', e: 'CLAIMS', h: 'Measured, not marketed.', hl: false },
+  ];
+  const tpl = $('#sg-ground-tpl'), wrap = $('#sg-grounds');
+  GROUNDS.forEach((G, i) => {
+    const n = tpl.content.firstElementChild.cloneNode(true);
+    if (G.g) n.setAttribute('data-ground', G.g);
+    $('[data-l]', n).textContent = G.l; $('[data-eyebrow]', n).textContent = G.e; $('[data-h]', n).textContent = G.h;
+    const id = 'sg-in-' + i; $('[data-id]', n).id = id; $('[data-for]', n).setAttribute('for', id);
+    if (G.hl) { const s = $('[data-hl]', n); const m = document.createElement('mark'); m.className = 'hl'; m.textContent = s.textContent; s.replaceWith(m); }
+    wrap.appendChild(n);
+  });
+
+  // ---------- contrast matrix: read each ground's computed roles
+  const tb = $('#sg-cx tbody');
+  const cell = (r, need) => `<td>${r.toFixed(2)}<span class="sg-req">${r >= need ? '≥ ' + need : ''}</span>${r >= need ? '' : ' <span class="sg-fail">FAIL</span>'}</td>`;
+  for (const G of [{ g: null, n: 'Paper' }, { g: 'studio', n: 'Studio' }, { g: 'grey-light', n: 'Light grey' }, { g: 'grey', n: 'Cool grey' }, { g: 'charcoal', n: 'Charcoal' }, { g: 'ink', n: 'Ink' }]) {
+    const el = document.createElement('div'); if (G.g) el.setAttribute('data-ground', G.g); el.style.cssText = 'position:absolute;visibility:hidden'; document.body.appendChild(el);
+    const cs = getComputedStyle(el), get = (k) => rgba(cs.getPropertyValue(k).trim() || 'transparent');
+    const ground = get('--ground'), on = (k) => over(get(k), ground);
+    const accentNeed = G.g === 'charcoal' ? 3 : 4.5;            // on charcoal the accent is the pencil underline (a mark, not text)
+    const mark = get('--mark'), blend = cs.getPropertyValue('--mark-blend').trim();
+    let under = '<td class="muted">off</td>';
+    if (mark[3] > 0) {
+      const m = mark.slice(0, 3).concat(0.88);
+      const bg = blend === 'multiply' ? over([m[0] * ground[0], m[1] * ground[1], m[2] * ground[2], 0.88], ground) : over(m, ground);
+      const inkC = cs.getPropertyValue('--mark-ink').trim(); const txt = rgba(inkC === 'currentColor' || !inkC ? cs.getPropertyValue('--text') : inkC);
+      under = cell(ratio(txt, bg), 4.5);
+    }
+    tb.insertAdjacentHTML('beforeend', `<tr><th scope="row"><span class="sg-cx__g"><span class="sg-cx__dot" style="background:${hex(ground)}"></span>${G.n} <span class="micro muted">${hex(ground)}</span></span></th>` +
+      cell(ratio(on('--text'), ground), 4.5) + cell(ratio(on('--text-muted'), ground), 4.5) + cell(ratio(on('--accent'), ground), accentNeed) +
+      cell(ratio(on('--dims'), ground), 4.5) + cell(ratio(on('--color-focus'), ground), 3) + cell(ratio(on('--color-rule-strong'), ground), 3) +
+      cell(ratio(get('--button-fg'), get('--button-bg')), 4.5) + under + '</tr>');
+    el.remove();
+  }
+
+  // ---------- type readouts (this viewport)
+  for (const k of $$('[data-fs]')) {
+    const t = document.createElement('i'); t.style.cssText = `position:absolute;visibility:hidden;font-size:var(${k.dataset.fs})`; document.body.appendChild(t);
+    const px = parseFloat(getComputedStyle(t).fontSize); t.remove();
+    k.insertAdjacentHTML('beforeend', `${px.toFixed(1)} PX NOW`);
+  }
+  // ---------- spacing
+  const sp = $('#sg-space');
+  for (let i = 1; i <= 9; i++) {
+    const t = document.createElement('i'); t.style.cssText = `position:absolute;visibility:hidden;width:var(--space-${i})`; document.body.appendChild(t);
+    const px = parseFloat(getComputedStyle(t).width); t.remove();
+    sp.insertAdjacentHTML('beforeend', `<div><span class="micro">--space-${i}</span><span class="micro muted">${px.toFixed(0)} PX</span><i style="width:${px}px"></i></div>`);
+  }
+  // ---------- crop-mark sample: borrow the claim card's spec rule
+  $('#sg-crop').outerHTML = '<div class="sg-spec" style="padding:16px"><div class="claim" style="width:83px;height:118px;aspect-ratio:210/297;box-shadow:none"></div></div>';
+
+  // ---------- easing curves
+  const EASE = [['--ease-out', '--dur-slow', 'arrivals'], ['--ease-in-out', '--dur-draw', 'draws, cross-fades'], ['--ease-press', '--dur-press', 'the Impression reveal'], ['--ease-spring', '--dur-base', 'the UI echoes of the sheet']];
+  const ez = $('#sg-ease');
+  for (const [e, d, use] of EASE) {
+    const val = v(e), dur = v(d);
+    let path = '';
+    const m = val.match(/cubic-bezier\(([^)]+)\)/);
+    if (m) { const [x1, y1, x2, y2] = m[1].split(',').map(parseFloat); path = `M4 76 C ${4 + x1 * 152} ${76 - y1 * 64} ${4 + x2 * 152} ${76 - y2 * 64} 156 12`; }
+    else { const pts = [...val.matchAll(/(-?[\d.]+)\s+([\d.]+)%/g)].map((q) => [parseFloat(q[2]) / 100, parseFloat(q[1])]); path = 'M4 76 ' + pts.map(([x, y]) => `L${4 + x * 152} ${76 - y * 64}`).join(' ') + ' L156 12'; }
+    const f = document.createElement('figure');
+    f.innerHTML = `<svg viewBox="0 0 160 84" aria-hidden="true"><path d="M4 12H156M4 76H156" stroke="var(--color-rule)" stroke-width="1"/><path d="${path}" fill="none" stroke="var(--text)" stroke-width="1.5"/></svg><figcaption><span class="micro" style="display:block">${e}</span><span class="micro muted" style="display:block;margin-top:2px">${d} · ${dur}</span><span class="small">${use}</span></figcaption><div class="sg-ease__track" style="--e:var(${e});--d:var(${d})"><span class="sg-ease__dot"></span></div>`;
+    f.addEventListener('click', () => { f.classList.remove('sg-play'); void f.offsetWidth; f.classList.add('sg-play'); });
+    f.style.cursor = 'pointer'; ez.appendChild(f);
+  }
+
+  // ---------- icons, glyphs
+  const ICONS = ['pencil', 'eraser', 'regenerate', 'tear', 'magnifier', 'dog-ear', 'crop-marks', 'ruler-tick', 'turn-over', 'plane', 'copy', 'download', 'external', 'printer', 'check', 'rating-4', 'rating-3'];
+  for (const id of ['#sg-icons', '#sg-icons-dark']) for (const n of ICONS) $(id).insertAdjacentHTML('beforeend', `<figure><span style="display:flex;gap:14px;align-items:center"><svg aria-hidden="true"><use href="../assets/icons/sprite.svg#i-${n}"/></svg><svg class="sg-i16" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-${n}"/></svg></span><figcaption class="micro">${n.toUpperCase()}</figcaption></figure>`);
+  const GLYPHS = [['map', 'v0.1'], ['seal', 'v1.0'], ['pin', 'v1.1'], ['scroll', 'v1.4'], ['watermark', 'v2.0'], ['book', 'v2.1'], ['wasp', 'v2.2'], ['letter', 'v2.3'], ['roller', 'v3.0'], ['log', 'v4.0'], ['area', 'v5.0'], ['globe', 'v5.1'], ['screen', 'KNOWN ISSUE'], ['reeds', 'REMOVED']];
+  for (const [n, ver] of GLYPHS) $('#sg-glyphs').insertAdjacentHTML('beforeend', `<figure><svg class="sg-i16" style="width:16px;height:16px" aria-hidden="true"><use href="../assets/illustrations/glyphs/sprite.svg#g-${n}"/></svg><figcaption class="micro">${n.toUpperCase()} · ${ver}</figcaption></figure>`);
+
+  // ---------- ruler marker position (light frame)
+  const rl = $('#sg-ruler'), re = $('#sg-ruler-end');
+  if (rl) { const h = rl.getBoundingClientRect().height; $('.ruler__marker', rl).style.setProperty('--ruler-y', (h * 112 / 297).toFixed(0));
+    $('.ruler__marker', re).style.setProperty('--ruler-y', re.getBoundingClientRect().height.toFixed(0));
+    for (const n of [50, 100, 150, 200, 250]) for (const r of $$('.ruler')) { const l = document.createElement('span'); l.className = 'ruler__lab'; l.textContent = n; l.style.top = (n / 297 * 100) + '%'; $('.ruler__track', r).appendChild(l); } }
+
+  // ---------- marks: drawn on load; REPLAY re-draws them
+  const marks = () => $$('.hl, .u-pencil');
+  requestAnimationFrame(() => marks().forEach((m) => m.classList.add('is-drawn')));
+  $('#sg-mark-replay').addEventListener('click', () => { marks().forEach((m) => m.classList.remove('is-drawn')); void document.body.offsetWidth; setTimeout(() => marks().forEach((m, i) => setTimeout(() => m.classList.add('is-drawn'), i * 120)), 60); });
+  $('#sg-press-replay').addEventListener('click', () => { const h = $('#sg-press .h2'); h.classList.remove('is-pressed'); void h.offsetWidth; h.classList.add('is-pressed'); });
+  document.documentElement.dataset.ready = '1';
+})();
+</script>
+</body>
+</html>

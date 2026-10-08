@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Void of All Characters: Pre-training a Foundation Model on Nothing</title>
+<meta name="author" content="Ada Margin, Gus Gutter, Lena Leading, Bea Bleed (AVIVA Research)">
+<meta name="description" content="AVIVA Research technical report AV-A4-001. A parody research paper about a blank A4 sheet of paper, from AVIVA, a fictional parody project inspired by ORYZO by Lusion.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="paper.css">
+</head>
+<body>
+<!--
+  Source of docs/research/void-of-all-characters.pdf. Build: node work/scripts/design/build-paper.mjs
+  (serves nothing itself; it needs the site server on :8080). Words: work/04-creative-brief.md, Part 4 + Part 9.
+  Each <section class="page"> is one printed A4 page, composed to follow the brief's page plan (4.1).
+-->
+<main class="paper">
+
+<!-- ═══════════════════════════════════════ PAGE 1: front matter, abstract, Figure 1 ═══════════════════════════════════════ -->
+<section class="page" id="p1" aria-label="Page 1">
+  <header class="rh rh--first"><span>Technical report AV-A4-001 · 2026 · 8&nbsp;pages</span><span>AVIVA Research</span></header>
+  <div class="frame">
+    <div class="titleblock">
+      <h1 class="title"><span class="title__l">Void of All Characters:</span> <span class="title__l">Pre-training a Foundation Model on Nothing</span></h1>
+      <p class="authors">Ada Margin<sup>1</sup>, Gus Gutter<sup>1</sup>, Lena Leading<sup>1</sup>, Bea Bleed<sup>1</sup></p>
+      <p class="affil"><sup>1</sup>AVIVA Research, third floor (near the printer)</p>
+    </div>
+
+    <figure class="fig fig--wide fig--teaser" id="fig1">
+      <div class="art" data-svg="figures/fig1.svg"></div>
+      <figcaption><span class="fig__n">Figure 1.</span>AVIVA&nbsp;A4 (left) and a typical output (right), shown at the same scale.</figcaption>
+    </figure>
+
+    <section class="abstract" aria-labelledby="abs-h">
+      <h2 class="abstract__h" id="abs-h">Abstract</h2>
+      <p>We present AVIVA&nbsp;A4, a 210&nbsp;×&nbsp;297&nbsp;mm found­a­tion model pre-trained on no data. Fol­low­ing Locke, who described the mind before exper­i­ence as “white paper, void of all char­ac­ters”, we remove the train­ing cor­pus alto­gether. AVIVA&nbsp;A4 achieves a hal­lu­cin­a­tion rate of 0.00&nbsp;% and a refusal rate of 0.0&nbsp;% on every prompt we tried, and every prompt we didn’t. Its archi­tec­ture, stand­ard­ised as ISO&nbsp;216, is closed under halv­ing: dis­tilled vari­ants (AVIVA&nbsp;A5, A6) keep their shape and all of their know­ledge. We report res­ults on retrieval, pref­er­ence, dis­til­la­tion and scal­ing. We find a hard scal­ing limit at six folds made the same way each time, and an envir­on­mental cost of about its own weight. All out­puts are released for uni­ver­sal free dis­tri­bu­tion.</p>
+      <p class="keywords"><span class="keywords__l">Keywords</span>foundation models · pre-training · distillation · hallucination · ISO&nbsp;216 · paper</p>
+    </section>
+
+    <aside class="footnote"><span class="footnote__l">Correspondence</span>Please write to us. On anything. We’ll keep it.</aside>
+  </div>
+  <footer class="folio">1</footer>
+</section>
+
+<!-- ═══════════════════════════════════════ PAGE 2: 1 Introduction · 2 Related work ═══════════════════════════════════════ -->
+<section class="page" id="p2" aria-label="Page 2">
+  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <div class="frame">
+    <div class="cols">
+      <h2 class="sec" id="s1"><span class="sec__n">1</span>Introduction</h2>
+      <p>Large lan­guage mod­els are trained on very large cor­pora, at very large cost, and still pro­duce state­ments that are false. We ask the oppos­ite ques­tion: what can be achieved with no data at all? The idea is not new. In his <i>Essay Con­cern­ing Human Under­stand­ing</i> (1689/1690), Locke pro­posed that the mind begins as “white paper, void of all char­ac­ters”, and that everything on it arrives later, from exper­i­ence <span class="cite">[<a href="#r-locke">Locke</a>]</span>. We take this lit­er­ally. AVIVA&nbsp;A4 is a sheet of white A4 paper, 80&nbsp;g/m², about 0.1&nbsp;mm thick. It has never seen a token.</p>
+      <p>Our con­tri­bu­tions are:</p>
+      <ol class="contrib">
+        <li><span class="contrib__n">(i)</span>a model with no train­ing data and there­fore no data con­tam­in­a­tion;</li>
+        <li><span class="contrib__n">(ii)</span>an archi­tec­ture that is invari­ant under halv­ing;</li>
+        <li><span class="contrib__n">(iii)</span>the first blind pref­er­ence study in which the model wins every time it is com­pared with itself;</li>
+        <li><span class="contrib__n">(iv)</span>a scal­ing law with an expo­nen­tial curve and a wall.</li>
+      </ol>
+
+      <h2 class="sec" id="s2"><span class="sec__n">2</span>Related work</h2>
+      <p><span class="runin">Eras­ure as model edit­ing.</span> In 1953 Robert Rauschen­berg obtained a draw­ing from Willem de Koon­ing and spent weeks eras­ing it; the res­ult is in the col­lec­tion of SFMOMA <span class="cite">[<a href="#r-rauschenberg">Rauschenberg</a>]</span>. Our approach is more effi­cient: AVIVA ships pre-erased.</p>
+      <p><span class="runin">The paper­less office.</span> In 1975 <i>Busi­ness Week</i> repor­ted a fore­cast that most record-hand­ling would be elec­tronic by 1990 <span class="cite">[<a href="#r-businessweek">Business Week</a>]</span>. World paper and board pro­duc­tion then nearly doubled, from 171 to 324 mil­lion tonnes between 1980 and 2000, and Sel­len and Harper found that intro­du­cing email raised an organ­isa­tion’s paper use by about 40&nbsp;% <span class="cite">[<a href="#r-sellen">Sellen &amp; Harper</a>]</span>. We thank the fore­cast for its con­tri­bu­tion to our mar­ket.</p>
+      <p><span class="runin">Atten­tion.</span> Recent work argues that atten­tion is all you need, except here <span class="cite">[<a href="#r-margin">Margin &amp; Gutter</a>]</span>. AVIVA requires none, and in user stud­ies it received a great deal.</p>
+    </div>
+  </div>
+  <footer class="folio">2</footer>
+</section>
+
+<!-- ═══════════════════════════════════════ PAGE 3: 3 Architecture · Figure 2 · Table 1 ═══════════════════════════════════════ -->
+<section class="page" id="p3" aria-label="Page 3">
+  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <div class="frame">
+    <div class="band band--top tbl tbl--wide" id="tab1">
+      <p class="tcap"><span class="fig__n">Table 1.</span>The AVIVA model family.</p>
+      <table>
+        <thead><tr><th>Model</th><th class="num">Size (mm)</th><th class="num">Area (mm²)</th><th class="num">Mass at 80&nbsp;g/m² (g, calculated)</th><th>Context window</th></tr></thead>
+        <tbody>
+          <tr><td>AVIVA&nbsp;A3</td><td class="num">297&nbsp;×&nbsp;420</td><td class="num">124,740</td><td class="num">9.98</td><td>long</td></tr>
+          <tr><td>AVIVA&nbsp;A4</td><td class="num">210&nbsp;×&nbsp;297</td><td class="num">62,370</td><td class="num">4.99</td><td>reference</td></tr>
+          <tr><td>AVIVA&nbsp;A5</td><td class="num">148&nbsp;×&nbsp;210</td><td class="num">31,080</td><td class="num">2.49</td><td>distilled</td></tr>
+          <tr><td>AVIVA&nbsp;A6</td><td class="num">105&nbsp;×&nbsp;148</td><td class="num">15,540</td><td class="num">1.24</td><td>distilled further</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cols">
+      <h2 class="sec" id="s3"><span class="sec__n">3</span>Architecture</h2>
+      <p>AVIVA&nbsp;A4 belongs to the A-series defined by ISO&nbsp;216 <span class="cite">[<a href="#r-iso216">ISO 216</a>]</span>, des­cen­ded from DIN&nbsp;476 (1922), in which A0 has an area of one square metre and every size is half of the pre­vi­ous one <span class="cite">[<a href="#r-din476">DIN 476</a>]</span> <span class="xref">(<a href="#fig2">Figure 2</a>)</span>. Halv­ing a sheet with sides <math><mi>s</mi><mo>&lt;</mo><mi>l</mi></math> pro­duces sides <math><mi>l</mi><mo lspace="0.05em" rspace="0.05em">/</mo><mn>2</mn></math> and <math><mi>s</mi></math>. For the shape to sur­vive,</p>
+      <div class="eq" id="eq1">
+        <math display="block"><mfrac><mi>s</mi><mrow><mi>l</mi><mo lspace="0.05em" rspace="0.05em">/</mo><mn>2</mn></mrow></mfrac><mo>=</mo><mfrac><mi>l</mi><mi>s</mi></mfrac><mo>,</mo></math>
+        <span class="eq__n">(1)</span>
+      </div>
+      <p>so <math><msup><mi>l</mi><mn>2</mn></msup><mo>=</mo><mn>2</mn><msup><mi>s</mi><mn>2</mn></msup></math> and <math><mi>l</mi><mo lspace="0.05em" rspace="0.05em">/</mo><mi>s</mi><mo>=</mo><msqrt><mn>2</mn></msqrt></math>. This is the only ratio with this prop­erty. Lichten­berg described it in a let­ter in 1786 <span class="cite">[<a href="#r-lichtenberg">Lichtenberg</a>]</span>; DIN stand­ard­isa­tion fol­lowed 136 years later. Our ref­er­ence model meas­ures 210&nbsp;×&nbsp;297&nbsp;mm (297&nbsp;/&nbsp;210 = 1.4143) and has an area of 62,370&nbsp;mm², slightly under 1/16&nbsp;m² because sizes are roun­ded down to the mil­li­metre <span class="xref">(<a href="#tab1">Table 1</a>)</span>.</p>
+
+      <figure class="fig" id="fig2">
+        <div class="art" data-svg="figures/fig2.svg"></div>
+        <figcaption><span class="fig__n">Figure 2.</span>The AVIVA family. Each model is half the previous one, and the same shape.</figcaption>
+      </figure>
+    </div>
+  </div>
+  <footer class="folio">3</footer>
+</section>
+
+<!-- ═══════════════════════════════════════ PAGE 4: 4 Pre-training · Table 2 · 5 Evaluation (5.1–5.3) ═══════════════════════════════════════ -->
+<section class="page" id="p4" aria-label="Page 4">
+  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <div class="frame">
+    <div class="cols">
+      <h2 class="sec" id="s4"><span class="sec__n">4</span>Pre-training</h2>
+      <p>AVIVA&nbsp;A4 was pre-trained on noth­ing <span class="xref">(<a href="#tab2">Table 2</a>)</span>. Because the train­ing set is empty, no bench­mark can have leaked into it, no copy­righted work was used, and no data clean­ing was required. Pre-train­ing fin­ished before it star­ted. The fibres were not super­vised either: as a sheet dries, hydro­gen bonds between neigh­bour­ing cel­lu­lose fibres hold it together unpromp­ted. Fillers and siz­ing, added at the mill, are the only post-train­ing.</p>
+
+      <div class="tbl" id="tab2">
+        <p class="tcap"><span class="fig__n">Table 2.</span>Pre-training data.</p>
+        <table>
+          <thead><tr><th>Property</th><th class="num">Value</th></tr></thead>
+          <tbody>
+            <tr><td>Tokens</td><td class="num">0</td></tr>
+            <tr><td>Documents</td><td class="num">0</td></tr>
+            <tr><td>Languages</td><td class="num">0</td></tr>
+            <tr><td>Epochs</td><td class="num">0</td></tr>
+            <tr><td>Data contamination</td><td class="num">not possible</td></tr>
+            <tr><td>Licence of training data</td><td class="num">not applicable</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="sec" id="s5"><span class="sec__n">5</span>Evaluation</h2>
+      <h3 class="sub" id="s5-1"><span class="sub__n">5.1</span>Hallucination</h3>
+      <p>We define a hal­lu­cin­a­tion as an out­put con­tain­ing a false state­ment. Over all prompts, AVIVA&nbsp;A4 pro­duced no out­puts and there­fore no false state­ments: a hal­lu­cin­a­tion rate of 0.00&nbsp;% <span class="hl">(<math><mi>n</mi><mo>=</mo><mn>0</mn></math>)</span>. Any­thing the reader sees in the fibres is their own.</p>
+      <h3 class="sub" id="s5-2"><span class="sub__n">5.2</span>Refusal</h3>
+      <p>We define refusal as declin­ing to carry a request. AVIVA&nbsp;A4 car­ried every request writ­ten on it, word for word, for as long as the sheet las­ted: a refusal rate of 0.0&nbsp;%. We report this without com­ment.</p>
+      <h3 class="sub" id="s5-3"><span class="sub__n">5.3</span>Retrieval</h3>
+      <p>In a needle-in-a-hay­stack test the needle was an HB pen­cil, placed on the sheet. Recall was 100&nbsp;%, fall­ing to 0&nbsp;% when the pen­cil was lost.</p>
+    </div>
+  </div>
+  <footer class="folio">4</footer>
+</section>
+
+<!-- ═══════════════════════════════════════ PAGE 5: 5.4 Arena · Figure 3 · 5.5 Distillation · Table 3 · 5.6 Scaling · Figure 4 ═══════════════════════════════════════ -->
+<section class="page" id="p5" aria-label="Page 5">
+  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <div class="frame">
+    <div class="band band--top tbl tbl--wide" id="tab3">
+      <p class="tcap"><span class="fig__n">Table 3.</span>Distillation results.</p>
+      <table>
+        <thead><tr><th>Model</th><th class="num">Pieces</th><th class="num">Shape</th><th>Knowledge retained</th><th class="num">Mass each (calculated)</th></tr></thead>
+        <tbody>
+          <tr><td>AVIVA&nbsp;A4 (teacher)</td><td class="num">1</td><td class="num">1&nbsp;:&nbsp;<span class="sym">√</span>2</td><td>all</td><td class="num">4.99&nbsp;g</td></tr>
+          <tr><td>AVIVA&nbsp;A5 (student)</td><td class="num">2</td><td class="num">1&nbsp;:&nbsp;<span class="sym">√</span>2</td><td>all</td><td class="num"><span class="sym">≈</span>&nbsp;2.5&nbsp;g</td></tr>
+          <tr><td>AVIVA&nbsp;A6 (student)</td><td class="num">4</td><td class="num">1&nbsp;:&nbsp;<span class="sym">√</span>2</td><td>all</td><td class="num"><span class="sym">≈</span>&nbsp;1.25&nbsp;g</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cols">
+      <h3 class="sub" id="s5-4"><span class="sub__n">5.4</span>The Arena</h3>
+      <p>Fol­low­ing the prac­tice of blind pair­wise com­par­ison, vis­it­ors were shown two responses to the prompt “Say some­thing pro­found” and asked to choose. Both responses were AVIVA&nbsp;A4. AVIVA&nbsp;A4 won 50.0&nbsp;% of com­par­is­ons and lost the other 50.0&nbsp;% <span class="xref">(<a href="#fig3">Figure 3</a>)</span>. We con­sider both res­ults state of the art.</p>
+      <figure class="fig" id="fig3">
+        <div class="art" data-svg="figures/fig3.svg"></div>
+        <figcaption><span class="fig__n">Figure 3.</span>Win rate in blind pairwise comparison. Error bars are present.</figcaption>
+      </figure>
+      <h3 class="sub" id="s5-5"><span class="sub__n">5.5</span>Distillation</h3>
+      <p>We dis­tilled AVIVA&nbsp;A4 by tear­ing it along its mid­line. Each stu­dent is the same shape as the teacher and retains all of its know­ledge <span class="xref">(<a href="#tab3">Table 3</a>)</span>. A second round pro­duced AVIVA&nbsp;A6. We stopped there, as below A6 the stu­dents are bet­ter described as con­fetti.</p>
+      <h3 class="sub" id="s5-6"><span class="sub__n">5.6</span>Scaling</h3>
+      <p>Each fold doubles thick­ness <span class="cite">[<a href="#r-leading">Leading</a>]</span>. Ideally, 42 folds of a 0.1&nbsp;mm sheet would reach about 440,000&nbsp;km, bey­ond the Moon’s aver­age dis­tance of 384,400&nbsp;km. By Gal­li­van’s for­mula <span class="cite">[<a href="#r-gallivan">Gallivan</a>]</span>, the min­imum length needed for <math><mi>n</mi></math> single-dir­ec­tion folds is</p>
+      <div class="eq" id="eq2">
+        <math display="block"><mi>L</mi><mo>=</mo><mfrac><mrow><mi>π</mi><mi>t</mi></mrow><mn>6</mn></mfrac><mo stretchy="false">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo>+</mo><mn>4</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>.</mo></math>
+        <span class="eq__n">(2)</span>
+      </div>
+      <p>For <math><mi>t</mi><mo>=</mo><mn>0.1</mn></math>&nbsp;mm, seven folds need about 0.88&nbsp;m, but the long side of A4 is 0.297&nbsp;m, so six single-dir­ec­tion folds is the ceil­ing <span class="xref">(<a href="#fig4">Figure 4</a>)</span>. Her second for­mula, for folds in altern­at­ing dir­ec­tions, per­mits a sev­enth; we leave this to future work. The record, 12 folds, was set by Gal­li­van her­self in 2002 using about 1.2&nbsp;km of tis­sue paper <span class="cite">[<a href="#r-guinness">Guinness World Records</a>]</span>.</p>
+    </div>
+    <figure class="band band--bottom fig fig--wide" id="fig4">
+      <div class="art" data-svg="figures/fig4.svg"></div>
+      <figcaption><span class="fig__n">Figure 4.</span>Scaling behaviour for folds made the same way each time. The dashed line is our roadmap. The solid line is our sheet.</figcaption>
+    </figure>
+  </div>
+  <footer class="folio">5</footer>
+</section>
+
+<!-- ═══════════════════════════════════════ PAGE 6: 6 Fine-tuning · Figure 5 · 7 Safety · Figure 6 ═══════════════════════════════════════ -->
+<section class="page" id="p6" aria-label="Page 6">
+  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <div class="frame">
+    <figure class="band band--top fig fig--wide" id="fig5">
+      <div class="panels">
+        <div class="panel"><img src="figures/fig5-t0.05.jpg" alt="Ink spreading through paper fibres, early: a small ragged blot." width="800" height="800"><span class="panel__bar" style="width: calc(100% * 0.5 / 1.6)"><span>0.5&nbsp;mm</span></span><p class="panel__l">(a) <i>t</i> = 0.05</p></div>
+        <div class="panel"><img src="figures/fig5-t0.35.jpg" alt="The ink blot larger, with tendrils running ahead along single fibres." width="800" height="800"><p class="panel__l">(b) <i>t</i> = 0.35</p></div>
+        <div class="panel"><img src="figures/fig5-t1.0.jpg" alt="The ink blot at full size, its tendrils crossing the field of view." width="800" height="800"><p class="panel__l">(c) <i>t</i> = 1.0</p></div>
+      </div>
+      <figcaption><span class="fig__n">Figure 5.</span>Fine-tuning with ink is irreversible. We consider this a feature.</figcaption>
+    </figure>
+    <div class="cols">
+      <h2 class="sec" id="s6"><span class="sec__n">6</span>Fine-tuning from human feedback</h2>
+      <p>AVIVA&nbsp;A4 is fine-tuned by its user, with a pen­cil. Graph­ite rests on the sur­face of the fibres and is largely remov­able; ink soaks into the fibres by capil­lary action and is not <span class="cite">[<a href="#r-popsci">Popular Science</a>; <a href="#r-bleed">Bleed et al.</a>]</span>. We there­fore recom­mend graph­ite for exper­i­ments and ink for com­mit­ments <span class="xref">(<a href="#fig5">Figure 5</a>)</span>. Eras­ure is incom­plete: the pres­sure of writ­ing usu­ally leaves an impres­sion after the graph­ite is gone <span class="cite">[<a href="#r-hawkeye">Hawkeye Forensic</a>]</span>. In 1770 Joseph Priestley recom­men­ded a new gum, sold by Edward Nairne, as “excel­lently adap­ted to the pur­pose of wip­ing from paper the mark of black-lead-pen­cil” <span class="cite">[<a href="#r-priestley">Priestley</a>]</span>; it soon came to be called rub­ber. We have not improved on it.</p>
+
+      <h2 class="sec" id="s7"><span class="sec__n">7</span>Safety</h2>
+      <p>We are aware of one side effect. The edge of the sheet is micro­scop­ic­ally jagged <span class="xref">(<a href="#fig6">Figure 6</a>)</span>, so it saws rather than slices; fin­ger­tips are dense in pain recept­ors, and the cut is usu­ally too shal­low to clot <span class="cite">[<a href="#r-bigthink">Big Think</a>; <a href="#r-vallabh">Vallabh</a>]</span>. Paper igni­tion tem­per­at­ures quoted in the lit­er­at­ure range from about 230&nbsp;°C to about 450&nbsp;°C depend­ing on the paper and the method; the widely known fig­ure of 451&nbsp;°F was pop­ular­ised by a novel <span class="cite">[<a href="#r-bradbury">Bradbury</a>]</span>. We did not test this, and neither should you.</p>
+
+      <figure class="fig" id="fig6">
+        <div class="art" data-svg="figures/fig6.svg"></div>
+        <figcaption><span class="fig__n">Figure 6.</span>The only known side effect, at magnification.</figcaption>
+      </figure>
+    </div>
+  </div>
+  <footer class="folio">6</footer>
+</section>
+
+<!-- ═══════════════════════════════════════ PAGE 7: 8 Environmental impact · 9 Limitations · 10 Conclusion · Acknowledgements · Table 4 ═══════════════════════════════════════ -->
+<section class="page" id="p7" aria-label="Page 7">
+  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <div class="frame">
+    <div class="cols">
+      <h2 class="sec" id="s8"><span class="sec__n">8</span>Environmental impact</h2>
+      <p>One life-cycle study of an A4 sheet of office paper estim­ated 4.29–4.74&nbsp;g CO₂e per sheet depend­ing on the method, 4.64&nbsp;g under ISO&nbsp;14040/44 <span class="cite">[<a href="#r-dias">Dias &amp; Arroja</a>]</span>. The sheet weighs about 5&nbsp;g, so the model’s foot­print is approx­im­ately its own weight. Paper fibres are usu­ally said to sur­vive five to seven rounds of recyc­ling before they become too short and stiff to bond, although research­ers are aim­ing for 25 <span class="cite">[<a href="#r-karlstad">Karlstad University</a>]</span>; and about three-quar­ters of the paper and board used in Europe is recycled (75.1&nbsp;% in 2024) <span class="cite">[<a href="#r-eprc">EPRC</a>]</span>. AVIVA there­fore has a finite num­ber of after­lives, which we find reas­sur­ing.</p>
+
+      <h2 class="sec" id="s9"><span class="sec__n">9</span>Limitations</h2>
+      <p>AVIVA&nbsp;A4 knows noth­ing. It can­not for­get a fold. It will be read by any­one who holds it. Its con­text win­dow is a hard limit of 210&nbsp;×&nbsp;297&nbsp;mm <span class="cite">[<a href="#r-kerning">Kerning</a>]</span>. A known issue, repor­ted in 1975, pre­dicted that it would be replaced by the paper­less office; we are mon­it­or­ing this.</p>
+
+      <h2 class="sec" id="s10"><span class="sec__n">10</span>Conclusion</h2>
+      <p>We star­ted with a blank sheet of paper. We stopped there.</p>
+
+      <h2 class="sec sec--unnumbered" id="ack">Acknowledgements</h2>
+      <p>We thank the pen­cil, without which this work would be com­plete.</p>
+
+      <div class="tbl" id="tab4">
+        <p class="tcap"><span class="fig__n">Table 4.</span>Summary of results.</p>
+        <table>
+          <thead><tr><th>Metric</th><th class="num">AVIVA&nbsp;A4</th></tr></thead>
+          <tbody>
+            <tr><td>Hallucination rate</td><td class="num">0.00&nbsp;% (<i>n</i>&nbsp;=&nbsp;0)</td></tr>
+            <tr><td>Refusal rate</td><td class="num">0.0&nbsp;%</td></tr>
+            <tr><td>Needle in a haystack</td><td class="num">100&nbsp;% (pencil present)</td></tr>
+            <tr><td>Context window</td><td class="num">62,370&nbsp;mm²</td></tr>
+            <tr><td>Arena win rate</td><td class="num">50.0&nbsp;%</td></tr>
+            <tr><td>Folds before the wall, same direction each time</td><td class="num">6</td></tr>
+            <tr><td>Folds before the wall, alternating directions</td><td class="num">7 (ideal)</td></tr>
+            <tr><td>Training tokens</td><td class="num">0</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <footer class="folio">7</footer>
+</section>
+
+<!-- ═══════════════════════════════════════ PAGE 8: References · Appendix A · Appendix B ═══════════════════════════════════════ -->
+<section class="page" id="p8" aria-label="Page 8">
+  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <div class="frame">
+    <div class="cols">
+      <h2 class="refs__h" id="refs">References</h2>
+      <ol class="refs">
+        <li id="r-bigthink">Big Think. Here’s why paper cuts hurt so damn much (web article).</li>
+        <li id="r-bleed">Bleed, B., Margin, A., &amp; Gutter, G. (2023). On the absorption of everything. <i>Journal of Capillary Studies</i>, 0(0), 0–0.</li>
+        <li id="r-bradbury">Bradbury, R. (1953). <i>Fahrenheit 451.</i> New York: Ballantine Books.</li>
+        <li id="r-businessweek">Business Week (1975). The Office of the Future. <i>Business Week</i>, 30 June 1975.</li>
+        <li id="r-dias">Dias, A. C., &amp; Arroja, L. (2012). Comparison of methodologies for estimating the carbon footprint – case study of office paper. <i>Journal of Cleaner Production</i>, 24, 30–35. doi:10.1016/j.jclepro.2011.11.005</li>
+        <li id="r-din476">DIN 476 (1922). <i>Papierformate.</i> August 1922.</li>
+        <li id="r-eprc">European Paper Recycling Council (EPRC) (2025). European Paper Recycling Council reports strong recycling rates for 2024. Press release, July 2025.</li>
+        <li id="r-gallivan">Gallivan, B. (2002). <i>How to Fold Paper in Half Twelve Times: An “Impossible Challenge” Solved and Explained.</i> Pomona, CA: Historical Society of Pomona Valley.</li>
+        <li id="r-guinness">Guinness World Records (2002, 2025, 2026). Most times to fold a piece of paper; Farthest flight by a paper aircraft; Longest time flying a paper aircraft.</li>
+        <li id="r-hawkeye">Hawkeye Forensic. Can you erase the evidence? The forensic science of erased documents (web article).</li>
+        <li id="r-iso216">ISO 216:2007. <i>Writing paper and certain classes of printed matter — Trimmed sizes — A and B series, and indication of machine direction.</i> Geneva: ISO (replaces ISO 216:1975).</li>
+        <li id="r-karlstad">Karlstad University. Mystery around hornification about to be solved (news article).</li>
+        <li id="r-kerning">Kerning, K. (2026). Towards a theory of margins. <i>Transactions on Whitespace</i>, 12, 210–297.</li>
+        <li id="r-leading">Leading, L. (2024). Scaling laws for blank pages. Preprint, arXiv:0000.00000.</li>
+        <li id="r-lichtenberg">Lichtenberg, G. C. (1786). Letter to Johann Beckmann, 25 October 1786.</li>
+        <li id="r-locke">Locke, J. (1689/1690). <i>An Essay Concerning Human Understanding</i>, Book II, ch. I, §2.</li>
+        <li id="r-margin">Margin, A., &amp; Gutter, G. (2025). Attention is all you need, except here. <i>Proceedings of the Workshop on Things That Were Already Finished</i>, 1, 1–1.</li>
+        <li id="r-popsci">Popular Science. How do erasers work? (web article).</li>
+        <li id="r-priestley">Priestley, J. (1770). <i>A Familiar Introduction to the Theory and Practice of Perspective.</i> London: J. Johnson and J. Payne.</li>
+        <li id="r-rauschenberg">Rauschenberg, R. (1953). <i>Erased de Kooning Drawing.</i> San Francisco Museum of Modern Art, accession 98.298.</li>
+        <li id="r-sellen">Sellen, A. J., &amp; Harper, R. H. R. (2002). <i>The Myth of the Paperless Office.</i> MIT Press.</li>
+        <li id="r-vallabh">Vallabh, J. (2025). Why do papercuts hurt so much? The Ohio State University Wexner Medical Center blog, 9 May 2025.</li>
+      </ol>
+
+      <h2 class="app__h" id="appA">Appendix A. Response to reviewers</h2>
+      <dl class="reply">
+        <dt>Reviewer 2</dt>
+        <dd>“The contribution is unclear. The paper is, however, extremely white.”</dd>
+        <dt>Response</dt>
+        <dd>We thank the reviewer. We have made no changes, as any change would alter the model.</dd>
+        <dt>Reviewer 2 (second round)</dt>
+        <dd>“Please add more content.”</dd>
+        <dt>Response</dt>
+        <dd><span class="hl hl--pink">Respectfully, no.</span></dd>
+      </dl>
+    </div>
+    <section class="band band--bottom" aria-labelledby="appB">
+      <h2 class="app__h" id="appB">Appendix B. Model listing</h2>
+      <div class="listing">
+        <p class="listing__name">aviva-a4.obj</p>
+<pre># aviva A4: reference geometry
+# 210 x 297 mm, ISO 216. Units: millimetres.
+# 4 vertices, 2 faces, 0 opinions.
+# Thickness (0.1 mm) omitted for clarity. See the paper, section 3.
+o aviva_a4
+v 0 0 0
+v 210 0 0
+v 210 297 0
+v 0 297 0
+vt 0 0
+vt 1 0
+vt 1 1
+vt 0 1
+vn 0 0 1
+f 1/1/1 2/2/1 3/3/1
+f 1/1/1 3/3/1 4/4/1</pre>
+      </div>
+    </section>
+  </div>
+  <footer class="folio">8</footer>
+</section>
+
+</main>
+<script src="paper.js"></script>
+</body>
+</html>

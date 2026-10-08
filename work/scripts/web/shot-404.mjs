@@ -1,0 +1,12 @@
+import { launch } from './launch.mjs';
+const browser = await launch();
+const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+const page = await ctx.newPage();
+const errs = [];
+page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.text()); });
+page.on('response', (r) => { if (r.status() >= 400 && !r.url().endsWith('/404.html')) errs.push(`${r.status()} ${r.url()}`); });
+await page.goto('http://localhost:8080/404.html', { waitUntil: 'load' });
+await page.waitForTimeout(600);
+await page.screenshot({ path: 'work/screenshots/build/404.jpg', type: 'jpeg', quality: 80 });
+console.log(JSON.stringify({ errors: errs, link: await page.getAttribute('a', 'href'), base: await page.evaluate(() => document.baseURI) }));
+await browser.close();

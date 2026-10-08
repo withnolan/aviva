@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nothing here · aviva</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#ECEBE7">
+  <!-- GitHub Pages serves this page for a missing path at any depth: resolve every link against the site root. -->
+  <script>
+    (function () {
+      var p = location.pathname, i = p.indexOf('/aviva/');
+      var b = document.createElement('base');
+      b.href = i >= 0 ? p.slice(0, i + 7) : '/';
+      document.head.appendChild(b);
+    })();
+  </script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/fonts.css">
+  <style>
+    html, body { margin: 0; min-height: 100%; background: var(--color-studio); color: var(--text); }
+    body {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    main { display: grid; justify-items: center; gap: var(--space-5); padding: var(--gutter); text-align: center; }
+    .sheet {
+      width: min(42vw, 30vh); aspect-ratio: 210 / 297;
+      background: var(--color-paper);
+      box-shadow: var(--shadow-contact);
+      position: relative;
+    }
+    .sheet::before {   /* crop marks around nothing */
+      content: ""; position: absolute; inset: -16px;
+      --e: 16px; --c: linear-gradient(var(--color-graphite), var(--color-graphite));
+      background:
+        var(--c) left 0 top var(--e) / 10px 1px no-repeat, var(--c) left var(--e) top 0 / 1px 10px no-repeat,
+        var(--c) right 0 top var(--e) / 10px 1px no-repeat, var(--c) right var(--e) top 0 / 1px 10px no-repeat,
+        var(--c) left 0 bottom var(--e) / 10px 1px no-repeat, var(--c) left var(--e) bottom 0 / 1px 10px no-repeat,
+        var(--c) right 0 bottom var(--e) / 10px 1px no-repeat, var(--c) right var(--e) bottom 0 / 1px 10px no-repeat;
+    }
+    h1 { margin: var(--space-4) 0 0; font-size: var(--fs-h2); line-height: var(--lh-h2); letter-spacing: var(--tracking-h2); font-weight: var(--fw-light); }
+    p { margin: 0; font-size: var(--fs-body); color: var(--text-muted); }
+    a {
+      display: inline-block; padding: 6px 0 2px; margin-top: var(--space-2);
+      color: var(--text); text-decoration: none; border-bottom: 1px solid var(--color-rule-strong);
+      font-size: var(--fs-body);
+    }
+    a:hover { border-bottom-color: var(--text); }
+    a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="sheet" role="img" aria-label="A single blank sheet of A4 paper."></div>
+    <h1>Nothing here.</h1>
+    <p>To be fair, that is the product.</p>
+    <a href="./">Back to the sheet</a>
+  </main>
+</body>
+</html>
