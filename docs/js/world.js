@@ -144,7 +144,9 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     if (stageNo === 1) {
       a = proj(local(A.object, -A4.w / 2, 0)); b = proj(local(A.object, A4.w / 2, 0));
     } else if (stageNo === 2) {
-      const T = A.piece('T'), Bp = A.piece('B');
+      // the line runs along x = 0 of each half (rest space). While the second tear runs, the halves are already
+      // quarters (TL/TR, BL/BR): every piece's mesh is in the sheet's rest frame, so any piece of a half carries it
+      const T = A.piece('T') || A.piece('TL'), Bp = A.piece('B') || A.piece('BL');
       if (!T || !Bp) return null;
       const m1 = T.mesh || T.object, m2 = Bp.mesh || Bp.object;
       m1.updateMatrixWorld(true); m2.updateMatrixWorld(true);

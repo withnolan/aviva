@@ -1,8 +1,8 @@
-// build-paper.mjs: prints the research paper (docs/research/src/paper.html) to docs/research/void-of-all-characters.pdf
+// build-paper.mjs: prints the research paper (docs/research/src/paper.html) to docs/research/aviva-a4.pdf
 // with the Chromium launch settings of tools/shoot.mjs, checks it, and renders every page for review.
 //
 // Usage: node work/scripts/design/build-paper.mjs [--url http://localhost:8080/research/src/paper.html]
-//          [--out docs/research/void-of-all-characters.pdf] [--png work/screenshots/paper] [--dpi 110] [--no-png]
+//          [--out docs/research/aviva-a4.pdf] [--png work/screenshots/paper] [--dpi 110] [--no-png]
 // Needs the site server (npm run serve, :8080). Checks: page.js report (overflow, fill, broken links, uncited
 // references), exactly 8 pages, every font embedded and none Type 3. Then (optional) sets the PDF's Author / Subject /
 // Keywords with pypdf, renders p-1..p-8.png with pdftoppm and a contact sheet (montage).
@@ -14,7 +14,7 @@ import path from 'node:path';
 const argv = process.argv.slice(2);
 const opt = (n, d) => { const i = argv.indexOf(`--${n}`); if (i === -1) return d; const v = argv[i + 1]; return v === undefined || v.startsWith('--') ? true : v; };
 const url = opt('url', 'http://localhost:8080/research/src/paper.html');
-const out = opt('out', 'docs/research/void-of-all-characters.pdf');
+const out = opt('out', 'docs/research/aviva-a4.pdf');   // decision #29
 const pngDir = opt('png', 'work/screenshots/paper');
 const dpi = Number(opt('dpi', 110));
 

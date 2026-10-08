@@ -52,8 +52,8 @@ fs.mkdirSync(OUT, { recursive: true });
     const ex = side < 0 ? x : x + w;
     body += dim({ x1: ex, y1: y, x2: ex, y2: y + h, off: 5.2, label: '297 mm', side });
   }
-  body += text(x1 + w / 2, y + h + 7.6, 'aviva A4', 8, { anchor: 'middle' }) + text(x2 + w / 2, y + h + 7.6, 'Output', 8, { anchor: 'middle' });
-  fs.writeFileSync(path.join(OUT, 'fig1.svg'), svg(W, H, body, 'Two identical blank A4 rectangles, each dimensioned 210 by 297 millimetres, labelled aviva A4 and Output'));
+  body += text(x1 + w / 2, y + h + 7.6, 'AVIVA A4', 8, { anchor: 'middle' }) + text(x2 + w / 2, y + h + 7.6, 'Output', 8, { anchor: 'middle' });
+  fs.writeFileSync(path.join(OUT, 'fig1.svg'), svg(W, H, body, 'Two identical blank A4 rectangles, each dimensioned 210 by 297 millimetres, labelled AVIVA A4 and Output'));
 }
 
 // ---------- Figure 2: the A-series nesting diagram, A0 halved into A1 … A10 ----------
@@ -103,9 +103,9 @@ fs.mkdirSync(OUT, { recursive: true });
     body += `<rect x="${r(cx - bw / 2)}" y="${r(yv(50))}" width="${bw}" height="${r(ph / 2)}" fill="${BP}"/>` +
       // the error bar: drawn, length zero (whisker and caps coincide at 50.0 %)
       line(`M${r(cx - 2.4)} ${r(yv(50))}H${r(cx + 2.4)}M${r(cx)} ${r(yv(50))}V${r(yv(50))}`, G, 0.8, 'stroke-linecap="round"') +
-      text(cx, yv(50) - 2.1, '50.0', 6.8, { anchor: 'middle' }) + text(cx, y0 + 4.4, 'aviva A4', 6.8, { anchor: 'middle' });
+      text(cx, yv(50) - 2.1, '50.0', 6.8, { anchor: 'middle' }) + text(cx, y0 + 4.4, 'AVIVA A4', 6.8, { anchor: 'middle' });
   }
-  fs.writeFileSync(path.join(OUT, 'fig3.svg'), svg(W, H, body, 'Bar chart: two equal bars, both labelled aviva A4, at 50.0 percent, with error bars of zero length'));
+  fs.writeFileSync(path.join(OUT, 'fig3.svg'), svg(W, H, body, 'Bar chart: two equal bars, both labelled AVIVA A4, at 50.0 percent, with error bars of zero length'));
 }
 
 // ---------- Figure 4: thickness against folds, log axis 0.1 mm to 10^12 mm ----------
