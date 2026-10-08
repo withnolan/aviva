@@ -190,7 +190,7 @@ body { background: var(--color-paper); color: var(--color-graphite); }
 
   <header class="sg-top">
     <!-- the lockup, inline so it follows `color` (docs/assets/logo/lockup.svg) -->
-    <svg class="sg-top__lockup" viewBox="0 -697 2960.7 861.73" role="img" aria-label="aviva"><g transform="translate(0 -657.73) scale(27.42)"><path d="M6.05 8H0.05 M8.05 6V0 M6.05 22H0.05 M8.05 24V30 M19.95 8H25.95 M17.95 6V0 M19.95 22H25.95 M17.95 24V30" fill="none" stroke="currentColor" stroke-width="1.5"/></g><use href="../assets/logo/wordmark.svg#wm" /><g transform="translate(921.9 0)" fill="currentColor"><path d="M350.2 0 345.4 -107V-308Q345.4 -371.2 312 -404.8Q278.6 -438.4 212.8 -438.4Q170.2 -438.4 134.2 -421.1Q98.2 -403.8 65 -363.2L13.2 -407.2Q53.4 -455.6 104.4 -478Q155.4 -500.4 217.6 -500.4Q313 -500.4 364.8 -450.6Q416.6 -400.8 416.6 -308V0ZM180.6 7.4Q125.2 7.4 84.5 -11.7Q43.8 -30.8 21.9 -65.1Q0 -99.4 0 -144.8Q0 -185 15.9 -213Q31.8 -241 57 -257Q83.4 -274.6 117.5 -281.3Q151.6 -288 190.4 -288H352.6V-233.4H200.4Q174.2 -233.4 148.1 -228.8Q122 -224.2 103 -210.4Q88.6 -199.4 80.3 -182.9Q72 -166.4 72 -144Q72 -101.6 103.1 -76.4Q134.2 -51.2 187.4 -51.2Q230.8 -51.2 266.4 -71.8Q302 -92.4 323.7 -128.5Q345.4 -164.6 345.4 -209.8L375.6 -177.4Q370.6 -122.4 343.8 -80.4Q317 -38.4 275.2 -15.5Q233.4 7.4 180.6 7.4Z"/><path d="M668.6 0 466.6 -493H545.6L698.6 -91.8L852.4 -493H930.8L729.6 0Z"/><path d="M988.8 0V-493H1060V0Z"/><rect x="988.8" y="-697" width="71.2" height="100.69"/><path d="M1320 0 1118 -493H1197L1350 -91.8L1503.8 -493H1582.2L1381 0Z"/><path d="M1972.4 0 1967.6 -107V-308Q1967.6 -371.2 1934.2 -404.8Q1900.8 -438.4 1835 -438.4Q1792.4 -438.4 1756.4 -421.1Q1720.4 -403.8 1687.2 -363.2L1635.4 -407.2Q1675.6 -455.6 1726.6 -478Q1777.6 -500.4 1839.8 -500.4Q1935.2 -500.4 1987 -450.6Q2038.8 -400.8 2038.8 -308V0ZM1802.8 7.4Q1747.4 7.4 1706.7 -11.7Q1666 -30.8 1644.1 -65.1Q1622.2 -99.4 1622.2 -144.8Q1622.2 -185 1638.1 -213Q1654 -241 1679.2 -257Q1705.6 -274.6 1739.7 -281.3Q1773.8 -288 1812.6 -288H1974.8V-233.4H1822.6Q1796.4 -233.4 1770.3 -228.8Q1744.2 -224.2 1725.2 -210.4Q1710.8 -199.4 1702.5 -182.9Q1694.2 -166.4 1694.2 -144Q1694.2 -101.6 1725.3 -76.4Q1756.4 -51.2 1809.6 -51.2Q1853 -51.2 1888.6 -71.8Q1924.2 -92.4 1945.9 -128.5Q1967.6 -164.6 1967.6 -209.8L1997.8 -177.4Q1992.8 -122.4 1966 -80.4Q1939.2 -38.4 1897.4 -15.5Q1855.6 7.4 1802.8 7.4Z"/></g></svg>
+    <svg class="sg-top__lockup" viewBox="0 -697 2960.7 861.73" role="img" aria-label="aviva"><use href="#sg-lockup-g"/></svg>
     <p class="sg-top__meta micro">DESIGN SYSTEM v2 · LIVE FROM docs/css/</p>
   </header>
 
@@ -568,9 +568,9 @@ body { background: var(--color-paper); color: var(--color-graphite); }
           <path d="M261 34H285M261 182.5H285M279 34V182.5M275 38L283 30M275 186.5L283 178.5" fill="none" stroke="currentColor" stroke-width="1"/>
           <text x="202.5" y="10" text-anchor="middle" fill="currentColor" style="font:var(--fw-medium) 11px var(--font-sans);letter-spacing:.08em">210 MM</text>
           <text x="292" y="112" fill="currentColor" style="font:var(--fw-medium) 11px var(--font-sans);letter-spacing:.08em">297 MM</text>
-          <text x="292" y="128" fill="currentColor" style="font:var(--fw-regular) 11px var(--font-sans)"><tspan>297 ÷ 210 = </tspan></text>
         </svg>
-        <p class="small muted">Lines 1&nbsp;px, ticks not arrowheads, labels in micro. The ratio “1.414” may carry the screen’s one highlighter: <mark class="hl">1.414</mark></p>
+        <p class="label" style="color:var(--dims);margin:var(--space-2) 0 var(--space-3)">297 ÷ 210 = <mark class="hl">1.414</mark></p>
+        <p class="small muted">Lines 1&nbsp;px, ticks not arrowheads, labels in micro. The ratio may carry the screen’s one highlighter.</p>
       </div>
       <div class="sg-frame" data-ground="charcoal"><span class="sg-frame__l micro">DIMENSION LINES ON CHARCOAL · BLUEPRINT-LIGHT · s02</span>
         <svg viewBox="0 0 420 210" style="width:100%;max-width:520px;height:auto;color:var(--dims)" aria-label="The sheet seen edge-on as a bright hairline, with a dimension reading 0.1 millimetres" role="img">
