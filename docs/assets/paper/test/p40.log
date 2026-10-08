@@ -8,3 +8,4 @@ step 1500/6000 prog 0.25 rms 75.7mm Rs - stretch p50 0.57% p99 5.60% max 20.0%  
 step 2000/6000 prog 0.33 rms 54.2mm Rs 110 stretch p50 0.72% p99 7.82% max 25.6%  pairs 1025 creased 2054  72s
 step 2500/6000 prog 0.42 rms 45.9mm Rs 104 stretch p50 0.74% p99 8.23% max 22.3%  pairs 1328 creased 2403  91s
 step 3000/6000 prog 0.50 rms 46.1mm Rs 92 stretch p50 0.61% p99 6.22% max 20.7%  pairs 1145 creased 2458  113s
+step 3500/6000 prog 0.58 rms 47.4mm Rs 78 stretch p50 0.43% p99 4.43% max 13.9%  pairs 665 creased 2527  137s
