@@ -46,7 +46,7 @@ export const FLAGS = {
 // Files that other agents have not delivered yet. Flip a switch to true when the file lands, so the site never
 // requests a missing file (a 404 is a console error in tools/shoot.mjs). Everything degrades gracefully meanwhile.
 export const FEATURES = {
-  paperPaint: false,       // docs/js/paper/paint.js (the GPU pencil). Until then: the canvas pencil, shown as an overlay.
+  paperPaint: true,        // docs/js/paper/paint.js (the GPU pencil). Off: the canvas pencil, shown as an overlay.
   paperCrumple: false,     // docs/assets/paper/crumple.bin(.gz) (the baked crumple). Until then: a fold-based stand-in.
   fallbackStills: false,   // docs/assets/fallback/f1–f6.webp (brief 5.10). Until then: CSS-drawn sheet slots.
   claimRenders: false,     // docs/assets/claims/c1–c8.webp (brief 5.6). Until then: a drawn sheet in a studio well.

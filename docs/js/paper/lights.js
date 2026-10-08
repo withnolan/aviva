@@ -20,7 +20,7 @@ const base = {
   fill: { dir: D(0.85, 0.15, 0.5), color: '#eef3ff', intensity: 0.18 },
   back: { dir: D(0.15, 0.35, -1), dist: 1.6, color: '#fff2df', intensity: 0, angle: 0.75, penumbra: 1 },
   rim: { dir: D(-0.9, 0.2, -0.4), color: '#ffffff', intensity: 0 },
-  env: 0.48, exposure: 1.0,
+  env: 0.48, exposure: 0.92,                   // whites sit below the tone curve's shoulder: gradient + mottle survive
   backdrop: { gain: 1, pool: 0.07, poolAdd: 0, poolColor: '#fff8f0', poolOffset: [-0.25, 0.25, -0.6], poolRadius: 1.4 },
   contact: { contact: 0.34, mid: 0.2, soft: 0.13 },
 };
@@ -41,14 +41,14 @@ export const LIGHT_PRESETS = {
   // s02 precise, ON CHARCOAL (decision #24): the white sheet glows on the dark; a soft front key keeps the face white,
   // a cool rim from behind-left catches the 0.1 mm edge as a bright hairline when the sheet turns edge-on, and a faint
   // added pool on the wall behind separates the sheet from the dark (the far field stays exactly the ground colour)
-  s02: P({ key: { dir: D(-0.5, 0.45, 0.74), dist: 1.5, intensity: 1.42, color: '#fffaf3', softness: 7 }, rim: { dir: D(-0.86, 0.22, -0.46), intensity: 0.95, color: '#f1f5ff' },
+  s02: P({ key: { dir: D(-0.62, 0.5, 0.6), dist: 0.7, intensity: 1.12, color: '#fbfaf8', angle: 0.7, softness: 7 }, rim: { dir: D(-0.86, 0.22, -0.46), intensity: 0.95, color: '#f1f5ff' },
     back: { dir: D(0.25, 0.4, -1), intensity: 0.5, color: '#fff3e2' }, fill: { dir: D(0.9, 0.1, 0.4), intensity: 0.07, color: '#dfe7ff' }, env: 0.2,
     backdrop: { gain: 1, pool: 0, poolAdd: 0.016, poolColor: '#cfd6e6', poolOffset: [0, 0.05, -1.2], poolRadius: 0.95 }, contact: { contact: 0.2, mid: 0.12, soft: 0.06 } }),
   // s03 a desk at night, ON CHARCOAL: a warm desk-lamp key (~4000 K), close and soft-edged so its falloff runs across the
   // sheet, a warm pool of lamp light on the dark desk below, almost no fill, a faint cool rim to hold the far edge
-  s03: P({ key: { dir: D(-0.42, 0.72, 0.55), dist: 0.62, color: '#ffd7a3', intensity: 1.55, angle: 0.72, penumbra: 1, softness: 7 }, fill: { dir: D(0.85, 0.2, 0.5), intensity: 0.04, color: '#c9d6ff' },
+  s03: P({ key: { dir: D(-0.42, 0.72, 0.55), dist: 0.62, color: '#fff0dd', intensity: 1.5, angle: 0.72, penumbra: 1, softness: 7 }, fill: { dir: D(0.85, 0.2, 0.5), intensity: 0.04, color: '#c9d6ff' },
     rim: { dir: D(0.8, 0.3, -0.5), intensity: 0.22, color: '#dfe8ff' }, env: 0.09,
-    backdrop: { pool: 0.55, poolAdd: 0.055, poolColor: '#ffcf96', poolOffset: [-0.12, -0.42, -0.15], poolRadius: 0.5 }, contact: { contact: 0.25, mid: 0.15, soft: 0.1 } }),
+    backdrop: { pool: 0.55, poolAdd: 0.05, poolColor: '#ffd6a6', poolOffset: [-0.12, -0.42, -0.15], poolRadius: 0.5 }, contact: { contact: 0.25, mid: 0.15, soft: 0.1 } }),
   // the white-ground versions of s02 / s03 (before decision #24)
   s02White: P({ key: { dir: D(-0.95, 0.25, -0.15), dist: 1.4, intensity: 1.35, color: '#fffaf2' }, rim: { dir: D(-1, 0.1, -0.3), intensity: 0.52 }, fill: { intensity: 0.13 }, env: 0.41, backdrop: { gain: 0.96 } }),
   s03White: P({ key: { dir: D(-0.45, 0.7, 0.55), dist: 0.75, color: '#fff2e2', intensity: 1.47, angle: 0.9, softness: 8 }, fill: { intensity: 0.09 }, env: 0.37, backdrop: { pool: 0.09, poolColor: '#fff3e6' } }),
@@ -82,7 +82,7 @@ export const LIGHT_PRESETS = {
   card8: P({ key: { dir: D(-0.2, 0.75, 0.62), dist: 1.2, color: '#ffd9a8', intensity: 1.75, angle: 0.24, penumbra: 0.55, softness: 4 }, fill: { intensity: 0.04 }, env: 0.18, backdrop: { pool: 0.16, poolColor: '#ffe2bf', poolRadius: 0.55, poolOffset: [0, 0.1, -0.9] } }),  // a warm gallery spotlight
 
   // charcoal: the sheet glowing on the dark (s15 footer, any dark beat): soft key, rim, a little light through the paper
-  charcoal: P({ key: { dir: D(-0.45, 0.55, 0.7), dist: 1.4, intensity: 1.3, color: '#fffaf3', softness: 7 }, rim: { dir: D(-0.8, 0.3, -0.5), intensity: 0.7, color: '#eef3ff' },
+  charcoal: P({ key: { dir: D(-0.6, 0.52, 0.6), dist: 0.75, intensity: 1.12, color: '#fbfaf8', angle: 0.7, softness: 7 }, rim: { dir: D(-0.8, 0.3, -0.5), intensity: 0.7, color: '#eef3ff' },
     back: { dir: D(0.1, 0.35, -1), intensity: 0.7, color: '#fff0dc' }, fill: { intensity: 0.06, color: '#dfe7ff' }, env: 0.2,
     backdrop: { pool: 0, poolAdd: 0.014, poolColor: '#d3d9e6', poolOffset: [0, 0.05, -1.2], poolRadius: 0.9 }, contact: { contact: 0.2, mid: 0.12, soft: 0.06 } }),
   // cool grey grounds (s04 gallery, s06, s12): the studio key with a cooler fill; shadows multiply, so they read on grey

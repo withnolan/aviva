@@ -155,9 +155,9 @@ h2.sec + h3.sub { margin-top: 0; }
 
 /* the contributions list */
 .contrib { list-style: none; margin: calc(var(--lead) * 0.25) 0 calc(var(--lead) * 0.25); }
-.contrib li { position: relative; padding-left: 2.1em; text-align: justify; hyphens: auto; }
+.contrib li { position: relative; padding-left: 2.5em; text-align: justify; hyphens: auto; }
 .contrib li + li { margin-top: calc(var(--lead) * 0.12); }
-.contrib__n { position: absolute; left: 0.35em; top: 0; }
+.contrib__n { position: absolute; left: 0; top: 0; width: 1.95em; text-align: right; }
 .contrib + p { text-indent: 0; }
 
 /* citations and cross-references */
@@ -165,15 +165,15 @@ h2.sec + h3.sub { margin-top: 0; }
 .cite a, .xref a { color: inherit; }
 
 /* MathML */
-math { font-family: var(--math); font-size: 1.04em; math-style: normal; }
-math[display="inline"], math:not([display]) { math-style: compact; }
+math { font-family: var(--math); font-size: 1.04em; }
+/* display equations: MathML keeps its own display type (block math); the number sits flush right */
 .eq {
-  display: flex; align-items: center;
-  margin: calc(var(--lead) * 0.45) 0 calc(var(--lead) * 0.45);
+  display: grid; grid-template-columns: 1fr auto; align-items: center;
+  margin: calc(var(--lead) * 0.5) 0 calc(var(--lead) * 0.5);
   break-inside: avoid;
 }
-.eq math { flex: 1 1 auto; display: block; text-align: center; }
-.eq__n { flex: none; font-family: var(--serif); }
+.eq math[display="block"] { margin: 0; padding-left: 2.2em; }
+.eq__n { font-family: var(--serif); }
 .eq + p { text-indent: 0; }
 
 /* ── front matter (page 1) ───────────────────────────────────────────────────────────────────────── */
@@ -198,7 +198,7 @@ math[display="inline"], math:not([display]) { math-style: compact; }
 .affil { margin-top: 1.6mm; font-family: var(--sans); font-weight: 400; font-size: 8.6pt; line-height: 12pt; color: var(--muted); }
 .dateline { margin-top: 1mm; font-family: var(--sans); font-weight: 400; font-size: 8.6pt; line-height: 12pt; color: var(--muted); }
 
-.abstract { width: 132mm; margin: 0 auto; }
+.abstract { width: 132mm; margin: calc(var(--lead) * 1.6) auto 0; }
 .abstract__h {
   font-family: var(--sans); font-weight: 500; font-size: 9.6pt; line-height: var(--lead);
   text-align: center; margin-bottom: calc(var(--lead) * 0.4);
@@ -234,12 +234,13 @@ figcaption, .tcap {
 }
 figcaption { margin-top: 2.6mm; }
 .fig--wide figcaption { text-align: center; }
+.fig--teaser { margin-top: 7.5mm; }
 .fig__n { font-weight: 500; margin-right: 0.3em; }
 
 /* Figure 5: three microscope panels */
 .panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3.2mm; }
 .panel { position: relative; }
-.panel img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.panel img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
 .panel__l {
   margin-top: 1.6mm; text-align: center;
   font-family: var(--sans); font-size: 7.4pt; line-height: 1; color: var(--graphite);
@@ -278,6 +279,7 @@ tbody tr:last-child > * { padding-bottom: 1.7mm; border-bottom: 0.8pt solid var(
 th:first-child, td:first-child { padding-left: 0; }
 th:last-child, td:last-child { padding-right: 0; }
 .num { text-align: right !important; }
+td.num { white-space: nowrap; }
 .tbl--wide table { width: 100%; }
 .unit { color: var(--muted); }
 
@@ -297,6 +299,9 @@ th:last-child, td:last-child { padding-right: 0; }
 
 /* Appendix B: the model listing */
 .listing { break-inside: avoid; margin-top: calc(var(--lead) * 0.35); }
+.band .app__h { margin-top: 0; }
+.listing--wide { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--gap); align-items: start; }
+.listing--wide .listing__name { grid-column: 1 / -1; }
 .listing__name { font-family: var(--mono); font-size: 7.4pt; line-height: 1; color: var(--muted); margin-bottom: 1.6mm; }
 .listing pre {
   font-family: var(--mono);

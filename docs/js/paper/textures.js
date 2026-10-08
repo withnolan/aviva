@@ -143,7 +143,7 @@ void main(){
  * @returns {THREE.Texture} RGBA8, 1 texel = tileMM/size. RG normal, B height, A fibre mask.
  * low = felt-mark relief (what reads at hero distance), felt = fine felt, fibre = fibrous felt.
  */
-export function makeFibreTile(renderer, { size = 1024, tileMM = 30, seed = 3, strength = 14, fibre = 0.2, felt = 0.16, low = 0.06, grain = 0.35 } = {}) {
+export function makeFibreTile(renderer, { size = 1024, tileMM = 30, seed = 3, strength = 14, fibre = 0.24, felt = 0.085, low = 0.06, grain = 0.35 } = {}) {
   const h = rt(size, size, { mip: false });
   const m = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: TOOTH_FRAG, depthTest: false, depthWrite: false,
     uniforms: { uTileMM: { value: tileMM }, uSeed: { value: seed }, uFibreAmt: { value: fibre }, uGrain: { value: grain }, uLow: { value: low }, uFelt: { value: felt } } });

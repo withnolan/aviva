@@ -24,6 +24,7 @@ const NX = +arg('nx', 57), NY = +arg('ny', 81), STEPS = +arg('steps', 6000), K =
 const ITER = +arg('iter', 24), BEND_EVERY = +arg('bendEvery', 3);
 const OUT = path.resolve(ROOT, arg('out', 'docs/assets/paper/crumple.bin'));
 const JITTER = 0.32;
+const WAVE = +arg('wave', 1);            // scale of the initial long, gentle waves (they pre-shape smooth bumps)
 
 const grid = makeCrumpleGrid(NX, NY, SEED, { w: 0.21, h: 0.297 }, JITTER);
 const N = grid.n, rest = grid.rest, tris = grid.tris;
@@ -58,7 +59,33 @@ const HN = hingeRaw.length;
 const hI = new Int32Array(HN * 4); hingeRaw.forEach((h, i) => hI.set(h, i * 4));
 const hTheta0 = new Float64Array(HN), hDamage = new Float64Array(HN), hWeak = new Float64Array(HN);
 for (let h = 0; h < HN; h++) hWeak[h] = 0.7 + 0.6 * rnd();
-console.log(`grid ${NX}x${NY} = ${N} verts, ${tris.length / 3} tris, ${E} edges, ${S2} skip links, ${HN} hinges, cell ${(cell * 1000).toFixed(2)} mm`);
+// pre-creases: a network of straight chords where the sheet folds first (real crumpled paper is flat facets between
+// straight ridges, d-cones at their ends). Hinges near a chord and roughly parallel to it start weakened and damaged.
+const LINES = +arg('lines', 0), LINE_W = +arg('lineWeak', 0.35), LINE_D = +arg('lineDamage', 0.6);
+let preCreased = 0;
+if (LINES > 0) {
+  const lr = mulberry32(SEED * 104729 + 3);
+  const chords = [];
+  for (let l = 0; l < LINES; l++) {
+    const px = (lr() - 0.5) * 0.21, py = (lr() - 0.5) * 0.297, a = lr() * Math.PI;
+    chords.push({ px, py, dx: Math.cos(a), dy: Math.sin(a), len: 0.06 + 0.2 * lr() });   // finite chords: ridges end in d-cones
+  }
+  for (let h = 0; h < HN; h++) {
+    const i0 = hI[h * 4], i1 = hI[h * 4 + 1];
+    const mx = (rest[i0 * 2] + rest[i1 * 2]) / 2, my = (rest[i0 * 2 + 1] + rest[i1 * 2 + 1]) / 2;
+    let ex = rest[i1 * 2] - rest[i0 * 2], ey = rest[i1 * 2 + 1] - rest[i0 * 2 + 1]; const el = Math.hypot(ex, ey) || 1; ex /= el; ey /= el;
+    for (const c of chords) {
+      const rx = mx - c.px, ry = my - c.py, along = rx * c.dx + ry * c.dy, across = Math.abs(-rx * c.dy + ry * c.dx);
+      if (Math.abs(along) > c.len / 2 || across > cell * 0.8) continue;
+      if (Math.abs(ex * c.dx + ey * c.dy) < 0.6) continue;                       // edge roughly along the chord
+      const end = 1 - Math.abs(along) / (c.len / 2);                            // weaker toward the middle of the ridge
+      hWeak[h] = Math.min(hWeak[h], LINE_W + (1 - LINE_W) * (1 - end) * 0.5);
+      hDamage[h] = Math.max(hDamage[h], LINE_D * (0.4 + 0.6 * end));
+      preCreased++; break;
+    }
+  }
+}
+console.log(`grid ${NX}x${NY} = ${N} verts, ${tris.length / 3} tris, ${E} edges, ${S2} skip links, ${HN} hinges, cell ${(cell * 1000).toFixed(2)} mm, pre-creased hinges ${preCreased}`);
 
 /* ---------- state ---------- */
 const X = new Float64Array(N * 3), P = new Float64Array(N * 3);
@@ -67,7 +94,7 @@ for (let i = 0; i < N; i++) {
   const x = rest[i * 2], y = rest[i * 2 + 1];
   X[i * 3] = x; X[i * 3 + 1] = y;
   // a real sheet is never flat: long, gentle waves break the symmetry so the sheet buckles globally, not at the rim
-  X[i * 3 + 2] = 0.004 * Math.sin(x * 14 + ph[0]) * Math.cos(y * 9 + ph[1]) + 0.0025 * Math.sin((x - y) * 21 + ph[2]) + 0.002 * Math.cos(x * 31 + y * 7 + ph[3]);
+  X[i * 3 + 2] = WAVE * (0.004 * Math.sin(x * 14 + ph[0]) * Math.cos(y * 9 + ph[1]) + 0.0025 * Math.sin((x - y) * 21 + ph[2]) + 0.002 * Math.cos(x * 31 + y * 7 + ph[3]));
 }
 
 /* ---------- signed dihedral angle + gradient ---------- */
@@ -282,7 +309,12 @@ for (const sn of snapshots) { let cx = 0, cy = 0, cz = 0; const p = sn.pos; for 
 const cum = [0];
 for (let s = 1; s < snapshots.length; s++) { let acc2 = 0; const A = snapshots[s - 1].pos, B = snapshots[s].pos; for (let i = 0; i < N * 3; i++) acc2 += (A[i] - B[i]) ** 2; cum.push(cum[s - 1] + Math.sqrt(acc2 / N)); }
 const total = cum[cum.length - 1], chosen = [];
-for (let k = 0; k < K; k++) { const target = total * (k / (K - 1)); let s = cum.findIndex((c) => c >= target - 1e-12); if (s < 0) s = snapshots.length - 1; chosen.push(s); }
+const KF = arg('kf', null);              // explicit keyframe times (sim progress), e.g. --kf 0,0.04,0.09,0.15,0.24,0.36,0.55,0.8,1
+if (KF) {
+  for (const t of String(KF).split(',').map(Number)) { let best = 0; for (let s2 = 0; s2 < snapshots.length; s2++) if (Math.abs(snapshots[s2].prog - t) < Math.abs(snapshots[best].prog - t)) best = s2; chosen.push(best); }
+  if (chosen.length !== K) console.log(`(--kf gives ${chosen.length} keyframes; K set to match)`);
+} else for (let k = 0; k < K; k++) { const target = total * (k / (K - 1)); let s = cum.findIndex((c) => c >= target - 1e-12); if (s < 0) s = snapshots.length - 1; chosen.push(s); }
+const K_OUT = chosen.length;
 const frames = chosen.map((s, k) => { const p = Float32Array.from(snapshots[s].pos); if (k === 0) for (let i = 0; i < N; i++) { p[i * 3] = rest[i * 2]; p[i * 3 + 1] = rest[i * 2 + 1]; p[i * 3 + 2] = 0; } return p; });
 console.log('keyframes at sim progress', chosen.map((s) => snapshots[s].prog.toFixed(3)).join(' '));
 
@@ -363,7 +395,7 @@ function computeAO(p, rays = 40, maxDist = 0.035) {
 }
 const aoFront = [], aoBack = [];
 const tAO = Date.now();
-for (let k = 0; k < K; k++) {
+for (let k = 0; k < K_OUT; k++) {
   if (k === 0) { aoFront.push(new Float32Array(N).fill(1)); aoBack.push(new Float32Array(N).fill(1)); continue; }
   const { front, back } = computeAO(frames[k], +arg('rays', 48));
   aoFront.push(front); aoBack.push(back);
@@ -379,11 +411,11 @@ const gz = zlib.gzipSync(Buffer.from(enc.buffer), { level: 9 });
 fs.writeFileSync(OUT + '.gz', gz);
 if (arg('raw', false)) fs.writeFileSync(OUT, Buffer.from(enc.buffer)); else if (fs.existsSync(OUT)) fs.unlinkSync(OUT);
 // final quality numbers
-const last = frames[K - 1]; let rEnd = 0; for (let i = 0; i < N; i++) rEnd = Math.max(rEnd, Math.hypot(last[i * 3], last[i * 3 + 1], last[i * 3 + 2]));
+const last = frames[K_OUT - 1]; let rEnd = 0; for (let i = 0; i < N; i++) rEnd = Math.max(rEnd, Math.hypot(last[i * 3], last[i * 3 + 1], last[i * 3 + 2]));
 const st = []; for (let e = 0; e < E; e++) { const a = eI[e * 2], b = eI[e * 2 + 1]; st.push(Math.abs(Math.hypot(last[b * 3] - last[a * 3], last[b * 3 + 1] - last[a * 3 + 1], last[b * 3 + 2] - last[a * 3 + 2]) / eL[e] - 1)); }
 st.sort((a, b) => a - b);
 let creased = 0; for (let h = 0; h < HN; h++) if (Math.abs(hTheta0[h]) > 0.6) creased++;
-const report = { nx: NX, ny: NY, N, K, steps: STEPS, seed: SEED, rawBytes: enc.buffer.byteLength, gzBytes: gz.length, maxQuantErrMM: +(enc.maxErr * 1000).toFixed(3), clipped: enc.clipped,
+const report = { nx: NX, ny: NY, N, K: K_OUT, steps: STEPS, seed: SEED, rawBytes: enc.buffer.byteLength, gzBytes: gz.length, maxQuantErrMM: +(enc.maxErr * 1000).toFixed(3), clipped: enc.clipped,
   finalStretch: { p50: +(st[E >> 1] * 100).toFixed(2), p99: +(st[Math.floor(E * 0.99)] * 100).toFixed(2), max: +(st[E - 1] * 100).toFixed(2) }, maxStretchDuringPct: +(maxStretch * 100).toFixed(2),
   finalRadiusMM: +(rEnd * 1000).toFixed(1), creasedHinges: creased, hinges: HN,
   keyframesAt: chosen.map((s) => +snapshots[s].prog.toFixed(3)),

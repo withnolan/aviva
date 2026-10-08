@@ -70,6 +70,14 @@ function cachedLights(lights) {
   };
 }
 
+/** Keep every light of the rig in the scene (an unlit preset just has intensity 0): the number of lights and of shadow
+ *  casters is part of three's shader key, so toggling visibility would recompile every paper material mid-scroll. */
+function pinLights(rig) {
+  if (!rig) return;
+  for (const l of [rig.key, rig.fill, rig.back, rig.rim]) if (l) l.visible = true;
+  if (rig.key && rig.shadowEnabled) rig.key.castShadow = true;
+}
+
 /** precompile: three compiles only visible objects, and `transparent` is part of the program key, so compile
  *  everything twice (opaque, then transparent) with every object made visible for the call. */
 function prepare(renderer, scene, camera, setAllTransparent) {
@@ -104,10 +112,11 @@ function wrapPlaceholder(sys, renderer) {
       return w;
     },
     createPaint: () => sys.createPaint(),
-    update: (scene, camera, dt) => sys.update(scene, camera, dt),
+    update: (scene, camera, dt) => { sys.update(scene, camera, dt); pinLights(sys.lights); },
     setFloorPrint: (o) => sys.setFloorPrint(o),
     loadFloorPrint: (url) => sys.loadFloorPrint(url),
     setGround(color) { if (paper.scene) paper.scene.background.copy(color); },
+    presets: sys.presets || {},
     contactBlob: (...a) => sys.contactBlob(...a),
     pick,
     ensureMacro() {},
@@ -139,8 +148,9 @@ function wrapReal(sys, m, renderer) {
       return w;
     },
     async createPaint() {
+      // the module's GPU pencil (paint.js) has the same method names as the placeholder's canvas pencil
       if (FEATURES.paperPaint && sys.createPaint) {
-        try { return wrapModulePaint(await sys.createPaint()); } catch (e) { console.warn('[aviva] module paint failed:', e && e.message); }
+        try { const p = await sys.createPaint(); if (p && p.begin && p.bakedLine) return p; } catch (e) { console.warn('[aviva] module paint failed:', e && e.message); }
       }
       const { PlaceholderPaint } = await import('./placeholder-paper.js');
       paintRef = new PlaceholderPaint();
@@ -149,13 +159,16 @@ function wrapReal(sys, m, renderer) {
     update(scene, camera, dt) {
       for (const w of wrapped) w._flush();
       sys.update(scene, camera, dt);
+      pinLights(sys.lights);
     },
     setFloorPrint: (o) => sys.setFloorPrint(o),
     loadFloorPrint: (url) => sys.loadFloorPrint(url),
     setGround(color) {
+      if (sys.setGround) { sys.setGround(color); return; }
       if (U && U.uStudio) U.uStudio.value.copy(color);
       if (paper.scene && paper.scene.background && paper.scene.background.isColor) paper.scene.background.copy(color);
     },
+    presets: m.LIGHT_PRESETS,
     contactBlob() {},
     pick,
     ensureMacro() {
@@ -205,8 +218,8 @@ function realSheet(s, { F, hero, getPaint }) {
         if (k === 'opacity') { st.opacity = v; continue; }
         if (k === 'boat') { st.boat = v || 0; folds = true; continue; }
         if (k === 'crumple') { st.crumple = v || 0; if (FEATURES.paperCrumple) pass.crumple = v; else folds = true; continue; }
-        if (k === 'paint') { st.paint = !!v; ov = true; continue; }
-        if (k === 'paintFace') { st.paintFace = v; ov = true; continue; }
+        if (k === 'paint') { st.paint = !!v; if (w._modulePaint) pass.paint = !!v; else ov = true; continue; }
+        if (k === 'paintFace') { st.paintFace = v; if (w._modulePaint) pass.paintFace = v; else ov = true; continue; }
         if (k === 'map') { st.map = v || 0; ov = true; continue; }
         if (k === 'still') continue;
         if (k === 'curl') { pass.curl = v ? { corner: v.corner, t: v.t, r: v.r, size: v.size, angle: (v.deg ?? 25) * Math.PI / 180, toward: v.toward } : null; continue; }
@@ -220,11 +233,15 @@ function realSheet(s, { F, hero, getPaint }) {
       return w;
     },
     piece: (k) => s.piece(k),
-    attachPaint(p) { if (p && p.canvas) { w._ovDirty = true; } else if (p) s.attachPaint(p); },
+    attachPaint(p) {
+      if (p && p.canvas) { w._ovDirty = true; return; }      // the placeholder pencil: drawn into the overlay
+      if (p) { w._modulePaint = true; s.attachPaint(p); s.set({ paint: st.paint, paintFace: st.paintFace }); }
+    },
+    _modulePaint: false,
     _ovDirty: true,
     _flush() {
       // the overlay: the canvas pencil (when the module has no GPU paint layer yet) and the v0.1 map lines
-      const paint = getPaint();
+      const paint = w._modulePaint ? null : getPaint();
       const wantPaint = st.paint && paint, wantMap = st.map > 0.01;
       if (!wantPaint && !wantMap) { if (overlay && overlay.on) { overlay.on = false; s.set({ overlay: null }); } return; }
       if (!overlay) overlay = makeOverlay();
@@ -289,27 +306,4 @@ function makeOverlay(w = 640, h = 905) {
       texture.needsUpdate = true;
     },
   };
-}
-
-/** the module's own PaintLayer (when docs/js/paper/paint.js lands), behind the placeholder's method names */
-function wrapModulePaint(pl) {
-  let t = 0, eraser = false, row = 0;
-  const now = () => (t = Math.max(t + 1, performance.now()));
-  const api = {
-    raw: pl, version: 0,
-    get hasInk() { return pl.hasInk !== undefined ? pl.hasInk : api.version > 0; },
-    get texture() { return pl.texture; },
-    begin(u, v) { pl.begin(u, v, now()); },
-    to(u, v) { pl.move(u, v, now()); api.version++; },
-    end() { pl.end(); },
-    setEraser(on) { eraser = !!on; pl.setTool && pl.setTool(eraser ? 'eraser' : 'pencil'); },
-    clear() { pl.clear && pl.clear(); api.version++; },
-    bakedLine(from, to, o = {}) {
-      if (to < 1) return;                                     // the module draws the whole line at once
-      const path = pl.constructor.handwritingPath ? pl.constructor.handwritingPath({ seed: 3 + row }) : null;
-      if (path && pl.strokeFromPath) pl.strokeFromPath(path, { x: o.mirror ? 0.84 : 0.16, y: 0.62 - (o.row || 0) * 0.07, width: o.mirror ? -0.68 : 0.68 });
-      row++; api.version++;
-    },
-  };
-  return api;
 }

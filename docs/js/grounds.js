@@ -45,21 +45,29 @@ export function createGrounds(scroll) {
   document.body.appendChild(host);
   const sets = new Map();          // ground key → { roles: { name: [r,g,b,a] }, canvas: [r,g,b,a], dark }
 
-  /** resolve the role colours of one ground through a probe (handles var(), rgba() and color-mix()) */
-  function read(key) {
-    if (sets.has(key)) return sets.get(key);
-    const box = document.createElement('div');
-    box.setAttribute('data-ground', key);
-    const probe = document.createElement('i');
-    box.appendChild(probe); host.appendChild(box);
-    const roles = {};
-    for (const name of ROLES) {
-      probe.style.color = `var(${name})`;
-      roles[name] = parseColor(getComputedStyle(probe).color) || [0, 0, 0, 1];
+  /** resolve the role colours of grounds through probes (handles var(), rgba() and color-mix()). All probes are
+   *  written first and read after, so a batch costs one style recalculation. */
+  function readMany(keys) {
+    const jobs = [];
+    for (const key of keys) {
+      if (sets.has(key)) continue;
+      const box = document.createElement('div');
+      box.setAttribute('data-ground', key);
+      const probes = [...ROLES, '--color-studio'].map((name) => { const i = document.createElement('i'); i.style.color = `var(${name})`; box.appendChild(i); return i; });
+      host.appendChild(box);
+      jobs.push({ key, box, probes });
     }
-    probe.style.color = 'var(--color-studio)';
-    const studio = parseColor(getComputedStyle(probe).color) || [0.925, 0.922, 0.906, 1];
-    host.removeChild(box);
+    for (const j of jobs) j.colors = j.probes.map((p) => getComputedStyle(p).color);
+    for (const j of jobs) { host.removeChild(j.box); build(j.key, j.colors); }
+  }
+  function read(key) {
+    if (!sets.has(key)) readMany([key]);
+    return sets.get(key);
+  }
+  function build(key, colors) {
+    const roles = {};
+    ROLES.forEach((name, i) => { roles[name] = parseColor(colors[i]) || [0, 0, 0, 1]; });
+    const studio = parseColor(colors[ROLES.length]) || [0.925, 0.922, 0.906, 1];
     // the 3D studio: white sections sit in the studio white (a touch darker than the paper, so the sheet is
     // always the brightest white on screen); every other ground is its own colour
     const canvas = key === 'paper' ? studio : roles['--ground'];
@@ -69,11 +77,13 @@ export function createGrounds(scroll) {
   }
 
   let secs = scroll.secs;
+  let measured = false;
   function measure() {
-    sets.clear();
     secs = scroll.secs;
+    if (measured) return;                     // the role colours only change with the stylesheet, not with layout
+    measured = true;
+    readMany(['paper', 'ink', ...new Set(secs.map((s) => s.ground0))]);
     for (const s of secs) s.gset = read(s.ground0);
-    read('paper'); read('ink');
   }
 
   /** the ground key a section shows at progress p (only s07 changes inside itself) */

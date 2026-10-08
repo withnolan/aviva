@@ -23,18 +23,19 @@ export function applyCredit() {
 }
 
 /* ------------------------------------------------------------------ the Impression reveal: measured lines */
-function splitLines(el) {
+// Batched for the whole page: (1) every heading gets its words wrapped, (2) one layout reads every word's line,
+// (3) every heading is rebuilt as one block span per line. One forced layout instead of one per word.
+function wrapWords(el) {
   if (!el.__orig) el.__orig = el.innerHTML;
   el.innerHTML = el.__orig;
   const words = [];
   const walk = (node) => {
     for (const ch of [...node.childNodes]) {
       if (ch.nodeType === 3) {
-        const parts = ch.textContent.split(/(\s+)/);
         const frag = document.createDocumentFragment();
-        for (const part of parts) {
+        for (const part of ch.textContent.split(/(\s+)/)) {
           if (!part) continue;
-          if (/^\s+$/.test(part) && !/ /.test(part)) { frag.appendChild(document.createTextNode(part)); continue; }
+          if (/^\s+$/.test(part) && !/\u00a0/.test(part)) { frag.appendChild(document.createTextNode(part)); continue; }
           const w = document.createElement('span'); w.className = 'press__w'; w.textContent = part;
           frag.appendChild(w); words.push(w);
         }
@@ -43,16 +44,18 @@ function splitLines(el) {
     }
   };
   walk(el);
-  if (!words.length) return;
-  // group by measured line (offsetTop), then rebuild as one block span per line
-  const lines = [];
-  let top = null, line = null;
-  for (const w of words) {
-    const t = w.offsetTop;
-    if (top === null || Math.abs(t - top) > 2) { line = []; lines.push(line); top = t; }
-    line.push(w.textContent);
+  return words;
+}
+export function splitAll(els) {
+  const jobs = [];
+  for (const el of els) { try { jobs.push({ el, words: wrapWords(el) }); } catch { /* keep the original */ } }
+  for (const j of jobs) j.tops = j.words.map((w) => w.offsetTop);          // one layout for all of them
+  for (const j of jobs) {
+    if (!j.words.length) continue;
+    const lines = []; let top = null, line = null;
+    j.words.forEach((w, i) => { const t = j.tops[i]; if (top === null || Math.abs(t - top) > 2) { line = []; lines.push(line); top = t; } line.push(w.textContent); });
+    j.el.innerHTML = lines.map((l, i) => `<span class="press__line" style="--i:${i}">${l.join(' ')}</span>`).join('');
   }
-  el.innerHTML = lines.map((l, i) => `<span class="press__line" style="--i:${i}">${l.join(' ')}</span>`).join('');
 }
 
 export function createUI({ scroll, grounds, world = null, reduce = false }) {
@@ -67,12 +70,21 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
     }
   }
   const splits = $$('[data-split]');
-  function resplit() { for (const el of splits) { try { splitLines(el); } catch { /* keep the original text */ } } }
+  let splitW = -1;
+  /** re-measure the headline lines: when the width changes, or forced (the web font arrived) */
+  function resplit(force = false) {
+    if (!force && innerWidth === splitW) return;
+    splitW = innerWidth;
+    splitAll(splits);
+    for (const t of timed) if (t.on) press(t.el, true);
+  }
   const press = (el, on) => {
     const targets = el.matches('[data-split]') ? [el] : $$('[data-split]', el);
     for (const t of targets) {
       if (on) { t.classList.remove('is-pressed'); void t.offsetWidth; t.classList.add('is-pressed'); } else t.classList.remove('is-pressed');
     }
+    // marks (the pencil underline, a highlighter) draw on once their block has arrived
+    for (const m of $$('.u-pencil, .hl', el)) m.classList.toggle('is-drawn', on);
   };
   // flowing sections: reveal on entering the viewport
   const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
@@ -170,7 +182,10 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
     el.__swap = setTimeout(() => {
       el.textContent = '';
       if (text) {
-        if (mark) { const m = document.createElement('mark'); m.className = 'hl'; m.textContent = text; el.appendChild(m); } else el.textContent = text;
+        if (mark) {
+          const m = document.createElement('mark'); m.className = 'hl'; m.textContent = text; el.appendChild(m);
+          requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('is-drawn')));
+        } else el.textContent = text;
       }
       el.classList.remove('is-swap');
     }, 160);
@@ -182,6 +197,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
   const s12col = $('#s12-col'), s12cmp = $('#s12-cmp');
   const cues = $$('#changelog [data-cue]').map((el) => ({ el, cue: el.dataset.cue, y: 0 }));
   const dogCue = $('.review[data-cue="dogear"]');
+  const issue = $('#s06-issue');
   let claimsMax = 0, dogY = 0;
   function measure() {
     rulerH = ruler ? ruler.clientHeight : 0;
@@ -190,7 +206,6 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
     for (const c of cues) { const r = c.el.getBoundingClientRect(); c.y = r.top + sy + r.height / 2; }
     if (dogCue) { const r = dogCue.getBoundingClientRect(); dogY = r.top + sy + r.height / 2; }
     resplit();
-    for (const t of timed) t.on = null;          // re-apply classes after a re-split
   }
   S.onRefresh.push(measure);
   measure();
@@ -228,7 +243,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
     if (!world || !svg) return;
     const mode = world.dimsMode();
     const dot = world.dotLabel();
-    if (mode === 'none' && dimsMode === 'none' && !dot.on && !labs.dot.classList.contains('is-on')) return;
+    if (mode === 'none' && dimsMode === 'none' && !dot.on && !(labs.dot && labs.dot.classList.contains('is-on'))) return;
     dimsMode = mode;
     const parts = [], ext = [];
     let w = null, h = null, ratio = null, fold = null, foldLab = null;
@@ -321,6 +336,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
         else if (c.cue === 'double') dbl = Math.max(dbl, bump);
       }
       Object.assign(E.cues, { map, wm, drift, dims: dimsOn, double: reduce ? 0 : dbl });
+      if (issue && dbl > 0.3 && !issue.classList.contains('is-drawn')) issue.classList.add('is-drawn');
     }
     if (near(s09) && dogCue) {
       const d = (dogY - (window.scrollY + vh / 2)) / vh;

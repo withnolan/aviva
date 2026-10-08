@@ -47,7 +47,7 @@ void main(){
   vec2 tuv = (vMM - 0.5 * uSize) / uToothMM;
   float ht = texture2D(uTooth, tuv).b * 0.62 + texture2D(uTooth, tuv * 0.7692 + vec2(0.43, 0.19)).b * 0.38;
   float press = vP.y;
-  float grain = smoothstep(0.62 - 0.32 * press, 0.86 - 0.2 * press, ht + 0.12 * (h12(floor(vMM * 9.0)) - 0.5));
+  float grain = smoothstep(0.5 - 0.42 * press, 0.78 - 0.3 * press, ht + 0.12 * (h12(floor(vMM * 9.0)) - 0.5));
   float a = core * press * mix(1.0, grain, uGrainAmt) * (0.88 + 0.24 * h12(vMM * 37.0));
   gl_FragColor = vec4(1.0, 1.0, 1.0, clamp(a, 0.0, 1.0));
 }`;
@@ -58,10 +58,10 @@ export class PaintLayer {
   /**
    * @param {THREE.WebGLRenderer} renderer
    * @param {object} o width (px, 1536; 1024 on phones), sheet {w,h} (m), tooth (the system's tooth tile), toothMM (30),
-   *   radius (mm, pencil 0.42), alpha (0.42 per pass), eraserRadius (mm, 3.2), mips (true: needed when the sheet is
+   *   radius (mm, pencil 0.52: a ~1 mm HB line), alpha (0.72 per pass), eraserRadius (mm, 3.2), mips (true: needed when the sheet is
    *   small on screen; false saves the mip regeneration while it is large)
    */
-  constructor(renderer, { width = 1536, sheet = { w: 0.21, h: 0.297 }, tooth = null, toothMM = 30, radius = 0.42, alpha = 0.42, eraserRadius = 3.2, mips = true } = {}) {
+  constructor(renderer, { width = 1536, sheet = { w: 0.21, h: 0.297 }, tooth = null, toothMM = 30, radius = 0.52, alpha = 0.72, eraserRadius = 3.2, mips = true } = {}) {
     this.renderer = renderer;
     this.sizeMM = new THREE.Vector2(sheet.w * 1000, sheet.h * 1000);
     const height = Math.round(width * sheet.h / sheet.w);
@@ -86,7 +86,7 @@ export class PaintLayer {
     const blank = new THREE.DataTexture(new Uint8Array([128, 128, 160, 255]), 1, 1); blank.needsUpdate = true;
     this.uniforms = {
       uSize: { value: this.sizeMM }, uTooth: { value: tooth || blank }, uToothMM: { value: toothMM },
-      uHard: { value: 0.35 }, uEraser: { value: 0 }, uGrainAmt: { value: 0.85 },
+      uHard: { value: 0.3 }, uEraser: { value: 0 }, uGrainAmt: { value: 0.75 },
     };
     this.pencilMat = new THREE.RawShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: this.uniforms, depthTest: false, depthWrite: false, transparent: true,
       blending: THREE.CustomBlending, blendEquation: THREE.AddEquation, blendSrc: THREE.SrcAlphaFactor, blendDst: THREE.OneMinusSrcAlphaFactor,

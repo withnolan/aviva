@@ -1,0 +1,10 @@
+grid 57x81 = 4617 verts, 8960 tris, 13576 edges, 8958 skip links, 13304 hinges, cell 3.75 mm, pre-creased hinges 1938
+dihedral gradient self-test, max rel error: 2.42e-10
+RC 1.88mm  R_NAT 39.3mm  R_END 38.5mm  bk 0.85 yield 0.3 soften 7
+step 0/6000 prog 0.00 rms 106.5mm Rs - stretch p50 0.00% p99 0.04% max 0.1%  pairs 0 creased 0  0s
+step 500/6000 prog 0.08 rms 106.1mm Rs - stretch p50 0.18% p99 2.01% max 6.5%  pairs 0 creased 7  21s
+step 1000/6000 prog 0.17 rms 96.5mm Rs - stretch p50 0.53% p99 4.70% max 17.4%  pairs 27 creased 430  35s
+step 1500/6000 prog 0.25 rms 75.3mm Rs - stretch p50 0.61% p99 5.91% max 20.6%  pairs 259 creased 1039  54s
+step 2000/6000 prog 0.33 rms 53.9mm Rs 110 stretch p50 0.79% p99 7.58% max 26.9%  pairs 991 creased 1962  72s
+step 2500/6000 prog 0.42 rms 46.2mm Rs 103 stretch p50 0.75% p99 7.93% max 20.9%  pairs 1387 creased 2380  92s
+step 3000/6000 prog 0.50 rms 46.4mm Rs 92 stretch p50 0.65% p99 6.32% max 17.3%  pairs 1248 creased 2426  114s

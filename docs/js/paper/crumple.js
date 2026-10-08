@@ -24,6 +24,21 @@ export async function loadCrumple(sys, url) {
   for (const u of candidates) { try { buf = await fetchBuffer(u); break; } catch (e) { lastErr = e; } }
   if (!buf) throw lastErr || new Error('no crumple data');
   const D = decodeCrumple(buf);
+  // the baked AO is ray-traced per vertex (noisy): smooth it over the grid (3 x 3, twice) so it reads as soft occlusion
+  for (let k = 0; k < D.K; k++) {
+    const A = D.ao[k], nx = D.nx, ny = D.ny, T = new Float32Array(A.length);
+    for (let pass = 0; pass < 2; pass++) {
+      for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) for (let c = 0; c < 2; c++) {
+        let sum = 0, w = 0;
+        for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+          const ii = i + di, jj = j + dj; if (ii < 0 || jj < 0 || ii >= nx || jj >= ny) continue;
+          const ww = (di === 0 && dj === 0) ? 2 : 1; sum += A[(jj * nx + ii) * 2 + c] * ww; w += ww;
+        }
+        T[(j * nx + i) * 2 + c] = sum / w;
+      }
+      A.set(T);
+    }
+  }
   const G = makeCrumpleGrid(D.nx, D.ny, D.seed, { w: 0.21, h: 0.297 }, D.jitter);
   const n = D.n, K = D.K;
   const geo = new THREE.BufferGeometry();

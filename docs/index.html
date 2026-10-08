@@ -155,6 +155,7 @@
       <path class="pencil__wood" d="M7 18 L12 1 L17 18 Z"/>
       <path class="pencil__lead" d="M10.6 5.6 L12 1 L13.4 5.6 Z"/>
       <rect class="pencil__body" x="7" y="18" width="10" height="64"/>
+      <rect class="pencil__shade" x="13.7" y="18" width="3.3" height="64"/>
       <path class="pencil__facet" d="M12 18V82"/>
       <rect class="pencil__ferrule" x="7" y="82" width="10" height="6"/>
       <rect class="pencil__rubber" x="7" y="88" width="10" height="6" rx="1.2"/>
@@ -187,7 +188,7 @@
     </section>
 
     <!-- s02 · 0.1 mm. -->
-    <section class="sec sec--pin" id="s02-thin" data-sec="s02" style="--len:3" aria-labelledby="s02-h2">
+    <section class="sec sec--pin" id="s02-thin" data-sec="s02" data-ground="charcoal" style="--len:3" aria-labelledby="s02-h2">
       <div class="stage">
         <h2 class="s02__h2 display-s" id="s02-h2" data-copy="s02.h2" data-at="1.55" data-split>0.1&nbsp;mm.</h2>
         <p class="s02__verso micro" data-copy="s02.verso" data-at="2.25" data-until="3.2">VERSO: ALSO BLANK.</p>
@@ -199,7 +200,7 @@
     </section>
 
     <!-- s03 · Intelligence not included. -->
-    <section class="sec sec--pin" id="s03-intelligence" data-sec="s03" style="--len:6" aria-labelledby="s03-h2">
+    <section class="sec sec--pin" id="s03-intelligence" data-sec="s03" data-ground="charcoal" style="--len:6" aria-labelledby="s03-h2">
       <div class="stage s03" id="s03-stage">
         <div class="s03__head" data-at="0.15" data-until="5.25">
           <p class="eyebrow" data-copy="s03.eyebrow">INFERENCE</p>
@@ -208,7 +209,7 @@
             <span class="d-only" data-copy="s03.body">aviva A4 ships with no data, no knowledge and no opinions. John Locke called this “white paper, void of all characters”. We call it the base model.</span>
             <span class="m-only" data-copy="s03.body.m">No data. No knowledge. No opinions. Locke called it “white paper, void of all characters”. We call it the base model.</span>
           </p>
-          <p class="s03__cta label" data-copy="s03.cta">Pick up the pencil.</p>
+          <p class="s03__cta label" data-copy="s03.cta"><span class="u-pencil">Pick up the pencil.</span></p>
         </div>
 
         <p class="draw-hint label" data-hint="s03" aria-hidden="true">
@@ -250,7 +251,7 @@
     </section>
 
     <!-- s04 · 4.99 g / Selected outputs -->
-    <section class="sec sec--pin" id="s04-outputs" data-sec="s04" style="--len:8" aria-labelledby="s04-h2">
+    <section class="sec sec--pin" id="s04-outputs" data-sec="s04" data-ground="grey" style="--len:8" aria-labelledby="s04-h2">
       <div class="stage s04">
         <h2 class="sr-only" data-copy="s04.giant" data-gl-text="4.99 g">4.99 grams</h2>
         <div class="s04__intro" data-at="0.25" data-until="2.55">
@@ -403,7 +404,7 @@
     </section>
 
     <!-- s06 · Release notes. (normal scroll; the sheet floats on the right) -->
-    <section class="sec sec--flow" id="s06-release-notes" data-sec="s06" style="--len:4" aria-labelledby="s06-h2">
+    <section class="sec sec--flow" id="s06-release-notes" data-sec="s06" data-ground="grey-light" style="--len:4" aria-labelledby="s06-h2">
       <div class="wrap s06">
         <header class="s06__head" data-reveal>
           <p class="eyebrow" data-copy="s06.eyebrow">CHANGELOG</p>
@@ -472,7 +473,7 @@
             <p class="log__n small" data-copy="s06.e12.n">The A-series goes international. A4 as you know it.</p>
           </li>
           <li class="log__e log__e--issue" data-cue="double" data-copy="s06.e13">
-            <span class="log__v label" data-copy="s06.e13.v">KNOWN ISSUE</span><span class="log__d label" data-copy="s06.e13.d">1975</span>
+            <span class="log__v label" data-copy="s06.e13.v"><mark class="hl" id="s06-issue">KNOWN ISSUE</mark></span><span class="log__d label" data-copy="s06.e13.d">1975</span>
             <h3 class="log__t" data-copy="s06.e13.t">“The paperless office.”</h3>
             <p class="log__n small" data-copy="s06.e13.n">Business Week quotes a forecast: by 1990, most record-handling will be electronic. World paper and board production then nearly doubles, from 171 to 324 million tonnes (1980–2000).</p>
           </li>
@@ -527,17 +528,17 @@
           <p class="body" data-copy="s08.body">aviva starts as wood pulp. After use, its fibres can be made into paper again, and again, and again. Then they retire.</p>
         </header>
         <ul class="cards">
-          <li class="card" data-ground="paper" data-copy="s08.c1" data-reveal>
+          <li class="card" data-copy="s08.c1" data-reveal>
             <p class="card__v">5–7</p>
             <p class="card__l micro">LIVES</p>
             <p class="card__b small">Paper fibres are usually said to survive five to seven trips through recycling, each one leaving them shorter and stiffer. Researchers are aiming for 25.</p>
           </li>
-          <li class="card" data-ground="paper" data-copy="s08.c2" data-reveal>
+          <li class="card" data-copy="s08.c2" data-reveal>
             <p class="card__v">≈ ¾</p>
             <p class="card__l micro">RECYCLED IN EUROPE</p>
             <p class="card__b small">About three-quarters of the paper and board used in Europe is recycled: 75.1 % in 2024, according to the European Paper Recycling Council.</p>
           </li>
-          <li class="card" data-ground="paper" data-copy="s08.c3" data-reveal>
+          <li class="card" data-copy="s08.c3" data-reveal>
             <p class="card__v">≈ 4.6 g</p>
             <p class="card__l micro">CO₂e PER SHEET (ISO METHOD)</p>
             <p class="card__b small">One study of an A4 sheet of office paper found 4.3–4.7 g of CO₂e, depending on the method: 4.6 g by ISO’s. The sheet itself weighs about 5 g.</p>
@@ -743,7 +744,7 @@
     </section>
 
     <!-- s12 · One shape. Three sizes. -->
-    <section class="sec sec--pin" id="s12-sizes" data-sec="s12" style="--len:4" aria-labelledby="s12-h2">
+    <section class="sec sec--pin" id="s12-sizes" data-sec="s12" data-ground="grey" style="--len:4" aria-labelledby="s12-h2">
       <div class="stage s12" id="s12-stage">
         <div class="s12__col" id="s12-col">
           <div class="s12__head" data-at="0.05">
@@ -790,7 +791,7 @@
           <p class="sr-only" id="s12-sr" aria-live="polite"></p>
         </div>
 
-        <div class="cmp" id="s12-cmp">
+        <div class="cmp" id="s12-cmp" data-at="2.3">
           <div class="cmp__scroll" tabindex="0" role="region" aria-labelledby="s12-cap" data-lenis-prevent-horizontal>
             <table class="cmp__t" data-copy="s12.tbl">
               <caption class="sr-only" id="s12-cap">aviva A5, A4 and A3 compared.</caption>
@@ -930,7 +931,7 @@
   </main>
 
   <!-- s15 · Footer + colophon -->
-  <footer class="sec sec--flow foot" id="s15-footer" data-sec="s15" style="--len:0.5">
+  <footer class="sec sec--flow foot" id="s15-footer" data-sec="s15" data-ground="charcoal" style="--len:0.5">
     <div class="wrap foot__in">
       <div class="foot__col foot__col--main">
         <p class="small" data-copy="s15.colophon">Colophon: set in one typeface, rendered in real time, printed on nothing.</p>

@@ -49,7 +49,7 @@ const files = [];
 const t00 = Date.now();
 for (const s of specs) {
   const t0 = Date.now();
-  const reload = !page || /(^|&)(tier|seg|dpr)=/.test(s.q) || /(^|&)(tier|seg|dpr)=/.test(loadedQ || '');
+  const reload = !page || /(^|&)(tier|seg|dpr|cfile)=/.test(s.q) || /(^|&)(tier|seg|dpr|cfile)=/.test(loadedQ || '');
   try {
     if (reload) await open(s.q);
     else {

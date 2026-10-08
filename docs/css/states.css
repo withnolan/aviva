@@ -1,0 +1,123 @@
+/* states.css: the states JavaScript switches: timed reveals, the Impression headline reveal, loading, drawing,
+   the static page (no WebGL), image slots that degrade gracefully, and small furniture states.
+   Uses only role variables (tokens.css), so every ground (paper, grey, charcoal, ink) recolours it. */
+
+/* ---------- timed reveals: [data-at] inside pinned stages, [data-reveal] in flowing sections, [data-intro] in s01 ---------- */
+.js [data-at],
+.js [data-reveal],
+.js [data-intro] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+.js [data-at].is-in,
+.js [data-reveal].is-in,
+.js [data-intro].is-in {
+  opacity: 1;
+  pointer-events: auto;
+  transition-duration: var(--dur-base);
+}
+/* containers that only position their children keep pointer events off where the children are absent */
+.js .outputs.is-in, .js .tear.is-in, .js .loupe.is-in { pointer-events: none; }
+.js .tear.is-in .tear__line, .js .loupe.is-in .loupe__bar { pointer-events: auto; }
+.js .tear.is-off { opacity: 0 !important; }
+.js .tear.is-off .tear__line { pointer-events: none !important; }
+
+/* the hero lines wait for the sheet to land (main.js heroIntro) */
+.js .hero__l1, .js .hero__l2 { opacity: 0; transition: opacity var(--dur-base) var(--ease-out); }
+.js .hero__l1.is-in, .js .hero__l2.is-in { opacity: 1; }
+
+/* ---------- the signature reveal: Impression (design system 7.2). Lines are measured by ui.js ---------- */
+.press__line { display: block; }
+.press__w { display: inline; }
+.is-pressed .press__line {
+  animation: impression var(--dur-press) var(--ease-press) calc(var(--i, 0) * var(--stagger)) both;
+}
+@keyframes impression {
+  0%   { opacity: 0; color: color-mix(in srgb, var(--text) 4%, var(--ground)); text-shadow: 0 0 0 transparent, 0 0 0 transparent; }
+  14%  { opacity: 1; color: color-mix(in srgb, var(--text) 4%, var(--ground)); text-shadow: 0 0.035em 0 var(--press-hi), 0 -0.03em 0 var(--press-lo); }
+  34%  { color: color-mix(in srgb, var(--text) 10%, var(--ground)); text-shadow: 0 0.035em 0 var(--press-hi), 0 -0.03em 0 var(--press-lo); }
+  100% { opacity: 1; color: var(--text); text-shadow: 0 0.035em 0 transparent, 0 -0.03em 0 transparent; }
+}
+.reduce-motion .is-pressed .press__line { animation: impression-calm 240ms linear both; }
+@keyframes impression-calm { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .is-pressed .press__line { animation: impression-calm 240ms linear both; }
+}
+
+/* ---------- loading: nothing but the loader until the sheet is ready ---------- */
+.is-loading .hint, .is-loading .ruler, .is-loading .nav { opacity: 0; }
+.nav, .ruler { transition: opacity var(--dur-slow) var(--ease-out); }
+
+/* ---------- drawing on touch: the stage stops scrolling while DRAW is on ---------- */
+html.is-drawing, html.is-drawing body { overscroll-behavior: none; }
+html.is-drawing .stage, html.is-drawing .gl { touch-action: none; }
+
+/* ---------- small furniture ---------- */
+.ruler__lab {
+  position: absolute;
+  right: 16px;
+  transform: translateY(-50%);
+  font-size: var(--fs-micro);
+  letter-spacing: var(--tracking-micro);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  color: var(--text-muted);
+  display: none;
+}
+@media (min-width: 768px) { .ruler__lab { display: block; } }
+.ruler.is-message .ruler__lab { opacity: 0.35; }
+.s14__tools.is-gone { opacity: 0 !important; pointer-events: none !important; visibility: hidden; transition: opacity var(--dur-base) var(--ease-out), visibility 0s linear var(--dur-base); }
+.cmp__t thead th.is-sel { box-shadow: inset 0 1px 0 var(--text); }
+.seg__opt[aria-pressed="true"] { background: var(--button-bg); color: var(--button-fg); }
+.hold.is-holding { border-color: var(--text); }
+
+/* ---------- image slots that have no file yet: a drawn sheet (claim renders, fallback stills) ---------- */
+.claim__img.is-missing, .fb-still img.is-missing { visibility: hidden; }
+.claim__fig.is-drawn, .fb-still.is-drawn { position: relative; }
+.claim__fig.is-drawn::after, .fb-still.is-drawn::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  height: 72%;
+  aspect-ratio: 210 / 297;
+  transform: translate(-50%, -50%) rotate(-2deg);
+  background: var(--color-paper);
+  box-shadow: 0 1px 1px rgba(30, 30, 28, 0.06), 0 16px 28px -16px rgba(30, 30, 28, 0.35);
+}
+.claim--dark .claim__fig.is-drawn::after { box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 18px 32px -14px rgba(0, 0, 0, 0.7); }
+
+/* ---------- the static page (no WebGL, brief 3.20) ---------- */
+.no-webgl .gl, .no-webgl .pencil, .no-webgl .dims { display: none !important; }
+.no-webgl .fallback-line,
+.no-webgl .fb-still { display: block; }
+/* gimmicks that need the sheet show their .fallback line instead */
+.no-webgl .s03__tools, .no-webgl .s03__under, .no-webgl .draw-hint, .no-webgl .tear, .no-webgl .s05__act,
+.no-webgl .loupe, .no-webgl .s07__drop, .no-webgl .s14__tools, .no-webgl .s14__status { display: none !important; }
+.no-webgl .s14__credit { opacity: 1; visibility: visible; top: auto; bottom: calc(var(--hint-h) + 6%); transform: translateX(-50%); }
+.no-webgl .fb-still {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: min(54vw, 640px);
+  aspect-ratio: 16 / 10;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  pointer-events: none;
+}
+.no-webgl .hero .fb-still { top: 58%; width: min(70vw, 760px); }
+.no-webgl .fb-still img { width: 100%; height: 100%; object-fit: contain; }
+.no-webgl .fb-still.is-drawn::after { height: 86%; }
+.no-webgl .fallback-line {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--hint-h) + 9%);
+  width: min(560px, calc(100% - 2 * var(--gutter)));
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+}
+.no-webgl .s10 .fb-still, .no-webgl .s12 .fb-still { opacity: 0.9; }
+@media (max-width: 600px) {
+  .no-webgl .fb-still { width: 84vw; top: 50%; }
+}

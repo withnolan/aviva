@@ -56,7 +56,7 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uHalfThick: { value: 0.00005 }, uDeformEps: { value: 0.0008 },
     uFoldCount: { value: 0 }, uFoldQ: { value: arr4(MAX_FOLDS) }, uFoldA: { value: arr4(MAX_FOLDS) }, uFoldM: { value: arr4(MAX_FOLDS) }, uFoldR: { value: arr4(MAX_FOLDS) },
     uBend: { value: v4() }, uPleat: { value: v4(0.015, 0, 0, 0.05) }, uFlutter: { value: v4(0, 9, 0, 0) }, uCockle: { value: v4(0.00045, 16, 3.7, 0) },
-    uFormP: { value: v4(0, 0, 0.05, 0.37) },
+    uFormP: { value: v4(0, 0, 0.08, 0.37) },
     uEdgeP: { value: v4(1.4, 0.18, 0.1, 0.5) },
     uTransP: { value: v4(0.22, 0.35, 0.3, 0) },
     uWatermarkRect: { value: v4(0, -0.035, 0.034, 0.048) },
@@ -64,15 +64,16 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uOverlay: { value: shared.uBlank.value }, uOverlayP: { value: v4(0, 1, 0, 0) },
     uInkDot: { value: v4(0.072, -0.118, 0.0015, 0) },
     uBleed: { value: v4(0, 0, 0, 8) }, uBleedP: { value: v4(0, 0, 0, 0) },
-    uShow: { value: v4(0, 0, 0.006, 1.2) },
+    uShow: { value: v4(0, 0, 0.006, 1.9) },
     uCrease: { value: arr4(MAX_CREASES) },
     uTear0: { value: v4() }, uTear1: { value: v4() }, uTearFx0: { value: v4(1, 0, 0.0016, 55) }, uTearFx1: { value: v4(1, 0, 0.0016, 55) },
-    uGain: { value: 1 },
+    uGain: { value: 1 }, uFacet: { value: 0.65 },
   };
 }
 
 /* ------------------------------------------------------------------------------------------------ fragment snippets */
 const FRAG_PARS_EXTRA = /* glsl */`
+uniform float uFacet;                                     // crumple: 0 smooth .. 1 faceted shading
 uniform sampler2D uOverlay; uniform vec4 uOverlayP;      // decal in sheet uv (graphite map lines etc.): x opacity, y face
 uniform vec4 uCrease[${MAX_CREASES}];                     // remembered creases: xy rest normal, z offset (m), w strength
 uniform vec4 uBleedP;                                     // x amount, y absorption grade, z -, w -
@@ -155,7 +156,7 @@ if (uShow.x > 0.0) {
     vec2 wuv = (vPaperWorld.xz - uFloorRect.xy) / uFloorRect.zw;
     float lod = clamp(log2(1.0 + max(gap, 0.0) / 0.0004), 0.0, 6.0) + uShow.w;   // seen through fibres: always a little soft
     float ink = textureLod(uFloorPrint, wuv, lod).a;
-    float k = uShow.x * 2.05 * mix(0.8, 1.2, paperForm.r) * contact;          // seen through fibres: cloudy, never printed-on
+    float k = uShow.x * 1.75 * mix(0.72, 1.28, paperForm.r) * contact;        // seen through fibres: cloudy, never printed-on
     alb = mix(alb, uShowTint, clamp(ink * k, 0.0, 1.0));
   }
 }
@@ -169,6 +170,14 @@ roughnessFactor = mix(roughnessFactor, 0.62, paperDot * 0.7);
 
 // normal detail: tooth (30 mm tile), macro fibres, the bevelled cut edge, remembered creases
 const FRAG_NORMAL = /* glsl */`
+#ifdef PAPER_CRUMPLE
+// crumpled paper is flat facets between sharp ridges: lean the smooth (interpolated) normal toward the true face normal
+{
+  vec3 fN = normalize(cross(dFdx(vViewPosition), dFdy(vViewPosition)));
+  fN *= dot(fN, normal) < 0.0 ? -1.0 : 1.0;
+  normal = normalize(mix(normal, fN, uFacet));
+}
+#endif
 if (paperFace != 0.0) {
   mat3 ptbn = paperTBN(-vViewPosition, normal, vRest);
   vec2 tn = (paperTooth.rg * 2.0 - 1.0) * uToothP.y;
@@ -306,7 +315,7 @@ export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.
     patchFragment(shader);
     mat.userData.shader = shader;
   };
-  mat.customProgramCacheKey = () => 'aviva-paper-' + variant + '-v4';
+  mat.customProgramCacheKey = () => 'aviva-paper-' + variant + '-v5';
   return mat;
 }
 

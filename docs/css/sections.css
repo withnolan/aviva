@@ -573,7 +573,7 @@
 .s14__credit .btn .icon { margin-left: 2px; }
 
 /* ======================= s15 · footer ======================= */
-.foot { z-index: var(--z-content); display: flex; align-items: flex-end; }
+.foot { z-index: var(--z-content); display: flex; align-items: flex-end; background: var(--ground); color: var(--text); }   /* a solid charcoal block (decision #24) */
 .foot__in {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 3fr);

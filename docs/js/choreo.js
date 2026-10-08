@@ -9,7 +9,7 @@ import { DEG, A4, STAGE, heroFraming } from './scene.js';
 
 const FLOOR_ANCHOR = new THREE.Vector3(0, 0, 0);
 export const SIZE_SCALE = { A5: Math.SQRT1_2, A4: 1, A3: Math.SQRT2 };
-const STUDIO = new THREE.Color('#ECEBE7'), INK = new THREE.Color('#2E2A8E'), WARM = new THREE.Color('#F2E6D6');
+const STUDIO = new THREE.Color('#ECEBE7'), INK = new THREE.Color('#2E2A8E');
 const LOOPED = new Set(['s04', 's08']);           // sections with time-based motion (sway, breathing)
 
 /** horizontal pitch of the drying-line outputs, in % of the viewport width (brief 2B, design system §10) */
@@ -22,6 +22,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     M: false, reduce: false, time: 0, hero: null, W0: null, loop: false,
     tear: { p1: 0, s1: 0, p2: 0, s2: 0, live: false, fall: 0 }, rel: { plane: 0, fly: 0, fade: 1 },
     out: { off: 0, lineY: 118, spacing: 26, drop: 0, on: false }, s07: 0, sizeChoice: 'A4', heroOn: false,
+    ground: null,                                  // THREE.Color set every frame by the world from grounds.js
   };
 
   /* ------------------------------------------------------------------ the hero fall (world space) */
@@ -51,7 +52,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const C = {
     s01(S, p) {
       const fall = ctx.reduce ? 1 : Math.max(E.intro.fall, clamp(p / 0.45));
-      if (fall < 1) ctx.loop = true;
+      if (fall < 1 && E.intro.started) ctx.loop = true;
       fallPose(fall, _fp);
       S.set('cam.floor', smooth(clamp(fall * 1.12)));
       S.set('cam.pitch', -68 * smooth(clamp(fall * 1.08)));
@@ -447,8 +448,10 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     stage.applyRig();
 
     /* ground colour (the studio, the ink world, the s02 edge-on darkening, the s03 warmth) */
-    bg.copy(STUDIO).lerp(INK, clamp(g('bg.ink')));
-    if (g('bg.warm') > 0.001) bg.lerp(WARM, 0.12 * g('bg.warm'));
+    // the page ground (grounds.js: the section map, cross-faded with the scroll), else the studio / ink fallback
+    if (ctx.ground) bg.copy(ctx.ground); else bg.copy(STUDIO).lerp(INK, clamp(g('bg.ink')));
+    const wm = g('bg.warm');
+    if (wm > 0.001) { bg.r *= 1 + 0.06 * wm; bg.g *= 1 + 0.015 * wm; bg.b *= 1 - 0.05 * wm; }
     if (paper.kind === 'placeholder' && g('bg.dark') > 0.001) bg.multiplyScalar(1 - 0.045 * g('bg.dark'));   // the module's s02 preset does it
     paper.setGround(bg);
 

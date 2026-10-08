@@ -15,7 +15,7 @@ export const STAGE = { anchor: new THREE.Vector3(0, 0.42, 0), sx: 50, sy: 50, di
 export const DMAX = 2.3;
 
 export function createStage(canvas, { tier = 2, onLost, onRestored } = {}) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, stencil: false, powerPreference: 'high-performance' });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: tier > 0, alpha: false, stencil: false, powerPreference: 'high-performance' });
   const maxDpr = [1, 1.5, 2][tier] ?? 2;                    // CLAUDE.md rule 5: 2 desktop, 1.5 mobile
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
   renderer.outputColorSpace = THREE.SRGBColorSpace;

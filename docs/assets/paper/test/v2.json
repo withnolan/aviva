@@ -1,0 +1,45 @@
+{
+  "nx": 31,
+  "ny": 44,
+  "N": 1364,
+  "K": 9,
+  "steps": 1500,
+  "seed": 7,
+  "rawBytes": 62600,
+  "gzBytes": 56010,
+  "maxQuantErrMM": 0.046,
+  "clipped": 0,
+  "finalStretch": {
+    "p50": 0.71,
+    "p99": 7.35,
+    "max": 19.01
+  },
+  "maxStretchDuringPct": 25.75,
+  "finalRadiusMM": 52.4,
+  "creasedHinges": 1951,
+  "hinges": 3797,
+  "keyframesAt": [
+    0,
+    0.168,
+    0.216,
+    0.264,
+    0.306,
+    0.348,
+    0.432,
+    0.726,
+    1
+  ],
+  "params": {
+    "BEND_K": 0.95,
+    "YIELD": 0.1,
+    "SOFTEN": 14,
+    "RC": 0.0035,
+    "ITER": 40,
+    "BEND_EVERY": 3,
+    "HAND_END": 0.42,
+    "SPH0": 0.3,
+    "SPH1": 0.9,
+    "RELAX": 0.08,
+    "R_END": 0.04792648467083221
+  }
+}

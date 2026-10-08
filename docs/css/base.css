@@ -277,3 +277,33 @@ cite { font-style: italic; }
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
+
+/* ---------- the highlighter mark (design system 9.18) and the pencil underline (9.19) ---------- */
+.hl { position: relative; z-index: var(--mark-z, auto); color: var(--mark-ink); background: none; white-space: nowrap; }
+.hl::after {
+  content: ""; position: absolute; z-index: var(--mark-layer, auto); pointer-events: none;
+  inset: 0.1em -0.24em -0.04em -0.2em;
+  background: var(--mark);
+  -webkit-mask: url("../assets/marks/highlighter.svg") 0 0 / 100% 100% no-repeat;
+          mask: url("../assets/marks/highlighter.svg") 0 0 / 100% 100% no-repeat;
+  mix-blend-mode: var(--mark-blend);
+  transform: rotate(-0.7deg);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 620ms var(--ease-in-out);
+}
+.hl--pink::after { background: var(--mark-alt); transform: rotate(0.5deg); }
+.hl.is-drawn::after, .no-js .hl::after { clip-path: inset(0 -1% 0 0); }
+.u-pencil { position: relative; display: inline-block; padding-bottom: 0.55em; }
+.u-pencil::after {
+  content: ""; position: absolute; left: -0.08em; right: -0.2em; bottom: 0; height: 0.36em; pointer-events: none;
+  background: var(--pencil);
+  -webkit-mask: url("../assets/marks/pencil-underline.svg") 0 0 / 100% 100% no-repeat;
+          mask: url("../assets/marks/pencil-underline.svg") 0 0 / 100% 100% no-repeat;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 520ms var(--ease-out) 160ms;
+}
+.u-pencil.is-drawn::after, .no-js .u-pencil::after { clip-path: inset(0 -2% 0 0); }
+.reduce-motion .hl::after, .reduce-motion .u-pencil::after { clip-path: none; transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .hl::after, .u-pencil::after { clip-path: none; transition: none; }
+}

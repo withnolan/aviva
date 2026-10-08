@@ -99,7 +99,7 @@ export async function createPaperSystem(renderer, opts = {}) {
     uGraphite: { value: lin(colors.graphite).multiplyScalar(0.62) },
     uInkColor: { value: lin(colors.ink) }, uInkDeep: { value: lin(colors.inkDeep) },
     uTransTint: { value: new THREE.Color(1.0, 0.9, 0.76) },
-    uTooth: { value: tex.tooth }, uToothP: { value: new THREE.Vector4(0.03, opts.toothStrength ?? 1.3, 0.37, 0.61) },
+    uTooth: { value: tex.tooth }, uToothP: { value: new THREE.Vector4(0.03, opts.toothStrength ?? 0.65, 0.37, 0.61) },
     uMacro: { value: blank }, uMacroP: { value: new THREE.Vector4(0.006, 0.9, 0, 1024) },
     uFormation: { value: tex.formation },
     uWatermark: { value: tex.watermark },
@@ -199,9 +199,9 @@ export async function createPaperSystem(renderer, opts = {}) {
       return tex.fibreGeo;
     },
     /** the baked crumple (docs/assets/paper/crumple.bin), loaded on first use */
-    loadCrumple() {
+    loadCrumple(url = opts.crumpleUrl) {
       if (crumplePromise) return crumplePromise;
-      crumplePromise = import('./crumple.js').then(async (m) => { crumpleSys = await m.loadCrumple(sys, opts.crumpleUrl); sys.crumple = crumpleSys; return crumpleSys ? crumpleSys.data : null; })
+      crumplePromise = import('./crumple.js').then(async (m) => { crumpleSys = await m.loadCrumple(sys, url); sys.crumple = crumpleSys; return crumpleSys ? crumpleSys.data : null; })
         .catch((e) => { console.warn('[paper] no baked crumple:', e.message); return null; });
       return crumplePromise;
     },

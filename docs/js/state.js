@@ -137,7 +137,7 @@ export class Springs {
       if (this.gens[X] !== undefined && this.gens[X] !== gv) this.snap(X + '.');
       this.gens[X] = gv;
     }
-    const h = Math.min(dt, 0.05);
+    const h = Math.min(dt, 0.25);                 // slow frames still advance in real time (sub-stepped below)
     const sub = Math.max(1, Math.ceil(h / (1 / 120)));
     const k = h / sub;
     for (let i = 0; i < T.length; i++) {

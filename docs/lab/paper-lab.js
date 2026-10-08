@@ -37,8 +37,8 @@ const STATES = {
   halved: 'cam=0,25,0.9&pos=0,0.45,0&rot=-30,0,0&halving=2&light=s05',
   fan: 'cam=0,8,0.9&pos=0,0.5,0&rot=0,0,180&fan=1&light=card6',
   pleat: 'cam=20,25,1.1&pos=0,0.5,0&rot=-30,0,0&fan=0.5&light=card6',
-  crumple: 'cam=20,25,0.55&pos=0,0.4,0&crumple=1&light=studio',
-  crumpling: 'cam=20,25,0.75&pos=0,0.4,0&crumple=0.55&light=studio',
+  crumple: 'cam=25,24,0.42&target=0,0.04,0&pos=0,0.037,0&crumple=1&light=studio',
+  crumpling: 'cam=25,24,0.7&target=0,0.12,0&pos=0,0.12,0&crumple=0.55&light=studio',
   tear: 'cam=0,0,1.22&pos=0,0.5,0&tear=0.6,0,0&light=s05',
   torn: 'cam=0,0,1.22&pos=0,0.5,0&tear=1,0,0&sep=1&light=s05',
   quarters: 'cam=0,0,1.22&pos=0,0.5,0&tear=1,1,1&sep=1&light=s05',
@@ -130,7 +130,7 @@ async function apply(search) {
   const bleedT = num('bleed', 0);
   if (num('macro', 0) > 0 || bleedT > 0) paper.ensureMacro();
   if (bleedT > 0) paper.ensureFibreGeo();
-  paper.shared.uToothP.value.y = num('tooth', 1.3);
+  paper.shared.uToothP.value.y = num('tooth', 0.65);
   // look-dev: regenerate the tiles (tgen=low,felt,fibre,strength  fgen=flocMM,contrast)
   const tgen = str('tgen', ''), fgen = str('fgen', '');
   if (tgen !== (apply._tgen || '') || fgen !== (apply._fgen || '')) {
@@ -139,7 +139,8 @@ async function apply(search) {
       formation: f ? { flocMM: f[0], contrast: f[1] } : (apply._fgen ? {} : null) });
     apply._tgen = tgen; apply._fgen = fgen;
   }
-  if (P.has('mottle')) sheet.uniforms.uFormP.value.z = num('mottle'); else sheet.uniforms.uFormP.value.z = 0.05;
+  if (P.has('mottle')) sheet.uniforms.uFormP.value.z = num('mottle'); else sheet.uniforms.uFormP.value.z = 0.08;
+  sheet.uniforms.uFacet.value = num('facet', 0.65);
   if (P.has('edge')) { const [bw, bs, wb] = vec('edge'); sheet.uniforms.uEdgeP.value.set(bw, bs, wb, 0.5); } else sheet.uniforms.uEdgeP.value.set(1.4, 0.18, 0.1, 0.5);
   sheet.reset();
   sheet.set({
@@ -190,7 +191,7 @@ async function apply(search) {
   paper.lights.aim(new THREE.Vector3(...vec('aim', vec('pos', [0, 0.5, 0]))));
 
   // render: a couple of frames (contact shadow, async crumple / textures)
-  if (num('crumple', 0) > 0) { await paper.loadCrumple(); sheet.set({ crumple: num('crumple', 0) }); }
+  if (num('crumple', 0) > 0) { await paper.loadCrumple(P.has('cfile') ? new URL(str('cfile'), location.href).href : undefined); sheet.set({ crumple: num('crumple', 0) }); }
   for (let i = 0; i < 3; i++) { frame(); await new Promise((r) => requestAnimationFrame(r)); }
   const info = renderer.info;
   window.__info = { calls: info.render.calls, tris: info.render.triangles, geometries: info.memory.geometries, textures: info.memory.textures, programs: info.programs ? info.programs.length : 0, genMs: Math.round(genMs), sysMs: Math.round(paper.genMs), seg: sheet.segments, px: +(sheet.pixelSize * 1000).toFixed(3) };
