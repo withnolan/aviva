@@ -33,16 +33,17 @@
     // 2b. keep only the soft hyphens that are used: Chromium writes every U+00AD into the PDF text layer, which spoils
     // search and copy. Removing a break opportunity that a line did not take cannot change the line breaks.
     let kept = 0, dropped = 0;
+    const keepAll = /[?&]keephy\b/.test(location.search);
     const rectOf = (node, i) => { const rg = document.createRange(); rg.setStart(node, i); rg.setEnd(node, i + 1); const rs = rg.getClientRects(); return rs.length ? rs[0] : null; };
     const walker = document.createTreeWalker(document.querySelector('.paper'), NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.data.includes('­') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP) });
     const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
-    for (const node of nodes) {
+    for (const node of keepAll ? [] : nodes) {
       const marks = []; for (let i = node.data.indexOf('­'); i !== -1; i = node.data.indexOf('­', i + 1)) marks.push(i);
       const remove = [];
       for (const i of marks) {
         if (i === 0 || i === node.data.length - 1) { kept++; continue; }
         const a = rectOf(node, i - 1), b = rectOf(node, i + 1);
-        if (a && b && b.top >= a.bottom - 1) kept++; else remove.push(i);   // the next letter starts a new line: in use
+        if (a && b && b.top - a.top > 0.5 * a.height) kept++; else remove.push(i);   // the next letter starts a lower line: in use
       }
       if (remove.length) { let s = node.data; for (const i of remove.reverse()) s = s.slice(0, i) + s.slice(i + 1); node.data = s; dropped += remove.length; }
     }
