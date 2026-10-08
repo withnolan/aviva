@@ -52,7 +52,7 @@ export class Sheet {
     this._folds = [];
     this._dirtyFolds = true;
     this.pixelSize = 0.0005; this.halfThick = 0.00005;
-    this.crumpleMesh = null; this._crumpleLoading = null;
+    this.crumpleMesh = null; this._crumpleLoading = null; this.crumpleSeed = 5;
     this.paint = null;
   }
 
@@ -93,7 +93,7 @@ export class Sheet {
       if (k === 'bend' && typeof s.bend === 'object' && s.bend) { S.bend = s.bend.k ?? 0; if (s.bend.axis !== undefined) S.bendAxis = s.bend.axis; if (s.bend.twist !== undefined) S.twist = s.bend.twist; continue; }
       S[k] = s[k];
     }
-    if (['folds', 'plane', 'halving', 'sixfold', 'dogEar', 'dogEarCorner', 'peel', 'curl'].some((k) => k in s)) this._dirtyFolds = true;
+    if (['folds', 'plane', 'halving', 'sixfold', 'dogEar', 'dogEarCorner', 'peel', 'curl', 'crumple', 'boat'].some((k) => k in s)) this._dirtyFolds = true;
     this._apply(s);
     return this;
   }
@@ -123,7 +123,7 @@ export class Sheet {
       if (c) { const n = new THREE.Vector2(...c.n).normalize(); U.uCrease.value[i].set(n.x, n.y, c.d ?? 0, c.strength ?? 1); } else U.uCrease.value[i].w = 0;
     }
     U.uGain.value = S.gain;
-    for (const p of this.pieces) p.object.visible = S.visible && !(S.crumple > 0 && this.crumpleMesh);
+    for (const p of this.pieces) p.object.visible = S.visible && !(S.crumple >= F.CRUMPLE_SWAP && this.crumpleMesh);
     if ('tear' in s) this._applyTear(S.tear);
     if ('crumple' in s || 'visible' in s) this._applyCrumple();
   }
@@ -156,17 +156,20 @@ export class Sheet {
     }
   }
 
+  // crumple: 0 < t < CRUMPLE_SWAP the slab folds itself (folds.crumpleFolds); from CRUMPLE_SWAP the baked crush
+  // (crumple.bin, which starts from exactly that packet) takes over and ends as the ball at t = 1.
   async _applyCrumple() {
-    const t = this.state.crumple;
-    if (t > 0 && !this.crumpleMesh && !this._crumpleLoading) {
-      this._crumpleLoading = this.sys.loadCrumple().then((data) => { if (data) this._buildCrumple(data); this._crumpleLoading = null; this._applyCrumple(); }).catch((e) => { console.warn('[paper] crumple', e); this._crumpleLoading = null; });
-      return;
+    const t = this.state.crumple, SW = F.CRUMPLE_SWAP;
+    if (t > 0 && !this.crumpleMesh && !this._crumpleLoading && !this._crumpleFailed) {
+      this._crumpleLoading = this.sys.loadCrumple().then((data) => { if (data) this._buildCrumple(data); else this._crumpleFailed = true; this._crumpleLoading = null; this._dirtyFolds = true; this._applyCrumple(); })
+        .catch((e) => { console.warn('[paper] crumple', e); this._crumpleFailed = true; this._crumpleLoading = null; });
     }
+    const baked = !!this.crumpleMesh && t >= SW;
     if (this.crumpleMesh) {
-      this.crumpleMesh.visible = t > 0 && this.state.visible;
-      for (const p of this.pieces) p.object.visible = this.state.visible && !(t > 0);
-      if (t > 0) this.sys.crumple.setProgress(this.crumpleMesh, t);
+      this.crumpleMesh.visible = baked && this.state.visible;
+      if (baked) this.sys.crumple.setProgress(this.crumpleMesh, (t - SW) / (1 - SW));
     }
+    for (const p of this.pieces) p.object.visible = this.state.visible && !baked;
   }
   _buildCrumple(data) {
     const m = this.sys.crumple.createMesh(data, this.uniforms, this.contact ? this.sys.contact : null);
@@ -190,6 +193,8 @@ export class Sheet {
       else out.push(...F.cornerCurl(c.t ?? 1, { corner: c.corner || 'tr', size: c.size ?? 0.06, r: c.r ?? 0.015, angle: c.angle ?? 0.44, taper: c.taper ?? 0, toward: c.toward ?? 1, sheet: size }));
     }
     if (S.peel > 0) out.push(...F.peel(S.peel, { sheet: size }));
+    // crumple phase 1 (below CRUMPLE_SWAP, or until the baked crush has loaded): the sheet folds itself into a packet
+    if (S.crumple > 0 && (S.crumple < F.CRUMPLE_SWAP || !this.crumpleMesh)) out.push(...F.crumpleFolds(Math.min(1, S.crumple / F.CRUMPLE_SWAP), { sheet: size, seed: this.crumpleSeed }));
     this._folds = out.slice(0, MAX_FOLDS);
     this._dirtyFolds = false;
   }

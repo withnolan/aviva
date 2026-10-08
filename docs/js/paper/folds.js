@@ -113,3 +113,34 @@ export function fan(t = 1, { period = 0.015, gamma = 0.62, open = 3.4, pivot = 0
   const e = ease(t);
   return { period, gamma: gamma * Math.min(1, e * 1.6), open: open * ease((t - 0.35) / 0.65), pivot };
 }
+
+/* ------------------------------------------------------------------------------------------------ crumpling, phase 1 */
+function mulberry(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const win = (t, a, b) => ease((t - a) / (b - a));
+/**
+ * The first phase of a crumple (sheet.set({ crumple }) uses it below CRUMPLE_SWAP): a hand closing on the sheet.
+ * Two broad bends cup it, then seven creases fold its corners and edges inward over each other (valley and mountain,
+ * 120-165 deg, r 2.5-7 mm), staggered so several flaps move at once. Paper never stretches here: every fold is the
+ * hinge primitive, so the creases are sharp and the facets stay flat. The baked crush (crumple.bin) starts from
+ * exactly this packet (work/scripts/crumple/bake.mjs --init folds), so the hand-over is seamless. t in 0..1.
+ */
+export function crumpleFolds(t = 1, { sheet = A4, seed = 5 } = {}) {
+  const rnd = mulberry(seed * 7717 + 1), W = sheet.w, H = sheet.h, f = [];
+  const R = (a, b) => a + (b - a) * rnd();
+  // 1, 2: broad bends that cup the sheet (the palm closing)
+  f.push({ ...fold2D({ p: [R(-0.01, 0.01), R(-0.02, 0.02)], dir: [R(0.8, 1), R(-0.35, 0.35)], side: [0, 1], toward: 1, angle: R(1.2, 1.5), radius: 0.03, minRadius: false }), w: [0.0, 0.42] });
+  f.push({ ...fold2D({ p: [R(-0.01, 0.01), 0], dir: [R(-0.3, 0.3), 1], side: [1, 0], toward: 1, angle: R(0.9, 1.2), radius: 0.022, minRadius: false }), w: [0.05, 0.5] });
+  // 3..9: creases folding corners and edges inward, alternating sides
+  const targets = [[1, 1], [-1, -1], [-1, 1], [1, -1], [0, 1], [1, 0], [0, -1]];
+  targets.forEach(([cx, cy], i) => {
+    const cut = R(0.28, 0.48);                                  // how much of the half-width / half-height is folded in
+    const px = cx * W / 2 * (1 - cut * (cx && cy ? 1 : 0.9)), py = cy * H / 2 * (1 - cut * (cx && cy ? 1 : 0.9));
+    const along = cx && cy ? [cx, -cy] : (cx ? [R(-0.25, 0.25), 1] : [1, R(-0.25, 0.25)]);
+    const jit = R(-0.35, 0.35), d = [along[0] + jit * along[1], along[1] - jit * along[0]];
+    const toward = i % 2 ? -1 : 1, t0 = 0.12 + i * 0.075;
+    f.push({ ...fold2D({ p: [px, py], dir: d, side: [cx || R(-0.2, 0.2), cy || R(-0.2, 0.2)], toward, angle: R(2.1, 2.85), radius: R(0.0025, 0.007) }), w: [t0, Math.min(1, t0 + R(0.28, 0.4))] });
+  });
+  return f.map((x) => ({ ...x, t: win(t, x.w[0], x.w[1]) }));
+}
+/** progress at which sheet.set({ crumple }) hands over from the folding slab to the baked crush */
+export const CRUMPLE_SWAP = 0.4;

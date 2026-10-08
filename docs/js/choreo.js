@@ -250,7 +250,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       const fade = R ? Math.min(Rl.fade, 1 - seg(p, 2.2, 2.45)) : 1;
       Object.assign(ctx.rel, { plane, fly, fade });
       S.many('A.', { on: fly < 0.995 && fade > 0.01 ? 1 : 0, op: fade,
-        x: 50 + 78 * fly * fly, y: kf(p, [[0, -32], [0.6, M ? 46 : 48, ease.out]]) - 72 * fly ** 1.3, size: lerp(M ? 34 : 46, M ? 18 : 24, fly),
+        x: 50 + 78 * fly * fly, y: kf(p, [[0, -32], [0.6, M ? 47 : 52, ease.out]]) - 72 * fly ** 1.3, size: lerp(M ? 32 : 42, M ? 18 : 24, fly),
         rx: 14 * fly, ry: 180, rz: -52 * smooth(clamp(plane / 7)) * (1 - 0.3 * fly) - 18 * fly,
         plane, paint: 1, dot: 1, creaseDog: E.cues.dogEarSeen ? 1 : 0 });
       S.setEnum('A.paintFace', -1);

@@ -31,6 +31,7 @@
 }
 html.is-dark .grain { mix-blend-mode: soft-light; opacity: calc(var(--grain-opacity) * 1.4); }
 .reduce-motion .grain { opacity: 0; }
+.tier-0 .grain { display: none; }   /* the lowest tier (and software WebGL): a full-screen blend layer costs more than it adds */
 
 /* ---------- furniture wrapper: recoloured as a whole when the screen ground is ink ---------- */
 .furniture { position: relative; z-index: var(--z-nav); color: var(--text); }

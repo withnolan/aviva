@@ -12,3 +12,43 @@ step 3500/6000 prog 0.58 rms 47.4mm Rs 78 stretch p50 0.43% p99 4.43% max 13.9% 
 step 4000/6000 prog 0.67 rms 44.1mm Rs 63 stretch p50 0.49% p99 4.69% max 14.0%  pairs 921 creased 2630  163s
 step 4500/6000 prog 0.75 rms 38.4mm Rs 50 stretch p50 0.66% p99 5.92% max 19.0%  pairs 1870 creased 2887  183s
 step 5000/6000 prog 0.83 rms 33.0mm Rs 41 stretch p50 0.90% p99 7.55% max 21.6%  pairs 3734 creased 3520  201s
+step 5500/6000 prog 0.92 rms 30.9mm Rs 39 stretch p50 1.00% p99 8.31% max 22.0%  pairs 4996 creased 4322  228s
+sim done in 248.8 s
+keyframes at sim progress 0.000 0.031 0.062 0.099 0.148 0.222 0.321 0.499 0.752 1.000
+AO done in 6.9 s
+{
+  nx: 57,
+  ny: 81,
+  N: 4617,
+  K: 10,
+  steps: 6000,
+  seed: 7,
+  rawBytes: 233312,
+  gzBytes: 171827,
+  maxQuantErrMM: 0.025,
+  clipped: 0,
+  finalStretch: { p50: 0.7, p99: 6.17, max: 21.9 },
+  maxStretchDuringPct: 25.61,
+  finalRadiusMM: 41.9,
+  creasedHinges: 4291,
+  hinges: 13304,
+  keyframesAt: [
+        0, 0.031, 0.062,
+    0.099, 0.148, 0.222,
+    0.321, 0.499, 0.752,
+        1
+  ],
+  params: {
+    BEND_K: 0.85,
+    YIELD: 0.3,
+    SOFTEN: 7,
+    RC: 0.001875,
+    ITER: 24,
+    BEND_EVERY: 3,
+    HAND_END: 0.42,
+    SPH0: 0.3,
+    SPH1: 0.9,
+    RELAX: 0.08,
+    R_END: 0.03854996349770953
+  }
+}

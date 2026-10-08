@@ -131,6 +131,7 @@ async function boot() {
   const glInfo = FLAGS.nogl ? null : webgl2();
   if (glInfo) {
     aviva.gl = { ...glInfo, tier: deviceTier(glInfo) };
+    root.classList.add('tier-' + aviva.gl.tier);
     log('webgl:', glInfo.renderer, 'tier', aviva.gl.tier);
     try {
       const { createWorld } = await timeout(import('./world.js'), 15000, 'loading three.js');
@@ -159,7 +160,7 @@ async function boot() {
   let intro = null, s07seen = false;
   const prof = FLAGS.debug ? { n: 0, t: [0, 0, 0, 0, 0] } : null;
   function frame(time, deltaMs) {
-    const dt = Math.min(0.1, Math.max(0, deltaMs / 1000));
+    const dt = Math.min(0.5, Math.max(0, deltaMs / 1000));
     E.time += dt;
     const t0 = prof ? performance.now() : 0;
     scroll.update();
