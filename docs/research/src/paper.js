@@ -34,7 +34,10 @@
     // search and copy. Removing a break opportunity that a line did not take cannot change the line breaks.
     let kept = 0, dropped = 0;
     const keepAll = /[?&]keephy\b/.test(location.search);
-    const rectOf = (node, i) => { const rg = document.createRange(); rg.setStart(node, i); rg.setEnd(node, i + 1); const rs = rg.getClientRects(); return rs.length ? rs[0] : null; };
+    // does the line break at node.data[i]? Chromium paints the hyphen as part of the next letter's box, so test whether a
+    // range from the letter before to the letter after spans two lines.
+    const breaksAt = (node, i) => { const rg = document.createRange(); rg.setStart(node, i - 1); rg.setEnd(node, i + 2);
+      const rs = [...rg.getClientRects()]; return rs.length > 1 && rs[rs.length - 1].top - rs[0].top > 0.5 * rs[0].height; };
     const walker = document.createTreeWalker(document.querySelector('.paper'), NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.data.includes('­') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP) });
     const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
     for (const node of keepAll ? [] : nodes) {
@@ -42,8 +45,7 @@
       const remove = [];
       for (const i of marks) {
         if (i === 0 || i === node.data.length - 1) { kept++; continue; }
-        const a = rectOf(node, i - 1), b = rectOf(node, i + 1);
-        if (a && b && b.top - a.top > 0.5 * a.height) kept++; else remove.push(i);   // the next letter starts a lower line: in use
+        if (breaksAt(node, i)) kept++; else remove.push(i);
       }
       if (remove.length) { let s = node.data; for (const i of remove.reverse()) s = s.slice(0, i) + s.slice(i + 1); node.data = s; dropped += remove.length; }
     }

@@ -157,19 +157,29 @@ async function boot() {
 
   // one clock for everything (tech research §4.3): lenis.raf is the ticker's first callback (scroll.js), this the second
   let intro = null, s07seen = false;
+  const prof = FLAGS.debug ? { n: 0, t: [0, 0, 0, 0, 0] } : null;
   function frame(time, deltaMs) {
     const dt = Math.min(0.1, Math.max(0, deltaMs / 1000));
     E.time += dt;
+    const t0 = prof ? performance.now() : 0;
     scroll.update();
     const g = grounds.frame(scroll.Y);
+    const t1 = prof ? performance.now() : 0;
     ix.frame(dt);
+    const t2 = prof ? performance.now() : 0;
     ui.frame();
+    const t3 = prof ? performance.now() : 0;
     if (intro && scroll.Y > 0.02) { intro.firstScroll(); intro = null; }
     if (world) {
       const s07 = scroll.byKey('s07');
       if (s07 && s07.w > 0.5 && s07.p > 4.15 && !s07seen) { s07seen = true; world.showDotLabel(2600); }
       if (s07 && s07.p < 3.9) s07seen = false;
       world.frame(dt, scroll, g);
+    }
+    if (prof) {
+      const t4 = performance.now(), T = prof.t;
+      T[0] += t1 - t0; T[1] += t2 - t1; T[2] += t3 - t2; T[3] += t4 - t3; prof.n++;
+      if (prof.n % 30 === 0) { console.log(`[aviva] frame ms (avg of 30): scroll+grounds ${(T[0] / 30).toFixed(1)} · interactions ${(T[1] / 30).toFixed(1)} · ui ${(T[2] / 30).toFixed(1)} · world ${(T[3] / 30).toFixed(1)}`); T.fill(0); }
     }
   }
   gsap.ticker.add(frame);
