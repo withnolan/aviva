@@ -8,9 +8,12 @@
 import { E, tween, timeline } from './events.js';
 import { copy, sanitise } from './copy.js';
 import { clamp, damp, seg } from './util.js';
+import { setVar } from './ui.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+/** set `hidden` only when it changes (an unchanged write still creates a mutation and a style recalc) */
+const setHidden = (el, v) => { if (el && el.hidden !== v) el.hidden = v; };
 
 export function createInteractions({ scroll, ui, world = null, reduce = false }) {
   const root = document.documentElement;
@@ -407,22 +410,22 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
       if (showLine && tearLine) {
         T.line = world.tearLine(stage);
         if (T.line) {
-          tearLine.style.setProperty('--x', T.line.x.toFixed(1)); tearLine.style.setProperty('--y', T.line.y.toFixed(1));
-          tearLine.style.setProperty('--len', T.line.len.toFixed(1)); tearLine.style.setProperty('--rot', T.line.rot.toFixed(4));
-          tearLine.style.setProperty('--torn', (stage === 1 ? t.p1 : stage === 2 ? t.p2 : 0).toFixed(3));
+          setVar(tearLine, '--x', T.line.x.toFixed(1)); setVar(tearLine, '--y', T.line.y.toFixed(1));
+          setVar(tearLine, '--len', T.line.len.toFixed(1)); setVar(tearLine, '--rot', T.line.rot.toFixed(4));
+          setVar(tearLine, '--torn', (stage === 1 ? t.p1 : stage === 2 ? t.p2 : 0).toFixed(3));
         }
-        if (instr1) instr1.hidden = stage !== 1;
-        if (instr2) instr2.hidden = stage !== 2;
+        setHidden(instr1, stage !== 1);
+        setHidden(instr2, stage !== 2);
       }
-      if (hold) hold.style.setProperty('--hold', (stage === 1 ? t.p1 : stage === 2 ? t.p2 : stage === 3 ? 1 : 0).toFixed(3));
+      setVar(hold, '--hold', (stage === 1 ? t.p1 : stage === 2 ? t.p2 : stage === 3 ? 1 : 0).toFixed(3));
       const inBeat = s05.w > 0.5 && s05.p >= 1.6 && s05.p < 4.4;
-      if (r1) r1.hidden = !(inBeat && t.s1 > 0.9 && t.s2 <= 0.9);
-      if (r2) r2.hidden = !(inBeat && t.s2 > 0.9 && !T.refused);
-      if (refuse) refuse.hidden = !(inBeat && T.refused);
+      setHidden(r1, !(inBeat && t.s1 > 0.9 && t.s2 <= 0.9));
+      setHidden(r2, !(inBeat && t.s2 > 0.9 && !T.refused));
+      setHidden(refuse, !(inBeat && T.refused));
       if (s05.p >= 4.75 && s05.w > 0.5 && t.p1 > 0 && !E.tear.counted) { E.tear.counted = true; ui.consume(world.heroAnchor()); }
     }
     // s07: the magnifier follows its value across the content width
-    if (loupe && s07 && s07.w > 0) loupe.style.setProperty('--lx', (40 + E.loupe.x * (innerWidth - 80)).toFixed(1));
+    if (loupe && s07 && s07.w > 0) setVar(loupe, '--lx', (40 + E.loupe.x * (innerWidth - 80)).toFixed(1));
     // s10: no vote is also a preference
     if (s10 && s10.w > 0.5 && s10.p > 2.2 && !E.arena.voted && res.none && res.none.hidden) { showRes('none'); if (lb) lb.hidden = false; }
     // s14: the release (button or scroll), the variants
@@ -432,7 +435,7 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
       const drawn = !!(paint() && paint().hasInk);
       if (drawn !== D.drawnVariant) {
         D.drawnVariant = drawn;
-        for (const el of $$('#s14-release [data-variant]')) el.hidden = el.dataset.variant !== (drawn ? 'drawn' : 'empty');
+        for (const el of $$('#s14-release [data-variant]')) setHidden(el, el.dataset.variant !== (drawn ? 'drawn' : 'empty'));
       }
     }
   }

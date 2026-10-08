@@ -23,6 +23,10 @@
 .js .tear.is-off { opacity: 0 !important; }
 .js .tear.is-off .tear__line { pointer-events: none !important; }
 
+/* reduced motion: the calm version reveals text and furniture almost at once (brief 3.19) */
+.reduce-motion [data-at], .reduce-motion [data-reveal], .reduce-motion [data-intro],
+.reduce-motion .hero__l1, .reduce-motion .hero__l2, .reduce-motion .nav, .reduce-motion .ruler, .reduce-motion .hint { transition-duration: 160ms !important; }
+
 /* the hero lines wait for the sheet to land (main.js heroIntro) */
 .js .hero__l1, .js .hero__l2 { opacity: 0; transition: opacity var(--dur-base) var(--ease-out); }
 .js .hero__l1.is-in, .js .hero__l2.is-in { opacity: 1; }

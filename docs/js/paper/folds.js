@@ -173,3 +173,49 @@ export function foldPoint(rest, folds, out = [0, 0, 0]) {
   }
   out[0] = px; out[1] = py; out[2] = pz; return out;
 }
+
+/* ------------------------------------------------------------------------------------------------ folded letters (hero) */
+const _qa = new THREE.Quaternion(), _m4 = new THREE.Matrix4(), _vb = new THREE.Vector3(), _vc = new THREE.Vector3(), _vw = new THREE.Vector3();
+/**
+ * The hero letters (decision #31): AVIVA spelled by five folded sheets standing on the studio floor.
+ *   A  a tent: the sheet folded in half across its length (mountain), the halves ~55 deg apart, crease on top
+ *   V  a trough: the same fold as a valley, resting on its crease, halves rising
+ *   I  the same valley closed flat (178 deg), standing on its crease, its end edge toward the camera: one hairline
+ * t = 0 is the flat sheet lying face up on the floor; t = 1 is the letter. Every t is a physically standing pose
+ * (the sheet never leaves the floor while it folds or unfolds), so the hero can unfold the letters and slide them
+ * together into one flat A4 by animating t and the floor position only.
+ * The letter's crease runs along `yaw` (default PI/2: toward the camera, the end-on view that spells the letter).
+ * @returns {{ folds, quaternion: THREE.Quaternion, lift: number, height: number, width: number }}
+ *   apply: sheet.set({ folds }); sheet.object.quaternion.copy(quaternion); sheet.object.position.set(x, floorY + lift, z)
+ */
+export function letterPose(letter = 'A', t = 1, { sheet = A4, apex = THREE.MathUtils.degToRad(55), yaw = Math.PI / 2, radius = 0.0006 } = {}) {
+  const L = String(letter).toUpperCase(), mountain = L === 'A';
+  const full = L === 'I' ? THREE.MathUtils.degToRad(178) : Math.PI - apex;
+  const th = full * ease(t);
+  const f = fold2D({ p: [0, 0], dir: [1, 0], side: [0, 1], toward: mountain ? -1 : 1, angle: Math.PI, radius });
+  f.a.w = (mountain ? -1 : 1) * Math.PI; f.t = th / Math.PI;               // one crease across the middle (y = 0)
+  // the two halves' directions from the crease (sheet frame) and their bisector: it points down (A) or up (V, I)
+  const s2 = Math.sin(th), c2 = Math.cos(th);
+  _vb.set(0, c2 - 1, mountain ? -s2 : s2);
+  if (_vb.lengthSq() < 1e-10) _vb.set(0, 0, mountain ? -1 : 1); else _vb.normalize();
+  const down = mountain;                                                   // the A's halves go down from the crease
+  // basis: crease axis a = sheet +x -> world X (then yaw); bisector -> world -Y (A) or +Y (V, I)
+  const ax = new THREE.Vector3(1, 0, 0), bw = new THREE.Vector3(0, down ? -1 : 1, 0);
+  _vc.crossVectors(ax, _vb);                                               // sheet-frame third axis
+  const wc = new THREE.Vector3().crossVectors(new THREE.Vector3(1, 0, 0), bw);
+  const S = new THREE.Matrix4().makeBasis(ax, _vb, _vc), Wm = new THREE.Matrix4().makeBasis(new THREE.Vector3(1, 0, 0), bw, wc);
+  const q = new THREE.Quaternion().setFromRotationMatrix(_m4.copy(Wm).multiply(S.clone().transpose()));
+  q.premultiply(_qa.setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw));
+  // lift: the lowest point (outer edges of the tent, the crease arc of the trough) touches the floor
+  const folds = [f], o = [0, 0, 0];
+  let minY = Infinity, maxY = -Infinity;
+  for (const x of [-sheet.w / 2, sheet.w / 2]) for (const y of [-sheet.h / 2, -sheet.h / 4, -0.002, -0.001, 0, 0.0005, 0.001, 0.002, sheet.h / 4, sheet.h / 2]) {
+    foldPoint([x, y], folds, o); _vw.set(o[0], o[1], o[2]).applyQuaternion(q);
+    minY = Math.min(minY, _vw.y); maxY = Math.max(maxY, _vw.y);
+  }
+  const lift = -minY + 0.00008;
+  return { folds, quaternion: q, lift, height: maxY - minY, width: L === 'I' ? 0.0002 : 2 * (sheet.h / 2) * Math.sin(th / 2) };
+}
+export const letterA = (t = 1, o) => letterPose('A', t, o);
+export const letterV = (t = 1, o) => letterPose('V', t, o);
+export const letterI = (t = 1, o) => letterPose('I', t, o);

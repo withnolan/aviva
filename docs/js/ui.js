@@ -10,6 +10,13 @@ import { clamp, seg, smoothstep, ease } from './util.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+/** write a custom property only when its value changes (an unchanged write still invalidates style) */
+export function setVar(el, name, value) {
+  if (!el) return;
+  const c = el.__vars || (el.__vars = {});
+  if (c[name] === value) return;
+  c[name] = value; el.style.setProperty(name, value);
+}
 
 /* ------------------------------------------------------------------ credit (decision #21: one place) */
 export function applyCredit() {
@@ -288,10 +295,10 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
     setNav(NAV_GROUP[cur.key] ?? 0);
     // ruler
     const pr = S.progress;
-    if (marker) marker.style.setProperty('--ruler-y', (pr * rulerH).toFixed(1));
-    if (pr > 0.997) { reachedEnd = true; setReadout(copy('ruler.end')); ruler && ruler.classList.add('is-message'); }
-    else if (reachedEnd && pr < 0.003) { setReadout(copy('ruler.top')); ruler && ruler.classList.add('is-message'); }
-    else { setReadout(copy('ruler.readout', { n: Math.round(pr * 297) })); ruler && ruler.classList.remove('is-message'); }
+    setVar(marker, '--ruler-y', (pr * rulerH).toFixed(1));
+    if (pr > 0.997) { reachedEnd = true; setReadout(copy('ruler.end')); ruler && ruler.classList.toggle('is-message', true); }
+    else if (reachedEnd && pr < 0.003) { setReadout(copy('ruler.top')); ruler && ruler.classList.toggle('is-message', true); }
+    else { setReadout(copy('ruler.readout', { n: Math.round(pr * 297) })); ruler && ruler.classList.toggle('is-message', false); }
     if (marker && grounds) {
       const k = grounds.keyUnder(Y, (pr * rulerH + ruler.offsetTop) / S.vh);
       if (k !== marker.__g) { marker.__g = k; if (k) marker.setAttribute('data-ground', k); else marker.removeAttribute('data-ground'); }
@@ -319,9 +326,9 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
       outputs.forEach((el, i) => {
         const x = (i - off) * spacing;
         const op = (1 - smoothstep(38, 52, Math.abs(x))) * (i === 7 ? 1 - seg(p, 7.55, 7.75) : 1);
-        el.style.setProperty('--ox', (x / 100 * vw).toFixed(1));
-        el.style.setProperty('--oy', ((Math.min(lineY, 18) - 18) / 100 * vh).toFixed(1) + 'px');
-        el.style.setProperty('--oo', op.toFixed(3));
+        setVar(el, '--ox', (x / 100 * vw).toFixed(1));
+        setVar(el, '--oy', ((Math.min(lineY, 18) - 18) / 100 * vh).toFixed(1) + 'px');
+        setVar(el, '--oo', op.toFixed(3));
       });
     }
     if (near(s06)) {
@@ -345,16 +352,14 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
       if (v > 0.9) E.cues.dogEarSeen = true;
     }
     if (near(s11) && claims) {
-      claims.style.setProperty('--track', (seg(s11.p, 0.8, 6.4, ease.linear) * claimsMax).toFixed(1));
-      if (plate) plate.style.setProperty('--plate', (1 - seg(s11.p, 0.06, 0.45)).toFixed(3));
+      setVar(claims, '--track', (seg(s11.p, 0.8, 6.4, ease.linear) * claimsMax).toFixed(1));
+      setVar(plate, '--plate', (1 - seg(s11.p, 0.06, 0.45)).toFixed(3));
     }
     if (near(s12)) {
       const p = s12.p;
-      if (s12col) {
-        s12col.style.setProperty('--colY', (-seg(p, 2.3, 2.9) * vh * 0.22).toFixed(1));
-        s12col.style.setProperty('--colO', (1 - seg(p, 2.3, 2.75)).toFixed(3));
-      }
-      if (s12cmp) s12cmp.style.setProperty('--cmpY', (-seg(p, 2.3, 3.0) * vh * 0.8).toFixed(1));
+      setVar(s12col, '--colY', (-seg(p, 2.3, 2.9) * vh * 0.22).toFixed(1));
+      setVar(s12col, '--colO', (1 - seg(p, 2.3, 2.75)).toFixed(3));
+      setVar(s12cmp, '--cmpY', (-seg(p, 2.3, 3.0) * vh * 0.8).toFixed(1));
     }
   }
 

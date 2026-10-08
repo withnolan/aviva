@@ -9,7 +9,7 @@
 // One BufferGeometry, one MeshPhysicalMaterial (patched): a rounded hexagonal body (7.2 mm across the flats) in a glossy
 // yellow lacquer with a clear coat; the sharpened end is the body radius clipped by a cone, so the paint ends in the
 // real scalloped line where the cone cuts the six corners first; cedar wood with a fine grain; a graphite core with a
-// slightly rounded point; a cut back end that shows the wood ring and the lead. An optional stamp ("aviva HB") in
+// slightly rounded point; a cut back end that shows the wood ring and the lead. An optional stamp ("AVIVA HB") in
 // graphite foil on one flat. ~2.6k triangles; no textures except the stamp (a 512 x 64 canvas).
 import * as THREE from 'three';
 
@@ -39,7 +39,7 @@ function stampTexture(text) {
  */
 export function createPencil({
   length = 0.175, flats = 0.0072, corner = 0.0007, cone = 0.022, core = 0.001, tipRadius = 0.00025,
-  color = '#F2B820', wood = '#DDB98F', lead = '#3B3C3F', stamp = 'aviva   HB', stampColor = '#2A2926', segments = 6,
+  color = '#F2B820', wood = '#DDB98F', lead = '#3B3C3F', stamp = 'AVIVA   HB', stampColor = '#2A2926', segments = 6,
 } = {}) {
   // ---- the rounded-hexagon profile: r(theta) of a hexagon with rounded corners, sampled finely
   const apo = flats / 2;                                   // apothem (centre to flat)

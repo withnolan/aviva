@@ -192,7 +192,7 @@ cite { font-style: italic; }
 .icon--printer { --icon: url("../assets/icons/printer.svg"); }
 
 /* ---------- inputs: a ruled line, like lined paper ---------- */
-.kb-line { display: grid; gap: var(--space-2); min-width: 0; }
+.kb-line { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); min-width: 0; }
 .kb-line__label { color: var(--text-muted); }
 .kb-line__field {
   min-width: 0;
@@ -267,6 +267,7 @@ cite { font-style: italic; }
   white-space: nowrap;
 }
 .m-only { display: none; }
+.print-only { display: none; }            /* the printed product is print.css's; never on screen */
 .br-m { display: none; }
 @media (max-width: 600px) {
   .d-only { display: none; }
@@ -294,6 +295,7 @@ cite { font-style: italic; }
   transition: clip-path 620ms var(--ease-in-out);
 }
 .hl--pink::after { background: var(--mark-alt); transform: rotate(0.5deg); }
+:is(.label, .micro, .eyebrow) .hl::after { inset: -0.28em -0.36em -0.26em -0.32em; }   /* small caps need a taller stroke */
 .hl.is-drawn::after, .no-js .hl::after { clip-path: inset(0 -1% 0 0); }
 .u-pencil { position: relative; display: inline-block; padding-bottom: 0.55em; }
 .u-pencil::after {

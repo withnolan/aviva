@@ -418,7 +418,7 @@
   left: 0;
   height: 72%;
   display: flex;
-  gap: 24px;
+  gap: 44px;                           /* ≥ 40 px: room for the crop marks outside every card */
   padding-inline: var(--gutter);
   transform: translate3d(calc(var(--track, 0) * -1px), calc(var(--lift, 0) * 1px), 0);
   will-change: transform;
@@ -435,15 +435,16 @@
 }
 .claim--p { aspect-ratio: 210 / 297; }
 .claim--l { aspect-ratio: 297 / 210; }
-.claim::before, .claim::after {   /* crop marks at the corners (the card motif) */
-  content: "";
-  position: absolute;
-  width: 12px; height: 12px;
-  border: 0 solid var(--color-graphite);
-  pointer-events: none;
+.claim::before {   /* crop marks at all four corners, outside the trim (design system 9.11) */
+  content: ""; position: absolute; pointer-events: none;
+  inset: calc(-1 * (var(--crop-gap) + var(--crop-mark)));
+  --e: calc(var(--crop-gap) + var(--crop-mark)); --c: linear-gradient(var(--color-graphite), var(--color-graphite));
+  background:
+    var(--c) left 0 top var(--e) / var(--crop-mark) 1px no-repeat,  var(--c) left var(--e) top 0 / 1px var(--crop-mark) no-repeat,
+    var(--c) right 0 top var(--e) / var(--crop-mark) 1px no-repeat, var(--c) right var(--e) top 0 / 1px var(--crop-mark) no-repeat,
+    var(--c) left 0 bottom var(--e) / var(--crop-mark) 1px no-repeat, var(--c) left var(--e) bottom 0 / 1px var(--crop-mark) no-repeat,
+    var(--c) right 0 bottom var(--e) / var(--crop-mark) 1px no-repeat, var(--c) right var(--e) bottom 0 / 1px var(--crop-mark) no-repeat;
 }
-.claim::before { top: -7px; left: -7px; border-top-width: 1px; border-left-width: 1px; }
-.claim::after { bottom: -7px; right: -7px; border-bottom-width: 1px; border-right-width: 1px; }
 .claim__fig { flex: 0 0 60%; min-height: 0; background: var(--color-studio); overflow: hidden; }
 .claim--dark .claim__fig { background: #2B2A27; }
 .claim__img { width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ease-out); }
@@ -705,7 +706,7 @@
   .lb { top: 79%; left: var(--gutter); right: var(--gutter); width: auto; gap: var(--space-2); }
   .s10__coda { bottom: calc(var(--hint-h) + 2%); font-size: var(--fs-body); }
 
-  .claims { top: 14%; height: 66%; gap: 16px; }
+  .claims { top: 14%; height: 66%; gap: 40px; }
   .claim, .claim--l { aspect-ratio: auto; width: 82vw; }
   .claim__fig { flex-basis: 50%; }
   .claim__h { font-size: 1.375rem; }

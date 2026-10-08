@@ -134,6 +134,8 @@ html.is-dark .grain { mix-blend-mode: soft-light; opacity: calc(var(--grain-opac
   white-space: nowrap;
   text-align: right;
   min-width: 4.5em;
+  background: var(--ground);           /* design system: the readout sits on a ground backing, never on a tick */
+  padding: 2px 6px;
 }
 .ruler.is-message .ruler__readout { min-width: 0; }
 

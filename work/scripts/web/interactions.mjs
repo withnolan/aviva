@@ -24,7 +24,7 @@ async function open({ w = 1440, h = 900, reduced = false, nogl = false, query = 
   });
   await page.goto(base + query, { waitUntil: 'load', timeout: 90000 });
   for (let i = 0; i < 160; i++) { if (await page.evaluate(() => !!(window.__aviva && window.__aviva.ready)).catch(() => false)) break; await page.waitForTimeout(250); }
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(3000);           // software WebGL stalls once on the first full render after the reveal
   return { ctx, page, errors };
 }
 /** jump to progress p (viewport heights) of a section, and let the springs settle */

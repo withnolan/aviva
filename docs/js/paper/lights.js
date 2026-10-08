@@ -89,6 +89,12 @@ export const LIGHT_PRESETS = {
   grey: P({ key: { dir: D(-0.55, 0.6, 0.58), dist: 1.3, intensity: 1.5, color: '#fffaf4', softness: 5 }, fill: { color: '#e9efff', intensity: 0.16 }, env: 0.44,
     backdrop: { pool: 0.12, poolColor: '#ffffff', poolOffset: [-0.2, 0.25, -0.7], poolRadius: 1.2 }, contact: { contact: 0.4, mid: 0.26, soft: 0.17 } }),
 
+  // the folded-letter hero (decision #31): five standing sheets in the white studio. Warm raking key from the top
+  // left (as s01), a strong cool fill from the right so the shaded halves stay paper-light, soft floor shadows that
+  // ground every letter
+  letters: P({ key: { dir: D(-0.62, 0.66, 0.42), dist: 1.6, color: '#fffaf2', intensity: 1.5, angle: 0.75, softness: 9 }, fill: { dir: D(0.9, 0.25, 0.35), color: '#eaf0ff', intensity: 0.42 },
+    rim: { dir: D(0.3, 0.5, -0.8), intensity: 0.25, color: '#ffffff' }, env: 0.62, backdrop: { pool: 0.06 }, contact: { contact: 0.36, mid: 0.3, soft: 0.2 } }),
+
   // look-dev utilities
   backlit: P({ key: { intensity: 0 }, back: { dir: D(0.05, 0.25, -1), intensity: 2.09 }, fill: { intensity: 0 }, env: 0.12, contact: { contact: 0, mid: 0, soft: 0 } }),
   raking: P({ key: { dir: D(-0.97, 0.12, 0.2), dist: 1.0, intensity: 1.8, softness: 3 }, fill: { intensity: 0.04 }, env: 0.18 }),

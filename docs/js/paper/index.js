@@ -89,7 +89,7 @@ export async function createPaperSystem(renderer, opts = {}) {
   tex.macro = null; tex.fibreGeo = null;          // lazy: ensureMacro()
   tex.watermark = makeLogomarkTexture({ size: 512 });
   const blank = new THREE.DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1); blank.needsUpdate = true;
-  tex.floorPrint = makeTextTexture({ text: 'aviva', font: `300 400px ${opts.font || '"Hanken Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif'}`, tracking: -0.035, height: 512, pad: 0.1 }).texture;
+  tex.floorPrint = makeTextTexture({ text: 'AVIVA', font: `300 400px ${opts.font || '"Hanken Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif'}`, tracking: -0.035, height: 512, pad: 0.1 }).texture;
 
   const lin = (hex) => new THREE.Color(hex);
   const shared = {

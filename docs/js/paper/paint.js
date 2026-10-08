@@ -198,8 +198,11 @@ export class PaintLayer {
   /* ------------------------------------------------------------------ internals */
   _mm(u, v) { return { x: u * this.sizeMM.x, y: v * this.sizeMM.y }; }
   _clear() {
-    const r = this.renderer, prev = r.getRenderTarget(), pc = r.getClearColor(new THREE.Color()), pa = r.getClearAlpha();
+    const r = this.renderer, prev = r.getRenderTarget(), pc = r.getClearColor(new THREE.Color()), pa = r.getClearAlpha(), prevAC = r.autoClear;
     r.setRenderTarget(this.rt); r.setClearColor(0x000000, 0); r.clear(true, false, false);
+    // three only rebuilds a render target's mip chain at the end of render(): render nothing so the small mips (what
+    // a distant sheet samples) are cleared too, not just level 0
+    this.geo.instanceCount = 0; r.autoClear = false; r.render(this.scene, this.cam); r.autoClear = prevAC;
     r.setRenderTarget(prev); r.setClearColor(pc, pa);
   }
   _segTo(u, v, pr) {             // straight polyline input (prepared paths): resampled, no smoothing lag

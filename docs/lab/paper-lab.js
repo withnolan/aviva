@@ -16,7 +16,7 @@
 //   studio   bg=#hex  floor=y|none  print=1 printw=m printz=m  contact=0|1  cop=contact,soft  ground=ink
 //   misc     hud=1 (print params)  boat=1 moon=1 cord=1
 import * as THREE from 'three';
-import { createPaperSystem, TOKENS, GROUNDS, createPencil } from '../js/paper/index.js';
+import { createPaperSystem, TOKENS, GROUNDS, createPencil, folds as FOLDS } from '../js/paper/index.js';
 
 const STATES = {
   flat: 'cam=-14,6,1.22&pos=0,0.5,0&rot=0,-14,0&bend=0.7&light=studio',
@@ -55,6 +55,11 @@ const STATES = {
   eraser: 'cam=0,12,0.6&target=0,0.5,0&pos=0,0.5,0&rot=-35,0,0&light=s03&draw=demo&erase=1',
   line: 'cam=0,12,0.75&target=0,0.5,0&pos=0,0.5,0&rot=-35,0,0&light=s03&draw=line',
   sixfold: 'cam=30,35,0.25&target=-0.09,0.43,0&pos=0,0.5,0&rot=-90,0,0&sixfold=6&thick=0.1&light=studio',
+  // decision #31: the folded-letter hero
+  letters: 'cam=0,12,1.32&target=0,0.07,0&pos=0,0.5,0&letters=AVIVA&lt=1&lsp=0.19&light=letters&aim=0,0.06,0',
+  lettershalf: 'cam=0,20,1.32&target=0,0.05,0&pos=0,0.5,0&letters=AVIVA&lt=0.5&lsp=0.19&lslide=0.25&light=letters&aim=0,0.04,0',
+  lettersflat: 'cam=0,40,1.32&target=0,0.0,0&pos=0,0.5,0&letters=AVIVA&lt=0.04&lsp=0.19&lslide=0.85&light=letters&aim=0,0,0',
+  lettersA: 'cam=12,10,0.62&target=0,0.07,0&pos=0,0.5,0&letters=A&lt=1&lyaw=0&light=letters&aim=0,0.06,0',
   // decision #24 grounds
   edgecharcoal: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,88,0&light=s02&ground=charcoal',
   turncharcoal: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,-28,0&light=s02&ground=charcoal',
@@ -97,7 +102,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null, pencilProp = null;
+let paint = null, pencilProp = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -140,7 +145,7 @@ async function apply(search) {
     apply._tgen = tgen; apply._fgen = fgen;
   }
   if (P.has('mottle')) sheet.uniforms.uFormP.value.z = num('mottle'); else sheet.uniforms.uFormP.value.z = 0.08;
-  sheet.uniforms.uFacet.value = num('facet', 0.65);
+  sheet.uniforms.uFacet.value = num('facet', 0.5);
   if (P.has('edge')) { const [bw, bs, wb] = vec('edge'); sheet.uniforms.uEdgeP.value.set(bw, bs, wb, 0.5); } else sheet.uniforms.uEdgeP.value.set(1.4, 0.18, 0.1, 0.5);
   sheet.reset();
   sheet.set({
@@ -162,6 +167,21 @@ async function apply(search) {
       p.object.rotation.z = (p.key.includes('L') ? 1 : p.key.includes('R') ? -1 : (p.key === 'T' ? -1 : 1)) * 0.06 * sep;
     }
   }
+  // the folded-letter hero (decision #31): letters=AVIVA lt=0..1 (0 flat, 1 letter) lsp=spacing (m) lyaw=deg (A/V turn)
+  const lw = str('letters', '');
+  while (letterSheets.length < lw.length) { const s = paper.createSheet({ name: 'L' + letterSheets.length }); scene.add(s.object); letterSheets.push(s); }
+  letterSheets.forEach((s, i) => {
+    if (i >= lw.length) { s.set({ visible: false }); return; }
+    const ch = lw[i], t = num('lt', 1), sp = num('lsp', 0.21), side = i < (lw.length - 1) / 2 ? 1 : -1;
+    const yaw = Math.PI / 2 + (ch === 'I' ? 0 : rad(num('lyaw', 18)) * side);
+    const P = FOLDS.letterPose(ch, t, { yaw });
+    s.reset(); s.set({ folds: P.folds, visible: true, translucency: num('trans', 0.24), cockle: num('cockle', 0.0003) });
+    s.object.quaternion.copy(P.quaternion);
+    s.object.position.set((i - (lw.length - 1) / 2) * sp * (1 - num('lslide', 0)), P.lift, num('lz', 0));
+  });
+  if (lw) sheet.set({ visible: false });
+  paper.contact.uniforms.uCS.value.z = lw ? 0.8 : 0.45;
+  paper.lights.shadowExtent = lw ? 1.25 : 0.6;
   // the HB pencil prop: pencil=x,y,z,rx,ry,rz (the graphite point, world metres; degrees)
   const pz = str('pencil', '');
   if (pz) {
