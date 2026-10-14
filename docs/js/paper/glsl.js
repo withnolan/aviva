@@ -39,6 +39,14 @@ uniform vec4  uPleat;                      // x: period (m), y: gamma (rad), z: 
 uniform vec4  uFlutter;                    // x: amplitude (m), y: frequency (1/m), z: time, w: seed
 uniform vec4  uCockle;                     // x: amplitude (m), y: frequency (1/m), z: seed
 uniform vec3  uShift;                      // a rigid shift after everything (the crumple slides onto the ball's centre)
+#ifdef PAPER_INSTANCED
+attribute vec4 aInst;                      // per instance (stack.js): x bend (1/m), y flutter amplitude (m), z flutter time, w -
+#define PP_BEND vec4(aInst.x, uBend.y, uBend.z, uBend.w)
+#define PP_FLUT vec4(aInst.y, uFlutter.y, aInst.z, uFlutter.w)
+#else
+#define PP_BEND uBend
+#define PP_FLUT uFlutter
+#endif
 ${NOISE}
 void paperFold(inout vec3 p, vec2 rest, vec4 Q, vec4 A, vec4 M, vec4 R) {
   float th = A.w; if (abs(th) < 1e-5) return;
@@ -68,15 +76,16 @@ vec3 paperDeform(vec2 rest) {
     p.x = x0 + f * cos(g) - 0.5 * uSheet.x * cos(g); p.z += z0 + up * f * sin(g);
     if (uPleat.z > 1e-4) { float ang = p.x * uPleat.z, rr = uPleat.w + (p.y + 0.5 * uSheet.y); p.x = sin(ang) * rr; p.y = cos(ang) * rr - uPleat.w - 0.5 * uSheet.y; }
   }
-  if (abs(uBend.x) > 1e-4) {                           // cylindrical bend about a line through the centre
-    vec2 ax = vec2(cos(uBend.y), sin(uBend.y)), nr = vec2(-ax.y, ax.x);
-    float s = dot(p.xy, nr), k = uBend.x, an = s * k;
+  vec4 pb = PP_BEND, pf = PP_FLUT;
+  if (abs(pb.x) > 1e-4) {                              // cylindrical bend about a line through the centre
+    vec2 ax = vec2(cos(pb.y), sin(pb.y)), nr = vec2(-ax.y, ax.x);
+    float s = dot(p.xy, nr), k = pb.x, an = s * k;
     p.xy = ax * dot(p.xy, ax) + nr * (sin(an) / k); p.z += (1.0 - cos(an)) / k;
   }
-  if (abs(uBend.z) > 1e-4) { float a = p.y * uBend.z, c = cos(a), sn = sin(a); p.xz = vec2(c * p.x - sn * p.z, sn * p.x + c * p.z); }
-  if (uFlutter.x > 0.0) {
-    vec2 q = p.xy * uFlutter.y;
-    p.z += uFlutter.x * ((pp_vn3(vec3(q, uFlutter.z + uFlutter.w)) - 0.5) * 1.6 + (pp_vn3(vec3(q * 1.9 + 4.0, uFlutter.z * 1.3)) - 0.5) * 0.5);
+  if (abs(pb.z) > 1e-4) { float a = p.y * pb.z, c = cos(a), sn = sin(a); p.xz = vec2(c * p.x - sn * p.z, sn * p.x + c * p.z); }
+  if (pf.x > 0.0) {
+    vec2 q = p.xy * pf.y;
+    p.z += pf.x * ((pp_vn3(vec3(q, pf.z + pf.w)) - 0.5) * 1.6 + (pp_vn3(vec3(q * 1.9 + 4.0, pf.z * 1.3)) - 0.5) * 0.5);
   }
   return p + uShift;
 }

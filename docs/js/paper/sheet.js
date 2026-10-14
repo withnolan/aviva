@@ -21,11 +21,12 @@ import { createSheetGeometry, releaseSheetGeometry } from './geometry.js';
 import { makeSheetUniforms, createPaperMaterial, createPaperDepthMaterial, createCasterMaterial, createPickMaterial, MAX_CREASES } from './material.js';
 import { MAX_FOLDS } from './glsl.js';
 import * as F from './folds.js';
+import { boatGeometry, BOAT } from './boat.js';
 
 const DEFAULT_STATE = () => ({
   bend: 0, bendAxis: Math.PI / 2, twist: 0, flutter: 0, flutterFreq: 9, flutterTime: 0, flutterAuto: false, cockle: 0.00045,
   folds: null, plane: 0, halving: 0, sixfold: 0, dogEar: 0, dogEarCorner: 'tr', peel: 0, curl: null, fan: 0, crumple: 0,
-  thickness: 0.0001, translucency: 0.24, watermark: 0, showThrough: 0, inkDot: 0, inkDotAt: [0.072, -0.118], inkDotRadius: 0.0015,
+  boat: 0, thickness: 0.0001, translucency: 0.24, watermark: 0, showThrough: 0, inkDot: 0, inkDotAt: [0.072, -0.118], inkDotRadius: 0.0015,
   bleed: null, macro: 0, paint: false, paintFace: 1, overlay: null, creases: null, gain: 1, visible: true, tear: null,
 });
 
@@ -123,7 +124,8 @@ export class Sheet {
       if (c) { const n = new THREE.Vector2(...c.n).normalize(); U.uCrease.value[i].set(n.x, n.y, c.d ?? 0, c.strength ?? 1); } else U.uCrease.value[i].w = 0;
     }
     U.uGain.value = S.gain;
-    for (const p of this.pieces) p.object.visible = S.visible && !(S.crumple >= F.CRUMPLE_SWAP && this.crumpleMesh);
+    for (const p of this.pieces) p.object.visible = S.visible && !(S.crumple >= F.CRUMPLE_SWAP && this.crumpleMesh) && !(S.boat >= 0.5);
+    if ('boat' in s || 'visible' in s) this._applyBoat();
     if ('tear' in s) this._applyTear(S.tear);
     if ('crumple' in s || 'visible' in s) this._applyCrumple();
   }
@@ -169,12 +171,26 @@ export class Sheet {
       this.crumpleMesh.visible = baked && this.state.visible;
       if (baked) this.sys.crumple.setProgress(this.crumpleMesh, (t - SW) / (1 - SW));
     }
-    for (const p of this.pieces) p.object.visible = this.state.visible && !baked;
+    for (const p of this.pieces) p.object.visible = this.state.visible && !baked && !(this.state.boat >= 0.5);
   }
   _buildCrumple(data) {
     const m = this.sys.crumple.createMesh(data, this.uniforms, this.contact ? this.sys.contact : null);
     m.castShadow = this.castShadow; m.receiveShadow = true;
     this.crumpleMesh = m; this.object.add(m);
+  }
+  // the boat: below 0.5 the slab folds the hat (folds.boatHat); from 0.5 the finished boat (boat.js) hangs by its peak
+  // at the sheet's top centre, where a drying-line clip holds a card
+  _applyBoat() {
+    const S = this.state, on = S.boat >= 0.5 && S.visible;
+    if (on && !this.boatMesh) {
+      const m = new THREE.Mesh(boatGeometry(), createPaperMaterial(this.uniforms, { variant: 'static' }));
+      m.customDepthMaterial = createPaperDepthMaterial(this.uniforms, 'static');
+      m.castShadow = this.castShadow; m.receiveShadow = true; m.frustumCulled = false; m.name = 'paper.' + this.name + '.boat';
+      m.position.y = this.size.h / 2 - BOAT.peak;
+      if (this.contact && this.sys.contact) { const c = new THREE.Mesh(m.geometry, createCasterMaterial(this.uniforms, this.sys.contact.uniforms, 'static')); c.layers.set(this.sys.contact.layer); c.frustumCulled = false; m.add(c); }
+      this.boatMesh = m; this.object.add(m);
+    }
+    if (this.boatMesh) this.boatMesh.visible = on;
   }
   /** the radius of the finished ball (m), for rolling */
   get crumpleRadius() { return this.sys.crumple ? this.sys.crumple.radius : 0.035; }
@@ -193,6 +209,7 @@ export class Sheet {
       else out.push(...F.cornerCurl(c.t ?? 1, { corner: c.corner || 'tr', size: c.size ?? 0.06, r: c.r ?? 0.015, angle: c.angle ?? 0.44, taper: c.taper ?? 0, toward: c.toward ?? 1, sheet: size }));
     }
     if (S.peel > 0) out.push(...F.peel(S.peel, { sheet: size }));
+    if (S.boat > 0 && S.boat < 0.5) out.push(...F.boatHat(S.boat * 2, { sheet: size }));
     // crumple phase 1 (below CRUMPLE_SWAP, or until the baked crush has loaded): the sheet folds itself into a packet
     if (S.crumple > 0 && (S.crumple < F.CRUMPLE_SWAP || !this.crumpleMesh)) out.push(...F.crumpleFolds(Math.min(1, S.crumple / F.CRUMPLE_SWAP), { sheet: size, seed: this.crumpleSeed }));
     this._folds = out.slice(0, MAX_FOLDS);
@@ -247,6 +264,7 @@ export class Sheet {
     this._makePieces(0); const p = this.pieces[0];
     p.mesh.material.dispose(); p.mesh.customDepthMaterial.dispose(); if (p.caster) p.caster.material.dispose();
     if (this.crumpleMesh) { this.crumpleMesh.material.dispose(); }
+    if (this.boatMesh) { this.boatMesh.geometry.dispose(); this.boatMesh.material.dispose(); this.boatMesh.customDepthMaterial.dispose(); }
     releaseSheetGeometry(this.geometry); this.object.removeFromParent();
     this.sys._forget(this);
   }

@@ -82,7 +82,7 @@ ${INK_FRONT}
 
 // runs right after clipping: face, metres-per-pixel, tear discard
 const FRAG_CLIP = /* glsl */`
-#ifdef PAPER_CRUMPLE
+#if defined(PAPER_CRUMPLE) || defined(PAPER_STATIC)
   float paperFace = gl_FrontFacing ? 1.0 : -1.0;
 #else
   float paperFace = vShell > 0.5 ? 1.0 : (vShell < -0.5 ? -1.0 : 0.0);
@@ -110,7 +110,7 @@ vec3 alb = uPaperColor * (1.0 + (paperForm.r - 0.5) * uFormP.z + (paperForm.a - 
 alb *= 1.0 + (paperTooth.b - 0.5) * 0.05;                                   // micro-shadowing in the tooth valleys
 alb *= 1.0 + ((paperMacroS.b - 0.5) * 0.16 + (paperMacroS.a - 0.5) * 0.06) * paperMacroFade;   // fibre cavities / fibre-to-fibre tone
 if (paperFace == 0.0) alb = min(alb * (1.0 + uEdgeP.z), vec3(1.0));          // the cut edge: raw fibres, a touch brighter
-#ifndef PAPER_CRUMPLE
+#if !defined(PAPER_CRUMPLE) && !defined(PAPER_STATIC)
 else {                                                                      // a crisp, slightly brighter rim on the face (~1 px)
   vec2 ad = 0.5 * uSheet - abs(vRest);
   float rim = 1.0 - smoothstep(0.4 * paperPx, 1.3 * paperPx, min(ad.x, ad.y));
@@ -182,7 +182,7 @@ if (paperFace != 0.0) {
   mat3 ptbn = paperTBN(-vViewPosition, normal, vRest);
   vec2 tn = (paperTooth.rg * 2.0 - 1.0) * uToothP.y;
   if (paperMacroFade > 0.001) tn += (paperMacroS.rg * 2.0 - 1.0) * uMacroP.y * paperMacroFade;
-  #ifndef PAPER_CRUMPLE
+  #if !defined(PAPER_CRUMPLE) && !defined(PAPER_STATIC)
   vec2 ad = 0.5 * uSheet - abs(vRest);
   float bw = max(uEdgeP.x * paperPx, 0.00008);
   tn += vec2(sign(vRest.x) * (1.0 - smoothstep(0.0, bw, ad.x)), sign(vRest.y) * (1.0 - smoothstep(0.0, bw, ad.y))) * uEdgeP.y;
@@ -194,7 +194,7 @@ if (paperFace != 0.0) {
   }
   normal = normalize(ptbn * vec3(tn, 1.0));
 }
-#ifndef PAPER_CRUMPLE
+#if !defined(PAPER_CRUMPLE) && !defined(PAPER_STATIC)
 else {
   // the 0.1 mm cut edge: light that enters the lit face scatters out of the cut, so the edge shades like the face the
   // key light falls on (tilted a little outward): a crisp, bright hairline from any side, and at edge-on (s02)
@@ -277,7 +277,7 @@ function patchVertex(shader, variant) {
     vs = vs.replace('#include <common>', '#include <common>\n' + VERT_CRUMPLE_PARS)
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRest = aRest; vShell = 1.0; vPaperFaceN = vec3(0.0, 0.0, 1.0);');
   }
-  vs = vs.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvPaperWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+  vs = vs.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\n#ifdef USE_INSTANCING\nvPaperWorld = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;\n#else\nvPaperWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;\n#endif');
   shader.vertexShader = vs;
 }
 
@@ -300,7 +300,7 @@ function patchFragment(shader) {
  * @param {object} uniforms makeSheetUniforms(...) result (per sheet)
  * @param {object} opt { variant: 'slab'|'crumple'|'static', color, roughness, sheen }
  */
-export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.9, sheen = 0.8, sheenRoughness = 0.62, specularIntensity = 0.3 } = {}) {
+export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.9, sheen = 0.8, sheenRoughness = 0.62, specularIntensity = 0.3, instanced = false } = {}) {
   const mat = new THREE.MeshPhysicalMaterial({
     color: 0xffffff, roughness, metalness: 0, ior: 1.45, specularIntensity,
     sheen, sheenColor: new THREE.Color(0.22, 0.215, 0.2), sheenRoughness,
@@ -308,6 +308,8 @@ export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.
     vertexColors: variant === 'crumple',
   });
   if (variant === 'crumple') mat.defines = { PAPER_CRUMPLE: '' };
+  if (variant === 'static') mat.defines = { PAPER_STATIC: '' };
+  if (instanced) mat.defines = { ...(mat.defines || {}), PAPER_INSTANCED: '' };
   mat.userData.uniforms = uniforms; mat.userData.variant = variant;
   mat.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
@@ -315,7 +317,7 @@ export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.
     patchFragment(shader);
     mat.userData.shader = shader;
   };
-  mat.customProgramCacheKey = () => 'aviva-paper-' + variant + '-v5';
+  mat.customProgramCacheKey = () => 'aviva-paper-' + variant + (instanced ? '-inst' : '') + '-v5';
   return mat;
 }
 
@@ -324,9 +326,10 @@ const DEPTH_FRAG_DISCARD = /* glsl */`
   float pxm_ = max(length(fwidth(vRest)) * 0.7071, 1e-7); float band_ = 0.0;
   if ((uTear0.w != 0.0 || uTear1.w != 0.0) && tearKeep(vRest, pxm_, band_) < 0.0) discard;
 `;
-export function createPaperDepthMaterial(uniforms, variant = 'slab') {
+export function createPaperDepthMaterial(uniforms, variant = 'slab', { instanced = false } = {}) {
   // slope-scaled offset: no self-shadow acne on a sheet lit at a raking angle
   const m = new THREE.MeshDepthMaterial({ depthPacking: THREE.BasicDepthPacking, side: variant === 'slab' ? THREE.FrontSide : THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 2.0, polygonOffsetUnits: 3.0 });
+  if (instanced) m.defines = { PAPER_INSTANCED: '' };
   m.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
     if (variant === 'slab') {
@@ -343,7 +346,7 @@ export function createPaperDepthMaterial(uniforms, variant = 'slab') {
       .replace('#include <common>', '#include <common>\nvarying vec2 vRest;\n' + TEAR_PARS)
       .replace('void main() {', 'void main() {\n' + DEPTH_FRAG_DISCARD);
   };
-  m.customProgramCacheKey = () => 'aviva-paper-depth-' + variant + '-v3';
+  m.customProgramCacheKey = () => 'aviva-paper-depth-' + variant + (instanced ? '-inst' : '') + '-v3';
   return m;
 }
 
@@ -377,12 +380,16 @@ void main() {
   gl_FragColor = vec4(c, m, s, 1.0);
 }`;
 
-export function createCasterMaterial(uniforms, csUniforms, variant = 'slab') {
+export function createCasterMaterial(uniforms, csUniforms, variant = 'slab', { instanced = false } = {}) {
   const vs = variant === 'slab'
-    ? /* glsl */`${VERTEX_VARYINGS}${DEFORM_PARS}${CASTER_VERT_COMMON}
+    ? /* glsl */`${instanced ? '#define PAPER_INSTANCED\n' : ''}${VERTEX_VARYINGS}${DEFORM_PARS}${CASTER_VERT_COMMON}
 void main() {
   ${DEFORM_VERTEX}
+  #ifdef USE_INSTANCING
+  gl_Position = casterClip((modelMatrix * instanceMatrix * vec4(paperPos, 1.0)).xyz);
+  #else
   gl_Position = casterClip((modelMatrix * vec4(paperPos, 1.0)).xyz);
+  #endif
 }`
     : /* glsl */`#include <common>
 #include <morphtarget_pars_vertex>
@@ -401,6 +408,33 @@ void main() {
     blendEquationAlpha: THREE.MaxEquation, blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneFactor,
   });
   m.extensions = { derivatives: true };
+  return m;
+}
+
+/** contact-shadow caster for a rigid mesh (no deformation, no tear): the stack's block, props */
+export function createStaticCasterMaterial(csUniforms) {
+  const m = new THREE.ShaderMaterial({
+    uniforms: { ...csUniforms },
+    vertexShader: /* glsl */`${CASTER_VERT_COMMON}
+void main() {
+  #ifdef USE_INSTANCING
+  gl_Position = casterClip((modelMatrix * instanceMatrix * vec4(position, 1.0)).xyz);
+  #else
+  gl_Position = casterClip((modelMatrix * vec4(position, 1.0)).xyz);
+  #endif
+}`,
+    fragmentShader: /* glsl */`
+precision highp float;
+uniform vec4 uCSShear; uniform vec4 uCSRange; varying float vH;
+void main() {
+  float fade = 1.0 - smoothstep(uCSRange.x * 0.6, uCSRange.x, vH);
+  float c = exp(-vH / uCSShear.z), m = exp(-vH / uCSShear.w) * (1.0 - exp(-vH / uCSRange.w)), s = exp(-vH / uCSRange.y) * (1.0 - exp(-vH / uCSRange.z)) * fade;
+  gl_FragColor = vec4(c, m, s, 1.0);
+}`,
+    depthTest: false, depthWrite: false, side: THREE.DoubleSide, transparent: true,
+    blending: THREE.CustomBlending, blendEquation: THREE.MaxEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
+    blendEquationAlpha: THREE.MaxEquation, blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneFactor,
+  });
   return m;
 }
 

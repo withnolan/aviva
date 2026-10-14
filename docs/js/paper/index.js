@@ -17,10 +17,11 @@ import { buildEnvironment, createBackdrop } from './studio.js';
 import { LightRig, LIGHT_PRESETS, blendPresets } from './lights.js';
 import { ContactShadows } from './contact.js';
 import { Sheet } from './sheet.js';
+import { Stack } from './stack.js';
 import { sheetSegments } from './geometry.js';
 import * as folds from './folds.js';
 
-export { LIGHT_PRESETS, blendPresets, folds, Sheet };
+export { LIGHT_PRESETS, blendPresets, folds, Sheet, Stack };
 export { createPencil } from './pencil.js';
 
 // Colours (sRGB hex). paper / studio / graphite / ink / inkDeep match docs/css/tokens.css. The decision #24 families
@@ -134,6 +135,9 @@ export async function createPaperSystem(renderer, opts = {}) {
     },
     /** new sheet; options { width, height, segments:[w,h], castShadow, contact, name } */
     createSheet(o = {}) { const s = new Sheet(sys, o); sheets.add(s); return s; },
+    /** a stack that grows (s12 tiers): { max, fly, width, height, sheetThickness, seed }. See stack.js */
+    createStack(o = {}) { return new Stack(sys, o); },
+    stacks: new Set(),
     _forget(s) { sheets.delete(s); },
 
     /** colours: { paper, studio, graphite, ink, inkDeep } (hex). The backdrop stays exactly the studio token. */
@@ -212,6 +216,7 @@ export async function createPaperSystem(renderer, opts = {}) {
       lights.apply({ camera, renderer, scene, backdrop, contact });
       lights.keyDirection(shared.uKeyDir.value);
       for (const s of sheets) { s.shadowOffset(lights.shadowOffset || 3); s.update(camera, dt); }
+      for (const st of this.stacks) st.update(camera, dt);
       if (contact.enabled) {
         contact.setLight(lights.keyDirection(_kd), 1);
         contact.follow(lights.focus.x, lights.focus.z);

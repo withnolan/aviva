@@ -19,11 +19,14 @@ const PROFILE = FLAGS.debug;
 
 export async function createWorld({ canvas, tier = 2, reduce = false, onProgress = () => {}, onLost = () => {}, onRestored = () => {} }) {
   let W = null;              // the rebuildable part (paper system, sheets, props, choreography)
-  let lost = false, dirty = 4, lastGround = '', lastS07 = -1, reduced = reduce;
+  let lost = false, dirty = 4, lastGround = '', lastS07 = -1, reduced = reduce, warmed = false;
   const stage = createStage(canvas, {
     tier,
     onLost: () => { lost = true; onLost(); },
-    onRestored: () => { rebuild().then(() => { lost = false; dirty = 4; onRestored(true); }).catch((e) => { console.warn('[aviva] restore failed:', e && e.message); onRestored(false); }); },
+    onRestored: () => {
+      rebuild().then(() => { lost = false; dirty = 4; onRestored(true); if (warmed) { warmed = false; warm(); } })
+        .catch((e) => { console.warn('[aviva] restore failed:', e && e.message); onRestored(false); });
+    },
   });
   stage.resize(window.innerWidth, window.innerHeight);
   stage.applyRig();
@@ -68,6 +71,7 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
   /** compile every material behind the loader, and the fibre layers The Bleed needs */
   async function prepare() {
     try { W.paper.ensureMacro(); } catch { /* optional */ }
+    try { W.choreo.prime(); } catch (e) { console.warn('[aviva] prime:', e && e.message); }
     try { await W.paper.prepare(stage.renderer, stage.scene, stage.camera); } catch (e) { console.warn('[aviva] precompile:', e && e.message); }
     dirty = 4;
   }
@@ -75,6 +79,18 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
   W = await build();
   await prepare();
   onProgress(0.94);
+
+  /** once the page is idle after the reveal: the baked crumple (Regenerate, the Arena) is fetched and compiled ahead
+   *  of the first gesture. Reduced motion never crumples (a fade-swap instead), so it skips the download. */
+  async function warm() {
+    if (warmed || !W || reduced || !FEATURES.paperCrumple) return false;
+    warmed = true;
+    let ok = false;
+    try { ok = await W.paper.warmCrumple(stage.renderer, stage.scene, stage.camera, [W.A, W.B]); }
+    catch (e) { console.warn('[aviva] crumple warm-up:', e && e.message); }
+    dirty = Math.max(dirty, 1);
+    return ok;
+  }
 
   /* ------------------------------------------------------------------ rendering */
   function render() {
@@ -129,12 +145,19 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     ray.setFromCamera(ndc, stage.camera);
     return W.paper.pick(W.A, ray);
   }
-  function anchorOf(sheet) {
+  /** a point just right of the sheet as it appears on screen (whatever its rotation: the s03 sheet shows its back),
+   *  `at` of the way down from its top edge (0..1): where the ream label pops up */
+  const CORNERS = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+  function anchorOf(sheet, at = 0.25) {
     const o = sheet.object;
     if (!o.visible) return null;
     o.updateMatrixWorld(true);
-    const p = proj(local(o, A4.w / 2, A4.h / 4));
-    return { x: p.x + 18, y: p.y };
+    let x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    for (const [cx, cy] of CORNERS) {
+      const p = proj(local(o, cx * A4.w / 2, cy * A4.h / 2));
+      x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y);
+    }
+    return isFinite(x1) ? { x: x1 + 18, y: y0 + (y1 - y0) * at } : null;
   }
   function tearLine(stageNo) {
     const A = W.A;
@@ -185,15 +208,15 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
   dotLabel.until = 0;
 
   return {
-    stage, frame, render, veil,
+    stage, frame, render, veil, warm,
     get paint() { return W.paint; },
     get ctx() { return W.choreo.ctx; },
     get paper() { return W.paper; },
     get kind() { return W.paper.kind; },
     heroOn: () => !!(W && W.choreo.ctx.heroOn),
     pickHero, tearLine, heroCorners,
-    heroAnchor: () => anchorOf(W.A),
-    sheetAnchor: (k) => anchorOf(k === 'B' ? W.B : W.A),
+    heroAnchor: (at) => anchorOf(W.A, at),
+    sheetAnchor: (k, at) => anchorOf(k === 'B' ? W.B : W.A, at),
     dimsMode: () => (W.choreo.ctx.heroOn ? W.state.enum('D.mode') : 'none'),
     dotLabel, showDotLabel(ms = 2600) { dotLabel.until = performance.now() + ms; },
     sizeChoice: () => W.choreo.ctx.sizeChoice,

@@ -71,9 +71,14 @@ const box = (page) => page.evaluate(() => { const w = window.__aviva.world; cons
   await page.waitForTimeout(2200);
   note('s03 echo', await page.evaluate(() => document.getElementById('s03-echo').textContent));
   await shot(page, '04-s03-typed');
-  // regenerate
+  // regenerate (the baked crumple: warmed after the reveal, swapped in from folds.CRUMPLE_SWAP = 0.4)
+  const crumpleOf = (k) => page.evaluate((k) => { const s = window.__aviva.world.debug()[k].raw; return [+s.state.crumple.toFixed(2), !!s.crumpleMesh, !!(s.crumpleMesh && s.crumpleMesh.visible)]; }, k);
+  note('crumple warmed (A, B)', [(await crumpleOf('A'))[1], (await crumpleOf('B'))[1]]);
   await page.click('#s03-regen');
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(480);
+  note('s03 crumple t / mesh / visible', await crumpleOf('A'));
+  await shot(page, '05a-s03-crumpling');
+  await page.waitForTimeout(220);
   await shot(page, '05-s03-regenerating');
   note('ream status', await page.evaluate(() => document.getElementById('ream-status').textContent));
   await page.waitForTimeout(2600);
@@ -122,7 +127,10 @@ const box = (page) => page.evaluate(() => { const w = window.__aviva.world; cons
   // s10: vote
   await go(page, 's10', 1.0);
   await page.click('[data-vote="a"]');
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(520);
+  note('s10 loser B crumple t / mesh / vis', await crumpleOf('B'));
+  await shot(page, '12a-s10-crumpling');
+  await page.waitForTimeout(380);
   await shot(page, '12-s10-voting');
   await page.waitForTimeout(1600);
   note('arena result + leaderboard', await page.evaluate(() => [!document.querySelector('[data-res="win"]').hidden, !document.getElementById('s10-lb').hidden]));

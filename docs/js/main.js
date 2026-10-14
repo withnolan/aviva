@@ -224,6 +224,11 @@ async function boot() {
     intro = heroIntro(ui);
     aviva.ready = true;
     log('revealed');
+    // after the hero has landed, when the page is idle: fetch and compile the baked crumple (world.warm)
+    if (world && world.warm) {
+      const idle = window.requestIdleCallback || ((f) => setTimeout(f, 1));
+      setTimeout(() => idle(() => { world.warm().then((ok) => ok && log('crumple warmed')); }, { timeout: 4000 }), 3200);
+    }
   }
   aviva.reveal = reveal;
 

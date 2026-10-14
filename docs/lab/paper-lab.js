@@ -60,6 +60,15 @@ const STATES = {
   lettershalf: 'cam=0,20,1.32&target=0,0.05,0&pos=0,0.5,0&letters=AVIVA&lt=0.5&lsp=0.19&lslide=0.25&light=letters&aim=0,0.04,0',
   lettersflat: 'cam=0,40,1.32&target=0,0.0,0&pos=0,0.5,0&letters=AVIVA&lt=0.04&lsp=0.19&lslide=0.85&light=letters&aim=0,0,0',
   lettersA: 'cam=12,10,0.62&target=0,0.07,0&pos=0,0.5,0&letters=A&lt=1&lyaw=0&light=letters&aim=0,0.06,0',
+  // the drying-line outputs on the s04 grey ground (brief 5.4): the boat (card 4), the dart plane (card 2), the fan (card 6)
+  boat: 'cam=-22,8,0.55&target=0,0.6,0&pos=0,0.5,0&rot=0,0,0&boat=1&light=card4&ground=grey',
+  boatnear: 'cam=-35,22,0.32&target=0,0.6,0&pos=0,0.5,0&rot=0,0,0&boat=1&light=studio&ground=grey',
+  boathat: 'cam=-20,12,0.9&target=0,0.5,0&pos=0,0.5,0&rot=0,0,0&boat=0.4&light=card4&ground=grey',
+  // decision #28: the stack that grows (s12 tiers)
+  ream: 'cam=-32,26,0.72&target=0,0.03,0&pos=0,0.5,0&stack=500,500&light=grey&ground=grey&aim=0,0.03,0',
+  notebook: 'cam=-32,26,0.72&target=0,0.01,0&pos=0,0.5,0&stack=80,80&light=grey&ground=grey&aim=0,0.01,0',
+  stackfan: 'cam=-32,26,0.8&target=0,0.06,0&pos=0,0.5,0&stack=80,500&sfan=0.55&light=grey&ground=grey&aim=0,0.04,0',
+  reamedge: 'cam=-8,6,0.16&target=0.0,0.025,0.1485&pos=0,0.5,0&stack=500,500&light=grey&ground=grey&aim=0,0.025,0.1',
   // decision #24 grounds
   edgecharcoal: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,88,0&light=s02&ground=charcoal',
   turncharcoal: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,-28,0&light=s02&ground=charcoal',
@@ -102,7 +111,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null, pencilProp = null; const letterSheets = [];
+let paint = null, pencilProp = null, stackObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -152,7 +161,7 @@ async function apply(search) {
     bend: num('bend', 0), bendAxis: rad(num('axis', 90)), twist: num('twist', 0),
     flutter: num('flutter', 0), flutterFreq: num('ffreq', 9), flutterTime: num('ftime', 0), cockle: num('cockle', 0.00045),
     plane: num('plane', 0), halving: num('halving', 0), sixfold: num('sixfold', 0), dogEar: num('dogear', 0), peel: num('peel', 0), curl,
-    fan: num('fan', 0), crumple: num('crumple', 0), thickness: num('thick', 0.1) / 1000,
+    fan: num('fan', 0), crumple: num('crumple', 0), boat: num('boat', 0), thickness: num('thick', 0.1) / 1000,
     translucency: num('trans', 0.24), watermark: num('wm', 0), showThrough: num('show', 0), inkDot: num('dot', 0),
     bleed: bleedT > 0 || num('grade', 0) > 0 ? { t: bleedT, at: [0, 0], radiusMM: num('bleedr', 6), amount: bleedT > 0 ? 1 : 0, grade: num('grade', 0) } : null,
     macro: num('macro', 0), gain: num('gain', 1), tear,
@@ -173,13 +182,20 @@ async function apply(search) {
   letterSheets.forEach((s, i) => {
     if (i >= lw.length) { s.set({ visible: false }); return; }
     const ch = lw[i], t = num('lt', 1), sp = num('lsp', 0.21), side = i < (lw.length - 1) / 2 ? 1 : -1;
-    const yaw = Math.PI / 2 + (ch === 'I' ? 0 : rad(num('lyaw', 18)) * side);
+    const yaw = Math.PI / 2 + (ch === 'I' ? 0 : rad(num('lyaw', 26)) * side);
     const P = FOLDS.letterPose(ch, t, { yaw });
     s.reset(); s.set({ folds: P.folds, visible: true, translucency: num('trans', 0.24), cockle: num('cockle', 0.0003) });
     s.object.quaternion.copy(P.quaternion);
     s.object.position.set((i - (lw.length - 1) / 2) * sp * (1 - num('lslide', 0)), P.lift, num('lz', 0));
   });
   if (lw) sheet.set({ visible: false });
+  // the stack (s12 tiers, decision #28): stack=from,to  sfan=0..1  sspread=1  sflutter=1
+  if (P.has('stack')) {
+    if (!stackObj) { stackObj = paper.createStack({ max: 500, fly: 24 }); scene.add(stackObj.object); }
+    const [from, to] = vec('stack'); stackObj.object.visible = true; stackObj.object.position.set(...vec('spos', [0, 0, 0]));
+    stackObj.set({ from, to: to ?? from, fan: num('sfan', 1), spread: num('sspread', 1), flutter: num('sflutter', 1) });
+    sheet.set({ visible: false });
+  } else if (stackObj) stackObj.object.visible = false;
   paper.contact.uniforms.uCS.value.z = lw ? 0.8 : 0.45;
   paper.lights.shadowExtent = lw ? 1.25 : 0.6;
   // the HB pencil prop: pencil=x,y,z,rx,ry,rz (the graphite point, world metres; degrees)

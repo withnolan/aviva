@@ -47,7 +47,7 @@ export const FLAGS = {
 // requests a missing file (a 404 is a console error in tools/shoot.mjs). Everything degrades gracefully meanwhile.
 export const FEATURES = {
   paperPaint: true,        // docs/js/paper/paint.js (the GPU pencil). Off: the canvas pencil, shown as an overlay.
-  paperCrumple: false,     // docs/assets/paper/crumple.bin(.gz) (the baked crumple). Until then: a fold-based stand-in.
+  paperCrumple: true,      // docs/assets/paper/crumple.bin.gz (the baked crumple, decision #32). Off: a fold-based stand-in.
   fallbackStills: false,   // docs/assets/fallback/f1–f6.webp (brief 5.10). Until then: CSS-drawn sheet slots.
   claimRenders: false,     // docs/assets/claims/c1–c8.webp (brief 5.6). Until then: a drawn sheet in a studio well.
   floorPrint: true,        // docs/assets/logo/wordmark-floor.png (the hero floor wordmark)

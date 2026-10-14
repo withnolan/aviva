@@ -525,5 +525,11 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     paper.lights.aim(aOn ? A.object.position : _v.set(0, STAGE.anchor.y, 0));
   }
 
-  return { claim, apply, ctx };
+  /** before the precompile: every output takes its form once, so a mesh the module builds on demand (the boat) exists
+   *  when the loader compiles the materials, instead of compiling mid-scroll in s04 */
+  function prime() {
+    for (let i = 1; i < 8; i++) { const f = OUT_FORMS[i]; push(O[i - 1], { plane: f.plane || 0, boat: f.boat || 0, fan: f.fan || 0, curl: f.curl || null }); }
+  }
+
+  return { claim, apply, prime, ctx };
 }

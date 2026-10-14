@@ -219,3 +219,19 @@ export function letterPose(letter = 'A', t = 1, { sheet = A4, apex = THREE.MathU
 export const letterA = (t = 1, o) => letterPose('A', t, o);
 export const letterV = (t = 1, o) => letterPose('V', t, o);
 export const letterI = (t = 1, o) => letterPose('I', t, o);
+
+/* ------------------------------------------------------------------------------------------------ the paper boat */
+/**
+ * The boat's first stage, the hat (sheet.set({ boat }) uses it below 0.5; the finished boat is boat.js's mesh):
+ * the sheet folds in half (top half behind), the two top corners fold down to the centre line, the brim folds up.
+ * t in 0..1.
+ */
+export function boatHat(t = 1, { sheet = A4, r = 0.0005 } = {}) {
+  const k = (i) => Math.min(1, Math.max(0, t * 3 - i)), H = sheet.h;
+  return [
+    fold2D({ p: [0, 0], dir: [1, 0], side: [0, 1], toward: -1, radius: r, t: ease(k(0)) }),
+    fold2D({ p: [0, 0], dir: [1, 1], side: [-1, 1], toward: 1, radius: r, t: ease(k(1)) }),
+    fold2D({ p: [0, 0], dir: [1, -1], side: [1, 1], toward: 1, radius: r, t: ease(k(1)) }),
+    fold2D({ p: [0, -H / 2 + 0.032], dir: [1, 0], side: [0, -1], toward: 1, radius: r, t: ease(k(2)) }),
+  ];
+}

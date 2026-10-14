@@ -308,7 +308,7 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
       return;
     }
     V.busy = true; V.loser = v === 'a' ? 'B' : 'A'; V.winner = v === 'a' ? 'A' : 'B';
-    ui.consume(world.sheetAnchor(V.loser));
+    ui.consume(world.sheetAnchor(V.loser, 0.9));        // low beside the sheet: the leaderboard sits high on the right
     const genKey = V.loser === 'A' ? 'genA' : 'genB';
     const swap = () => { V[genKey] = (V[genKey] || 0) + 1; world.markDirty(); };
     if (reduce) {

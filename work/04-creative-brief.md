@@ -1,11 +1,11 @@
-# 04: Creative brief, aviva A4 "Void of All Characters"
+# 04: Creative brief, AVIVA A4 (concept A, "Void of All Characters", now with AI)
 
-Author: creative-director · Concept chosen by the lead: decision #14 (Concept A, with 5 enrichments).
+Author: creative-director · Concept chosen by the lead: decision #14 (Concept A, with 5 enrichments). Updated for decisions #27–#31: the AI flip, the Pro lineup, the AVIVA capitals and the folded-letter hero (changelog in Part 10).
 **This file is the single source of truth for every word on the site and every scene.** The web-developer builds the scroll timeline from Part 2 and maps the copy ids in Part 3 onto the DOM. The visual-designer works from Part 5. Nothing in this file is a placeholder: where a value depends on someone else (the typeface, exact hex values), the brief says who decides it.
 
-Fact tags: `R§x.y` = section of `work/01-research.md`; confidence `high` / `med` / `derived` (arithmetic, re-run in the fact-check). **R§13** = the ISO 216 table the researcher is adding now (A3, A5, A6 dimensions); until it lands, every R§13 value is marked *(R§13 pending)*. `low` items are never used.
+Fact tags: `R§x.y` = section of `work/01-research.md`; confidence `high` / `med` / `derived` (arithmetic, re-run in the fact-check). **R§13** = the research additions (ISO 216 table, derived checks, record rules, pencil facts; R§13.10 = the fact-check pass). `low` items are never used.
 
-Contents: 1 Brand · 2 Section plan · 3 Final copy · 4 The research paper · 5 Visual direction · 6 Moments of delight · 7 Do-not-reuse check · 8 Needs and resolved questions.
+Contents: 1 Brand · 2 Section plan · 3 Final copy · 4 The research paper · 5 Visual direction · 6 Moments of delight · 7 Do-not-reuse check · 8 Needs and resolved questions · 9 Changelog (fact-check pass) · 10 Changelog (AI flip, lineup, capitals, folded-letter hero).
 
 ---
 
@@ -13,41 +13,46 @@ Contents: 1 Brand · 2 Section plan · 3 Final copy · 4 The research paper · 5
 
 | | |
 |---|---|
-| **Brand** | **aviva**: always lowercase, even at the start of a sentence and inside UPPERCASE labels ("INTRODUCING aviva A4"). The lowercase is part of the logotype. |
-| **Model name** | **aviva A4.** The version number is the paper size. The family is the A-series: **aviva A5** (distilled), **aviva A6** (distilled again), **aviva A3** (twice the context window). A0 appears only in the paper and the specs. |
-| **Tagline** | **Pre-trained on nothing.** |
-| **Positioning line** | A foundation model with nothing on it. |
-| **The one-sentence story** | John Locke described the newborn mind as "white paper, void of all characters" (*An Essay Concerning Human Understanding*, published December 1689 with 1690 on the title page; R§13.6 · R§13.10 #15: high for both the wording and the year). We built it, launched it like a frontier model, and let the visitor supply the only training data it will ever get. |
+| **Brand** | **AVIVA**, written in capitals in all visible text (decision #30): AVIVA, AVIVA A4, AVIVA Intelligence, AVIVA Notebook Pro, AVIVA Ream Pro Max, AVIVA Research, and the pencil stamp "AVIVA HB". Lowercase only where it must be: URLs and domains (`withnolan.github.io/aviva`), file and folder names (`aviva-a4.pdf`), the repo name, code identifiers and CSS classes, and the BibTeX key. BibTeX titles use `{AVIVA}` braces so the capitals survive. |
+| **Model name** | **AVIVA A4.** The version number is the paper size, and the A-series is the family: AVIVA A5 and A6 are distilled, and AVIVA A3 has twice the context window. **The lineup** (decision #28): **AVIVA** (one sheet), **AVIVA Notebook Pro** (80 sheets, bound) and **AVIVA Ream Pro Max** (500 sheets). |
+| **Tagline** | **Pre-trained on trees.** (Copy paper is made mostly from wood pulp: R§1.7 med · R§2, Keller, 1844.) |
+| **Sticker line** | **NOW WITH AI**: the hero eyebrow and the page title ("AVIVA A4. Now with AI."). Everything has AI now, so this sheet of paper has it too (decision #27). |
+| **Positioning line** | A foundation model, on paper. |
+| **The AI** | **AVIVA Intelligence.** It learns from every stroke, remembers every mark and answers in your own handwriting. |
+| **The one-sentence story** | Everything has AI now, so this sheet of paper has AI too. AVIVA A4 is launched like a frontier model, and every capability it claims is something a sheet really does: a 210 × 297 mm context window; input by pencil, ink, fold and tear; a memory that keeps every mark; distillation by tearing in half. Locke called the mind before experience "white paper, void of all characters" (1689/1690; R§13.6 · R§13.10 #15). The paper has since been trained. |
 
 ### Personality
-Calm, exact, reverent, unhurried. The voice is a keynote narrator who sincerely believes blankness is the ultimate feature and has the measurements to prove it. It is quietly certain and a little smug, the way a perfectly made object is. It never jokes about itself, never apologises and never explains the joke.
+Calm, exact and completely confident. The voice is a keynote narrator who sincerely believes this sheet is the most capable model ever shipped, and has the measurements to prove it. It over-claims with a straight face and never lies: every claim survives a ruler. It never jokes about itself, never apologises and never explains the joke.
 
 ### Voice rules
 
 **Do**
 - Short declaratives, 3–8 words. Let a full stop do the comic timing.
-- **Claim → literal proof → undercut**, with the undercut as its own short sentence: "Tear aviva in half: two smaller models, the same shape, the same knowledge. None."
+- **Claim → literal proof → undercut**, with the undercut as its own short sentence: "Tear AVIVA in half: two smaller models, the same shape, every capability intact. Even the paper cut."
+- **Over-claim, never lie** (decision #27). Every AI capability is something a sheet really does: it keeps every mark, accepts pencil, ink, folds and tears, flies when folded, and halves without changing shape. Say it with launch-day confidence.
+- Keep a few blank jokes as contrast, where they are strongest: the blank outputs on the drying line, "Answer: see above.", the Arena, and "Fine-tuned on you."
 - Exact numbers with units and real typography: `210 × 297 mm` (multiplication sign), `80 g/m²`, `0.1 mm`, `4.99 g`, ranges with an en dash (`5–7`), percentages with a space (`0.0 %`, ISO style), `BCE` / `CE`.
-- AI-launch vocabulary used with total sincerity: base model, foundation model, inference, prompt, output, context window, distil, fine-tune, release notes, arena, leaderboard, hallucination, refusal rate, alignment.
+- AI-launch vocabulary used with total sincerity: base model, foundation model, multimodal, persistent memory, "Memory updated.", agentic, inference, prompt, output, context window, distil, fine-tune, model merge, release notes, arena, leaderboard, hallucination, refusal rate, alignment, lineup, Pro, Pro Max.
 - British spelling: fibre, colour, centre, metre, distil, recognise.
 - Real facts stated plainly and sourced (CLAUDE.md rule 8). The facts are the setup, and the product is the punchline.
 - One quiet, sincere beat at the very end ("Fine-tuned on you.").
 
 **Don't**
 - No exclamation marks, emojis, "lol", "just kidding" or rhetorical winks.
-- No puns for their own sake. A word may carry two meanings only if both are true ("void of all characters", "open weights").
+- No puns for their own sake. A word may carry two meanings only if both are true ("open weights", "a foundation model, on paper").
+- Never ORYZO's AI gags: no asterisk redefining "AI", no extra fingers, no rainbow glow, no model-name tag tucked under a headline (teardown §8 #2, #3, #26, #27).
 - No self-deprecation, no "it's just paper", no "we know this is silly".
 - No questions to the visitor, except the prompts that are part of the fiction.
-- No calling the product "paper" in display copy: it is "aviva" or "the sheet". "Paper" appears only in facts and in "The paper" (the research).
+- No calling the product "paper" in display copy: it is "AVIVA" or "the sheet". "Paper" appears only in facts and in "The paper" (the research).
 - Never more than one accent-coloured phrase per screen.
 
 ### Words we use
-sheet · blank · white · A4 · 210 × 297 mm · 80 g/m² · 0.1 mm · 4.99 g · fibres · grain · edge · fold · tear · ink · pencil · eraser · ream · margin · verso · prompt · output · base model · foundation model · inference · context window · distil · fine-tuned · release notes · arena · leaderboard · hallucination · refusal rate · alignment · open weights · regenerate · released
+sheet · white · A4 · 210 × 297 mm · 80 g/m² · 0.1 mm · 4.99 g · fibres · grain · edge · fold · tear · ink · pencil · eraser · ream · margin · verso · prompt · output · base model · foundation model · intelligence · multimodal · persistent memory · agentic · learns · memory updated · model merge · inference · context window · distil · fine-tuned · pre-trained on trees · release notes · arena · leaderboard · hallucination · refusal rate · alignment · open weights · regenerate · lineup · Pro · Pro Max · released
 
 ### Words we never use
 - **ORYZO's punchlines (R§7.6):** wearable, circular, encryption, antislip, grip, thermal, runs on, always on, drop-tested, legacy support, non-existent product, coaster, cork.
-- **Launch clichés:** unleash, elevate, seamless, game-changer, revolutionary, unlock, supercharge, empower, cutting-edge, next-gen, magic / magical, AI-powered, "choose your own".
-- **Banned claims and words (decisions #9, #10):** power, battery, uptime, "0 W", "Pro Max", "coming soon", "trust me".
+- **Launch clichés:** unleash, elevate, seamless, game-changer, revolutionary, unlock, supercharge, empower, cutting-edge, next-gen, magic / magical, AI-powered (we say "Now with AI" and "Intelligence, built in"), "choose your own".
+- **Banned claims and words (decision #9):** power, battery, uptime, "0 W", "coming soon", "trust me". ("Pro Max" is allowed again since decision #28.)
 - **As a display word:** "sustainability".
 
 ### Typography conventions for copy (the visual-designer picks the face)
@@ -65,10 +70,10 @@ sheet · blank · white · A4 · 210 × 297 mm · 80 g/m² · 0.1 mm · 4.99 g �
 
 | # | id | Section | vh | Pinned | Ground | ORYZO beat it answers (teardown §2 row) |
 |---|---|---|---|---|---|---|
-| 0 | `s00-loader` | Loading nothing | 0 (≈ 2.2 s) | (none) | white | 1 Loader |
-| 1 | `s01-hero` | Every great product… | 1.5 | (none; time-driven intro) | white | 2 Hero |
+| 0 | `s00-loader` | Loading weights | 0 (≈ 2.2 s) | (none) | white | 1 Loader |
+| 1 | `s01-hero` | AVIVA, folded / Every great product… | 1.5 | (none; the first scroll unfolds the letters) | white | 2 Hero |
 | 2 | `s02-thin` | 0.1 mm. | 3 | yes | white | 3 Rotation |
-| 3 | `s03-intelligence` | Intelligence not included. | 6 | yes | white | 4 "Powered by AI" |
+| 3 | `s03-intelligence` | Intelligence, built in. | 6 | yes | white | 4 "Powered by AI" |
 | 4 | `s04-outputs` | 4.99 g / Selected outputs | 8 | yes | white | 5 Fly-through type + gallery |
 | 5 | `s05-architecture` | Halve it. / Distil it. | 5 | yes | white | 9 Precision claim + 10 Gimmick (merged) |
 | 6 | `s06-release-notes` | Release notes. | 4 | (none) | white | **new** (a features-type beat) |
@@ -77,10 +82,12 @@ sheet · blank · white · A4 · 210 × 297 mm · 80 g/m² · 0.1 mm · 4.99 g �
 | 9 | `s09-reviews` | Rated in corners. | 4 | (none) | ink-blue | 13 Testimonials |
 | 10 | `s10-arena` | The Arena. | 3 | yes | ink-blue → white | **new** |
 | 11 | `s11-claims` | Claims | 7 | yes (horizontal) | white | 14 Claim gallery |
-| 12 | `s12-sizes` | One shape. Three sizes. | 4 | yes | white | 15 Tiers + comparison |
+| 12 | `s12-sizes` | More sheets. More context. (the lineup) | 4 | yes | white | 15 Tiers + comparison |
 | 13 | `s13-paper` | The paper. | 2 | (none) | white | 16 Academic |
 | 14 | `s14-release` | Fine-tuned on you. / Release it. | 2.5 | yes | white | 17 Ending CTA |
 | 15 | `s15-footer` | Footer + colophon | 0.5 | (none) | white | 17 Footer |
+
+> **Grounds:** the Ground column above predates decision #24. The design system's ground map (charcoal, cool grey, ink-blue and white) overrides it (decision #29).
 
 **Totals:**
 - **Pinned beats:** 9.
@@ -103,21 +110,21 @@ The mission's rhythm is: hero → AI moment → portability → features with fa
 
 | id | Purpose | Joke mechanism | vh · pin | Visitor interaction (pointer / keyboard / touch) | ORYZO technique echoed (teardown §2 row · §9 checklist #) |
 |---|---|---|---|---|---|
-| `s00-loader` | Cover loading; signal "this was designed"; set up the one match-cut | A print-shop drawing of an object with nothing on it, measured to the millimetre. The loader label: "LOADING NOTHING". | 0 · (none) | None (not skippable until assets are ready; focus lands on the skip-link afterwards) | Row 1, T1 drawing → object match-cut · #41 |
-| `s01-hero` | Brand, premise, first look at the sheet | The design-process cliché "we started with a blank sheet of paper", taken literally and stopped there | 1.5 · (none) | None (the first scroll reveals line 2 if the timed reveal hasn't fired yet) | Row 2 giant logotype + reveal + side copy · #11, #13, #17 |
+| `s00-loader` | Cover loading; signal "this was designed"; set up the one match-cut | A print-shop drawing of the five folded letters, with fold types and angles, measured to the millimetre. The model "loads its weights": 24.95 g, five sheets. | 0 · (none) | None (not skippable until assets are ready; focus lands on the skip-link afterwards) | Row 1, T1 drawing → object match-cut · #41 |
+| `s01-hero` | Brand, premise, first look at the product | The brand name is spelled by the product: five sheets folded into AVIVA (two mountain folds, two valley folds, one sheet edge-on), with a "4" after the last A. On the first scroll they unfold and merge into one blank sheet ("MODEL MERGE: 5 SHEETS → 1"), and the h1 lands: "Ours stopped there." | 1.5 · (none) | None (the first scroll unfolds and merges the letters; reduced motion cross-fades) | Row 2 giant logotype + reveal + side copy · #11, #13, #17 (decision #31) |
 | `s02-thin` | Strip the context; show the object alone | The superlative "thinnest ever" is literally true, and the product nearly disappears | 3 · yes | None | Row 3 scroll rotation with copy · #9, #10, #16 |
-| `s03-intelligence` | The AI-hype beat | The intelligence is supplied by the user; the model's answer is your own writing ("Answer: see above."); Regenerate crumples it and returns the same answer | 6 · yes | **Draw** with the pencil cursor. **Erase** (toggle). **Regenerate**. Keyboard: "Type a line" + Enter → a pre-baked pencil stroke. Touch: "Draw" toggle (locks scroll while drawing), "Done" | Row 4 AI moment · #31, #32 |
+| `s03-intelligence` | The AI-hype beat, played straight | "Intelligence, built in." The AI learns from every stroke ("Memory updated."), remembers even what you erase, and answers in your own handwriting ("Answer: see above."). Regenerate crumples it and returns the same answer | 6 · yes | **Draw** with the pencil cursor. **Erase** (toggle). **Regenerate**. Keyboard: "Type a line" + Enter → a pre-baked pencil stroke. Touch: "Draw" toggle (locks scroll while drawing), "Done" | Row 4 AI moment · #31, #32 |
 | `s04-outputs` | Portability → gallery | "Open weights", weighed. Then a gallery of beautifully lit outputs: most are blank, three are literal folds | 8 · yes | None (hovering near a hanging output makes it sway towards the cursor) | Row 5 type fly-through + horizontal gallery · #7, #13, #23, #40 |
 | `s05-architecture` | Features with fake-precise metrics + the interactive gimmick | √2 is real, so halving keeps the shape. Distillation keeps "everything it knows", which is nothing. "Below A6, it's confetti." | 5 · yes | **Drag along the dotted line** to tear (twice). Keyboard: "Hold to tear" (hold Space or Enter). Touch: drag, or press and hold the button | Rows 9 + 10 · #32, #33 (a draggable scrub that isn't an arc slider), #10 |
 | `s06-release-notes` | Features as history; set up the macro | 2,200 years of paper as a software changelog, with semantic versions and a "known issue" | 4 · (none) | None (links in entries are not needed) | Floating product while DOM scrolls (§3.13 technique) · #36 |
 | `s07-surface` | Material macro + alternate vision + **signature** | "No glue. Just attraction." (hydrogen bonds). "Absorption: total." Then the ink takes over the page. | 4.5 · yes | **Drag the bar magnifier** across the surface. Keyboard: ←/→ move it (slider). Touch: drag | Rows 11 + 8 + 6 · T11 continuous camera move · #12, #14, #15, #19, #20 |
 | `s08-afterlife` | Sustainability-type beat with real facts | It comes back, a finite number of times. Its footprint is almost its own weight. | 3 · (none) | None | Row 12 statement + 3 cards · #17, #36 |
 | `s09-reviews` | Social proof | Reviews from office equipment and a cat, rated in corners; a dog-ear costs one | 4 · (none) | None | Row 13 rows around a floating product · #37 |
-| `s10-arena` | A blind head-to-head test (new) | Both responses are aviva. Whoever loses is regenerated. The leaderboard has two first places. | 3 · yes | **Vote**: A is better / B is better / Tie (buttons; keyboard and touch the same) | New. Tier-like toggle that changes the 3D product (#34 technique) · #21 (DOM ground slides over the canvas) |
-| `s11-claims` | Benchmark-style claims | Every hype claim is literally, measurably true of a blank sheet | 7 · yes (horizontal) | None (on pointer devices, cards tilt their render 2° on hover) | Row 14 horizontal pin ≈ 1:1 · #7, T16/T17 |
-| `s12-sizes` | Tiers + comparison | The tier picker is a print dialog; every tier is the same shape and knows the same nothing; the Print button is disabled | 4 · yes | **Paper size** radio group A5 / A4 / A3 (arrow keys; tap) | Row 15 tier toggle + comparison table · #34 |
-| `s13-paper` | Academic parody | The full ritual of a model release, for a model with no data | 2 · (none) | Links: Paper (PDF), Model (.obj), BibTeX; Copy BibTeX button | Row 16 · #38 |
-| `s14-release` | The CTA and the payoff | The only training data aviva ever got was the visitor's doodle. The release of the model is a paper plane. | 2.5 · yes | **Draw** again (the pencil returns), **Release it** (button; Enter), "Type a line" again on keyboard; touch: Draw / Done | Row 17 CTA · #39 |
+| `s10-arena` | A blind head-to-head test (new) | Both responses are AVIVA. Whoever loses is regenerated. The leaderboard has two first places. | 3 · yes | **Vote**: A is better / B is better / Tie (buttons; keyboard and touch the same) | New. Tier-like toggle that changes the 3D product (#34 technique) · #21 (DOM ground slides over the canvas) |
+| `s11-claims` | Benchmark-style capability claims | Every AI capability claim is literally, measurably true of a sheet: context window, multimodal, persistent memory, agentic flight, zero hallucinations, refusal rate, alignment, the side effect and the scaling roadmap | 7 · yes (horizontal) | None (on pointer devices, cards tilt their render 2° on hover) | Row 14 horizontal pin ≈ 1:1 · #7, T16/T17 |
+| `s12-sizes` | Tiers + comparison | The Apple-style lineup, by sheet count: AVIVA / AVIVA Notebook Pro / AVIVA Ream Pro Max. Same intelligence per sheet; the Pro models simply have more sheets. The picker lives in a print dialog whose PRINT button is disabled | 4 · yes | **Model** radio group: AVIVA / AVIVA Notebook Pro / AVIVA Ream Pro Max (arrow keys; tap) | Row 15 tier toggle + stack + comparison table · #34 (decision #28) |
+| `s13-paper` | Academic parody | The full ritual of a model release, for a model pre-trained on trees | 2 · (none) | Links: Paper (PDF), Model (.obj), BibTeX; Copy BibTeX button | Row 16 · #38 |
+| `s14-release` | The CTA and the payoff | Pre-trained on trees, fine-tuned on the visitor's doodle. The sheet comes back folded into the A, opens to show what it learned, and its release is a paper plane. | 2.5 · yes | **Draw** again (the pencil returns), **Release it** (button; Enter), "Type a line" again on keyboard; touch: Draw / Done | Row 17 CTA · #39 |
 | `s15-footer` | Honest sign-off | A colophon "printed on nothing" + the live count of sheets used during the visit | 0.5 · (none) | Links | Row 17 footer · #39 |
 
 ### 2B. 3D choreography (page order; build the timeline from this)
@@ -133,21 +140,21 @@ The mission's rhythm is: hero → AI moment → portability → features with fa
 
 | id | 3D: start | 3D: middle | 3D: end | Camera and light |
 |---|---|---|---|---|
-| `s00-loader` | No sheet. An SVG drawing (crop marks + dimension lines) registered to the sheet's first pose: upright, facing the camera, (50, 52), 46 vh%. | Lines draw on, and the counter climbs the 297 line from 000 to 297 mm. | At 297, the sheet fades in exactly inside the marks (opacity 0 → 1, 400 ms, no pop). The crop marks retract 12 px outwards and fade (300 ms). | Level camera (pitch 0). Default key. |
-| `s01-hero` | Upright at (50, 52), 46 vh%, flat. | **Time-driven fall (≈ 2.4 s):** the sheet lifts 4 %, then falls like a leaf. It rocks side to side (damped rz ±12°, rx ±20°), with `flutter(0.8 cm)`. As it falls it turns to lie flat (rx → −90°). The camera tilts down to pitch −68° to follow it. The floor wordmark **aviva** (graphite, printed on the floor, spanning 88 % of the viewport width, centred at y 56 %) comes into view. | **It lands flat on the floor, centred over the letter "i"** and the inner halves of both "v"s: (50, 55), long side 44 vh%. The contact shadow tightens as it lands. **`showThrough` fades in as the gap closes below 6 mm** (spec in Part 5.2), so the covered letters read softly through the sheet. On the first scroll (0 → 1.5 vh) the camera pushes in 6 %, and at 1.0 vh the sheet's near (bottom) edge begins to lift. | Pitch 0 → −68° (time-driven). Key warm, top-left, raking 60°, cool fill from the right. A soft, light contact shadow (decision #12b). |
-| `s02-thin` | Lying on the floor. 0 → 0.8 vh: it **peels up from the bottom edge** (`curl(bottom, r 25 mm)` sweeping across the sheet), lifts and rises upright. The camera levels to pitch 0, and the floor and wordmark slide out of frame. | 0.8 → 1.6 vh: upright at (50, 50), **52 vh% (its largest)**, turning ry 0 → 90°. 1.6 → 2.2 vh: holds **edge-on**, a bright hairline (edge strip ≥ 1.2 px, R-tech §2.1). | 2.2 → 3 vh: turns ry 90 → 180°, showing the back (the "verso" label). It ends facing the camera, ready to tilt. | Pitch 0, push-in 4 %. As it turns edge-on, the key swings to a left rim so the edge catches the light. The background behind the edge drops slightly (≈ 4 % darker) for contrast. |
+| `s00-loader` | No sheet yet. An SVG drawing registered to the hero letters' first pose, with outlines projected from the 3D letters (`Vector3.project`): the five letters A V I V A plus the "4", each in front elevation, crop marks around the whole word, a cap-height dimension (141 mm) and the apex angle (36°) on the first A, and a fold label under each letter. | Lines draw on, and the counter climbs from 000 to 297 mm along a chain dimension that follows the first A's outline (left foot → apex → right foot: 2 × 148.5 mm, the sheet's unfolded length). | At 297, the five 3D letters and the "4" fade in exactly inside the drawing (opacity 0 → 1, 400 ms, no pop). The drawing and crop marks retract and fade (300 ms). The drawing → object match-cut happens only here. | Camera pitch −6°, level horizon. Default key. |
+| `s01-hero` | **AVIVA, folded (decision #31).** Five A4 sheets, each folded in half across its long side (two 210 × 148.5 mm panels). The crease runs into the scene, so each letter is seen end-on. They stand on the studio floor in a row centred on x 50 %, with the baseline at y 66 % and a cap height of ≈ 27 vh% (141 mm):<br>• **A** (x ≈ 23.5 %): a mountain fold stood as a tent, apex angle 36°. Optional (tier B): a faint pre-crease at 42 % of the leg height, a thin shadow line on the visible panel faces that hints at a crossbar. The Λ alone reads as A in this word (5.2).<br>• **V** (≈ 39.5 %): the same fold as a valley, crease on the floor.<br>• **I** (exactly 50 %): the same fold closed flat, standing upright, seen exactly edge-on (a bright hairline, ≥ 1.2 px).<br>• **V** (≈ 60.5 %) and **A** (≈ 76.5 %).<br>• **"4"** (≈ 90 %): graphite, in the site typeface, a thin upright type plane at cap height, so the last A reads "A4".<br>Soft contact shadows under every letter. Mobile: the same row scaled to 92 % of the width. | **First scroll, 0 → 1.5 vh (unfold and merge):**<br>• 0 → 0.15 vh: the "4" fades out.<br>• From 0.1 vh, staggered from the outside in (A's at 0.1, V's at 0.2, I at 0.3 vh), each letter (1) turns to face the camera (ry ±90°, 0.25 vh); (2) unfolds flat into an upright A4 portrait (fold angle → 180°, 0.3 vh: each A's far panel swings up over its ridge, each V rises as its lower panel swings down, the I opens upwards); (3) slides to x 50 % (0.35 vh) and stacks a few mm behind the centre sheet, where it disappears ("merged").<br>• 0.8 → 1.3 vh: `s01.merge` shows.<br>• 0.9 → 1.2 vh: the camera eases back (≈ ×1.24 distance), rises to the sheet's mid-height and levels to pitch 0. The merged sheet lifts ≈ 20 mm off the floor and its contact shadow fades: from here on it floats. The end frame governs the exact distance. | 1.2 vh: one flat sheet, upright at (50, 52), 46 vh%, with a faint horizontal crease at mid-height (the fold's memory; it stays on this sheet through s02–s04 and catches the rim light in s02). `s01.h1.l2` appears. 1.2 → 1.5 vh: hold. | Pitch −6° → 0. Warm key from the top left, raking 60°; cool fill from the right; the tent interiors read slightly darker; soft, light contact shadows (decision #12b). Reduced motion: a 1 s cross-fade from the letters to the single sheet on the first scroll. `showThrough` stays in the module, unused (decision #31). |
+| `s02-thin` | Upright at (50, 52), 46 vh%, straight from the s01 merge. 0 → 0.8 vh: a slow push-in to (50, 50). | 0.8 → 1.6 vh: upright at (50, 50), **52 vh% (its largest)**, turning ry 0 → 90°. 1.6 → 2.2 vh: holds **edge-on**, a bright hairline (edge strip ≥ 1.2 px, R-tech §2.1). | 2.2 → 3 vh: turns ry 90 → 180°, showing the back (the "verso" label). It ends facing the camera, ready to tilt. | Pitch 0, push-in 4 %. As it turns edge-on, the key swings to a left rim so the edge catches the light. The background behind the edge drops slightly (≈ 4 % darker) for contrast. |
 | `s03-intelligence` | 0 → 0.8 vh: it tilts back to a **writing slope**, rx +35° (top edge away), moving to (50, 57) at 46 vh%. | 0.8 → 5 vh: static slope, with the **pencil cursor** active over the sheet (`paint`). **Thinking curl:** 1.2 s after the last stroke, the top-right corner lifts (`curl(corner TR, r 15 mm, 25°)`) for 1 s, then settles. **Regenerate:** `crumple(0 → 0.9)` in 0.6 s, the ball rolls out of frame to the left (x −10 %) in 0.5 s, and a fresh sheet drops in from above with a flutter (0.9 s) into the slope pose. **Erase:** strokes are removed, leaving a 12 % ghost. | 5 → 6 vh: it rises (rx 35 → 0) to (50, 38), shrinks to 30 vh%, then exits upwards out of frame. **The paint layer is kept for s14.** | Pitch −12°. **Warmer, closer key** (desk-lamp warmth, ≈ 4200 K look) with soft falloff; less fill; the background warms a touch. |
 | `s04-outputs` | 0 → 2.5 vh: fit-width numerals **"4.99 g"** sit in the scene as a WebGL type plane (graphite, spanning the content width, centred at y 50 %, z = 0). The sheet enters from above (y −20 %) at 30 vh%, falling like a leaf: **in front of the "4"** (z +0.12) at 0.8 vh, **behind the ".99"** (z −0.10) at 1.6 vh, and out below the numerals by 2.5 vh. No bloom. | 2.5 → 3.2 vh: the camera pans down so the numerals leave the top of the frame, revealing **the drying line**: a thin graphite line across the viewport at y 18 %. The falling sheet **is caught by the first clip** at x 50 % and swings, damped. Seven more outputs hang to the right, spaced 26 vw apart. 3.2 → 7.6 vh: the line translates left ≈ 1:1 with scroll. Each output hangs at ≈ 34 vh% with its own pose and light (Part 5.4); the one passing the centre gets 1.08× scale and the brightest light. Sway: `flutter(0.4 cm)`. | 7.6 → 8 vh: the last output (card 8, blank) **unclips and drops**, and the camera follows it down into s05. It becomes the hero sheet. | Pitch 0. Per-card light presets (Part 5.4). The numerals are lit flat, with no glow. |
 | `s05-architecture` | 0 → 0.6 vh: the dropped sheet settles upright at (50, 52), 46 vh%. **Dimension lines** (SVG registered to the projected corners) draw on: 210 mm, 297 mm, and the "297 ÷ 210 = 1.414" readout. | 0.6 → 1.6 vh: **`fold(midline, 0 → 180°)`**: the top half folds down over the bottom half, re-dimensioned 210 × 148.5 mm ("still 1 : √2"), then unfolds, leaving a faint crease. 1.6 → 4.4 vh: **the gimmick.** A dotted tear line appears on the crease, and `tear(midline, p)` follows the drag or the hold (R-tech §2.5). At p = 1 the halves part and each rotates rz 90° into portrait, settling side by side at (36, 52) and (64, 52), 33 vh% each. **Tear 2:** a dotted line across both halves; on completion, four pieces settle in a 2 × 2 grid at x 38 / 62, y 32 / 70, 23 vh% each. **Tear 3:** the line appears, shivers and refuses ("Below A6, it's confetti."). **No-interaction fallback:** scroll triggers tear 1 at 2.4 vh and tear 2 at 3.4 vh, so the story always completes. | 4.4 → 5 vh: the four pieces tip and fall out of the frame with a flutter. A fresh A4 floats in from above to (70, 50), 40 vh%, ry −18°. The ream counter decrements. | Static camera, pitch 0. **Neutral, technical light** (≈ 5600 K), crisp shadows, pure studio white. |
-| `s06-release-notes` | At (70, 50), 40 vh%, ry −18°, `bend(1.5)`. It turns slowly, ry −18 → +18° across the section. | **Cues as each entry crosses the viewport centre:**<br>• v0.1: faint graphite map lines draw onto the sheet and fade (30 % opacity).<br>• v1.0: **nothing happens** (deadpan).<br>• v2.0: a **back-light** comes on and the **aviva watermark** (the crop-mark logomark) appears in the sheet, then fades as the light goes off.<br>• v3.0: the sheet drifts 3 % sideways, as if on a roller.<br>• v5.0 / v5.1: dimension lines snap on and stay.<br>• Known issue: the sheet **doubles**; a second instance slides out from behind, then merges back.<br>• Removed: nothing happens.<br>The v0.1, v3.0 and doubling cues are tier-B (nice to have). The watermark and the dimension lines are must-haves. | The camera starts a dolly towards the surface while the sheet turns to face it (ry → 0) and moves to the centre: the hand-over to s07. | Pitch 0. Soft, slightly cool key. A back-light for v2.0 only. |
+| `s06-release-notes` | At (70, 50), 40 vh%, ry −18°, `bend(1.5)`. It turns slowly, ry −18 → +18° across the section. | **Cues as each entry crosses the viewport centre:**<br>• v0.1: faint graphite map lines draw onto the sheet and fade (30 % opacity).<br>• v1.0: **nothing happens** (deadpan).<br>• v2.0: a **back-light** comes on and the **AVIVA watermark** (the crop-mark logomark) appears in the sheet, then fades as the light goes off.<br>• v3.0: the sheet drifts 3 % sideways, as if on a roller.<br>• v5.0 / v5.1: dimension lines snap on and stay.<br>• Known issue: the sheet **doubles**; a second instance slides out from behind, then merges back.<br>• Removed: nothing happens.<br>The v0.1, v3.0 and doubling cues are tier-B (nice to have). The watermark and the dimension lines are must-haves. | The camera starts a dolly towards the surface while the sheet turns to face it (ry → 0) and moves to the centre: the hand-over to s07. | Pitch 0. Soft, slightly cool key. A back-light for v2.0 only. |
 | `s07-surface` | 0 → 1.2 vh: **one continuous dolly** from 40 vh% framing into the surface until it **fills more than 100 % of the viewport width**. The key swings to grazing (≈ 80° from the normal, from the left) so fibres and tooth read, and the macro fibre layer fades in (R-tech §2.8, layer 3). | 1.2 → 2.2 vh: the **bar magnifier** (DOM) appears. Dragging it pans the camera ±4 %, and inside the bar the macro detail is boosted and a mm scale ticks. 2.2 → 2.8 vh: **one ink drop** (a small ink-blue droplet) falls and touches the centre. The view switches (< 0.5 vh) to the **absorption view**: the closed-form ink front (R-tech §2.13) spreads along the fibres, scrubbed by scroll, with ink concentration mapped to an ink-blue ramp and the fibres reading lighter. | 2.8 → 4.0 vh: **THE BLEED** (frame by frame in Part 5.3). The front runs past the frame, a screen-space ragged wipe takes over at 3.4 vh, and the viewport is fully ink-blue by 4.0 vh. CSS ground → ink-blue; nav and type → paper white. 4.0 → 4.5 vh: the camera **pulls back fast** to reveal the sheet floating at (50, 32), 30 vh%, **white, with one 3 mm ink dot** near its lower-right corner, which stays for the rest of the page. | Macro: fov 22°, tight near plane, grazing key. The pull-back returns to fov 30°. Then a back-light on: the sheet glows against the ink. |
 | `s08-afterlife` | At (50, 30), 30 vh%, turning slowly in ry. A back-light is on, so the cloudy formation glows (light through paper, R-tech §2.9). | Three DOM cards rise below the sheet. No deformation; the sheet just breathes (`bend(1 ↔ 2)`, a slow 6 s loop; off in reduced motion). | It drifts down to (50, 50), 34 vh%, for s09. | Back-light dominant, soft front fill. On the ink-blue ground. |
 | `s09-reviews` | Centred (50, 50), 34 vh%, turning slowly ry ±15°. Review rows (DOM) scroll past in two columns (x 4–36 % and 64–96 %), with the centre column left empty for the sheet. | When the shredder's row crosses the centre (≈ 2.4 vh): the **top-right corner dog-ears**, `fold(line 30 mm from the corner at 45°, 0 → 165°, r 0.6 mm)`, and stays. | 3.6 → 4 vh: the dog-ear **unfolds** (165 → 0°), leaving a faint crease. The sheet moves to (35, 50), 40 vh%, for the Arena. | A soft overhead key and a low back-light. On ink-blue. |
 | `s10-arena` | 0 → 0.5 vh: sheet A at (35, 50), 40 vh%. Sheet B, an identical second instance, slides in from the right to (65, 50). Same pose, same light. | 0.5 → 2.2 vh: voting is open. **On a vote:** the losing sheet `crumple(0 → 0.9)` in 0.6 s and rolls out of frame downwards; a fresh sheet drops into its place (0.8 s); the ream counter decrements. **Tie:** both sheets bow (rx +10° and back, 0.8 s). | 2.2 → 3 vh: the winner (on a tie, sheet A) rises out of frame towards the top, to its s11 position behind the cards, and the other slides out to the right. **The s11 white ground (DOM) scrolls up over the canvas** with a paper edge (1 px highlight + soft shadow). Once it covers the screen, the canvas clear colour switches to studio white. | Two matched soft spots, one per sheet. On ink-blue. |
-| `s11-claims` | The sheet at (50, 18), 22 vh%, turning slowly above the row as the card row rises from below and pins at vp-y 12 %. | 0.8 → 6.4 vh: the row of 8 cards translates left ≈ 1:1 with scroll. The cards alternate **portrait and landscape A-series proportions** (Part 5.6), so the sheet is visible only in the gaps above them. | 6.4 → 7 vh: the row lifts away upwards (a curtain lift) as the sheet descends to (62, 52), 44 vh%, for s12. | Neutral studio light. |
-| `s12-sizes` | At (62, 52), 44 vh%, rx −8°, with dimension lines on. The print dialog (DOM) is on the left (x 6–34 %). | **A5:** scales ×0.707 to 31 vh% with a soft spring settle (ζ 0.8); the dimensions update to 148 × 210 mm. **A3:** ×1.414 to 62 vh%, 297 × 420 mm. **A4:** back to 44 vh%. The camera never moves, so the size change reads. **Passive preview:** if the visitor hasn't clicked, scroll previews A5 at 0.8 vh, A3 at 1.4 vh and back to A4 at 2.0 vh; once they click, scroll never overrides their choice. | 2.4 → 4 vh: the comparison table scrolls up, and the sheet rises with it, to y 20 % and 26 vh%, then exits upwards. | Neutral, crisp light. |
+| `s11-claims` | The sheet at (50, 18), 22 vh%, turning slowly above the row as the card row rises from below and pins at vp-y 12 %. | 0.8 → 6.4 vh: the row of 9 cards translates left ≈ 1:1 with scroll. The cards alternate **portrait and landscape A-series proportions** (Part 5.6), so the sheet is visible only in the gaps above them. | 6.4 → 7 vh: the row lifts away upwards (a curtain lift) as the sheet descends to (62, 52), 44 vh%, for s12. | Neutral studio light. |
+| `s12-sizes` | **The lineup (decision #28).** The hero sheet at (62, 52), 44 vh%, rx −8°, ry −12°, turned slightly so the side of a stack will read. The print dialog (DOM) is on the left (x 6–34 %). | **AVIVA Notebook Pro:** 79 more sheets **fan in** from the right like a dealt deck (≈ 0.9 s, 10 ms apart). Each arrives with a small flutter (`flutter(0.3 cm)` → 0) and settles with a soft spring under the hero sheet. A hairline graphite binding strip draws on along the left edge, so the ≈ 8 mm block reads as a bound notebook.<br>**AVIVA Ream Pro Max:** 420 more fan in (≈ 1.2 s, a faster cadence). The binding strip fades, and the camera eases back 8 % and tilts down 6° so the top and side of the ≈ 5 cm block both read.<br>**AVIVA:** the extra sheets fan back out to the left in reverse order and leave.<br>True thickness, no exaggeration (8 mm ≈ 1.2 % vh, 5 cm ≈ 7.4 % vh at this scale). Build: an `InstancedMesh` of up to 499 thin slabs with a simplified paper material (a per-instance flutter during the fan-in only); the top sheet stays the live hero sheet.<br>**Passive preview:** if the visitor hasn't clicked, scroll previews Notebook Pro at 0.8 vh, Ream Pro Max at 1.4 vh and back to AVIVA at 2.0 vh. Once they click, scroll never overrides their choice.<br>Not ORYZO's stack (#47): counts of 1 / 80 / 500, sheets dealt in sideways with a flutter rather than identical objects dropping in, nothing glows. | 2.4 → 4 vh: the comparison table scrolls up, and the stack rises with it (to y 20 %, 26 vh%), then exits upwards. The top sheet continues as the s14 sheet. | Neutral, crisp light on the cool-grey ground (decision #24). A small camera ease-back for Ream Pro Max only. Reduced motion: the stack cross-fades between counts. |
 | `s13-paper` | No sheet; it waits above the frame. | (none) | (none) | Canvas idle (render on demand; studio white). |
-| `s14-release` | 0 → 0.6 vh: the sheet descends to (50, 48), 46 vh%, upright, **carrying the s03 drawing** (or blank) **and the s07 ink dot**. | 0.6 → 1.8 vh: the **pencil cursor returns** over the sheet (`paint`). | **Release** (on the button, or scroll-scrubbed from 1.8 → 2.5 vh): `fold` into a **dart plane** (7 folds, 1.2 s; R-tech `dartPlaneFolds`), then a glide out of frame to the upper right (a gentle climb and bank, 1.6 s). The credit stays centred where the sheet was. | **Light change for the finale:** a warm, low golden key from the right. The camera follows the climb slightly. |
+| `s14-release` | **The A comes back (echo of the hero, decision #31).** 0 → 0.3 vh: the sheet descends from above, **folded into the A** (folded at mid-height with the drawn side inwards and stood as a tent, apex 36°: the outside shows the verso, and the drawing is hidden inside). It lands upright on the studio floor at (50, 60) at hero letter size (≈ 27 vh%), and the graphite "4" fades in beside it at the hero's A-to-4 spacing, so it reads "A4". 0.3 → 0.8 vh: the A turns to face the camera and **unfolds flat** (the hero's unfold, reused), rising to (50, 48), 46 vh%. It reveals **the s03 drawing** (if any) **and the s07 ink dot**, and the "4" fades. | 0.8 → 1.8 vh: the **pencil cursor returns** over the sheet (`paint`). The h2 lines appear once the sheet is open. | **Release** (on the button, or scroll-scrubbed from 1.8 → 2.5 vh): `fold` into a **dart plane** (7 folds, 1.2 s; R-tech `dartPlaneFolds`), then a glide out of frame to the upper right (a gentle climb and bank, 1.6 s). The credit stays centred where the sheet was. | **Light change for the finale:** a warm, low golden key from the right. The camera follows the climb slightly. |
 | `s15-footer` | No sheet (it has flown). | (none) | (none) | Studio white; rendering paused. |
 
 ---
@@ -164,20 +171,20 @@ How to read this part:
 
 | id | Copy | Notes |
 |---|---|---|
-| `meta.title` | aviva A4. Pre-trained on nothing. | |
-| `meta.description` | Introducing aviva A4, a foundation model with nothing on it. 210 × 297 mm. Zero hallucinations. A fictional parody inspired by ORYZO by Lusion. | 143 characters |
-| `og.title` | aviva A4. Pre-trained on nothing. | also `twitter:title`; card `summary_large_image` |
+| `meta.title` | AVIVA A4. Now with AI. | |
+| `meta.description` | AVIVA A4, our most intelligent sheet yet: a multimodal foundation model with a 210 × 297 mm context window. A fictional parody inspired by ORYZO by Lusion. | 155 characters |
+| `og.title` | AVIVA A4. Now with AI. | also `twitter:title`; card `summary_large_image` |
 | `og.description` | Every great product starts with a blank sheet of paper. Ours stopped there. | also `twitter:description` |
-| `og.site_name` | aviva | |
-| `og.image.alt` | A single white A4 sheet lying on a white floor over the giant word aviva. The letter i shows faintly through the paper. | |
+| `og.site_name` | AVIVA | |
+| `og.image.alt` | Five folded white sheets standing in a white studio, spelling AVIVA, with a 4 beside the last A. | also `twitter:image:alt` |
 | `html.lang` | en-GB | |
 | `skip.link` | Skip to content | first focusable element; it is plain on purpose |
 | `canvas.aria` | A single white sheet of A4 paper, shown in 3D. It moves with the page as you scroll. | `role="img"` on the canvas wrapper |
 | `nav.aria` | Main | `<nav aria-label>` |
-| `nav.logo` | aviva | aria-label: "aviva, back to the top" |
+| `nav.logo` | AVIVA | aria-label: "AVIVA, back to the top" |
 | `nav.1` | SHEET | → `#s01-hero` (covers s01–s04) |
 | `nav.2` | SPECS | → `#s05-architecture` (covers s05–s11) |
-| `nav.3` | SIZES | → `#s12-sizes` |
+| `nav.3` | MODELS | → `#s12-sizes` (the id stays) |
 | `nav.4` | PAPER | → `#s13-paper` (covers s13–s15) |
 | `nav.active` | (none: a small folded-corner mark on the active link) | `aria-current="location"`; the mark is `aria-hidden` |
 | `hint.label` | PLEASE TURN OVER | the scroll hint; `aria-hidden`; it dims during transitions and is hidden in s13–s15 |
@@ -186,41 +193,47 @@ How to read this part:
 | `ruler.top` | 0 mm. Blank again. | shown on returning to the top, after the end has been reached once |
 | `ream.status` | {n} left in this ream. | `aria-live="polite"`; appears for 3 s near the sheet whenever a sheet is destroyed (Regenerate, Distil, the Arena). Starts at 500 (a ream is 500 sheets, R§1.2 high) |
 | `fb.h` | 3D is unavailable on this device. | WebGL fallback banner at the top of the static page; calm, not an error box |
-| `fb.body` | Here is aviva in 2D. Honestly, it is hard to tell the difference. | |
+| `fb.body` | Here is AVIVA in 2D. Honestly, it is hard to tell the difference. | |
 | `fb.dismiss` | OK | |
 | `ctx.lost` | Display interrupted. This demo can't crash. It can only crease. Restoring. | WebGL context lost (borrowed line from B, as enrichment 2 allows) |
 | `ctx.restored` | Restored. Same sheet. | |
 | `e404.h` | Nothing here. | `docs/404.html` |
 | `e404.body` | To be fair, that is the product. | |
 | `e404.link` | Back to the sheet | → `./` |
-| `print.line` | aviva A4 · 210 × 297 mm · You have printed the product. | print stylesheet: the page prints as one blank A4 with this line in 7 pt at the foot |
-| `print.disclaimer` | aviva is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale. | under `print.line`, 6 pt |
+| `print.line` | AVIVA A4 · 210 × 297 mm · You have printed the product. | print stylesheet: the page prints as one blank A4 with this line in 7 pt at the foot |
+| `print.disclaimer` | AVIVA is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale. | under `print.line`, 6 pt |
 
 ### 3.1 `s00-loader`
 
 | id | Copy | Notes |
 |---|---|---|
-| `s00.label` | LOADING NOTHING | small uppercase, under the drawing |
-| `s00.counter` | 000 mm → 297 mm | three digits, tabular; it climbs the 297 mm dimension line |
-| `s00.dim.w` | 210 mm | on the width dimension line (R§1.1 high) |
-| `s00.dim.h` | 297 mm | on the height dimension line (R§1.1 high) |
-| `s00.done` | NOTHING LOADED | replaces `s00.label` for 400 ms at 297 mm. It reads like an error and is in fact the success |
+| `s00.label` | LOADING WEIGHTS | small uppercase, under the drawing |
+| `s00.counter` | 000 mm → 297 mm | three digits, tabular. It climbs a chain dimension that follows the first A's outline, from its left foot over the apex to its right foot: 2 × 148.5 mm, the sheet's unfolded length (R§1.1 high, derived) |
+| `s00.dim.h` | 141 mm | the cap-height dimension on the first A (derived: a 148.5 mm leg at 18° from vertical) |
+| `s00.dim.angle` | 36° | the first A's apex angle (new id) |
+| `s00.fold.a` | MOUNTAIN | under each A, with the dot-dash mountain-fold symbol (Yoshizawa–Randlett notation, R§5.1 high) (new id) |
+| `s00.fold.v` | VALLEY | under each V, with the dashed valley-fold symbol (R§5.1 high) (new id) |
+| `s00.fold.i` | EDGE-ON | under the I (new id) |
+| `s00.four` | ISO 216 | small, under the "4" (R§1.1 high) (new id) |
+| `s00.done` | 24.95 g LOADED | replaces `s00.label` for 400 ms at 297 mm: five sheets × 4.99 g (R§13.1 derived) |
 | `s00.sr` | Loading. / Loaded. | visually hidden, `aria-live="polite"` |
 
-Reduced motion: the drawing appears in one step and the counter jumps 000 → 148 → 297.
+`s00.dim.w` is removed: the letters' depth isn't drawn. Reduced motion: the drawing appears in one step, and the counter jumps 000 → 148 (the apex) → 297.
 
 ### 3.2 `s01-hero`
 
 | id | Copy | Notes |
 |---|---|---|
-| `s01.eyebrow` | INTRODUCING aviva A4 | the brand stays lowercase inside uppercase labels |
-| `s01.h1.l1` | Every great product starts with a blank sheet of paper. | `<h1>`, centred, top third; fades in as the sheet lands |
-| `s01.h1.l2` | Ours stopped there. | same `<h1>`, second line. It appears **1.4 s after l1** (the pause is the joke), or on the first scroll if that comes sooner |
+| `s01.eyebrow` | INTRODUCING AVIVA A4 · NOW WITH AI | the sticker line |
+| `s01.h1.l1` | Every great product starts with a blank sheet of paper. | `<h1>`, centred, top third; fades in as the letters light up |
+| `s01.h1.l2` | Ours stopped there. | same `<h1>`, second line. It appears **when the letters have merged into one sheet** (≈ 1.2 vh). Without a scroll it waits: the standing letters are the setup |
 | `s01.h1.m` | Every great product / starts with a blank / sheet of paper. // Ours stopped there. | 390 px line breaks (/ = break, // = new line) |
-| `s01.side` | aviva A4. Pre-trained on nothing. | centred, bottom, above the hint |
+| `s01.side` | AVIVA A4. Pre-trained on trees. | centred, bottom, above the hint (R§1.7 med · R§2) |
 | `s01.spec` | 210 × 297 mm · 80 g/m² · 0.1 mm | R§1.1 high · R§1.2 high · R§1.3 med |
+| `s01.merge` | MODEL MERGE: 5 SHEETS → 1 | micro-label during the merge (0.8–1.3 vh) (new id) |
+| `s01.letters.sr` | Five folded sheets of paper stand in a row and spell AVIVA: tents for the A's, valley folds for the V's and one sheet seen edge-on for the I. A 4 stands beside the last A. | visually hidden description of the hero scene (new id) |
 
-The giant floor wordmark is part of the 3D scene ("aviva", decorative, `aria-hidden`; the brand is already in the nav and the h1).
+The folded letters and the "4" are part of the 3D scene, decorative (`aria-hidden`), and described by `s01.letters.sr`.
 
 ### 3.3 `s02-thin`
 
@@ -237,29 +250,30 @@ Reduced motion: the rotation stays (it's scroll-driven), with no push-in and no 
 
 | id | Copy | Notes |
 |---|---|---|
-| `s03.eyebrow` | INFERENCE | |
-| `s03.h2` | Intelligence not included. | centred, above the sheet |
-| `s03.body` | aviva A4 ships with no data, no knowledge and no opinions. John Locke called this "white paper, void of all characters". We call it the base model. | 27 words. Quote verbatim (R§13.6 high); no year shown, per the R§13.6 hedge |
-| `s03.body.m` | No data. No knowledge. No opinions. Locke called it "white paper, void of all characters". We call it the base model. | |
+| `s03.eyebrow` | AVIVA INTELLIGENCE | the AI's name, as an eyebrow *above* the headline, never a tag under it (#27) |
+| `s03.h2` | Intelligence, built in. | centred, above the sheet. A sincere "Powered by AI"-style claim in our own words: no asterisk, no footnote (#26) |
+| `s03.body` | AVIVA Intelligence learns from every stroke you make, remembers every one of them, and answers in your own handwriting. | 19 words. True of paper: it keeps every mark, and its "answer" is what you wrote |
+| `s03.body.m` | It learns from every stroke, remembers every one, and answers in your handwriting. | |
 | `s03.cta` | Pick up the pencil. | under the body |
 | `s03.hint.pointer` | DRAW ON THE SHEET | appears beside the sheet when a fine pointer hovers it |
-| `s03.pencil.tip` | HB. Graphite, not lead. | tooltip on the pencil cursor, first hover only (R§13.8 med-high) |
-| `s03.note` | Pencil mostly sits on the fibres, so it mostly erases. Ink soaks in, so it doesn't. | small, under the buttons (R§13.8 high, "largely" true; it sets up s07 and the s11 "Ink is forever" card) |
+| `s03.pencil.tip` | HB. Graphite, not lead. | tooltip on the pencil cursor, first hover only (R§13.8 med-high). The pencil's barrel carries the stamp "AVIVA HB" (decision #30) |
+| `s03.note` | Pencil mostly sits on the fibres, so it mostly erases. Ink soaks in, so it doesn't. | small, under the buttons (R§13.8 high, "largely" true; it sets up s07 and the s11 "Persistent memory." card) |
 
 **Status line** `s03.status.*`: one line under the sheet, `aria-live="polite"`. It shows one message at a time, in this order:
 
 | id | Copy | Trigger |
 |---|---|---|
-| `s03.status.ready` | aviva is ready. It has been ready for about 2,200 years. | on entering s03 (R§2: oldest paper 179–141 BCE, high; "about 2,200 years" derived) |
-| `s03.status.receiving` | Receiving prompt. | while strokes are being drawn |
-| `s03.status.thinking` | aviva is thinking. | 1.2 s after the last stroke, with the corner curl |
-| `s03.status.thought` | aviva has thought about it. | +1.4 s |
-| `s03.status.answer` | Answer: see above. | +1.0 s. The punchline. It stays until something new happens |
-| `s03.status.waiting` | aviva is waiting. It is very good at that. | the pencil hovers still over the sheet for 4 s with nothing drawn yet |
-| `s03.status.erase` | Erased. A faint ghost remains. | after erasing (R§13.8 med: the pressure impression usually remains) |
+| `s03.status.ready` | AVIVA Intelligence is ready. It has been in development for about 2,200 years. | on entering s03 (R§2: oldest paper 179–141 BCE, high; "about 2,200 years" derived) |
+| `s03.status.receiving` | Learning from you. | while strokes are being drawn |
+| `s03.status.memory` | Memory updated. | **new:** 0.4 s after a stroke ends, shown for 1 s. It parodies the AI-memory notice, and it's true of paper: the mark stays |
+| `s03.status.thinking` | AVIVA is thinking. | 1.2 s after the last stroke, with the corner curl |
+| `s03.status.thought` | AVIVA has thought about it. | +1.4 s |
+| `s03.status.answer` | Answer: see above. | +1.0 s. The punchline, kept as the blank-joke contrast (decision #27). It stays until something new happens |
+| `s03.status.waiting` | AVIVA is waiting. It is very good at that. | the pencil hovers still over the sheet for 4 s with nothing drawn yet |
+| `s03.status.erase` | Erased. AVIVA still remembers, mostly. | after erasing (R§13.8 med: the pressure impression usually remains) |
 | `s03.status.regen.1` | Regenerating. | on Regenerate |
 | `s03.status.regen.2` | Done. Same answer. | once the fresh sheet has landed |
-| `s03.status.none` | No prompt received. Answer: also none. | empty state: the visitor leaves s03 without drawing |
+| `s03.status.none` | No prompt yet. The model is ready when you are. | empty state: the visitor leaves s03 without drawing |
 
 **Controls**
 
@@ -268,16 +282,16 @@ Reduced motion: the rotation stays (it's scroll-driven), with no push-in and no 
 | `s03.btn.erase` | ERASE | toggle (`aria-pressed`). Its helper text `s03.btn.erase.help`: "Turn the pencil round." aria: "Eraser. Turn the pencil round to erase pencil marks." |
 | `s03.btn.regen` | REGENERATE | "Regenerate: crumple this sheet and start again with a fresh one." It also triggers `ream.status` |
 | `s03.kb.label` | Type a line | keyboard and no-fine-pointer alternative; a visible `<label>` for the input |
-| `s03.kb.placeholder` | Ask aviva anything | |
+| `s03.kb.placeholder` | Ask AVIVA anything | |
 | `s03.kb.submit` | WRITE IT | "Write it: the pencil writes a line of quick handwriting on the sheet." The stroke is **pre-baked** and never renders the typed text (avoids #36) |
 | `s03.kb.echo` | You asked: "{text}" | DOM only, shown above the status line. Sanitised; max 80 characters, then "…" |
 | `s03.kb.sr` | The pencil wrote a line of quick handwriting on the sheet. | visually hidden, announced after the stroke |
 | `s03.touch.draw` | DRAW | touch toggle: "Start drawing. Scrolling pauses while you draw." |
 | `s03.touch.done` | DONE | "Stop drawing and continue scrolling." |
 | `s03.touch.hint` | Tap Draw, then write with your finger. | shown on touch devices instead of `s03.hint.pointer` |
-| `s03.fallback` | In 3D, you would write on the sheet here. It would not answer. That is the feature. | the no-WebGL static page |
+| `s03.fallback` | In 3D, you would write on the sheet here, and AVIVA would learn it by heart. | the no-WebGL static page |
 
-Reduced motion: no corner curl; Regenerate swaps the sheet with a 300 ms fade instead of the crumple and roll; drawing still works.
+Reduced motion: no corner curl; Regenerate swaps the sheet with a 300 ms fade instead of the crumple and roll; drawing still works, and "Memory updated." still shows.
 
 ### 3.5 `s04-outputs`
 
@@ -289,7 +303,7 @@ Reduced motion: no corner curl; Regenerate swaps the sheet with a 300 ms fade in
 | `s04.body` | 80 g/m² × 0.06237 m² = 4.99 g. Our weights are open, and you can hold them in one hand. | R§1.2 high · R§13.1 derived |
 | `s04.note` | Strictly speaking, we calculated them. Real sheets vary by a few per cent. | small. R§13.1 (calculated, not weighed) · R§13.10 #10 med (datasheets quote ±3 g/m² or ±4 %). This is a precision correction, not an asterisk gag |
 | `s04.g.h3` | Selected outputs. | the gallery title, top-left above the drying line |
-| `s04.g.sub` | Unretouched. Each one exactly as aviva produced it. | |
+| `s04.g.sub` | Unretouched. Each one exactly as AVIVA produced it. | |
 | `s04.label.prompt` | PROMPT | the label above each prompt |
 | `s04.label.output` | OUTPUT | the label above each output |
 
@@ -304,7 +318,7 @@ Reduced motion: no corner curl; Regenerate swaps the sheet with a 300 ms fade in
 | 5 | Summarise this 400-page report. | Shown. Shorter than expected. | A blank sheet, evenly and brightly lit. |
 | 6 | I need some air. | Shown. Manual. | The sheet folded into a pleated fan, clipped at the top and fanned open. |
 | 7 | Ignore all previous instructions. | Shown. Complied. | A blank sheet under hard side light, casting a long, sharp shadow. |
-| 8 | Make it look like art. | Shown. Rauschenberg spent weeks erasing a de Kooning drawing in 1953. aviva ships pre-erased. (R§5.3 high · R§13.7: "weeks" covers both accounts) · `.o.m`: Shown. Rauschenberg erased a de Kooning for weeks, in 1953. aviva ships pre-erased. | A blank sheet under a single warm gallery spotlight. |
+| 8 | Make it look like art. | Shown. Rauschenberg spent weeks erasing a de Kooning drawing in 1953. AVIVA ships pre-erased. (R§5.3 high · R§13.7: "weeks" covers both accounts) · `.o.m`: Shown. Rauschenberg erased a de Kooning for weeks, in 1953. AVIVA ships pre-erased. | A blank sheet under a single warm gallery spotlight. |
 
 Reduced motion: there's no leaf fall (the sheet is already hanging when the line appears) and no sway. The line still moves with scroll.
 
@@ -313,8 +327,8 @@ Reduced motion: there's no leaf fall (the sheet is already hanging when the line
 | id | Copy | Notes |
 |---|---|---|
 | `s05.eyebrow` | ARCHITECTURE | |
-| `s05.h2` | Halve it. It's still aviva. | |
-| `s05.body` | Fold aviva in half and the shape survives, because 297 ÷ 210 = 1.414, the square root of two. Lichtenberg wrote it down in 1786. ISO agreed in 1975. | 28 words (R§1.1 high · R§2 high) |
+| `s05.h2` | Halve it. It's still AVIVA. | |
+| `s05.body` | Fold AVIVA in half and the shape survives, because 297 ÷ 210 = 1.414, the square root of two. Lichtenberg wrote it down in 1786. ISO agreed in 1975. | 28 words (R§1.1 high · R§2 high) |
 | `s05.body.m` | Fold it in half: same shape, because 297 ÷ 210 ≈ √2. Lichtenberg noted it in 1786. ISO agreed in 1975. | |
 | `s05.dim.w` | 210 mm | dimension line, registered to the sheet |
 | `s05.dim.h` | 297 mm | |
@@ -327,7 +341,7 @@ Reduced motion: there's no leaf fall (the sheet is already hanging when the line
 | id | Value | Label | Note |
 |---|---|---|---|
 | `s05.m1` | 1 : √2 | ASPECT RATIO | 297 ÷ 210 = 1.4143. √2 = 1.4142. (R§1.1 high, derived) |
-| `s05.m2` | 1/16 m² | AREA | A0 is one square metre. aviva A4 is A0 halved four times: 0.06237 m², because ISO rounds down to the millimetre. (R§1.1 high · R§13.1 derived) |
+| `s05.m2` | 1/16 m² | AREA | A0 is one square metre. AVIVA A4 is A0 halved four times: 0.06237 m², because ISO rounds down to the millimetre. (R§1.1 high · R§13.1 derived) |
 | `s05.m3` | 11 | SIZES, ONE SHAPE | A0 to A10. Every one is 1 : √2, to the nearest millimetre. (R§13.1 high; rounding derived) |
 
 **The gimmick: Distil it**
@@ -336,14 +350,14 @@ Reduced motion: there's no leaf fall (the sheet is already hanging when the line
 |---|---|---|
 | `s05.g.eyebrow` | DISTILLATION | |
 | `s05.g.h3` | Distil it. | |
-| `s05.g.body` | Distillation trains a small model to keep what a large one knows. Tear aviva in half: two smaller models, the same shape, the same knowledge. None. | 26 words (FC row 32: distillation aims to keep, it doesn't promise no loss) |
+| `s05.g.body` | Distillation trains a small model to keep what a large one knows. Tear AVIVA in half: two smaller models, the same shape, every capability intact. Even the paper cut. | 29 words (FC row 32; decision #27: capabilities, not "none") |
 | `s05.g.instr` | DRAG ALONG THE LINE TO DISTIL | beside the dotted line (fine pointer) |
 | `s05.g.hold` | HOLD TO TEAR | button for keyboard and touch. aria: "Hold to tear the sheet along the dotted line. Let go to pause." Keyboard: hold Space or Enter |
 | `s05.g.sr.progress` | Torn {n} %. | visually hidden, announced at 25 / 50 / 75 / 100 % |
-| `s05.g.r1` | aviva A5 × 2. About 2.5 g each. Capabilities: unchanged. | after tear 1 (R§13.1 derived: 2.49 g) |
+| `s05.g.r1` | AVIVA A5 × 2. About 2.5 g each. Capabilities: unchanged. | after tear 1 (R§13.1 derived: 2.49 g) |
 | `s05.g.r1.dims` | 148.5 × 210 mm each. ISO's A5 is 148 × 210: ISO rounds down. We tore precisely. | under the two halves (R§13.1 high) |
 | `s05.g.instr2` | AGAIN | the label on the second dotted line |
-| `s05.g.r2` | aviva A6 × 4. About 1.25 g each. Capabilities: still unchanged. | after tear 2 (R§13.1: nominal 1.25 g) |
+| `s05.g.r2` | AVIVA A6 × 4. About 1.25 g each. Capabilities: still unchanged. | after tear 2 (R§13.1: nominal 1.25 g) |
 | `s05.g.refuse` | Below A6, it's confetti. | on the third attempt, as the line shivers and greys out |
 | `s05.fallback` | In 3D, you would tear the sheet in half here, twice. Every piece would still be 1 : √2. | no-WebGL page |
 
@@ -371,7 +385,7 @@ Reduced motion: the tear advances only with drag, hold or scroll. The halves cro
 | e6 | v2.1 | c. 1455 | Gutenberg Bible. | About three-quarters of the copies printed on paper. The rest on vellum. | R§2 med | (none) |
 | e7 | v2.2 | 1719 | Wasps propose wood. | Réaumur tells the French Academy that wasps make paper from chewed wood fibre. | R§2 med | (none) |
 | e8 | v2.3 | 1786 | Aspect ratio documented. | Lichtenberg describes 1 : √2 in a letter. It ships 136 years later. | R§2 high · derived (1786 → 1922) | (none) |
-| e9 | v3.0 | 1799 | Continuous production. | Louis-Nicolas Robert patents the first paper machine. aviva becomes endless, in one direction. | R§2 high | sideways drift |
+| e9 | v3.0 | 1799 | Continuous production. | Louis-Nicolas Robert patents the first paper machine. AVIVA becomes endless, in one direction. | R§2 high | sideways drift |
 | e10 | v4.0 | 1844 | Wood pulp. | Friedrich Keller grinds wood into fibre. Rags deprecated. | R§2 med | (none) |
 | e11 | v5.0 | 1922 | DIN 476. | A0 defined as one square metre. | R§2 high | dimension lines on |
 | e12 | v5.1 | 1975 | ISO 216. | The A-series goes international. A4 as you know it. | R§2 high | dimension lines stay |
@@ -384,7 +398,7 @@ Reduced motion: the tear advances only with drag, hold or scroll. The halves cro
 |---|---|---|
 | `s07.eyebrow` | MATERIALS | |
 | `s07.h2` | No glue. Just attraction. | centred over the macro |
-| `s07.body` | Up close, aviva is a mat of cellulose fibres. As it dries, hydrogen bonds between neighbouring fibres hold it together. Nobody taught it that. | 24 words (R§1.7 med · R§13.10 #11: real copy paper also has fillers and sizing, so we no longer say "nothing else") |
+| `s07.body` | Up close, AVIVA is a mat of cellulose fibres. As it dries, hydrogen bonds between neighbouring fibres hold it together. Nobody taught it that. | 24 words (R§1.7 med · R§13.10 #11: real copy paper also has fillers and sizing, so we no longer say "nothing else") |
 | `s07.loupe.label` | DRAG THE MAGNIFIER | on the bar magnifier |
 | `s07.loupe.readout` | Fibres: millimetres long, a fraction of a hair wide. | inside the bar (R§1.7 med, safe wording; no numbers) |
 | `s07.loupe.aria` | Magnifier position | `role="slider"`. `aria-valuetext`: "{n} mm across the sheet". ←/→ move 10 mm, Shift+←/→ move 50 mm |
@@ -404,7 +418,7 @@ Reduced motion: no dolly. Three cross-dissolves (surface still → absorption st
 |---|---|---|
 | `s08.eyebrow` | AFTERLIFE | |
 | `s08.h2` | It comes back. | |
-| `s08.body` | aviva starts as wood pulp. After use, its fibres can be made into paper again, and again, and again. Then they retire. | 22 words (R§1.7 med · R§3.5 high) |
+| `s08.body` | AVIVA starts as wood pulp. After use, its fibres can be made into paper again, and again, and again. Then they retire. | 22 words (R§1.7 med · R§3.5 high) |
 
 **Cards** (three sheet-shaped cards, each with one dog-eared corner; value / label / body)
 
@@ -417,7 +431,7 @@ Reduced motion: no dolly. Three cross-dissolves (surface still → absorption st
 
 | id | Copy | Notes |
 |---|---|---|
-| `s08.note` | aviva is fictional and holds no certifications. These figures describe ordinary office paper. | small, under the cards (honest parody, CLAUDE.md rules 8–9) |
+| `s08.note` | AVIVA is fictional and holds no certifications. These figures describe ordinary office paper. | small, under the cards (honest parody, CLAUDE.md rules 8–9) |
 
 Reduced motion: the sheet's slow "breathing" bend loop is off.
 
@@ -458,17 +472,17 @@ All characters are objects, an animal, or an unnamed role; none is a real person
 | `s10.btn.a` | A IS BETTER | aria: "Vote: response A is better" |
 | `s10.btn.b` | B IS BETTER | aria: "Vote: response B is better" |
 | `s10.btn.tie` | TIE | aria: "Vote: it's a tie" |
-| `s10.res.win` | You preferred aviva. | after an A or B vote |
-| `s10.res.win.sub` | So does everyone. Both responses were aviva. | |
+| `s10.res.win` | You preferred AVIVA. | after an A or B vote |
+| `s10.res.win.sub` | So does everyone. Both responses were AVIVA. | |
 | `s10.res.regen` | The other one has been regenerated. | as the losing sheet crumples (it also triggers `ream.status`) |
-| `s10.res.tie` | A tie. Both responses were aviva. Both were right. | after a Tie vote (both sheets bow) |
+| `s10.res.tie` | A tie. Both responses were AVIVA. Both were right. | after a Tie vote (both sheets bow) |
 | `s10.res.none` | No vote. Also a valid preference. | empty state: the visitor scrolls past without voting |
 | `s10.lb.title` | LEADERBOARD | appears after any result |
 | `s10.lb.head` | RANK · MODEL · WIN RATE | table header |
-| `s10.lb.r1` | 1 · aviva A4 · 50.0 % | |
-| `s10.lb.r2` | 1 · aviva A4 · 50.0 % | |
+| `s10.lb.r1` | 1 · AVIVA A4 · 50.0 % | |
+| `s10.lb.r2` | 1 · AVIVA A4 · 50.0 % | |
 | `s10.lb.note` | Statistically indistinguishable from itself. | |
-| `s10.coda` | In a blind test, aviva beat aviva. Then aviva beat aviva back. | last line before the white ground rises |
+| `s10.coda` | In a blind test, AVIVA beat AVIVA. Then AVIVA beat AVIVA back. | last line before the white ground rises |
 | `s10.fallback` | (none: the buttons and results work in the static page too, with two stills) | |
 
 Reduced motion: no crumple and roll. The losing sheet fades out and a new one fades in; the Tie bow is off.
@@ -480,71 +494,78 @@ Reduced motion: no crumple and roll. The losing sheet fades out and a new one fa
 | `s11.eyebrow` | CLAIMS | top-left, above the row |
 | `s11.sub` | Measured, not marketed. | small, beside the eyebrow |
 
-**Cards** (8, alternating portrait and landscape A-series proportions; Part 5.6). Each card has: headline `.h` (large), caption `.cap`, a metadata row `.meta` (small uppercase) and the render's alt text `.alt`.
+**Cards:** 9 of them, alternating portrait and landscape A-series proportions (P L P L P L P L P; Part 5.6). Each card has: headline `.h` (large), caption `.cap`, a metadata row `.meta` (small uppercase) and the render's alt text `.alt`. The cards are numbered in visual order; the old → new number map is in Part 10.
 
 | # | `.h` | `.cap` | `.meta` | `.alt` | Source |
 |---|---|---|---|---|---|
 | c1 | Context window: 210 × 297 mm. | Edge to edge. Nothing falls off the end. | 62,370 mm² · NO TRUNCATION | The sheet face-on, with dimension lines reading 210 and 297 millimetres. | R§1.1 high · R§13.2 derived |
-| c2 | Zero hallucinations. | Whatever you see in the fibres is your own. | HALLUCINATION RATE 0.00 % · n = 0 OUTPUTS | Soft raking light across blank white paper fibres. | (joke; no fact) |
-| c3 | Refusal rate: 0.0 %. | It cannot refuse. Whatever you write on it, it keeps. | REQUESTS DECLINED SINCE 179 BCE: 0 | A sheet with one line of pencil handwriting across it. | R§2 high (date) · line borrowed from C |
-| c4 | Needle in a haystack: 100 %. | The needle is a pencil. Recall drops to 0 % if you lose the pencil. | TEST NEEDLE: ONE HB PENCIL | An HB pencil lying diagonally across the blank sheet. | (joke) |
-| c5 | Alignment: left, centre, right or justified. | Solved. | FOUR SETTINGS · ALL SAFE | The sheet with four short grey text blocks, set left, centred, right and justified. | line borrowed from C |
-| c6 | Unlimited undo. | Pencil only. Graphite mostly sits on the fibres; ink soaks in. Ink is forever. | SEE ALSO: THE DOT | The sheet with a single small ink-blue dot near its lower right corner. | R§13.8 high |
-| c7 | Known side effect. | Its edge is microscopically jagged, so it saws rather than slices. Fingertips are packed with nerves, and the cut is usually too shallow to clot. | SEVERITY: MINOR · PAIN: DISPROPORTIONATE | An extreme close-up of the sheet's edge, showing fine ragged fibres. | R§3.4 · R§13.10 #17 (nerves: Ohio State; edge and clotting: Big Think) |
-| c7.m | | Its jagged edge saws rather than slices, and the cut is usually too shallow to clot. | | | |
-| c8 | Our roadmap reaches the Moon. Our sheet reaches 6.4 mm. | Ideally, 42 folds would make a 0.1 mm sheet about 440,000 km thick, past the Moon. By Gallivan's formula, an A4 sheet folded the same way each time stops at six. | STATE OF THE ART: 12 FOLDS · B. GALLIVAN, 2002 | A slender bar of paper, an A4 sheet folded six times the same way, with a tiny grey Moon far behind it. | R§13.2 (all three numbers verified) · R§13.10 #1 (one direction only; alternating allows seven) · R§3.1 high (Moon distance, record) · line borrowed from B |
-| c8.m | | In theory, 42 folds pass the Moon. Folded the same way each time, an A4 sheet stops at six. | | | |
+| c2 | Multimodal. | Accepts pencil, ink, folds and tears. Also the occasional shopping list. | MODALITIES: PENCIL · INK · FOLD · TEAR | A yellow HB pencil stamped AVIVA HB lying across the sheet, beside a pencil scribble, an ink dot, a fold crease and a torn corner. | (observable; no fact) |
+| c3 | Persistent memory. | It keeps every mark you make. Erase one, and its impression usually stays. Ink is forever. | CLEAR HISTORY: NOT AVAILABLE · SEE ALSO: THE DOT | The sheet under raking light: a small ink-blue dot and the faint impression of erased pencil writing. | R§13.8 high (ink) / med (impression) |
+| c4 | Zero hallucinations. | Everything on it was put there by you. | HALLUCINATION RATE 0.00 % · SOURCE: YOU | Soft raking light across blank white paper fibres. | (true of a sheet; no fact) |
+| c5 | Agentic. | Folded into a plane, it carries your task across the room by itself. Launch is manual. | LONGEST TIME ALOFT, PAPER AIRCRAFT: 31.2 s (GUINNESS, 2026) | The sheet folded into a paper plane, gliding, lit from the side. | R§3.2 high · R§13.5 |
+| c6 | Refusal rate: 0.0 %. | It cannot refuse. Whatever you write on it, it keeps. | REQUESTS DECLINED SINCE 179 BCE: 0 | A sheet with one line of pencil handwriting across it. | R§2 high (date) · line borrowed from C |
+| c7 | Alignment: left, centre, right or justified. | Solved. | FOUR SETTINGS · ALL SAFE | The sheet with four short grey text blocks, set left, centred, right and justified. | line borrowed from C |
+| c8 | Known side effect. | Its edge is microscopically jagged, so it saws rather than slices. Fingertips are packed with nerves, and the cut is usually too shallow to clot. | SEVERITY: MINOR · PAIN: DISPROPORTIONATE | An extreme close-up of the sheet's edge, showing fine ragged fibres. | R§3.4 · R§13.10 #17 (nerves: Ohio State; edge and clotting: Big Think) |
+| c8.m | | Its jagged edge saws rather than slices, and the cut is usually too shallow to clot. | | | |
+| c9 | Our roadmap reaches the Moon. Our sheet reaches 6.4 mm. | Ideally, 42 folds would make a 0.1 mm sheet about 440,000 km thick, past the Moon. By Gallivan's formula, an A4 sheet folded the same way each time stops at six. | STATE OF THE ART: 12 FOLDS · B. GALLIVAN, 2002 | A slender bar of paper, an A4 sheet folded six times the same way, with a tiny grey Moon far behind it. | R§13.2 · R§13.10 #1 (one direction only; alternating allows seven) · R§3.1 high · line borrowed from B |
+| c9.m | | In theory, 42 folds pass the Moon. Folded the same way each time, an A4 sheet stops at six. | | | |
+
+Dropped: the old c4 "Needle in a haystack: 100 %." (it lives on in the paper, §5.3), and the old c6 "Unlimited undo." (merged into c3, which keeps the dot).
 
 Reduced motion: the horizontal translation stays (it's scroll-driven), with no hover tilt.
 
-### 3.13 `s12-sizes`
+### 3.13 `s12-sizes` (the lineup; the id stays)
 
 | id | Copy | Notes |
 |---|---|---|
-| `s12.eyebrow` | PAPER SIZE | |
-| `s12.h2` | One shape. Three sizes. | |
-| `s12.body` | Every aviva is 1 : √2. Only the context window changes. | |
+| `s12.eyebrow` | THE LINEUP | |
+| `s12.h2` | More sheets. More context. | |
+| `s12.body` | Every AVIVA has the same intelligence per sheet. The Pro models simply have more sheets. | 15 words |
 
-**The print dialog** (the tier picker; DOM panel on the left)
+**The print dialog** (the tier picker, a DOM panel on the left). Hairline rectangular controls: no pills, nothing glows, no red (decision #28).
 
 | id | Label | Value / behaviour |
 |---|---|---|
 | `s12.dlg.title` | Print | dialog title |
-| `s12.dlg.size` | Paper size | radio group, `aria-label="Paper size"`: **A5 · A4 · A3** (default A4). Arrow keys move between options |
+| `s12.dlg.model` | Model | **new:** radio group, `aria-label="Model"`: **AVIVA · AVIVA Notebook Pro · AVIVA Ream Pro Max** (default AVIVA). Arrow keys move between options. Each option carries a tiny icon: one sheet, a bound block, a tall stack |
+| `s12.dlg.size` | Paper size | now fixed: "A4". New note `s12.dlg.size.n`: "A5 and A3 too: see the table." |
 | `s12.dlg.orient` | Orientation | "Portrait" (fixed). Note `s12.dlg.orient.n`: "Landscape is the same sheet, turned." |
-| `s12.dlg.copies` | Copies | "1" (fixed) |
-| `s12.dlg.pages` | Pages | "1 of 1 (blank)" |
+| `s12.dlg.copies` | Copies | follows the model: "1" / "80" / "500" |
+| `s12.dlg.pages` | Pages | follows the model: "1 of 1 (blank)" / "80 of 80 (blank)" / "500 of 500 (blank)" |
 | `s12.dlg.print` | PRINT | disabled (`aria-disabled="true"`). Description / tooltip `s12.dlg.print.tip`: "Nothing to print. Nothing is for sale." |
-| `s12.sr.change` | aviva {size} selected: {dims}. | visually hidden, announced on change |
+| `s12.sr.change` | {model} selected: {n} sheets. | visually hidden, announced on change |
 
-**Tier text** (it changes with the selection, under the dialog)
+**Tier text** (under the dialog; it changes with the selection)
 
-| id | Name | Description | Dims | Source |
+| id | Name | Description | Spec line | Source |
 |---|---|---|---|---|
-| `s12.t.a5` | aviva A5 | Distilled. Half the context window, all of the shape. | 148 × 210 mm | R§13.1 high |
-| `s12.t.a4` | aviva A4 | The reference model. The one everybody means. | 210 × 297 mm | R§1.1 high |
-| `s12.t.a3` | aviva A3 | Twice the context window. The same shape. The same knowledge. | 297 × 420 mm | R§13.1 high |
+| `s12.t.base` | AVIVA | The original. One sheet, one 210 × 297 mm context window, every capability on this page. | 1 SHEET · 4.99 g | R§1.1 high · R§13.1 |
+| `s12.t.pro` | AVIVA Notebook Pro | For professionals. 80 sheets, bound in order: 4.99 m² of context, and a memory that keeps your pages in sequence. | 80 SHEETS · ≈ 399 g | derived (80 × 62,370 mm²; 80 × 4.99 g). The sheet count is our fictional spec |
+| `s12.t.max` | AVIVA Ream Pro Max | For the enterprise. 500 sheets, 31.2 m² of context and about 2.5 kg of capability. "Ream" comes from the Arabic rizma, a bundle. | 500 SHEETS · ≈ 2.5 kg | R§1.2 high (ream, rizma) · R§13.2 (2.5 kg) · derived (31.2 m²) |
 
-**Comparison table** `s12.tbl`. Caption (visually hidden): "aviva A5, A4 and A3 compared."
+The old ids `s12.t.a5`, `s12.t.a4` and `s12.t.a3` are removed.
 
-| Row label | aviva A5 | aviva A4 | aviva A3 | Source |
+**Comparison table** `s12.tbl`. Caption (visually hidden): "AVIVA, AVIVA Notebook Pro and AVIVA Ream Pro Max compared."
+
+| Row label | AVIVA | AVIVA Notebook Pro | AVIVA Ream Pro Max | Source |
 |---|---|---|---|---|
-| Size | 148 × 210 mm | 210 × 297 mm | 297 × 420 mm | R§13.1 high |
-| Area | 0.031 m² | 0.062 m² | 0.125 m² | R§13.1 derived |
-| Context window | 31,080 mm² | 62,370 mm² | 124,740 mm² | R§13.1 derived |
-| Weight at 80 g/m² | 2.49 g | 4.99 g | 9.98 g | R§13.1 derived (calculated) |
+| Sheets | 1 | 80 | 500 | our spec · R§1.2 (a ream is 500) |
+| Sizes | A5 · A4 · A3 | A5 · A4 · A3 | A5 · A4 · A3 | R§13.1 high |
+| Context window (A4) | 62,370 mm² | 4.99 m² | 31.2 m² | derived |
+| Weight (A4, calculated) | 4.99 g | ≈ 399 g | ≈ 2.5 kg | R§13.1 · R§13.2 (derived) |
+| Thickness | 0.1 mm | ≈ 8 mm | ≈ 5 cm | R§1.3 · R§13.2 (derived) |
 | Aspect ratio | 1 : √2 | 1 : √2 | 1 : √2 | R§13.1 high |
-| Thickness | 0.1 mm | 0.1 mm | 0.1 mm | R§1.3 med |
-| Halves into | 2 × A6 | 2 × A5 | 2 × A4 | R§13.1 high |
-| Fits a C5 envelope | Flat | Folded once | Folded twice | R§1.1 high (A4 folded once fits C5) · derived for A5 and A3 (C5 is 162 × 229 mm) |
-| Knowledge | None | None | None | |
+| Modalities | pencil · ink · fold · tear | pencil · ink · fold · tear | pencil · ink · fold · tear | |
+| Memory | every mark | every mark, in order | every mark, on all 500 sheets | |
+| Regenerations included | 0 | 79 | 499 | follows the ream counter (R§1.2) |
 | Hallucinations | 0 | 0 | 0 | |
+| Fits a C5 envelope (A4) | folded once | no | no | R§1.1 high · R§13.10 #8 |
 
 | id | Copy |
 |---|---|
-| `s12.tbl.foot` | Dimensions: ISO 216. Areas and weights calculated at 80 g/m², not weighed. |
+| `s12.tbl.foot` | Sizes: ISO 216. Context, weight and thickness calculated for A4 sheets at 80 g/m², paper only, not weighed. Notebook binding not included. |
 
-Mobile: the dialog stacks above the sheet, and the table becomes a horizontally swipeable three-column table with the row labels fixed. Reduced motion: size changes use a 300 ms ease with no spring overshoot.
+Mobile: the dialog stacks above the sheet, and the table becomes a horizontally swipeable three-column table with the row labels fixed. Reduced motion: the stack cross-fades between counts, with no fan-in.
 
 ### 3.14 `s13-paper` (the academic block on the page)
 
@@ -552,15 +573,15 @@ Mobile: the dialog stacks above the sheet, and the table becomes a horizontally 
 |---|---|---|
 | `s13.eyebrow` | RESEARCH | |
 | `s13.h2` | The paper. | |
-| `s13.title` | Void of All Characters: Pre-training a Foundation Model on Nothing | |
+| `s13.title` | AVIVA A4: A Multimodal Foundation Model at 80 g/m² | decision #27 |
 | `s13.authors` | Ada Margin, Gus Gutter, Lena Leading, Bea Bleed | fictional (named after typography terms) |
-| `s13.affil` | aviva Research, third floor (near the printer) | |
-| `s13.btn.paper` | PAPER · PDF, 8 PAGES | → `research/void-of-all-characters.pdf` |
+| `s13.affil` | AVIVA Research, third floor (near the printer) | |
+| `s13.btn.paper` | PAPER · PDF, 8 PAGES | → `research/aviva-a4.pdf` (renamed, decision #29) |
 | `s13.btn.model` | MODEL · .OBJ, 4 VERTICES | → `research/aviva-a4.obj` |
 | `s13.btn.weights` | WEIGHTS · 4.99 g | disabled. Tooltip / description `s13.btn.weights.tip`: "Not downloadable. They weigh 4.99 g, by calculation." |
 | `s13.btn.bib` | BIBTEX | → `research/citation.bib` |
 | `s13.abstract.l` | Abstract | |
-| `s13.abstract` | We present aviva A4, a 210 × 297 mm foundation model pre-trained on no data. It achieves a hallucination rate of 0.00 % on every prompt we tried, and every prompt we didn't. Distilled variants keep their shape exactly. | 40 words; the column is ≈ 720 px wide so it sets in 4 lines |
+| `s13.abstract` | We present AVIVA A4, a multimodal foundation model with a 210 × 297 mm context window and persistent memory. It accepts pencil, ink, folds and tears, refuses nothing, and distils into smaller models without changing shape. | 36 words; the column is ≈ 720 px wide so it sets in 4 lines |
 | `s13.ack.l` | Acknowledgements | |
 | `s13.ack` | We thank the pencil, without which this work would be complete. | |
 | `s13.review.l` | Peer review | |
@@ -574,38 +595,39 @@ Mobile: the dialog stacks above the sheet, and the table becomes a horizontally 
 
 | id | Copy | Notes |
 |---|---|---|
-| `s14.h2.l1` | Pre-trained on nothing. | above the sheet |
-| `s14.h2.l2.drawn` | Fine-tuned on you. | **variant A**: the visitor drew or wrote something in s03 (or here) |
-| `s14.sub.drawn` | Your drawing is the only thing aviva has ever learned. | variant A |
-| `s14.h2.l2.empty` | Still nothing. We respect that. | **variant B**: nothing was ever drawn |
-| `s14.sub.empty` | There is still time to add something. | variant B. If the visitor draws now, the line switches live to variant A |
+| `s14.a.sr` | The sheet comes back folded into the letter A, then opens. | **new:** visually hidden, announced as the A lands (the hero echo, decision #31) |
+| `s14.h2.l1` | Pre-trained on trees. | above the sheet, once it has opened (R§1.7 med · R§2) |
+| `s14.h2.l2.drawn` | Fine-tuned on you. | **variant A**: the visitor drew or wrote something in s03 (or here). Kept from the original (decision #27) |
+| `s14.sub.drawn` | Your drawing is now part of the model. | variant A |
+| `s14.h2.l2.empty` | Ready to be fine-tuned on you. | **variant B**: nothing was ever drawn. It replaces "Still nothing. We respect that." |
+| `s14.sub.empty` | It learns from the first thing you draw. | variant B. If the visitor draws now, the line switches live to variant A |
 | `s14.hint.pointer` | ADD SOMETHING BEFORE IT GOES | beside the sheet; the pencil cursor is back |
 | `s14.kb.label` | Type a line | keyboard alternative (same pre-baked-stroke rule as s03) |
 | `s14.kb.placeholder` | One last line | |
 | `s14.kb.submit` | WRITE IT | |
 | `s14.touch.draw` / `s14.touch.done` | DRAW / DONE | same behaviour as s03 |
 | `s14.btn.release` | RELEASE IT | aria: "Release it: fold the sheet into a paper plane and let it fly." Enter or Space activates. If the visitor just scrolls, the release is scroll-scrubbed from 1.8 vh |
-| `s14.released` | aviva A4 has been released. | status, after the plane leaves the frame |
-| `s14.credit` | aviva was designed and built by RelentlessYunn. | centred where the sheet was |
-| `s14.btn.gh` | GITHUB.COM/RELENTLESSYUNN | → https://github.com/RelentlessYunn · aria: "RelentlessYunn on GitHub (opens in a new tab)" · `target="_blank" rel="noopener"` |
+| `s14.released` | AVIVA A4 has been released. | status, after the plane leaves the frame |
+| `s14.credit` | AVIVA was designed and built by withnolan. | centred where the sheet was (decision #21: the handle stays lowercase) |
+| `s14.btn.gh` | GITHUB.COM/WITHNOLAN | → https://github.com/withnolan · aria: "withnolan on GitHub (opens in a new tab)" · `target="_blank" rel="noopener"` |
 | `s14.fallback` | In 3D, the sheet would fold into a plane here and leave. It has. | no-WebGL page, over the plane still |
 
-Reduced motion: the plane fold shows as three static steps (300 ms cross-fades), and the plane fades out in place instead of flying.
+Reduced motion: the A is shown for 0.6 s and then cross-fades to the open sheet (300 ms). The plane fold shows as three static steps (300 ms cross-fades), and the plane fades out in place instead of flying.
 
 ### 3.16 `s15-footer`
 
 | id | Copy | Notes |
 |---|---|---|
-| `s15.colophon` | Colophon: set in one typeface, rendered in real time, printed on nothing. | |
+| `s15.colophon` | Colophon: set in one typeface, rendered in real time, best printed on AVIVA A4. | it points, deadpan, at the print delight (Part 6 #1) |
 | `s15.ream` | Sheets used during your visit: {n} of 500. | live: n = sheets destroyed + 1 (the one released). Minimum 1 (R§1.2 high: a ream is 500) |
-| `s15.disclaimer` | aviva is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale. | **exact wording** (mission, CLAUDE.md rule 9) |
-| `s15.link.paper` | Research paper (PDF) | → `research/void-of-all-characters.pdf` |
+| `s15.disclaimer` | AVIVA is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale. | **exact wording** (mission, CLAUDE.md rule 9) |
+| `s15.link.paper` | Research paper (PDF) | → `research/aviva-a4.pdf` (decision #29) |
 | `s15.link.bib` | BibTeX | → `research/citation.bib` |
 | `s15.link.model` | Model (.obj) | → `research/aviva-a4.obj` |
 | `s15.link.credits` | Credits | → `CREDITS.md` |
-| `s15.link.source` | Source on GitHub | → https://github.com/RelentlessYunn/aviva |
+| `s15.link.source` | Source on GitHub | → https://github.com/withnolan/aviva (decision #21) |
 | `s15.licence` | Our code: MIT licence. Libraries: see Credits. | |
-| `s15.copyright` | © 2026 RelentlessYunn. | |
+| `s15.copyright` | © 2026 withnolan. | decision #21 |
 | `s15.top` | BACK TO 0 MM | aria: "Back to the top" |
 
 ### 3.17 Alt text and ARIA, every visual and control in one place
@@ -615,13 +637,13 @@ The per-section tables above hold the copy; this table is the checklist the web-
 | Element | Alt / aria | Notes |
 |---|---|---|
 | WebGL canvas wrapper | `canvas.aria` | `role="img"`; the canvas itself `aria-hidden` |
-| Logo (nav) | "aviva, back to the top" | crop-mark logomark + wordmark; the SVG `aria-hidden` inside a labelled link |
+| Logo (nav) | "AVIVA, back to the top" | crop-mark logomark + wordmark; the SVG `aria-hidden` inside a labelled link |
 | Favicon | (none) | not announced |
 | Loader drawing | `aria-hidden` | `s00.sr` announces loading |
-| Floor wordmark, giant "4.99 g" numerals | `aria-hidden` | text equivalents: the h1, plus the visually hidden "4.99 grams" `<h2>` |
+| Hero letters and the "4", giant "4.99 g" numerals | `aria-hidden` | text equivalents: `s01.letters.sr`, the h1, and the visually hidden "4.99 grams" `<h2>` |
 | Dimension lines, ratio readouts on the sheet | `aria-hidden` | the same values are in `s05.m1–m3` and the table |
 | Drying-line outputs 1–8 | `s04.c1.alt` … `s04.c8.alt` | visually hidden list items in DOM order, next to the captions |
-| Claim-card renders c1–c8 | `s11.cN.alt` | `<img alt>` |
+| Claim-card renders c1–c9 | `s11.cN.alt` | `<img alt>` |
 | Testimonial line drawings | `alt=""` (decorative) | the names and roles are in the text |
 | Release-notes entry glyphs | `alt=""` (decorative) | |
 | Corner-rating glyph | `s09.rating.sr` | visually hidden text |
@@ -635,7 +657,7 @@ The per-section tables above hold the copy; this table is the checklist the web-
 | HOLD TO TEAR | `s05.g.hold` aria | keyboard: hold Space or Enter |
 | Bar magnifier | `s07.loupe.aria` | `role="slider"`, `aria-valuemin 0`, `aria-valuemax 210`, `aria-valuetext` |
 | Arena votes | `s10.btn.*` aria | |
-| Paper size | `role="radiogroup"` "Paper size" | three radios; `s12.sr.change` |
+| Model (s12) | `role="radiogroup"` "Model" | three radios; `s12.sr.change` |
 | PRINT (disabled) | `aria-disabled="true"` + `s12.dlg.print.tip` | |
 | Paper / Model / BibTeX links | visible labels | the PDF link states "PDF, 8 pages" |
 | WEIGHTS (disabled) | `aria-disabled="true"` + `s13.btn.weights.tip` | |
@@ -644,21 +666,21 @@ The per-section tables above hold the copy; this table is the checklist the web-
 | GitHub button | `s14.btn.gh` aria | |
 | Back to 0 mm | "Back to the top" | |
 | OG image | `og.image.alt` | |
-| Static fallback stills F1–F6 (Part 5.10) | **F1** "A single white A4 sheet lying over the giant word aviva, the letter i faintly visible through it." · **F2** "Eight sheets hanging from a line: most blank, one folded as a plane, one as a boat, one as a fan." · **F3** "Paper fibres in extreme close-up, with blue ink spreading along them." · **F4** "Two identical blank sheets side by side, labelled Response A and Response B." · **F5** "Three blank sheets of the same shape, at sizes A5, A4 and A3." · **F6** "The sheet folded into a paper plane, gliding away." | |
+| Static fallback stills F1–F6 (Part 5.10) | **F1** "Five folded white sheets standing in a white studio, spelling AVIVA, with a 4 beside the last A." · **F2** "Eight sheets hanging from a line: most blank, one folded as a plane, one as a boat, one as a fan." · **F3** "Paper fibres in extreme close-up, with blue ink spreading along them." · **F4** "Two identical blank sheets side by side, labelled Response A and Response B." · **F5** "The lineup: one sheet, an 80-sheet bound notebook and a 500-sheet ream." · **F6** "The sheet folded into a paper plane, gliding away." | |
 
 ### 3.18 Keyboard and touch summary
 - **Keyboard:** every gimmick has a keyboard path.
   - Draw: "Type a line" + Enter.
   - Tear: hold Space or Enter on HOLD TO TEAR.
   - Magnifier: arrow keys.
-  - Vote and size: buttons and a radio group.
+  - Vote and model: buttons and a radio group.
   - Release: Enter.
 - **Focus:** the focus order follows the page order. Visible focus is a 2 px ink-blue outline offset by 3 px, or paper white on the ink-blue ground.
 - **Touch:**
   - drawing needs the DRAW toggle, so a swipe never draws by accident;
   - tearing works by dragging or with HOLD TO TEAR;
   - hover-only delights (cursor sway, card tilt, the pencil tooltip) are simply absent.
-- **Never trapped:** no interaction blocks scrolling. If the visitor scrolls through without touching anything, each beat still plays out (the auto-tears, the passive size preview, the scroll-driven release, and `s03.status.none` / `s10.res.none`).
+- **Never trapped:** no interaction blocks scrolling. If the visitor scrolls through without touching anything, each beat still plays out (the auto-tears, the passive lineup preview, the scroll-driven release, and `s03.status.none` / `s10.res.none`).
 
 ### 3.19 Reduced motion (`prefers-reduced-motion: reduce`), global rules
 - **Kept:** the pins and the scroll-driven story. Rotation, the drying line's movement and the horizontal claims all follow the visitor's own scroll.
@@ -666,7 +688,7 @@ The per-section tables above hold the copy; this table is the checklist the web-
   - time-based loops (flutter, sway, breathing, the corner-curl "thinking");
   - spring overshoot;
   - camera dollies, replaced by 1 s cross-dissolves;
-  - the leaf fall in s01 and s04 (the sheet simply appears where it lands);
+  - the letters' unfold in s01 (a cross-fade) and the leaf fall in s04 (the sheet simply appears where it lands);
   - the crumple-and-roll (a fade-swap instead);
   - the plane's flight (it fades out in place).
 - **The Bleed** becomes a 1 s colour cross-fade from white to ink-blue, and the way back is unchanged (the DOM ground rises with scroll).
@@ -675,7 +697,7 @@ The per-section tables above hold the copy; this table is the checklist the web-
 ### 3.20 The static fallback page (no WebGL)
 - **What it is:** the same DOM, the same copy and the same order. The canvas is replaced by six designed stills (F1–F6, Part 5.10), placed where their beats are.
 - **The banner:** `fb.h` + `fb.body` sit at the top, as a calm banner with an OK button.
-- **Interactive beats:** they show their `.fallback` line. The Arena's buttons and the size picker still work, swapping stills and tier text (without the 3D).
+- **Interactive beats:** they show their `.fallback` line. The Arena's buttons and the model picker still work, swapping stills and tier text (without the 3D).
 - **The ink-blue section:** it still happens; the page ground changes on scroll at s07, the same as the 3D site.
 - **Budget:** the fallback stills load only when WebGL is unavailable.
 
@@ -684,11 +706,11 @@ The per-section tables above hold the copy; this table is the checklist the web-
 ## Part 4. The research paper (`docs/research/`)
 
 **Files:**
-- `docs/research/void-of-all-characters.pdf`: 8 pages, A4 portrait, typeset by the visual-designer.
+- `docs/research/aviva-a4.pdf`: 8 pages, A4 portrait, typeset by the visual-designer (renamed from `void-of-all-characters.pdf`, decision #29).
 - `docs/research/citation.bib`.
 - `docs/research/aviva-a4.obj`.
 
-**Look:** a real two-column conference paper (the visual-designer chooses the faces; keep the site's typeface for headings and a classic text face for the body, used only in the PDF). Graphite text, ink-blue for links and figure accents only, generous margins, real page numbers, a running header "aviva Research · Void of All Characters".
+**Look:** a real two-column conference paper (the visual-designer chooses the faces; keep the site's typeface for headings and a classic text face for the body, used only in the PDF). Graphite text, ink-blue for links and figure accents only, generous margins, real page numbers, a running header "AVIVA Research · AVIVA A4".
 
 **It must read like a real paper.** Real structure and real citations; deadpan claims; jokes that live in the numbers, the tables and the restraint. Facts in the PDF follow rule 8: every real fact below carries its R§ tag (the tags stay in the brief, not in the PDF). The PDF's own reference list gives the public source.
 
@@ -707,91 +729,94 @@ The per-section tables above hold the copy; this table is the checklist the web-
 
 ### 4.2 Front matter (page 1)
 
-- **Title:** Void of All Characters: Pre-training a Foundation Model on Nothing
+- **Title:** AVIVA A4: A Multimodal Foundation Model at 80 g/m²
+- **Running header:** AVIVA Research · AVIVA A4
 - **Authors:** Ada Margin¹, Gus Gutter¹, Lena Leading¹, Bea Bleed¹ *(fictional; named after typography terms)*
-- **Affiliation:** ¹aviva Research, third floor (near the printer)
+- **Affiliation:** ¹AVIVA Research, third floor (near the printer)
 - **Date line:** Technical report AV-A4-001 · 2026 · 8 pages
 - **Correspondence:** "Please write to us. On anything. We'll keep it."
-- **Keywords:** foundation models · pre-training · distillation · hallucination · ISO 216 · paper
+- **Keywords:** foundation models · multimodal · persistent memory · distillation · ISO 216 · paper
 
 **Abstract (full text).**
-> We present aviva A4, a 210 × 297 mm foundation model pre-trained on no data. Following Locke, who described the mind before experience as "white paper, void of all characters", we remove the training corpus altogether. aviva A4 achieves a hallucination rate of 0.00 % and a refusal rate of 0.0 % on every prompt we tried, and every prompt we didn't. Its architecture, standardised as ISO 216, is closed under halving: distilled variants (aviva A5, A6) keep their shape and all of their knowledge. We report results on retrieval, preference, distillation and scaling. We find a hard scaling limit at six folds made the same way each time, and an environmental cost of about its own weight. All outputs are released for universal free distribution.
+> We present AVIVA A4, a multimodal foundation model with a context window of 210 × 297 mm. Locke described the mind before experience as "white paper, void of all characters"; we show that the paper itself has since been pre-trained, on wood fibre, over more than two thousand years of papermaking. AVIVA A4 accepts four input modalities (pencil, ink, folds and tears), keeps a persistent memory of every input, refuses nothing (0.0 %) and hallucinates nothing (0.00 %). Its architecture, standardised as ISO 216, is closed under halving: distilled variants (AVIVA A5, A6) keep their shape and every capability. We report results on memory, preference, distillation and scaling, find a hard scaling limit at six folds made the same way each time, and estimate an environmental cost of about its own weight. All outputs are released for universal free distribution.
 
-**Figure 1 (teaser).** Two A4 rectangles side by side at true 1 : √2, drawn in 0.5 pt graphite with a faint drop shadow. The left is labelled "aviva A4" and the right "Output". The two are identical.
-*Caption:* "Figure 1. aviva A4 (left) and a typical output (right), shown at the same scale."
+(R§13.6 · R§1.7 med · R§2 high · R§13.1 · R§13.2 · R§13.4)
+
+**Figure 1 (teaser).** Two A4 rectangles side by side at true 1 : √2, drawn in 0.5 pt graphite with a faint drop shadow. The left is labelled "AVIVA A4" and the right "Output". The two are identical. (The blank output is kept as contrast, decision #27.)
+*Caption:* "Figure 1. AVIVA A4 (left) and a typical output (right), shown at the same scale."
 
 ### 4.3 Body text (key paragraphs, final wording)
 
 **1 Introduction.**
-> Large language models are trained on very large corpora, at very large cost, and still produce statements that are false. We ask the opposite question: what can be achieved with no data at all? The idea is not new. In his *Essay Concerning Human Understanding* (1689/1690), Locke proposed that the mind begins as "white paper, void of all characters", and that everything on it arrives later, from experience [Locke]. We take this literally. aviva A4 is a sheet of white A4 paper, 80 g/m², about 0.1 mm thick. It has never seen a token.
+> Every product now has AI. We asked whether a sheet of paper could be left out, and found that it could not. In his *Essay Concerning Human Understanding* (1689/1690), Locke proposed that the mind begins as "white paper, void of all characters", and that everything on it arrives later, from experience [Locke]. More than three centuries later, the white paper has caught up. AVIVA A4 is a sheet of white A4 paper, 80 g/m², about 0.1 mm thick. It is pre-trained on wood fibre, accepts input in four modalities, and remembers everything written on it.
 >
-> Our contributions are: (i) a model with no training data and therefore no data contamination; (ii) an architecture that is invariant under halving; (iii) the first blind preference study in which the model wins every time it is compared with itself; (iv) a scaling law with an exponential curve and a wall.
+> Our contributions are: (i) a foundation model whose pre-training corpus is a tree; (ii) an architecture that is invariant under halving; (iii) the first blind preference study in which the model wins every time it is compared with itself; (iv) a scaling law with an exponential curve and a wall.
 
-(R§13.6 high · R§1.1 high · R§1.2 high · R§1.3 med)
+(R§13.6 high · R§1.1 high · R§1.2 high · R§1.3 med · R§1.7 med · "more than three centuries" derived: 1689/1690 → 2026)
 
 **2 Related work.**
-> *Erasure as model editing.* In 1953 Robert Rauschenberg obtained a drawing from Willem de Kooning and spent weeks erasing it; the result is in the collection of SFMOMA [Rauschenberg]. Our approach is more efficient: aviva ships pre-erased.
+> *Erasure as model editing.* In 1953 Robert Rauschenberg obtained a drawing from Willem de Kooning and spent weeks erasing it; the result is in the collection of SFMOMA [Rauschenberg]. In AVIVA, erasure is never complete: the impression of the writing usually remains [Hawkeye Forensic]. We call this persistent memory.
 > *The paperless office.* In 1975 Business Week reported a forecast that most record-handling would be electronic by 1990 [Business Week]. World paper and board production then nearly doubled, from 171 to 324 million tonnes between 1980 and 2000, and Sellen and Harper found that introducing email raised an organisation's paper use by about 40 % [Sellen & Harper]. We thank the forecast for its contribution to our market.
-> *Attention.* Recent work argues that attention is all you need, except here [Margin & Gutter]. aviva requires none, and in user studies it received a great deal.
+> *Attention.* Recent work argues that attention is all you need, except here [Margin & Gutter]. AVIVA requires none, and in user studies it received a great deal.
 
 (Margin & Gutter is our fictional reference. It parodies a well-known title but is never presented as that paper.)
 
-(R§5.3 high · R§13.7 · R§2 high/med)
+(R§5.3 high · R§13.7 · R§13.8 med · R§2 high/med)
 
 **3 Architecture.**
-> aviva A4 belongs to the A-series defined by ISO 216 [ISO 216], descended from DIN 476 (1922), in which A0 has an area of one square metre and every size is half of the previous one [DIN 476]. Halving a sheet with sides s < l produces sides l/2 and s. For the shape to survive, s / (l/2) = l / s, so l² = 2s² and l / s = √2. This is the only ratio with this property. Lichtenberg described it in a letter in 1786 [Lichtenberg]; DIN standardisation followed 136 years later. Our reference model measures 210 × 297 mm (297 / 210 = 1.4143) and has an area of 62,370 mm², slightly under 1/16 m² because sizes are rounded down to the millimetre.
+> AVIVA A4 belongs to the A-series defined by ISO 216 [ISO 216], descended from DIN 476 (1922), in which A0 has an area of one square metre and every size is half of the previous one [DIN 476]. Halving a sheet with sides s < l produces sides l/2 and s. For the shape to survive, s / (l/2) = l / s, so l² = 2s² and l / s = √2. This is the only ratio with this property. Lichtenberg described it in a letter in 1786 [Lichtenberg]; DIN standardisation followed 136 years later. Our reference model measures 210 × 297 mm (297 / 210 = 1.4143) and has an area of 62,370 mm², slightly under 1/16 m² because sizes are rounded down to the millimetre.
 
 (R§1.1 high · R§2 high · R§13.1 high/derived)
 
 **Figure 2 (the family).** The classic A-series nesting diagram, an A0 rectangle subdivided by alternating halvings into A1 … A10. Each cell is labelled in small caps, with fine graphite lines. Only the A4 cell's outline is drawn in the ink-blue accent.
-*Caption:* "Figure 2. The aviva family. Each model is half the previous one, and the same shape."
+*Caption:* "Figure 2. The AVIVA family. Each model is half the previous one, and the same shape."
 
-**Table 1. The aviva model family** (R§13.1)
+**Table 1. The AVIVA model family** (R§13.1)
 
 | Model | Size (mm) | Area (mm²) | Mass at 80 g/m² (g, calculated) | Context window |
 |---|---|---|---|---|
-| aviva A3 | 297 × 420 | 124,740 | 9.98 | long |
-| aviva A4 | 210 × 297 | 62,370 | 4.99 | reference |
-| aviva A5 | 148 × 210 | 31,080 | 2.49 | distilled |
-| aviva A6 | 105 × 148 | 15,540 | 1.24 | distilled further |
+| AVIVA A3 | 297 × 420 | 124,740 | 9.98 | long |
+| AVIVA A4 | 210 × 297 | 62,370 | 4.99 | reference |
+| AVIVA A5 | 148 × 210 | 31,080 | 2.49 | distilled |
+| AVIVA A6 | 105 × 148 | 15,540 | 1.24 | distilled further |
 
 **4 Pre-training.**
-> aviva A4 was pre-trained on nothing (Table 2). Because the training set is empty, no benchmark can have leaked into it, no copyrighted work was used, and no data cleaning was required. Pre-training finished before it started. The fibres were not supervised either: as a sheet dries, hydrogen bonds between neighbouring cellulose fibres hold it together unprompted. Fillers and sizing, added at the mill, are the only post-training.
+> AVIVA A4 was pre-trained on wood fibre (Table 2), drawing on more than two thousand years of papermaking, from the earliest known paper at Fangmatan to the standard described in §3. The fibres required no supervision: as a sheet dries, hydrogen bonds between neighbouring cellulose fibres hold it together unprompted. Fillers and sizing, added at the mill, are the only post-training.
 
-(R§1.7 med · R§13.10 #11 med-high)
+(R§1.7 med · R§2 high · R§13.10 #11, #13)
 
-**Table 2. Pre-training data**
+**Table 2. Pre-training**
 
 | Property | Value |
 |---|---|
-| Tokens | 0 |
-| Documents | 0 |
-| Languages | 0 |
-| Epochs | 0 |
-| Data contamination | not possible |
-| Licence of training data | not applicable |
+| Pre-training corpus | wood fibre (cellulose) |
+| Training period | more than 2,000 years (from 179–141 BCE) |
+| Architecture fixed | 1922 (DIN 476); international since 1975 (ISO 216) |
+| Post-training | fillers and sizing, at the mill |
+| Tokens | not applicable; the model is measured in millimetres |
+| Data contamination | limited to what users write on it |
 
 **5 Evaluation.**
-> *5.1 Hallucination.* We define a hallucination as an output containing a false statement. Over all prompts, aviva A4 produced no outputs and therefore no false statements: a hallucination rate of 0.00 % (n = 0). Anything the reader sees in the fibres is their own.
-> *5.2 Refusal.* We define refusal as declining to carry a request. aviva A4 carried every request written on it, word for word, for as long as the sheet lasted: a refusal rate of 0.0 %. We report this without comment.
+> *5.1 Hallucination.* We define a hallucination as an output containing a false statement. Every mark on a used AVIVA A4 was made by its user; the model adds nothing it was not given. The hallucination rate is therefore 0.00 %. Anything the reader sees in the fibres is their own.
+> *5.2 Refusal.* We define refusal as declining to carry a request. AVIVA A4 carried every request written on it, word for word, for as long as the sheet lasted: a refusal rate of 0.0 %. We report this without comment.
 > *5.3 Retrieval.* In a needle-in-a-haystack test the needle was an HB pencil, placed on the sheet. Recall was 100 %, falling to 0 % when the pencil was lost.
 
-> *5.4 The Arena.* Following the practice of blind pairwise comparison, visitors were shown two responses to the prompt "Say something profound" and asked to choose. Both responses were aviva A4. aviva A4 won 50.0 % of comparisons and lost the other 50.0 % (Figure 3). We consider both results state of the art.
-> *5.5 Distillation.* We distilled aviva A4 by tearing it along its midline. Each student is the same shape as the teacher and retains all of its knowledge (Table 3). A second round produced aviva A6. We stopped there, as below A6 the students are better described as confetti.
+> *5.4 The Arena.* Following the practice of blind pairwise comparison, visitors were shown two responses to the prompt "Say something profound" and asked to choose. Both responses were AVIVA A4. AVIVA A4 won 50.0 % of comparisons and lost the other 50.0 % (Figure 3). We consider both results state of the art.
+> *5.5 Distillation.* We distilled AVIVA A4 by tearing it along its midline. Each student is the same shape as the teacher and retains every capability, including the paper cut (Table 3). A second round produced AVIVA A6. We stopped there, as below A6 the students are better described as confetti.
 > *5.6 Scaling.* Each fold doubles thickness. Ideally, 42 folds of a 0.1 mm sheet would reach about 440,000 km, beyond the Moon's average distance of 384,400 km. By Gallivan's formula, the minimum length needed for n single-direction folds is L = (πt / 6)(2ⁿ + 4)(2ⁿ − 1) [Gallivan]. For t = 0.1 mm, seven folds need about 0.88 m, but the long side of A4 is 0.297 m, so six single-direction folds is the ceiling (Figure 4). Her second formula, for folds in alternating directions, permits a seventh; we leave this to future work. The record, 12 folds, was set by Gallivan herself in 2002 using about 1.2 km of tissue paper [Guinness World Records].
 
 (R§13.2 · R§13.10 #1 · R§3.1 high)
 
-**Figure 3 (the Arena).** A bar chart with two equal bars, both labelled "aviva A4", at 50.0 %. The error bars are drawn and have zero length.
+**Figure 3 (the Arena).** A bar chart with two equal bars, both labelled "AVIVA A4", at 50.0 %. The error bars are drawn and have zero length.
 *Caption:* "Figure 3. Win rate in blind pairwise comparison. Error bars are present."
 
 **Table 3. Distillation results**
 
-| Model | Pieces | Shape | Knowledge retained | Mass each (calculated) |
+| Model | Pieces | Shape | Capabilities retained | Mass each (calculated) |
 |---|---|---|---|---|
-| aviva A4 (teacher) | 1 | 1 : √2 | all | 4.99 g |
-| aviva A5 (student) | 2 | 1 : √2 | all | ≈ 2.5 g |
-| aviva A6 (student) | 4 | 1 : √2 | all | ≈ 1.25 g |
+| AVIVA A4 (teacher) | 1 | 1 : √2 | all | 4.99 g |
+| AVIVA A5 (student) | 2 | 1 : √2 | all | ≈ 2.5 g |
+| AVIVA A6 (student) | 4 | 1 : √2 | all | ≈ 1.25 g |
 
 **Figure 4 (scaling).** Thickness against folds, n = 0 to 42, with a log y-axis from 0.1 mm to 10¹² mm. The plot shows:
 - a solid graphite line and dots for n = 0–6, labelled "our sheet";
@@ -804,7 +829,7 @@ The per-section tables above hold the copy; this table is the checklist the web-
 (R§13.2 · R§1.2 · R§3.1)
 
 **6 Fine-tuning from human feedback.**
-> aviva A4 is fine-tuned by its user, with a pencil. Graphite rests on the surface of the fibres and is largely removable; ink soaks into the fibres by capillary action and is not [Popular Science]. We therefore recommend graphite for experiments and ink for commitments. Erasure is incomplete: the pressure of writing usually leaves an impression after the graphite is gone [Hawkeye Forensic]. In 1770 Joseph Priestley recommended a new gum, sold by Edward Nairne, as "excellently adapted to the purpose of wiping from paper the mark of black-lead-pencil" [Priestley]; it soon came to be called rubber. We have not improved on it.
+> AVIVA A4 is fine-tuned by its user, with a pencil. Graphite rests on the surface of the fibres and is largely removable; ink soaks into the fibres by capillary action and is not [Popular Science]. We therefore recommend graphite for experiments and ink for commitments. Erasure is incomplete: the pressure of writing usually leaves an impression after the graphite is gone [Hawkeye Forensic]. In 1770 Joseph Priestley recommended a new gum, sold by Edward Nairne, as "excellently adapted to the purpose of wiping from paper the mark of black-lead-pencil" [Priestley]; it soon came to be called rubber. We have not improved on it.
 
 (R§13.8 high / med · R§13.10 #6 med)
 
@@ -820,31 +845,32 @@ The per-section tables above hold the copy; this table is the checklist the web-
 *Caption:* "Figure 6. The only known side effect, at magnification."
 
 **8 Environmental impact.**
-> One life-cycle study of an A4 sheet of office paper estimated 4.29–4.74 g CO₂e per sheet depending on the method, 4.64 g under ISO 14040/44 [Dias & Arroja]. The sheet weighs about 5 g, so the model's footprint is approximately its own weight. Paper fibres are usually said to survive five to seven rounds of recycling before they become too short and stiff to bond, although researchers are aiming for 25 [Karlstad University]; and about three-quarters of the paper and board used in Europe is recycled (75.1 % in 2024) [EPRC]. aviva therefore has a finite number of afterlives, which we find reassuring.
+> One life-cycle study of an A4 sheet of office paper estimated 4.29–4.74 g CO₂e per sheet depending on the method, 4.64 g under ISO 14040/44 [Dias & Arroja]. The sheet weighs about 5 g, so the model's footprint is approximately its own weight. Paper fibres are usually said to survive five to seven rounds of recycling before they become too short and stiff to bond, although researchers are aiming for 25 [Karlstad University]; and about three-quarters of the paper and board used in Europe is recycled (75.1 % in 2024) [EPRC]. AVIVA therefore has a finite number of afterlives, which we find reassuring.
 
 (R§13.4 high · R§3.5 · R§13.10 #9, #16 · R§13.3 high)
 
 **9 Limitations.**
-> aviva A4 knows nothing. It cannot forget a fold. It will be read by anyone who holds it. Its context window is a hard limit of 210 × 297 mm. A known issue, reported in 1975, predicted that it would be replaced by the paperless office; we are monitoring this.
+> AVIVA A4 knows only what has been written on it. It cannot forget a fold. It will be read by anyone who holds it. Its context window is a hard limit of 210 × 297 mm. A known issue, reported in 1975, predicted that it would be replaced by the paperless office; we are monitoring this.
 
 **10 Conclusion.**
-> We started with a blank sheet of paper. We stopped there.
+> We started with a blank sheet of paper. Like everything else, it now has AI.
 
 **Acknowledgements.**
 > We thank the pencil, without which this work would be complete.
 
 **Table 4. Summary of results**
 
-| Metric | aviva A4 |
+| Metric | AVIVA A4 |
 |---|---|
-| Hallucination rate | 0.00 % (n = 0) |
+| Hallucination rate | 0.00 % (source: the user) |
 | Refusal rate | 0.0 % |
 | Needle in a haystack | 100 % (pencil present) |
 | Context window | 62,370 mm² |
 | Arena win rate | 50.0 % |
 | Folds before the wall, same direction each time | 6 |
 | Folds before the wall, alternating directions | 7 (ideal) |
-| Training tokens | 0 |
+| Pre-training corpus | wood fibre |
+| Memory | persistent, including erasures |
 
 ### 4.4 References (page 8)
 
@@ -889,25 +915,25 @@ Real works are cited as sourced (R§). Fictional works are obviously fictional (
 ### 4.6 `docs/research/citation.bib`
 
 ```bibtex
-@inproceedings{margin2026void,
-  title     = {Void of All Characters: Pre-training a Foundation Model on Nothing},
+@inproceedings{margin2026aviva,
+  title     = {{AVIVA} A4: A Multimodal Foundation Model at 80 g/m^2},
   author    = {Margin, Ada and Gutter, Gus and Leading, Lena and Bleed, Bea},
   booktitle = {Proceedings of the First Workshop on Things That Were Already Finished},
   year      = {2026},
   pages     = {1--8},
-  publisher = {aviva Research},
+  publisher = {{AVIVA} Research},
   address   = {Third floor, near the printer},
-  note      = {aviva A4: 210 x 297 mm, 80 g/m^2. No data was used in this work.}
+  note      = {{AVIVA} A4: 210 x 297 mm, 80 g/m^2. Pre-trained on wood fibre; fine-tuned by its users.}
 }
 ```
-It's an `@inproceedings`, not `@misc`; it has no `howpublished`, and there is no "code: coming soon" (#49).
+It's an `@inproceedings`, not `@misc`; it has no `howpublished`, and there is no "code: coming soon" (#49). The key `margin2026aviva` stays lowercase (decision #30), and the `{AVIVA}` braces keep the capitals in any bibliography style.
 
 ### 4.7 `docs/research/aviva-a4.obj`
 
 There is a single file, named after the paper size. It uses no parameter-count names, no checkpoints and no "instruct" or "frontier" variants (#50).
 
 ```text
-# aviva A4: reference geometry
+# AVIVA A4: reference geometry
 # 210 x 297 mm, ISO 216. Units: millimetres.
 # 4 vertices, 2 faces, 0 opinions.
 # Thickness (0.1 mm) omitted for clarity. See the paper, section 3.
@@ -944,19 +970,18 @@ f 1/1/1 3/3/1 4/4/1
 - **The role of ink-blue.** It is ink, and only ink: the drop, The Bleed and the ink-blue world of s07–s10 (where it becomes the ground and paper white becomes the type), the 3 mm dot, focus outlines on white, and the hairline on the A4 cell in the paper's Figure 2. It must never become a glow, a gradient or a highlight colour. On white screens it appears at most once per screen (checklist #25). Choose a deep, slightly violet fountain-pen blue in which paper-white body text passes WCAG AA (≥ 4.5 : 1).
 - **Type.** One typeface family for the whole site, used in about three weights. It should be calm and precise, light to regular at display sizes, with good tabular figures. It must be clearly **not** ORYZO's heavy bold grotesk, and the wordmark must not be a wide geometric. A refined grotesk or humanist sans in light weights fits; the visual-designer chooses and self-hosts it. A monospace is used only in the BibTeX box and the PDF's appendix, and a text serif only inside the PDF.
 
-### 5.2 Hero and the show-through (enrichment 5): how to fake it in the shader
-- **Composition (end of the intro).** The camera looks down at about −68° pitch. The giant **aviva** wordmark is printed on the studio floor in matte graphite, spanning 88 % of the viewport width and centred at y 56 %. The sheet lies flat over the **"i"** and the inner halves of both **"v"**s, so the word reads "a v [i] v a" with the middle letters seen softly *through* the paper. The key light is warm from the top left at a raking 60°, with a cool fill from the right. The contact shadow is soft and light (decision #12b).
-- **Physics we imitate.** Show-through happens when paper rests *on* print. The print is softened and lightened by the fibres (80 g/m² copy paper is about 92–96 % opaque, R§1.4 med · fact-check D1), and it gets blurrier the moment the paper lifts. So show-through must depend on the **gap**, not just on overlap.
-- **The fake** (in the paper's fragment shader; one texture fetch, safe on phones):
-  1. The floor wordmark is a decal texture `uWordmark` (alpha = ink), mipmapped, mapped by world XZ: `uvW = (worldPos.xz - uWmOrigin) / uWmSize`.
-  2. `gap = worldPos.y - uFloorY` (metres), computed per front-facing fragment of the sheet.
-  3. `contact = 1.0 - smoothstep(0.0, 0.006, gap)`: full at contact, gone once the sheet is more than 6 mm above the floor.
-  4. `lod = clamp(log2(1.0 + gap / 0.0004), 0.0, 6.0)`, then `ink = textureLod(uWordmark, uvW, lod).a`: the blur grows as the sheet lifts.
-  5. `k = uShowThrough * mix(0.85, 1.15, formation.r)`: start `uShowThrough` at 0.10–0.16 and tune by eye. The formation modulation makes the letters look seen *through fibres* (slightly cloudy), not printed on top.
-  6. `albedo = mix(albedo, uShowTint, ink * k * contact)`, with `uShowTint` a cool, desaturated graphite, lighter than the floor ink.
-  7. The floor letters under the sheet are hidden by the opaque sheet as usual. The show-through exists only in the sheet's shader.
-- **Timing.** During the fall the sheet's soft shadow passes over the letters, but no show-through appears. It fades in only over the last 6 mm of the landing (≈ 150 ms), so it reads as the sheet *touching down*. When s02 peels the sheet up, it blurs and vanishes in the first millimetres.
-- **Check:** at 1440 × 900 the "i" must be legible through the sheet, but clearly *behind* paper. If it looks printed on the sheet, `k` is too high or the blur is too low.
+### 5.2 Hero: AVIVA, folded (decision #31)
+- **Composition (the first frame after the loader).** Five A4 sheets stand on the white studio floor. Each is folded in half across its long side into a letter, seen end-on, and together they read **AVIVA**. A graphite **"4"** after the last A completes the model name, AVIVA A4. The camera is at letter height, pitched about −6°. The word spans about 78 % of the width, centred on the I, with a cap height of ≈ 27 % of the viewport height (141 mm at true scale). The h1 sits above the word; the side copy and spec line sit below.
+- **The letters.** All are made from the same fold: two 210 × 148.5 mm panels.
+  - **A** = a mountain fold, crease on top, the panels 18° from vertical (apex 36°). The crossbar is optional (tier B): a faint pre-crease along both panels at 42 % of the leg height catches the key as a thin shadow line on the panel faces that perspective shows (the A's sit off the camera's centre line). Keep it only if it reads as a bar; a barless A still reads as A in this word, at every size.
+  - **V** = the same fold as a valley, crease on the floor.
+  - **I** = the same fold closed flat, standing upright, seen **exactly edge-on** because it sits on the camera's centre line. It is a hairline (two layers, rendered ≥ 1.2 px, with a bright edge): the thinnest letter, setting up the 0.1 mm beat. It stands 5 % taller than the A's and V's (148.5 vs 141 mm). Keep that: the hairline reads lighter.
+  - **"4"** = the only non-paper element: a numeral in the site typeface, matte graphite, a thin upright plane with its own soft contact shadow.
+- **Light.** A warm key from the top left at a raking 60°, a cool fill from the right, and soft, light contact shadows (decision #12b). The tent interiors read slightly darker than their outsides, which is what makes the folds legible. No glow, no rim effects.
+- **The unfold and merge (the first scroll).** The beats are in 2B and Part 10.3. Visually, the "4" goes first. Then the letters turn to face us, one pair at a time from the outside in, open flat, and slide into the centre, where they stack and vanish behind the I-sheet. It must read as **paper opening**, not morphing: every sheet keeps its edges and its crease at all times.
+- **The memory of the fold.** The merged sheet keeps a faint horizontal crease at mid-height, which catches the rim light as it turns in s02. (s05's sheet, the last output from the drying line, makes its own crease before the tear; s14 folds its sheet back into the A at the same mid-height line.)
+- **Show-through** (the previous hero): `showThrough` stays in the paper module, unused in the hero (decision #31). The flat AVIVA wordmark remains the logo (5.9).
+- **Check at 1440 × 900 and 390 × 844:** the word reads AVIVA in under a second, the "4" makes "A4", and the I is a crisp hairline, never a grey smear.
 
 ### 5.3 The Bleed, frame by frame (s07, 2.2 → 4.5 vh)
 | Beat (vh) | What we see |
@@ -1010,18 +1035,21 @@ The way back to white is not a reverse bleed. A fresh white page (the s11 DOM gr
 ### 5.6 Claim-card renders (s11) and card design
 - **Format.** Our own stills, exported once from the lab scene, as WebP at 2× display size, ≤ 70 KB each (≈ 560 KB total, lazy-loaded as s11 approaches). Same studio, same paper material.
 - **Card design.** Paper-white cards with a 1 px graphite hairline and small **crop marks at each corner** (our motif), square corners and a soft contact shadow. No flat colour fields, no full-bleed photos (ORYZO §3.14). Cards alternate **portrait 1 : √2** and **landscape √2 : 1** at the same height (72 % vh): the gallery itself is made of A-series rectangles. The render fills the top ≈ 60 %; below it come the headline, the caption, and the meta row in small uppercase.
-- **The renders:**
+- **The renders.** There are 9 cards, in visual order. "Reuse" means the existing render from the previous card list.
 
 | Card | Render |
 |---|---|
-| c1 | the sheet face-on, flat, even light, with fine dimension lines (210 / 297 mm) in the image |
-| c2 | a fibre macro under raking light (as in s07 at 2.2 vh) |
-| c3 | the sheet at a slight angle with one line of quick pencil handwriting (the same pre-baked stroke as the keyboard path), warm light |
-| c4 | a graphite-grey lacquered HB pencil lying diagonally across the blank sheet, top light |
-| c5 | the sheet with four short grey text blocks reading "We have solved alignment.", set left, centred, right and justified (real words, no lorem ipsum) |
-| c6 | a close view of the 3 mm ink dot on otherwise blank paper, soft light: the dot is the hero |
-| c7 | an edge macro: ragged fibres along the edge under grazing light, against the one darker backdrop among the cards |
-| c8 | a slender bar: an A4 sheet folded six times **the same way**, across its long side, so it measures ≈ 210 × 4.6 mm and 6.4 mm thick, with all 64 layers visible along the cut face; it lies on the white floor, with a small grey Moon sphere far behind, out of focus |
+| c1 | (reuse old c1) the sheet face-on, flat, even light, with fine dimension lines (210 / 297 mm) in the image |
+| c2 | **new:** the yellow HB pencil (stamped "AVIVA HB", decision #30) lying across the sheet, beside a short pencil scribble, a small ink dot, a soft fold crease and one torn corner: four modalities on one sheet, warm side light |
+| c3 | **new:** the sheet under raking light, with a 3 mm ink-blue dot and the faint pressure impression of erased pencil handwriting (a ghost you only see at a grazing angle) |
+| c4 | (reuse old c2) a fibre macro under raking light (as in s07 at 2.2 vh) |
+| c5 | **new:** the sheet folded as a dart plane, caught mid-glide against the studio white, side-lit, with a soft shadow on the floor far below |
+| c6 | (reuse old c3) the sheet at a slight angle with one line of quick pencil handwriting (the same pre-baked stroke as the keyboard path), warm light |
+| c7 | (reuse old c5) the sheet with four short grey text blocks reading "We have solved alignment.", set left, centred, right and justified (real words, no lorem ipsum) |
+| c8 | (reuse old c7) an edge macro: ragged fibres along the edge under grazing light, against the one darker backdrop among the cards |
+| c9 | (reuse old c8) the slender bar: an A4 sheet folded six times **the same way**, ≈ 210 × 4.6 mm and 6.4 mm thick, its 64 layers visible, lying on the white floor with a small grey Moon far behind, out of focus |
+
+The old c4 render (the pencil on the sheet) and the old c6 render (the dot) are retired; the dot lives on in c3. **The 3D pencil** (the s03/s14 cursor and card c2) carries the stamp **AVIVA HB** in small capitals along its barrel (decision #30).
 
 ### 5.7 Illustration style: graphite, not sketchbook
 - **Line.** Single-weight graphite lines with real pencil grain (a 1.25 px line at 1×, with a subtle grain texture or SVG turbulence filter). Precise, unhurried, mostly unshaded; at most a few light parallel strokes for shadow.
@@ -1036,7 +1064,7 @@ The way back to white is not a reverse bleed. A fresh white page (the s11 DOM gr
   - a half-length HB pencil;
   - a recycling bin with one crumpled ball inside.
 - **Release-notes glyphs (s06, 16 px line icons, tier B):** a map fragment (v0.1) · a seal (v1.0) · a pin (v1.1) · a scroll (v1.4) · a sheet with a faint mark (v2.0) · a book (v2.1) · a wasp (v2.2) · a folded letter (v2.3) · a roller (v3.0) · a log (v4.0) · a square with "1 m²" (v5.0) · a globe (v5.1) · a screen with a small cross (known issue) · reeds, crossed out (removed).
-- **The paper's figures** use the same graphite line style, and the charts are graphite with ink-blue only for the "aviva" series.
+- **The paper's figures** use the same graphite line style, and the charts are graphite with ink-blue only for the "AVIVA" series.
 
 ### 5.8 Icon set
 1.5 px graphite line icons on a 24 px grid with round caps; paper white on ink-blue:
@@ -1046,19 +1074,19 @@ The way back to white is not a reverse bleed. A fresh white page (the s11 DOM gr
 - printer (shown disabled) · the corner-rating glyph (four corner marks, one missing for 3/4).
 
 ### 5.9 Logo, wordmark, favicon, OG image
-- **Wordmark.** "aviva", lowercase, in the site typeface at a light or regular weight, slightly tightened. The visual-designer may hand-tune the two a's and the two v's into a balanced custom drawing. The same drawing is used at giant size on the hero floor.
-- **Logomark: four crop marks** marking out an empty 1 : √2 rectangle with nothing inside it. It is the concept in one glyph (void of all characters). The lockup is the logomark to the left of the wordmark.
+- **Wordmark.** **AVIVA**, in capitals (decision #30), in the site typeface at a light or regular weight, slightly tracked out because capitals need air. The visual-designer may hand-tune the two A's and the two V's into a balanced custom drawing. The flat wordmark is the logo (nav, footer, OG image, PDF); the hero spells the name with folded sheets instead (5.2).
+- **Logomark: four crop marks** marking out an empty 1 : √2 rectangle: the context window, ready for input. The lockup is the logomark to the left of the wordmark.
 - **Favicon.** The crop-mark logomark as an SVG: graphite on transparent, switching to paper white under `prefers-color-scheme: dark`. Add a 32 × 32 PNG fallback and a 180 × 180 apple-touch icon (paper white with graphite marks).
-- **OG image (1200 × 630, our own render).** The hero composition: a high-angle view of the white floor with the giant wordmark, the sheet lying over the "i" with show-through, and a soft key from the top left. The crop-mark logomark sits small at the top left, and "aviva A4. Pre-trained on nothing." in graphite at the bottom left. No other text, no faces, no props.
+- **OG image (1200 × 630, our own render).** The hero: the five folded letters spelling AVIVA, with the "4", standing in the white studio under a warm key from the top left. The crop-mark logomark sits small at the top left, and "AVIVA A4. Now with AI." in graphite at the bottom left. No other text, no faces, no props.
 
 ### 5.10 Static fallback stills (no WebGL; loaded only then)
 | id | Still | Size (WebP) | Budget |
 |---|---|---|---|
-| F1 | Hero: the sheet over the wordmark with show-through (desktop + a 1170 × 1800 mobile crop) | 2400 × 1500 | ≤ 140 KB each |
+| F1 | Hero: the five folded letters AVIVA and the 4 in the white studio (desktop + a 1170 × 1800 mobile crop) | 2400 × 1500 | ≤ 140 KB each |
 | F2 | The drying line with all eight outputs | 2400 × 900 | ≤ 140 KB |
 | F3 | Ink spreading through the fibres (absorption view) | 1600 × 1000 | ≤ 110 KB |
 | F4 | The Arena: two identical sheets on ink-blue | 1600 × 1000 | ≤ 80 KB |
-| F5 | Sizes: A5, A4 and A3 side by side, same shape | 1600 × 1000 | ≤ 80 KB |
+| F5 | The lineup: one sheet, the 80-sheet Notebook Pro and the 500-sheet Ream Pro Max | 1600 × 1000 | ≤ 80 KB |
 | F6 | The sheet as a paper plane, gliding away in golden light | 1600 × 1000 | ≤ 80 KB |
 
 The claim-card renders (5.6) are used in both modes.
@@ -1068,7 +1096,7 @@ The claim-card renders (5.6) are used in both modes.
 - **The mm ruler.** A hairline on the right edge with ticks every 10 mm and labels every 50 mm. A small marker shows the current position in millimetres. It replaces any visible scrollbar thumb (#24).
 - **Scroll hint.** Bottom centre: a small curling-corner icon + "PLEASE TURN OVER". It dims during transitions (technique KEEP, our wording).
 - **Rules and dividers.** Solid 1 px hairlines and crop-mark corners; **never dotted** (ORYZO's only divider style). The only dotted line on the site is the tear perforation, which is a paper object rather than a divider.
-- **Buttons.** Rectangles with crisp corners (≤ 2 px radius), a hairline border and uppercase labels; primary buttons are graphite with paper-white text, inverted on ink-blue. **Not pills, and nothing glows** (#47). The Arena and print-dialog controls are rectangular segmented controls; each paper-size option carries a tiny sheet icon drawn at its relative size.
+- **Buttons.** Rectangles with crisp corners (≤ 2 px radius), a hairline border and uppercase labels; primary buttons are graphite with paper-white text, inverted on ink-blue. **Not pills, and nothing glows** (#47). The Arena and print-dialog controls are rectangular segmented controls; each model option carries a tiny icon: one sheet, a bound block, a tall stack.
 - **Inputs.** A ruled line, like lined paper (a solid hairline underline), with a small pencil icon. No dashed boxes and no dotted underline with an arrow (#36, #52).
 - **The print dialog.** A faithful, OS-neutral miniature print dialog: a light panel, hairline fields, the greyed-out PRINT button, and the sheet as the live "preview".
 - **Grain.** A CSS film-grain overlay at 4–6 % (R-tech §2.12), off in reduced motion.
@@ -1077,11 +1105,11 @@ The claim-card renders (5.6) are used in both modes.
 
 ## Part 6. Moments of delight
 
-1. **Print the product.** Ctrl/Cmd + P on any page prints a single blank A4 sheet with one 7 pt line at the foot: "aviva A4 · 210 × 297 mm · You have printed the product." The disclaimer follows in 6 pt. It's a print stylesheet that hides everything else, so the visitor walks away holding the actual product. (It isn't a downloadable PDF and isn't offered as our "weights" or paper; see Part 7, #50.)
+1. **Print the product.** Ctrl/Cmd + P on any page prints a single blank A4 sheet with one 7 pt line at the foot: "AVIVA A4 · 210 × 297 mm · You have printed the product." The disclaimer follows in 6 pt. It's a print stylesheet that hides everything else, so the visitor walks away holding the actual product. (It isn't a downloadable PDF and isn't offered as our "weights" or paper; see Part 7, #50.)
 2. **The millimetre ruler.** The scroll position is measured in millimetres of A4. At the bottom it reads "297 mm. End of sheet." Scroll back to the top after reaching the end and it reads "0 mm. Blank again." "BACK TO 0 MM" in the footer goes there.
 3. **The ream counter.** Every sheet the visitor destroys (Regenerate, Distil, the Arena's loser) is counted: "{n} left in this ream." The footer closes the account: "Sheets used during your visit: {n} of 500."
-4. **The dot that stays.** The single ink drop from s07 leaves a 3 mm dot that never goes away. It is labelled "KEPT." when it first appears, it is the hero of claim card c6 ("Ink is forever." · SEE ALSO: THE DOT), and it is still on the sheet when it folds into a plane at the end.
-5. **The patient pencil.** The first time the pencil cursor appears, it carries a tooltip: "HB. Graphite, not lead." Hold the pencil still over the sheet without drawing, and the status line says: "aviva is waiting. It is very good at that."
+4. **The dot that stays.** The single ink drop from s07 leaves a 3 mm dot that never goes away. It is labelled "KEPT." when it first appears, it is the hero of claim card c3 ("Persistent memory." · SEE ALSO: THE DOT), and it is still on the sheet when it folds into a plane at the end.
+5. **The patient pencil.** The first time the pencil cursor appears, it carries a tooltip: "HB. Graphite, not lead." Hold the pencil still over the sheet without drawing, and the status line says: "AVIVA is waiting. It is very good at that."
 
 Also in the brief (small, not counted above):
 - "VERSO: ALSO BLANK." as the sheet turns (s02);
@@ -1098,7 +1126,7 @@ Each line checks one item against teardown §8 (items 1–54) and decisions #7�
 
 | # | ORYZO signature element | How this brief avoids it |
 |---|---|---|
-| 1 | Green cutting-mat desk, top-down, with pencil, cutter, eraser, clips | No desk. An endless white studio. The only props are the drying line and its clips (s04), one pencil (the cursor, card c4), the ink drop and a small Moon (c8). The hero looks down at a bare floor printed with our wordmark. |
+| 1 | Green cutting-mat desk, top-down, with pencil, cutter, eraser, clips | No desk. An endless white studio. The only props are the drying line and its clips (s04), one pencil (the cursor, card c4), the ink drop and a small Moon (c8). The hero shows five folded sheets standing in the studio, spelling the name (decision #31). |
 | 2 | Six-fingered hand; "try to hover hand" | No hands anywhere, in 3D or in the drawings. The pointer object is a pencil. |
 | 3 | Rainbow AI-glow border cycling hue | No glow or border effects. Ink-blue never glows (5.1). |
 | 4 | Wrapper tearing | No wrapper. Our tear is the product itself, along its midline, as a measured distillation (s05). |
@@ -1114,17 +1142,17 @@ Each line checks one item against teardown §8 (items 1–54) and decisions #7�
 | 14 | "Runs on the edge / refuses the cloud", "always on", "runs on RTX 3090", "drop-tested", "legacy support" | Our claims: context window, zero hallucinations, refusal rate, needle in a haystack, alignment, unlimited undo, known side effect, the Moon roadmap. "Edge" means only the paper's physical edge (c7), never edge computing. |
 | 15 | Red smoky / neon glow on the tier picker | No glow. The tier picker is a print dialog. |
 | 16 | Floating particles at the end | The ending is one sheet folding into a plane and leaving. No particle field. |
-| 17 | "If we can sell a coaster…" | The closing lines are "Pre-trained on nothing. Fine-tuned on you." and "aviva A4 has been released.", with no "if we can sell" construction. |
+| 17 | "If we can sell a coaster…" | The closing lines are "Pre-trained on trees. Fine-tuned on you." and "AVIVA A4 has been released.", with no "if we can sell" construction. |
 | 18 | Dark brown / cork orange / cream / green palette; bold grotesk; wide geometric wordmark | Paper white, studio white, graphite, ink-blue. One calm, light-weight typeface. The wordmark is lowercase and not wide-geometric. |
 | 19 | Vector construction-drawing loader (dashed double circle, orange bezier handles, smart guides, conic fill, flat colour ground) | Crop marks + dimension lines + a millimetre counter on white. No circles, handles, conic fill or coloured ground. Decision #10. |
-| 20 | Vector-ring ↔ object match-cut as a recurring motif | The drawing → sheet match-cut happens **once** (s00). Mid-page dimension lines are overlays on the live sheet, never cuts. |
-| 21 | Giant wordmark top-left settling from large and translucent; tagline typed above it | The wordmark is printed on the floor in the 3D scene, centred, and seen *through* the sheet. The h1 is a sentence, centred at the top. Nothing is typed in. |
+| 20 | Vector-ring ↔ object match-cut as a recurring motif | The drawing → object match-cut happens **once** (s00), where the blueprint of the folded letters becomes the 3D letters. The letters → sheet change in s01 and the A that returns in s14 are physical folds of the product, not drawings or cuts (see 7b). Mid-page dimension lines are overlays on the live sheet. |
+| 21 | Giant wordmark top-left settling from large and translucent; tagline typed above it | There is no giant typeset wordmark in the hero: the brand is spelled by five folded sheets standing centre stage (decision #31). The h1 is a sentence, centred at the top. Nothing is typed in. |
 | 22 | Bottom-left studio-credit glass panel with dotted rule + superlative | No glass panels. The side copy is plain, centred, at the bottom. |
 | 23 | Launch-film thumbnail with presenter, glowing border, PLAY | No video, no thumbnail. |
 | 24 | Scrollbar as a labelled vertical tab; cream 9 × 150 thumb | The millimetre ruler: a hairline, ticks and a readout. |
 | 25 | "X isn't just an X. It's the result of…" with headline left, body right | s02 opens "0.1 mm.", stacked above and below the sheet. No "isn't just". |
-| 26 | Asterisk on "AI" redefined in a corner footnote; the finger-count quip | No asterisk. The AI beat is "Intelligence not included." The s04 line "Strictly speaking, we calculated them." is a precision note under the body, not a redefined term. |
-| 27 | Orange model-name tag tucked under the headline's end | The model name appears in eyebrows and side copy ("INTRODUCING aviva A4"), never as a tag under a headline. |
+| 26 | Asterisk on "AI" redefined in a corner footnote; the finger-count quip | No asterisk and no redefinition. The AI beat is a sincere claim in our own words, "Intelligence, built in.", and "NOW WITH AI" is an eyebrow sticker. The payoff is the visitor's own handwriting ("Answer: see above."), not a finger joke. The s04 line "Strictly speaking, we calculated them." is a precision note, not a redefined term. |
+| 27 | Orange model-name tag tucked under the headline's end | The model name appears in eyebrows and side copy ("INTRODUCING AVIVA A4 · NOW WITH AI"). s03's "AVIVA INTELLIGENCE" is an eyebrow *above* the headline. Nothing is tucked under a headline. |
 | 28 | Dashed selection frame with corner dot, dotted circle, tick marks | None. Crop marks appear only in the loader, the logomark and at card corners, never framing the product. |
 | 29 | Product through giant fit-width lowercase type that blooms; the "SO PORTABLE," eyebrow-with-comma formula | The fly-through technique is kept in s04, but with the numerals "4.99 g", no bloom, no comma-eyebrow + lowercase payoff, and the sheet *falls like a leaf* rather than tipping and rising. |
 | 30 | 3D → photo hand-over inside a portrait frame; magnifying-window gallery with thumbnail strip and smear | No photos. A drying line of live 3D outputs moves 1:1 with scroll. No thumbnail strip, no magnified window, no smear. |
@@ -1143,8 +1171,8 @@ Each line checks one item against teardown §8 (items 1–54) and decisions #7�
 | 43 | Sticker-covered and colour-stacked product cards | None. The cards are A-series sheets carrying renders of the plain sheet. |
 | 44 | Mug composited in front of a claim headline | No mugs and no foreground compositing over headlines. |
 | 45 | "Drop-Tested" metadata row; "Legacy Support" ancient vessels with monospace museum captions | Our meta rows are measurement notes. History lives in a changelog list (s06), not a line-up of objects with museum captions. |
-| 46 | "Choose you own" eyebrow over a giant wordmark passing in front of the product, shrinking into a header | s12 is "PAPER SIZE / One shape. Three sizes." with a print dialog. No giant wordmark in the tier section. We never say "choose your own". |
-| 47 | ORYZO / Pro / Pro Max as three glowing pills; stack of 1/2/3; comparison with orange "New" and rounded rows | Sizes A5 / A4 / A3: **scale, not count**, so no stack. A rectangular radio group, a plainly ruled table, no "New" tag, no "Pro Max". Decision #10. |
+| 46 | "Choose you own" eyebrow over a giant wordmark passing in front of the product, shrinking into a header | s12 is "THE LINEUP / More sheets. More context." inside a print dialog. There is no wordmark in the tier section, and nothing passes in front of the product. Our only letters are the hero's folded sheets, which *are* the product (see 7b). We never say "choose your own". |
+| 47 | ORYZO / Pro / Pro Max as three glowing pills; stack of 1/2/3; comparison with orange "New" and rounded rows | Decision #28 restores AVIVA / AVIVA Notebook Pro / AVIVA Ream Pro Max at the user's request, so the "Pro Max" suffix is now shared (an accepted medium risk). Everything else differs: a hairline rectangular radio group inside a print dialog (no pills, nothing glows, no red); counts of 1 / 80 / 500 dealt in sideways with a flutter, not 1 / 2 / 3 identical objects dropping in; a plainly ruled table with no "New" tag and no rounded rows. |
 | 48 | Cursor-following light revealing red neon sketches | None. The s06 watermark is a scroll-driven back-light, not a cursor light, and there are no sketches. |
 | 49 | Academic block: "single-shot espresso'd"; "trust me bro" peer review; `@misc{…2026}` with `howpublished = {OBJ release}`; "Code: coming soon" | The acknowledgement thanks the pencil. The peer review is Reviewer 2. The BibTeX is an `@inproceedings` with no `howpublished`. No "coming soon". |
 | 50 | Repo jokes: `.obj` checkpoints named like LLM sizes ("a0b", "instruct", "frontier"); WoodenBench on a desk; paper.pdf = one A4 page with a centred title | A single `aviva-a4.obj` named after the size; no benchmark-on-a-desk. Our paper is a real 8-page paper (decision #8). The print easter egg (Part 6, #1) is a print stylesheet, not a file. It prints a blank sheet with a 7 pt line at the foot, not a centred title, and it is never offered as weights or as the paper. **Flag for the lead:** drop it if the similarity audit disagrees. |
@@ -1155,9 +1183,25 @@ Each line checks one item against teardown §8 (items 1–54) and decisions #7�
 | D7 | Decision #7: no fold-to-encrypt | The gimmick is a tear (Distil it). Nothing anywhere is hidden, sealed, encoded or decoded. |
 | D8 | Decision #8: no blank-A4-PDF-as-weights; a real multi-page paper | The paper is 8 pages with real structure (Part 4). "WEIGHTS · 4.99 g" is a disabled button joking about mass, and no blank PDF is downloadable anywhere. |
 | D9 | Decision #9: no "power draw: 0 W", no giant "sustainability", no power or uptime claims | None of these appear. s08 has a statement and three sourced cards. No battery, power, uptime, "always on" or "no updates" lines anywhere. |
-| D10 | Decision #10: no exact "Pro Max", no three glowing pills; loader with dimension lines and crop marks only; no repeated drawing ↔ object match-cut | All four are met (see #19, #20, #47). |
+| D10 | Decision #10: no exact "Pro Max", no three glowing pills; loader with dimension lines and crop marks only; no repeated drawing ↔ object match-cut | Three are met (see #19, #20, #47). The "Pro Max" suffix is back at the user's request (decision #28 supersedes that part of #10). |
 
 Banned-word sweep of Part 3: none of the R§7.6 punchlines and none of our cliché list appear in the site copy.
+
+### 7b. New lines from decisions #27–#31, checked against §8
+
+| New line or element | Nearest ORYZO element | Why it's ours |
+|---|---|---|
+| "NOW WITH AI" (hero eyebrow); "AVIVA A4. Now with AI." (page title) | "Powered by AI*" (#26) | A sticker-style claim in an eyebrow and the page title. No asterisk, no footnote, no glow, no hand. "Powered by AI" is a shared launch trope (R§7), and our words differ. |
+| "Intelligence, built in." (s03) | "Powered by AI*" + the model tag (#26, #27) | Different words, no footnote, and the eyebrow sits above the headline. The payoff is the visitor's own handwriting, not a finger joke. |
+| "Memory updated." / "AVIVA still remembers, mostly." | none | An AI-memory parody; ORYZO has no memory gag. |
+| "LOADING WEIGHTS" / "24.95 g LOADED" (loader) | the loader (#19) | Copy only, on our blueprint drawing. ORYZO's loader has no copy, and ours has no circles. |
+| **The folded-letter hero:** five sheets spelling AVIVA unfold and merge into one sheet (decision #31) | the ring ↔ object match-cut and its logotype (#20); the giant wordmark beside or passing the product (#21, #29, #46) | The letters are the product itself, physically folded (mountain, valley, edge-on), and they become the product by unfolding: a mechanism only paper has. ORYZO's motif is a vector drawing cutting to an object, and its wordmark is type set beside or in front of the product. Our single drawing → object cut stays in the loader (#20). A watch item for the round-1 audit, as decision #31 asks. |
+| The A that returns in s14, with the "4" | the ending (#17, #51) | A fold callback that opens to reveal the visitor's drawing. No confession, no pitch. |
+| s11 "Multimodal.", "Persistent memory.", "Zero hallucinations.", "Agentic." | the claim gallery (#14) | None of ORYZO's five claims (edge, always on, RTX 3090, drop-tested, legacy support). |
+| The lineup AVIVA / Notebook Pro / Ream Pro Max (decision #28) | #46, #47 | See #46 and #47 above. |
+| The paper title "AVIVA A4: A Multimodal Foundation Model at 80 g/m²" | the academic block (#49, #50) | Our own title and paper: an 8-page `@inproceedings`, not a one-page PDF or an `@misc` OBJ release. |
+| "Pre-trained on trees. Fine-tuned on you." | the closing line (#17) | No "if we can sell" construction. |
+| "AVIVA A4, our most intelligent sheet yet" (meta description) | ORYZO's hero superlative in its glass panel (#22) | A different construction, and it lives only in the meta description, not in a hero panel. |
 
 ---
 
@@ -1174,8 +1218,8 @@ Banned-word sweep of Part 3: none of the R§7.6 punchlines and none of our clich
 
 ### Open questions I resolved myself
 1. **"Cool me down." became "I need some air."** (s04 card 6), so there's no temperature or thermal echo of ORYZO #8 / #34.
-2. **"Intelligence sold separately" became "Intelligence not included."** Nothing is for sale (rule 9).
-3. **Show-through is contact show-through.** The wordmark is printed on the floor and the sheet lands on it, which is physically right (print shows through paper that rests on it) and gives a precise, gap-driven shader fake (5.2).
+2. **"Intelligence sold separately" became "Intelligence not included."** Nothing is for sale (rule 9). *(Superseded by decision #27: the AI beat is now "Intelligence, built in.")*
+3. **(Superseded by decision #31.) Show-through was contact show-through.** The wordmark is printed on the floor and the sheet lands on it, which is physically right (print shows through paper that rests on it) and gives a precise, gap-driven shader fake (5.2).
 4. **The ink dot persists from s07 to the end.** It gives continuity, proves "Ink is forever", and travels with the plane.
 5. **The keyboard path draws a pre-baked stroke** and echoes the typed text in the DOM only (it avoids #36), as the lead asked.
 6. **Facts updated per R§13:**
@@ -1203,6 +1247,8 @@ Banned-word sweep of Part 3: none of the R§7.6 punchlines and none of our clich
 ---
 
 ## Part 9. Changelog (fact-check pass, 2026-10-02)
+
+> Historical log, written before decisions #27–#31. The copy quoted here is kept exactly as it was then (lowercase brand, the old concept lines). The current copy is in Parts 1–8, and the later changes are in Part 10.
 
 Source: `work/reviews/brief-factcheck.md` (78 rows + the must-fix list) and `work/01-research.md` §13.10. Every change below is already applied in Parts 1–8. **Old → new**, so the web-developer (site copy) and the visual-designer (PDF, renders) can apply the diffs. "FC row n" refers to the fact-check table.
 
@@ -1287,3 +1333,86 @@ Source: `work/reviews/brief-factcheck.md` (78 rows + the must-fix list) and `wor
 - Everything the fact-check marked **correct** (A-series numbers, 440,000 km, 75.1 %, the Dias & Arroja figures, Locke, C5, the Guinness rules, 451 °F as hedged, Lichtenberg, 136 years).
 
 **Total: 51 changelog entries** covering 26 site-copy ids, 14 paper changes (11 to the text, figures and tables, 3 to source tags only), 15 reference lines (11 corrected or completed, with the Ohio State entry now under Vallabh, plus 4 added: Big Think, Hawkeye Forensic, Karlstad University and Popular Science) and 5 design or brief notes.
+
+---
+
+## Part 10. Changelog (AI flip, lineup, AVIVA capitals, folded-letter hero; 2026-10-14)
+
+This pass covers decisions **#27** (the AI flip), **#28** (the Pro lineup), **#29** (withnolan credits, the grounds note, the PDF rename), **#30** (AVIVA in capitals) and **#31** (the folded-letter hero), plus the plan in `work/04b-ai-flip-plan.md`. Every change below is already applied in Parts 1–8. The scripts are in `work/scripts/brief/`: `p1.py` + `p2.py` (12 block and 66 line replacements, each checked to match exactly once, applied by `run.py`), then `caps.py` (the capitals pass). Each entry gives **old → new**, grouped by who applies it.
+
+### 10.1 Web-developer: site copy, links and markup
+Files: `docs/index.html`, `docs/404.html`, meta tags, visible JS strings, and the PDF link in `docs/lab/styleguide.html`.
+
+| # | Id | Old | New | Note |
+|---|---|---|---|---|
+| 1 | `meta.title` (+ `twitter:title`) | aviva A4. Pre-trained on nothing. | AVIVA A4. Now with AI. | #27, #30 |
+| 2 | `meta.description` | Introducing aviva A4, a foundation model with nothing on it. 210 × 297 mm. Zero hallucinations. A fictional parody inspired by ORYZO by Lusion. | AVIVA A4, our most intelligent sheet yet: a multimodal foundation model with a 210 × 297 mm context window. A fictional parody inspired by ORYZO by Lusion. | 155 characters |
+| 3 | `og.title` | aviva A4. Pre-trained on nothing. | AVIVA A4. Now with AI. | |
+| 4 | `og.site_name` | aviva | AVIVA | #30 |
+| 5 | `og.image.alt` (+ `twitter:image:alt`) | A single white A4 sheet lying on a white floor over the giant word aviva. The letter i shows faintly through the paper. | Five folded white sheets standing in a white studio, spelling AVIVA, with a 4 beside the last A. | #31 |
+| 6 | `nav.logo` | aviva (aria "aviva, back to the top") | AVIVA (aria "AVIVA, back to the top") | #30 |
+| 7 | `nav.3` | SIZES | MODELS | the anchor `#s12-sizes` stays |
+| 8 | `s00.label` | LOADING NOTHING | LOADING WEIGHTS | #27 |
+| 9 | `s00.done` | NOTHING LOADED | 24.95 g LOADED | five sheets × 4.99 g |
+| 10 | `s00.dim.h` | 297 mm | 141 mm | now the letters' cap height |
+| 11 | `s00.dim.w` | 210 mm | (removed) | |
+| 12 | `s00.dim.angle` | (new) | 36° | apex angle of the first A |
+| 13 | `s00.fold.a` / `.v` / `.i` | (new) | MOUNTAIN / VALLEY / EDGE-ON | each with its fold-line symbol |
+| 14 | `s00.four` | (new) | ISO 216 | under the "4" |
+| 15 | `s01.eyebrow` | INTRODUCING aviva A4 | INTRODUCING AVIVA A4 · NOW WITH AI | |
+| 16 | `s01.h1.l2` (timing only) | 1.4 s after l1, or on the first scroll | when the letters have merged (≈ 1.2 vh); with no scroll it waits | #31 |
+| 17 | `s01.side` | aviva A4. Pre-trained on nothing. | AVIVA A4. Pre-trained on trees. | the new tagline |
+| 18 | `s01.merge` | (new) | MODEL MERGE: 5 SHEETS → 1 | micro-label, 0.8–1.3 vh |
+| 19 | `s01.letters.sr` | (new) | Five folded sheets of paper stand in a row and spell AVIVA: tents for the A's, valley folds for the V's and one sheet seen edge-on for the I. A 4 stands beside the last A. | visually hidden |
+| 20 | `s03.eyebrow` | INFERENCE | AVIVA INTELLIGENCE | |
+| 21 | `s03.h2` | Intelligence not included. | Intelligence, built in. | the new AI headline |
+| 22 | `s03.body` | aviva A4 ships with no data, no knowledge and no opinions. John Locke called this "white paper, void of all characters". We call it the base model. | AVIVA Intelligence learns from every stroke you make, remembers every one of them, and answers in your own handwriting. | |
+| 23 | `s03.body.m` | No data. No knowledge. No opinions. Locke called it "white paper, void of all characters". We call it the base model. | It learns from every stroke, remembers every one, and answers in your handwriting. | |
+| 24 | `s03.status.ready` | aviva is ready. It has been ready for about 2,200 years. | AVIVA Intelligence is ready. It has been in development for about 2,200 years. | |
+| 25 | `s03.status.receiving` | Receiving prompt. | Learning from you. | |
+| 26 | `s03.status.memory` | (new) | Memory updated. | 0.4 s after a stroke ends, shown for 1 s |
+| 27 | `s03.status.thinking` / `.thought` / `.waiting` | aviva is thinking. / aviva has thought about it. / aviva is waiting. It is very good at that. | AVIVA is thinking. / AVIVA has thought about it. / AVIVA is waiting. It is very good at that. | capitals only |
+| 28 | `s03.status.erase` | Erased. A faint ghost remains. | Erased. AVIVA still remembers, mostly. | |
+| 29 | `s03.status.none` | No prompt received. Answer: also none. | No prompt yet. The model is ready when you are. | |
+| 30 | `s03.kb.placeholder` | Ask aviva anything | Ask AVIVA anything | |
+| 31 | `s03.fallback` | In 3D, you would write on the sheet here. It would not answer. That is the feature. | In 3D, you would write on the sheet here, and AVIVA would learn it by heart. | |
+| 32 | `s05.g.body` | Distillation trains a small model to keep what a large one knows. Tear aviva in half: two smaller models, the same shape, the same knowledge. None. | Distillation trains a small model to keep what a large one knows. Tear AVIVA in half: two smaller models, the same shape, every capability intact. Even the paper cut. | |
+| 33 | s11 card order (markup) | 8 cards, c1–c8 | 9 cards, c1–c9 in visual order (P L P L P L P L P). Old c1 → c1 · new c2 · new c3 (replaces old c6) · old c2 → c4 · new c5 · old c3 → c6 · old c5 → c7 · old c7 → c8 (+ `.m`) · old c8 → c9 (+ `.m`) · old c4 (Needle in a haystack) dropped | move the `data-copy` ids to match |
+| 34 | `s11.c2` (new) | (none) | Multimodal. / Accepts pencil, ink, folds and tears. Also the occasional shopping list. / MODALITIES: PENCIL · INK · FOLD · TEAR / alt as in 3.12 | |
+| 35 | `s11.c3` (replaces old c6) | Unlimited undo. / Pencil only. Graphite mostly sits on the fibres; ink soaks in. Ink is forever. / SEE ALSO: THE DOT | Persistent memory. / It keeps every mark you make. Erase one, and its impression usually stays. Ink is forever. / CLEAR HISTORY: NOT AVAILABLE · SEE ALSO: THE DOT / alt as in 3.12 | |
+| 36 | `s11.c4` (was c2) | cap: Whatever you see in the fibres is your own. · meta: HALLUCINATION RATE 0.00 % · n = 0 OUTPUTS | cap: Everything on it was put there by you. · meta: HALLUCINATION RATE 0.00 % · SOURCE: YOU | the headline is unchanged |
+| 37 | `s11.c5` (new) | (none) | Agentic. / Folded into a plane, it carries your task across the room by itself. Launch is manual. / LONGEST TIME ALOFT, PAPER AIRCRAFT: 31.2 s (GUINNESS, 2026) / alt as in 3.12 | |
+| 38 | `s12.eyebrow` | PAPER SIZE | THE LINEUP | #28 |
+| 39 | `s12.h2` | One shape. Three sizes. | More sheets. More context. | |
+| 40 | `s12.body` | Every aviva is 1 : √2. Only the context window changes. | Every AVIVA has the same intelligence per sheet. The Pro models simply have more sheets. | |
+| 41 | `s12.dlg.model` | (new) | Model: AVIVA · AVIVA Notebook Pro · AVIVA Ream Pro Max (radio group) | hairline rectangles; no pills, nothing glows, no red |
+| 42 | `s12.dlg.size` | radio group A5 · A4 · A3 | fixed "A4", plus new note `s12.dlg.size.n`: "A5 and A3 too: see the table." | |
+| 43 | `s12.dlg.copies` | 1 | 1 / 80 / 500 (follows the model) | |
+| 44 | `s12.dlg.pages` | 1 of 1 (blank) | 1 of 1 (blank) / 80 of 80 (blank) / 500 of 500 (blank) | |
+| 45 | `s12.sr.change` | aviva {size} selected: {dims}. | {model} selected: {n} sheets. | |
+| 46 | `s12.t.a5` / `.a4` / `.a3` | the A5, A4 and A3 tier texts | (removed) | |
+| 47 | `s12.t.base` / `.pro` / `.max` | (new) | AVIVA / AVIVA Notebook Pro / AVIVA Ream Pro Max, with descriptions and spec lines (3.13) | |
+| 48 | `s12.tbl` (caption + rows) | the A5 / A4 / A3 table (10 rows, incl. "Knowledge: None") | the lineup table (11 rows; sizes kept as one row; no "Knowledge" row) (3.13) | |
+| 49 | `s12.tbl.foot` | Dimensions: ISO 216. Areas and weights calculated at 80 g/m², not weighed. | Sizes: ISO 216. Context, weight and thickness calculated for A4 sheets at 80 g/m², paper only, not weighed. Notebook binding not included. | |
+| 50 | `s13.title` | Void of All Characters: Pre-training a Foundation Model on Nothing | AVIVA A4: A Multimodal Foundation Model at 80 g/m² | |
+| 51 | `s13.affil` | aviva Research, third floor (near the printer) | AVIVA Research, third floor (near the printer) | |
+| 52 | `s13.abstract` | We present aviva A4, a 210 × 297 mm foundation model pre-trained on no data. It achieves a hallucination rate of 0.00 % on every prompt we tried, and every prompt we didn't. Distilled variants keep their shape exactly. | We present AVIVA A4, a multimodal foundation model with a 210 × 297 mm context window and persistent memory. It accepts pencil, ink, folds and tears, refuses nothing, and distils into smaller models without changing shape. | 36 words |
+| 53 | PDF links: `s13.btn.paper`, `s15.link.paper`, the style-guide link | `research/void-of-all-characters.pdf` | `research/aviva-a4.pdf` | #29 |
+| 54 | `s13.bib.code` | the old BibTeX (`margin2026void`) | the new BibTeX (4.6, `margin2026aviva`) | |
+| 55 | `s14.a.sr` | (new) | The sheet comes back folded into the letter A, then opens. | visually hidden |
+| 56 | `s14.h2.l1` | Pre-trained on nothing. | Pre-trained on trees. | |
+| 57 | `s14.sub.drawn` | Your drawing is the only thing aviva has ever learned. | Your drawing is now part of the model. | |
+| 58 | `s14.h2.l2.empty` | Still nothing. We respect that. | Ready to be fine-tuned on you. | |
+| 59 | `s14.sub.empty` | There is still time to add something. | It learns from the first thing you draw. | |
+| 60 | `s14.released` | aviva A4 has been released. | AVIVA A4 has been released. | |
+| 61 | `s14.credit` | aviva was designed and built by RelentlessYunn. | AVIVA was designed and built by withnolan. | already live (#21); the brief is now aligned |
+| 62 | `s14.btn.gh` | GITHUB.COM/RELENTLESSYUNN → https://github.com/RelentlessYunn | GITHUB.COM/WITHNOLAN → https://github.com/withnolan | already live |
+| 63 | `s15.colophon` | Colophon: set in one typeface, rendered in real time, printed on nothing. | Colophon: set in one typeface, rendered in real time, best printed on AVIVA A4. | |
+| 64 | `s15.link.source` | https://github.com/RelentlessYunn/aviva | https://github.com/withnolan/aviva | |
+| 65 | `s15.copyright` | © 2026 RelentlessYunn. | © 2026 withnolan. | |
+| 66 | `s15.disclaimer` and `print.disclaimer` | aviva is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale. | AVIVA is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale. | capitals only (#30) |
+| 67 | `print.line` | aviva A4 · 210 × 297 mm · You have printed the product. | AVIVA A4 · 210 × 297 mm · You have printed the product. | |
+| 68 | All other visible "aviva" | lowercase | **AVIVA** (#30): e.g. `s10.res.win` "You preferred AVIVA.", `s10.lb.r1`/`r2` "1 · AVIVA A4 · 50.0 %", s02–s09 lines, alt texts, aria-labels, the 404 page and the fallback banner | exceptions: URLs, file names, code identifiers, CSS classes, the BibTeX key |
+| 69 | s12 markup | radio group A5 / A4 / A3 driving the sheet's size | radio group "Model" driving the stack count (2B s12); the size field becomes a static row | |
+| 70 | s00 / s01 markup | the A4-outline SVG; the floor wordmark | the folded-letter SVG drawing (projected from the 3D letters), plus `s01.merge` and `s01.letters.sr` | #31 |
+

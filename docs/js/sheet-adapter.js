@@ -12,12 +12,14 @@
 //   paper.setGround(color)                       the studio colour (backdrop + clear colour), every frame
 //   paper.pick(sheet, raycaster)                 → { u, v, face } | null   (ray–plane in the sheet's frame)
 //   paper.prepare(renderer, scene, camera)       precompile every material variant behind the loader
+//   paper.warmCrumple(renderer, scene, camera, sheets)   after the reveal: fetch the baked crumple, build + compile it
 //   paper.ensureMacro()                          the s07 fibre layers (real module; no-op on the placeholder)
 //
 // Sheet state keys are the module's (sheet.js), plus these normalisations:
 //   opacity 0..1 (real: material alpha) · curl { corner, t, r, deg, size } (degrees on both systems)
-//   boat 0..1 (real: built from fold2D) · crumple 0..1 (real: the baked crumple when FEATURES.paperCrumple,
-//   else a fold-based stand-in) · paint / paintFace / map (real: drawn into the sheet's overlay texture)
+//   boat 0..1 (real: the module's boat when its sheet has one, else a fold2D stand-in) · crumple 0..1 (real: the module's,
+//   folds to a packet below folds.CRUMPLE_SWAP, then the baked crush, when FEATURES.paperCrumple; else a fold-based
+//   stand-in) · paint / paintFace (real: the module's GPU pencil) · map (the v0.1 lines, drawn into the sheet's overlay)
 import * as THREE from 'three';
 import { FLAGS, FEATURES } from './config.js';
 
@@ -120,6 +122,7 @@ function wrapPlaceholder(sys, renderer) {
     contactBlob: (...a) => sys.contactBlob(...a),
     pick,
     ensureMacro() {},
+    warmCrumple: async () => false,
     prepare: (r, scene, camera) => prepare(r, scene, camera, (on) => {
       for (const w of wrapped) { const m = w.raw.material; m.transparent = on; m.needsUpdate = true; }
     }),
@@ -152,13 +155,7 @@ function wrapReal(sys, m, renderer) {
       if (FEATURES.paperPaint && sys.createPaint) {
         try {
           const p = await sys.createPaint();
-          if (p && p.begin && p.bakedLine) {
-            // PaintLayer.clear() empties the render target's base level but not its mip levels, so a small sheet kept
-            // showing the old strokes: an invisible eraser dab off the sheet forces one render, which rebuilds the mips
-            const clear = p.clear.bind(p);
-            p.clear = () => { clear(); const tool = p.tool; p.setTool('eraser'); p.begin(-2, -2); p.end(); p.setTool(tool); };
-            return p;
-          }
+          if (p && p.begin && p.bakedLine) return p;          // clear() also clears the mip chain (paint.js _clear)
         } catch (e) { console.warn('[aviva] module paint failed:', e && e.message); }
       }
       const { PlaceholderPaint } = await import('./placeholder-paper.js');
@@ -184,6 +181,30 @@ function wrapReal(sys, m, renderer) {
       try { sys.ensureMacro && sys.ensureMacro(); sys.ensureFibreGeo && sys.ensureFibreGeo(); } catch (e) { console.warn('[aviva] macro textures:', e && e.message); }
     },
     prepare: (r, scene, camera) => prepare(r, scene, camera, (on) => { for (const w of wrapped) w._setTransparent(on, true); }),
+    /**
+     * The baked crumple loads on first use (Regenerate, an Arena vote): a 160 KB fetch, then a shader compile in the
+     * middle of the gesture. Called once the page is idle after the reveal, this does both ahead of time: the module
+     * builds each sheet's crumple mesh as soon as its crumple goes above 0 (hidden until folds.CRUMPLE_SWAP), so a
+     * crumple of 1e-4 and straight back to 0, with no frame in between, builds it; compileAsync then compiles it
+     * (hidden meshes are compiled too) without blocking the main thread where KHR_parallel_shader_compile exists.
+     */
+    async warmCrumple(renderer, scene, camera, sheets = wrapped) {
+      if (!FEATURES.paperCrumple || !sys.loadCrumple) return false;
+      const data = await sys.loadCrumple();
+      if (!data) return false;
+      let built = 0;
+      for (const w of sheets) {
+        const s = w && w.raw;
+        if (!s || s.crumpleMesh || s._crumpleFailed || (s.state && s.state.crumple > 0)) continue;
+        s.set({ crumple: 1e-4 }); s.set({ crumple: 0 });
+        built++;
+      }
+      if (!built) return true;
+      await new Promise((r) => setTimeout(r, 0));             // the builds run on the (already resolved) load promise
+      if (renderer.extensions.has('KHR_parallel_shader_compile')) await renderer.compileAsync(scene, camera);
+      else renderer.compile(scene, camera);
+      return true;
+    },
     dispose: () => sys.dispose(),
   };
   return paper;
@@ -192,6 +213,7 @@ function wrapReal(sys, m, renderer) {
 /** the module's sheet, with the adapter's keys translated */
 function realSheet(s, { F, hero, getPaint }) {
   const st = { opacity: 1, boat: 0, crumple: 0, paint: false, paintFace: -1, map: 0 };
+  const nativeBoat = !!(s.state && 'boat' in s.state);      // the module's own boat (sheet.js: folds the hat, then boat.js)
   let foldsKey = '', overlay = null, transparent = false;
 
   function materials(fn) {
@@ -225,7 +247,7 @@ function realSheet(s, { F, hero, getPaint }) {
       for (const k in next) {
         const v = next[k];
         if (k === 'opacity') { st.opacity = v; continue; }
-        if (k === 'boat') { st.boat = v || 0; folds = true; continue; }
+        if (k === 'boat') { if (nativeBoat) pass.boat = v || 0; else { st.boat = v || 0; folds = true; } continue; }
         if (k === 'crumple') { st.crumple = v || 0; if (FEATURES.paperCrumple) pass.crumple = v; else folds = true; continue; }
         if (k === 'paint') { st.paint = !!v; if (w._modulePaint) pass.paint = !!v; else ov = true; continue; }
         if (k === 'paintFace') { st.paintFace = v; if (w._modulePaint) pass.paintFace = v; else ov = true; continue; }
@@ -270,7 +292,7 @@ function realSheet(s, { F, hero, getPaint }) {
 
 const smooth = (t) => { t = Math.min(1, Math.max(0, t)); return t * t * (3 - 2 * t); };
 
-/** paper boat stand-in (the module has no boat yet): half down behind, two corners to the centre, brim up */
+/** paper boat stand-in (for a module without the boat key): half down behind, two corners to the centre, brim up */
 function boatFolds(F, t, W = 0.21, H = 0.297) {
   const k = (i) => Math.min(1, Math.max(0, t * 4 - i)), r = 0.0005;
   return [
