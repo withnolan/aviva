@@ -20,7 +20,10 @@ Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 ## Working rules
 - **Pause/resume (decision #22):** on the user's "stop", pause running agents via SendMessage (finish step, save, report, end turn); on "continue", resume the same agents via SendMessage. Don't launch new agents for paused work.
 - **Desktop only (decisions #33/#34):** only the desktop website matters. No phone or tablet work, tests, screenshots or review findings until the user asks for a phone pass.
-- **Lean plan (decision #23):** 2 build chunks; 3 review rounds (round 1 = 3 reviewers, rounds 2–3 = 1 combined reviewer); Sonnet for fact-checks and small fixes; fewer screenshots; the lead does trivial fixes directly.
+- **Look perfect, don't over-check (decision #36).** Opus for creative, visual and review work.
+- **Small tasks (decision #38):** one bounded step per agent task (≤ ~20 min / ~40 tool calls), at most 2 agents at once, commit after each, follow the Task queue below.
+- **Reviews (decision #37):** a fresh-eyes panel (no context) plus one context reviewer, every round.
+- **Lean plan (decision #23, partly superseded by #36):** 2 build chunks; 3 review rounds (round 1 = 3 reviewers, rounds 2–3 = 1 combined reviewer); Sonnet for fact-checks and small fixes; fewer screenshots; the lead does trivial fixes directly.
 
 ## Phase checklist
 - [x] **Phase 0 — Setup**: mission saved, folders, npm install, shoot tool verified, network checked, ORYZO-1 repo cloned, commit + push, draft PR (#1).
@@ -59,6 +62,17 @@ The user stopped work until next week. All four agents are paused, everything is
 4. **visual-designer (design):** rebuild the figures and the PDF as `docs/research/aviva-a4.pdf` (`build-paper.mjs` already uses that name), look at the rendered pages, and `git rm` the old `void-of-all-characters.pdf`. Re-shoot the style guide. Update `work/05-design-system.md` (§8.2–8.4, §11, requests 15.9/15.10). After Part 10: re-typeset the new title and abstract, update `citation.bib`, and swap the style guide's paper-size control for the tier selector.
 5. **Richness pass (decision #35):** after Part 10, the CD writes brief Part 11 (a rich moment per section); a Sonnet density comparison against ORYZO; then the sets, renders, annotations and extra moments are built in Phase 4.
 6. **Then:** Phase 4 (build in 2 chunks; also fix the s04 text overlapping the numerals and the s07 macro). Phase 5 (3 review rounds per #26; the similarity watch covers the hero letter-morph and the print easter egg, #17). Phase 6 (QA, README, `docs/CREDITS.md`, MIT LICENSE, `git rm -r reference`, PR description, mark ready, final report).
+
+## Task queue (decision #38: one small task at a time; tick when done)
+1. [ ] Fresh-eyes panel #0 on the current build (desktop, 1440): 2 personas, no context → `work/reviews/fresh0-*.md`.
+2. [ ] CD: finish Part 10 (rows 71+, 10.2 design VD, 10.3 paper VD/hero beats, 10.4, 10.5).
+3. [ ] Sonnet fact-check of the Part 10 facts (+ the UV/optical-brightener fact for #35).
+4. [ ] Reference-analyst (Sonnet): density comparison, ORYZO frames vs our 1440 shots → `work/reviews/density.md`.
+5. [ ] CD: Part 11, the richness pass and new section map (uses 1, 4 and the user's feedback).
+6. [ ] Lead: approve Parts 10/11 and split the build into small tasks below.
+7. [ ] Design VD: PDF rebuild as aviva-a4.pdf with the new text (2 steps: text, then figures + render check).
+8. [ ] Paper VD: finish the look-dev list (folds montage → ink → fibres → lights → contact sheet + docs), one item per task.
+9. [ ] Build tasks (to be split): hero letters, copy + caps, tiers + stack, sets/props, renders for c1–c8/F1–F6/OG, annotation layer, extra moments.
 
 ## Running now
 - **2026-10-14, the user asked to stop everything except finishing the site skeleton.**
