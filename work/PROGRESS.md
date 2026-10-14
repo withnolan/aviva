@@ -64,7 +64,7 @@ The user stopped work until next week. All four agents are paused, everything is
 6. **Then:** Phase 4 (build in 2 chunks; also fix the s04 text overlapping the numerals and the s07 macro). Phase 5 (3 review rounds per #26; the similarity watch covers the hero letter-morph and the print easter egg, #17). Phase 6 (QA, README, `docs/CREDITS.md`, MIT LICENSE, `git rm -r reference`, PR description, mark ready, final report).
 
 ## Task queue (decision #38: one small task at a time; tick when done)
-1. [ ] Fresh-eyes panel #0 on the current build (desktop, 1440): 2 personas, no context → `work/reviews/fresh0-*.md`.
+1. [ ] Fresh-eyes panel #0 on the current build (desktop, 1440): 2 personas, no context, ORYZO first (live if allowed, else the raw frames only, #40) → `work/reviews/fresh0-*.md`.
 2. [ ] CD: finish Part 10 (rows 71+, 10.2 design VD, 10.3 paper VD/hero beats, 10.4, 10.5).
 3. [ ] Sonnet fact-check of the Part 10 facts (+ the UV/optical-brightener fact for #35).
 4. [ ] Reference-analyst (Sonnet): density comparison, ORYZO frames vs our 1440 shots → `work/reviews/density.md`.
