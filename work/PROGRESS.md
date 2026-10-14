@@ -1,6 +1,6 @@
 # aviva — PROGRESS
 
-If you lose context: `git pull`, then read this file and `work/decisions.md`, and carry on from "Next step".
+If you lose context: `git pull`, run `work/scripts/setup-session.sh`, then read this file and `work/decisions.md`, and carry on from "Next step".
 
 Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 
@@ -64,13 +64,13 @@ The user stopped work until next week. All four agents are paused, everything is
 6. **Then:** Phase 4 (build in 2 chunks; also fix the s04 text overlapping the numerals and the s07 macro). Phase 5 (3 review rounds per #26; the similarity watch covers the hero letter-morph and the print easter egg, #17). Phase 6 (QA, README, `docs/CREDITS.md`, MIT LICENSE, `git rm -r reference`, PR description, mark ready, final report).
 
 ## User tasks (given 2026-10-14; check on resume)
-- [ ] Allow network for oryzo.ai, blog.lusion.co, withnolan.github.io (environment → Edit → Network access → Allowed domains). Then verify with curl.
-- [ ] Install plugins: frontend-design, audit-suite, Design (check with ListPlugins).
+- [x] (2026-10-14: open internet granted; oryzo.ai, blog.lusion.co, withnolan.github.io reachable; headless Chromium needs `work/scripts/setup-session.sh` for the proxy CA) Allow network for oryzo.ai, blog.lusion.co, withnolan.github.io (environment → Edit → Network access → Allowed domains). Then verify with curl.
+- [x] Plugins installed: frontend-design, audit-suite, Design (skills available: frontend-design:frontend-design, audit-suite:web-animation-design / make-interfaces-feel-better / emil-design-engineering, design:design-critique / ux-copy).
 - [ ] Watch the live site on a computer: speed, top 3 moments, top 3 empty/boring places, what they miss from ORYZO.
 - [ ] Optional photos in `reference/photos/` (back-lit sheet, surface macro, tent fold; extras: torn edge, crumpled-then-flattened). `git pull` to get them; reference only, never in docs/.
 
 ## Task queue (decision #38: one small task at a time; tick when done)
-1. [ ] Fresh-eyes panel #0 on the current build (desktop, 1440): 2 personas, no context, ORYZO first (live if allowed, else the raw frames only, #40) → `work/reviews/fresh0-*.md`.
+1. [ ] (brief ready: `work/briefs/fresh0.md`; 2 general-purpose agents in parallel, personas: award-site juror (Opus), first-time visitor sent the link by a friend (Opus)) Fresh-eyes panel #0 on the current build (desktop, 1440): 2 personas, no context, ORYZO first (live if allowed, else the raw frames only, #40) → `work/reviews/fresh0-*.md`.
 2. [ ] CD: finish Part 10 (rows 71+, 10.2 design VD, 10.3 paper VD/hero beats, 10.4, 10.5).
 3. [ ] Sonnet fact-check of the Part 10 facts (+ the UV/optical-brightener fact for #35).
 4. [ ] Reference-analyst (Sonnet): density comparison, ORYZO frames vs our 1440 shots → `work/reviews/density.md`.
