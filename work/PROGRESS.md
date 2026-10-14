@@ -19,6 +19,7 @@ Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 
 ## Working rules
 - **Pause/resume (decision #22):** on the user's "stop", pause running agents via SendMessage (finish step, save, report, end turn); on "continue", resume the same agents via SendMessage. Don't launch new agents for paused work.
+- **Desktop first (decision #33):** judge desktop; phone/tablet only must not break badly; known small-screen issues go in a list for a later pass.
 - **Lean plan (decision #23):** 2 build chunks; 3 review rounds (round 1 = 3 reviewers, rounds 2–3 = 1 combined reviewer); Sonnet for fact-checks and small fixes; fewer screenshots; the lead does trivial fixes directly.
 
 ## Phase checklist
