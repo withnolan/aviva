@@ -63,6 +63,12 @@ The user stopped work until next week. All four agents are paused, everything is
 5. **Richness pass (decision #35):** after Part 10, the CD writes brief Part 11 (a rich moment per section); a Sonnet density comparison against ORYZO; then the sets, renders, annotations and extra moments are built in Phase 4.
 6. **Then:** Phase 4 (build in 2 chunks; also fix the s04 text overlapping the numerals and the s07 macro). Phase 5 (3 review rounds per #26; the similarity watch covers the hero letter-morph and the print easter egg, #17). Phase 6 (QA, README, `docs/CREDITS.md`, MIT LICENSE, `git rm -r reference`, PR description, mark ready, final report).
 
+## User tasks (given 2026-10-14; check on resume)
+- [ ] Allow network for oryzo.ai, blog.lusion.co, withnolan.github.io (environment → Edit → Network access → Allowed domains). Then verify with curl.
+- [ ] Install plugins: frontend-design, audit-suite, Design (check with ListPlugins).
+- [ ] Watch the live site on a computer: speed, top 3 moments, top 3 empty/boring places, what they miss from ORYZO.
+- [ ] Optional photos in `reference/photos/` (back-lit sheet, surface macro, tent fold; extras: torn edge, crumpled-then-flattened). `git pull` to get them; reference only, never in docs/.
+
 ## Task queue (decision #38: one small task at a time; tick when done)
 1. [ ] Fresh-eyes panel #0 on the current build (desktop, 1440): 2 personas, no context, ORYZO first (live if allowed, else the raw frames only, #40) → `work/reviews/fresh0-*.md`.
 2. [ ] CD: finish Part 10 (rows 71+, 10.2 design VD, 10.3 paper VD/hero beats, 10.4, 10.5).
