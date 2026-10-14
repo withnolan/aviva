@@ -206,12 +206,15 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
   const dogCue = $('.review[data-cue="dogear"]');
   const issue = $('#s06-issue');
   let claimsMax = 0, dogY = 0;
+  const head10 = $('.s10__head');
   function measure() {
     rulerH = ruler ? ruler.clientHeight : 0;
     claimsMax = claims ? Math.max(0, claims.scrollWidth - innerWidth) : 0;
     const sy = window.scrollY;
     for (const c of cues) { const r = c.el.getBoundingClientRect(); c.y = r.top + sy + r.height / 2; }
     if (dogCue) { const r = dogCue.getBoundingClientRect(); dogY = r.top + sy + r.height / 2; }
+    // the Arena's sheets stay below its header (choreo s10): the header's bottom edge, in % of its stage's height
+    if (head10 && head10.offsetHeight) { const H = (head10.offsetParent || document.documentElement).clientHeight || innerHeight; E.layout.s10Top = ((head10.offsetTop + head10.offsetHeight) / H) * 100; }
     resplit();
   }
   S.onRefresh.push(measure);

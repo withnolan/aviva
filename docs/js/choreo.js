@@ -204,7 +204,10 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     },
     s10(S, p) {
       const M = ctx.M, V = E.arena, exit = seg(p, 2.2, 2.9);
-      const ax = M ? 28 : 35, bx = M ? 72 : 65, sy = M ? 46 : 50, sz = M ? 24 : 40;
+      // brief: (35 | 65, 50), 40 vh%; on a short screen the pair shrinks and drops just enough to clear the header
+      // (its bottom edge, measured by ui.js) and keep above the RESPONSE labels at 72 %
+      const top = (E.layout.s10Top || 0) + 2;
+      const ax = M ? 28 : 35, bx = M ? 72 : 65, sz = M ? 24 : clamp(70 - top, 28, 40), sy = M ? 46 : Math.max(50, top + sz / 2);
       const win = V.winner || 'A';
       const pose = (who) => {
         const isLoser = V.loser === who, base = who === 'A' ? ax : bx;
@@ -267,7 +270,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
 
   /* ------------------------------------------------------------------ per-frame: claim → resolve */
   function claim(secs, frame) {
-    ctx.M = size.aspect < 0.8;
+    ctx.M = size.w <= 600 || size.aspect <= 0.8;      // the stacked layout: the same test as the CSS media query
     ctx.reduce = frame.reduce;
     ctx.time = E.time;
     ctx.loop = false;

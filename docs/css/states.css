@@ -122,6 +122,6 @@ html.is-drawing .stage, html.is-drawing .gl { touch-action: none; }
   color: var(--text-muted);
 }
 .no-webgl .s10 .fb-still, .no-webgl .s12 .fb-still { opacity: 0.9; }
-@media (max-width: 600px) {
+@media (max-width: 600px), (max-aspect-ratio: 4/5) {
   .no-webgl .fb-still { width: 84vw; top: 50%; }
 }

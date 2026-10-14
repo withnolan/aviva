@@ -269,7 +269,7 @@ cite { font-style: italic; }
 .m-only { display: none; }
 .print-only { display: none; }            /* the printed product is print.css's; never on screen */
 .br-m { display: none; }
-@media (max-width: 600px) {
+@media (max-width: 600px), (max-aspect-ratio: 4/5) {
   .d-only { display: none; }
   .m-only { display: inline; }
   .br-m { display: inline; }

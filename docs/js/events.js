@@ -14,6 +14,7 @@ export const E = {
   release: { plane: 0, fly: 0, fade: 1, started: false, done: false },
   hover: { x: 0, y: 0, on: 0 },                       // s04: pointer position (−1..1) for the outputs' sway
   cues: {},                                           // s06 / s09 scroll cues (written by ui.js)
+  layout: { s10Top: 0 },                              // DOM edges the 3D layout keeps clear of (ui.js measures, % of the viewport)
   dissolve: { k: 0 },                                 // reduced motion: veil amount
   time: 0,                                            // seconds since boot (loops: breathing, sway)
 };

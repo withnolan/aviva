@@ -616,8 +616,9 @@
   .card { min-height: 260px; padding: var(--space-4); }
 }
 
-/* ======================= phone (≤ 600 px) ======================= */
-@media (max-width: 600px) {
+/* ======================= phone (≤ 600 px) and every portrait screen (width ≤ 0.8 × height) =======================
+   The stacked layout. choreo.js uses the same test (ctx.M), so the 3D placements always match the DOM layout. */
+@media (max-width: 600px), (max-aspect-ratio: 4/5) {
   .hero__eyebrow { top: calc(var(--nav-h) + 3%); }
   .hero__h1 { top: calc(var(--nav-h) + 3% + 26px); font-size: 1.625rem; line-height: 1.16; }
   .hero__l2 { margin-top: 0.55em; }
@@ -634,7 +635,7 @@
   .s03__under { top: 61.5%; }
   .s03__tools {
     top: auto;
-    bottom: 12px;
+    bottom: calc(var(--hint-h) + 4px);       /* clear of the scroll hint */
     right: auto;
     left: var(--gutter);
     width: calc(100% - 2 * var(--gutter));
