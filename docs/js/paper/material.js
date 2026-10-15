@@ -56,7 +56,7 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uHalfThick: { value: 0.00005 }, uDeformEps: { value: 0.0008 },
     uFoldCount: { value: 0 }, uFoldQ: { value: arr4(MAX_FOLDS) }, uFoldA: { value: arr4(MAX_FOLDS) }, uFoldM: { value: arr4(MAX_FOLDS) }, uFoldR: { value: arr4(MAX_FOLDS) },
     uBend: { value: v4() }, uPleat: { value: v4(0.015, 0, 0, 0.05) }, uFlutter: { value: v4(0, 9, 0, 0) }, uCockle: { value: v4(0.00045, 16, 3.7, 0) },
-    uFormP: { value: v4(0, 0, 0.08, 0.37) },
+    uFormP: { value: v4(0, 0, 0.12, 0.37) },
     uEdgeP: { value: v4(1.4, 0.18, 0.1, 0.5) },
     uTransP: { value: v4(0.22, 0.35, 0.3, 0) },
     uWatermarkRect: { value: v4(0, -0.035, 0.034, 0.048) },
@@ -67,7 +67,7 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uShow: { value: v4(0, 0, 0.006, 1.9) },
     uCrease: { value: arr4(MAX_CREASES) },
     uTear0: { value: v4() }, uTear1: { value: v4() }, uTearFx0: { value: v4(1, 0, 0.0016, 55) }, uTearFx1: { value: v4(1, 0, 0.0016, 55) },
-    uGain: { value: 1 }, uFacet: { value: 0.5 }, uShift: { value: new THREE.Vector3() },
+    uGain: { value: 1 }, uFacet: { value: 0.5 }, uShift: { value: new THREE.Vector3() }, uRest: { value: v4() },
   };
 }
 
@@ -106,7 +106,7 @@ if (uMacroP.z > 0.0) {
   paperMacroFade = uMacroP.z * (1.0 - smoothstep(0.8, 3.2, max(dm.x, dm.y)));
   if (paperMacroFade > 0.001) paperMacroS = texture2D(uMacro, muv);
 }
-vec3 alb = uPaperColor * (1.0 + (paperForm.r - 0.5) * uFormP.z + (paperForm.a - 0.5) * uFormP.z * 0.4);   // formation mottle + fine fill
+vec3 alb = uPaperColor * (1.0 + (paperForm.r - 0.5) * uFormP.z + (paperForm.a - 0.5) * uFormP.z * 0.7);   // formation mottle + fine fill
 alb *= 1.0 + (paperTooth.b - 0.5) * 0.05;                                   // micro-shadowing in the tooth valleys
 alb *= 1.0 + ((paperMacroS.b - 0.5) * 0.16 + (paperMacroS.a - 0.5) * 0.06) * paperMacroFade;   // fibre cavities / fibre-to-fibre tone
 if (paperFace == 0.0) alb = min(alb * (1.0 + uEdgeP.z), vec3(1.0));          // the cut edge: raw fibres, a touch brighter

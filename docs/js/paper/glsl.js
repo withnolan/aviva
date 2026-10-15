@@ -39,6 +39,7 @@ uniform vec4  uPleat;                      // x: period (m), y: gamma (rad), z: 
 uniform vec4  uFlutter;                    // x: amplitude (m), y: frequency (1/m), z: time, w: seed
 uniform vec4  uCockle;                     // x: amplitude (m), y: frequency (1/m), z: seed
 uniform vec3  uShift;                      // a rigid shift after everything (the crumple slides onto the ball's centre)
+uniform vec4  uRest;                       // a real sheet at rest: x edge lift across the width (m), y twist (m), z corner lift (m), w corner (0..3)
 #ifdef PAPER_INSTANCED
 attribute vec4 aInst;                      // per instance (stack.js): x bend (1/m), y flutter amplitude (m), z flutter time, w -
 #define PP_BEND vec4(aInst.x, uBend.y, uBend.z, uBend.w)
@@ -64,6 +65,15 @@ void paperFold(inout vec3 p, vec2 rest, vec4 Q, vec4 A, vec4 M, vec4 R) {
 }
 vec3 paperDeform(vec2 rest) {
   vec3 p = vec3(rest, 0.0);
+  if (uRest.x != 0.0 || uRest.y != 0.0 || uRest.z != 0.0) {
+    // never quite flat: a soft bow across the width (paper's own stiffness), a gentle twist, and one corner lifting a
+    // little (x/y in -1..1). A few mm only, but it gives a face-on sheet its tonal falloff and shows its edge.
+    vec2 q = rest / (0.5 * uSheet);
+    p.z += uRest.x * q.x * q.x + uRest.y * (q.x * q.y + 1.0) * 0.5;      // the centre stays put (a lying sheet touches there)
+    vec2 cs = vec2(mod(uRest.w, 2.0) < 0.5 ? 1.0 : -1.0, uRest.w < 1.5 ? -1.0 : 1.0);   // 0 BR, 1 BL, 2 TR, 3 TL
+    float cd = length(max(vec2(0.0), q * cs - vec2(0.55)) / 0.45);
+    p.z += uRest.z * cd * cd;
+  }
   if (uCockle.x > 0.0) {                               // a real sheet is never perfectly flat: sub-mm waviness
     vec2 q = rest * uCockle.y;
     p.z += uCockle.x * ((pp_vn3(vec3(q, uCockle.z)) - 0.5) * 1.4 + (pp_vn3(vec3(q * 2.3, uCockle.z + 7.0)) - 0.5) * 0.6);

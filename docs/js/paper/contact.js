@@ -6,7 +6,8 @@
 // penumbra that grows with the distance to the occluder, i.e. contact hardening):
 //   R  contact  exp(-h / 1.8 mm)                       blurred ~1.2 mm  the thin line where paper touches the floor
 //   G  mid      exp(-h / 16 mm) (1 - exp(-h / 3 mm))   blurred ~6 mm    a sheet a few mm to a few cm up
-//   B  soft     exp(-h / 14 cm) (1 - exp(-h / 2.5 cm)) blurred ~28 mm   the broad, light penumbra of a sheet in the air
+//   B  soft     exp(-h / 35 cm) (1 - exp(-h / 2.5 cm)) blurred ~42 mm   the broad, light penumbra of a sheet in the air
+//                (the reach is per light preset: contact.reach; a sheet floating 40 cm up still grounds itself)
 // A sheet lying flat therefore casts only the thin contact line, offset a little away from the key (as a real sheet's
 // edge is never perfectly flat), and the shadow grows softer and lighter as the sheet rises.
 // The backdrop (studio.js) combines them: 1 - (1 - c * Pc)(1 - m * Pm)(1 - s * Ps), tinted cool-grey.
@@ -25,7 +26,7 @@ void main(){
 }`;
 
 export class ContactShadows {
-  constructor(renderer, { res = 512, halfExtent = 0.45, floorY = 0, layer = 5, contactBlurMM = 1.2, midBlurMM = 6, softBlurMM = 28 } = {}) {
+  constructor(renderer, { res = 512, halfExtent = 0.6, floorY = 0, layer = 5, contactBlurMM = 1.2, midBlurMM = 6, softBlurMM = 42 } = {}) {
     this.renderer = renderer; this.layer = layer; this.res = res; this.casters = new Set();
     this.contactBlurMM = contactBlurMM; this.midBlurMM = midBlurMM; this.softBlurMM = softBlurMM;
     const opt = { type: THREE.UnsignedByteType, format: THREE.RGBAFormat, depthBuffer: false, generateMipmaps: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, colorSpace: THREE.NoColorSpace };
@@ -37,7 +38,7 @@ export class ContactShadows {
     this.uniforms = {
       uCS: { value: new THREE.Vector4(0, 0, halfExtent, floorY) },
       uCSShear: { value: new THREE.Vector4(0, 0, 0.0018, 0.016) },   // xy shear, z contact falloff (m), w mid falloff (m)
-      uCSRange: { value: new THREE.Vector4(0.45, 0.14, 0.025, 0.003) }, // x max height, y soft falloff, z soft rise, w mid rise (m)
+      uCSRange: { value: new THREE.Vector4(1.0, 0.35, 0.025, 0.003) },  // x max height, y soft falloff, z soft rise, w mid rise (m)
     };
     this.strength = { contact: 0.34, mid: 0.2, soft: 0.13 };
     this.scene = new THREE.Scene(); this.cam = new THREE.Camera(); this.cam.layers.set(layer);
@@ -57,6 +58,8 @@ export class ContactShadows {
   get textureM() { return this.m.texture; }
   /** strengths (0..1): contact line, mid lobe, soft lobe. setStrength(contact, soft) keeps working (mid = soft x 1.5). */
   setStrength(contact, soft, mid) { this.strength.contact = contact; this.strength.soft = soft; this.strength.mid = mid ?? Math.min(1, soft * 1.5); }
+  /** how high a sheet can float and still cast its soft shadow: falloff (m); the shadow fades out by ~3 x falloff */
+  setReach(falloff = 0.35) { const R = this.uniforms.uCSRange.value; if (R.y !== falloff) { R.y = falloff; R.x = Math.max(0.3, falloff * 2.9); this.dirty = true; } }
   /** centre the shadow window on a world xz point (the hero sheet) */
   follow(x, z) { const U = this.uniforms.uCS.value; if (U.x !== x || U.y !== z) { U.x = x; U.y = z; this.dirty = true; } }
   setFloor(y) { this.uniforms.uCS.value.w = y; this.dirty = true; }

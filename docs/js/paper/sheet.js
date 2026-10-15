@@ -25,6 +25,7 @@ import { boatGeometry, BOAT } from './boat.js';
 
 const DEFAULT_STATE = () => ({
   bend: 0, bendAxis: Math.PI / 2, twist: 0, flutter: 0, flutterFreq: 9, flutterTime: 0, flutterAuto: false, cockle: 0.00045,
+  rest: 1, restCorner: 0,
   folds: null, plane: 0, halving: 0, sixfold: 0, dogEar: 0, dogEarCorner: 'tr', peel: 0, curl: null, fan: 0, crumple: 0,
   boat: 0, thickness: 0.0001, translucency: 0.24, watermark: 0, showThrough: 0, inkDot: 0, inkDotAt: [0.072, -0.118], inkDotRadius: 0.0015,
   bleed: null, macro: 0, paint: false, paintFace: 1, overlay: null, creases: null, gain: 1, visible: true, tear: null,
@@ -44,6 +45,7 @@ export class Sheet {
     const rnd = mulberry(seed * 9301 + 49297);
     this.uniforms.uFormP.value.x = rnd(); this.uniforms.uFormP.value.y = rnd();
     this.uniforms.uCockle.value.z = rnd() * 50;
+    this.restTwist = rnd() < 0.5 ? -1 : 1;
     this.object = new THREE.Group(); this.object.name = 'paper.' + name;
     this.castShadow = castShadow; this.contact = contact;
     this.state = DEFAULT_STATE();
@@ -247,6 +249,17 @@ export class Sheet {
     else if (U.uShift.value.lengthSq() > 0) U.uShift.value.set(0, 0, 0);
     if (this._dirtyFolds) this._collectFolds();
     this._uploadFolds();
+    // the rest shape (bow, twist, a lifting corner) fades out while any fold is active, so stacked layers never cross
+    let foldT = 0; for (const f of this._folds) foldT = Math.max(foldT, Math.min(1, Math.abs(f.t ?? 1)));
+    // ... and as the sheet turns edge-on to the camera, so the 0.1 mm beat (s02) stays one clean hairline
+    let edgeOn = 1;
+    if (camera) {
+      _n.set(0, 0, 1).applyQuaternion(this.object.getWorldQuaternion(_wq));
+      _vd.copy(camera.getWorldPosition(_cp)).sub(this.object.getWorldPosition(_wp)).normalize();
+      edgeOn = THREE.MathUtils.smoothstep(Math.abs(_n.dot(_vd)), 0.12, 0.4);
+    }
+    const r = (S.rest ?? 1) * (1 - foldT) * (S.crumple > 0 ? 0 : 1) * (S.boat > 0 ? 0 : 1) * edgeOn;
+    U.uRest.value.set(0.0045 * r, 0.0008 * r * (this.restTwist > 0 ? 1 : 0), 0.0055 * r, S.restCorner ?? 0);
   }
 
   /** slope-scaled offset of this sheet's shadow-map depth (set by the system from the key's PCF radius) */
@@ -269,5 +282,5 @@ export class Sheet {
     this.sys._forget(this);
   }
 }
-const _wp = new THREE.Vector3(), _cp = new THREE.Vector3(), _ws = new THREE.Vector3();
+const _wp = new THREE.Vector3(), _cp = new THREE.Vector3(), _ws = new THREE.Vector3(), _n = new THREE.Vector3(), _vd = new THREE.Vector3(), _wq = new THREE.Quaternion();
 function mulberry(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }

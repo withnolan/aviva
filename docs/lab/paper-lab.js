@@ -153,7 +153,7 @@ async function apply(search) {
       formation: f ? { flocMM: f[0], contrast: f[1] } : (apply._fgen ? {} : null) });
     apply._tgen = tgen; apply._fgen = fgen;
   }
-  if (P.has('mottle')) sheet.uniforms.uFormP.value.z = num('mottle'); else sheet.uniforms.uFormP.value.z = 0.08;
+  if (P.has('mottle')) sheet.uniforms.uFormP.value.z = num('mottle'); else sheet.uniforms.uFormP.value.z = 0.12;
   sheet.uniforms.uFacet.value = num('facet', 0.5);
   if (P.has('edge')) { const [bw, bs, wb] = vec('edge'); sheet.uniforms.uEdgeP.value.set(bw, bs, wb, 0.5); } else sheet.uniforms.uEdgeP.value.set(1.4, 0.18, 0.1, 0.5);
   sheet.reset();

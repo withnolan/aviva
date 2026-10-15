@@ -16,13 +16,13 @@ const D = (x, y, z) => new THREE.Vector3(x, y, z).normalize();
 // key.dist is in metres from the target; angle (rad) is the spot cone; softness = PCF radius; shadow 0..1.
 const base = {
   space: 'view',
-  key: { dir: D(-0.58, 0.62, 0.52), dist: 1.05, color: '#fffdf9', intensity: 1.47, angle: 0.62, penumbra: 1, shadow: 1, softness: 5 },
+  key: { dir: D(-0.7, 0.55, 0.45), dist: 0.95, color: '#fffefb', intensity: 1.5, angle: 0.62, penumbra: 1, shadow: 1, softness: 5 },
   fill: { dir: D(0.85, 0.15, 0.5), color: '#eef3ff', intensity: 0.18 },
   back: { dir: D(0.15, 0.35, -1), dist: 1.6, color: '#fff2df', intensity: 0, angle: 0.75, penumbra: 1 },
   rim: { dir: D(-0.9, 0.2, -0.4), color: '#ffffff', intensity: 0 },
   env: 0.48, exposure: 0.92,                   // whites sit below the tone curve's shoulder: gradient + mottle survive
   backdrop: { gain: 1, pool: 0.07, poolAdd: 0, poolColor: '#fff8f0', poolOffset: [-0.25, 0.25, -0.6], poolRadius: 1.4 },
-  contact: { contact: 0.34, mid: 0.2, soft: 0.13 },
+  contact: { contact: 0.34, mid: 0.2, soft: 0.16, reach: 0.35 },
 };
 
 const merge = (a, b) => {
@@ -46,16 +46,16 @@ export const LIGHT_PRESETS = {
     backdrop: { gain: 1, pool: 0, poolAdd: 0.016, poolColor: '#cfd6e6', poolOffset: [0, 0.05, -1.2], poolRadius: 0.95 }, contact: { contact: 0.2, mid: 0.12, soft: 0.06 } }),
   // s03 a desk at night, ON CHARCOAL: a warm desk-lamp key (~4000 K), close and soft-edged so its falloff runs across the
   // sheet, a warm pool of lamp light on the dark desk below, almost no fill, a faint cool rim to hold the far edge
-  s03: P({ key: { dir: D(-0.42, 0.72, 0.55), dist: 0.62, color: '#fff0dd', intensity: 1.5, angle: 0.72, penumbra: 1, softness: 7 }, fill: { dir: D(0.85, 0.2, 0.5), intensity: 0.04, color: '#c9d6ff' },
+  s03: P({ key: { dir: D(-0.42, 0.72, 0.55), dist: 0.62, color: '#fff6ec', intensity: 1.45, angle: 0.72, penumbra: 1, softness: 7 }, fill: { dir: D(0.85, 0.2, 0.5), intensity: 0.04, color: '#c9d6ff' },
     rim: { dir: D(0.8, 0.3, -0.5), intensity: 0.22, color: '#dfe8ff' }, env: 0.09,
-    backdrop: { pool: 0.55, poolAdd: 0.05, poolColor: '#ffd6a6', poolOffset: [-0.12, -0.42, -0.15], poolRadius: 0.5 }, contact: { contact: 0.25, mid: 0.15, soft: 0.1 } }),
+    backdrop: { pool: 0.55, poolAdd: 0.05, poolColor: '#ffd6a6', poolOffset: [-0.12, -0.42, -0.15], poolRadius: 0.5 }, contact: { contact: 0.25, mid: 0.2, soft: 0.55, reach: 0.6 } }),
   // the white-ground versions of s02 / s03 (before decision #24)
   s02White: P({ key: { dir: D(-0.95, 0.25, -0.15), dist: 1.4, intensity: 1.35, color: '#fffaf2' }, rim: { dir: D(-1, 0.1, -0.3), intensity: 0.52 }, fill: { intensity: 0.13 }, env: 0.41, backdrop: { gain: 0.96 } }),
   s03White: P({ key: { dir: D(-0.45, 0.7, 0.55), dist: 0.75, color: '#fff2e2', intensity: 1.47, angle: 0.9, softness: 8 }, fill: { intensity: 0.09 }, env: 0.37, backdrop: { pool: 0.09, poolColor: '#fff3e6' } }),
   // s05 the measuring room: neutral ~5600 K, crisp shadows, pure white
-  s05: P({ key: { dir: D(-0.5, 0.65, 0.58), dist: 2.2, color: '#fbfbff', intensity: 1.41, softness: 2.5 }, fill: { color: '#ffffff', intensity: 0.23 }, env: 0.54 }),
+  s05: P({ key: { dir: D(-0.72, 0.52, 0.45), dist: 1.0, color: '#fbfcff', intensity: 1.45, softness: 2.5 }, fill: { color: '#f4f7ff', intensity: 0.18 }, env: 0.46, exposure: 0.86 }),
   // s06 archival: soft, slightly cool; back-light only for v2.0 (use s06v2)
-  s06: P({ key: { dir: D(-0.55, 0.55, 0.62), dist: 1.8, color: '#f4f6ff', intensity: 1.29, softness: 8 }, fill: { color: '#eef2ff', intensity: 0.21 }, env: 0.48 }),
+  s06: P({ key: { dir: D(-0.58, 0.55, 0.6), dist: 1.1, color: '#f6f8ff', intensity: 1.32, softness: 8 }, fill: { color: '#eef2ff', intensity: 0.2 }, env: 0.46 }),
   s06v2: P({ key: { dir: D(-0.55, 0.55, 0.62), dist: 1.8, color: '#f4f6ff', intensity: 0.39 }, back: { dir: D(0.1, 0.25, -1), intensity: 1.78, color: '#fff1dc' }, fill: { intensity: 0.09 }, env: 0.25 }),
   // s07 the microscope: grazing key ~80 deg from the normal, from the left
   s07: P({ key: { dir: D(-0.98, 0.05, 0.18), dist: 0.9, color: '#fff8ee', intensity: 1.68, angle: 0.8, softness: 3 }, fill: { intensity: 0.04 }, env: 0.21 }),
@@ -66,8 +66,8 @@ export const LIGHT_PRESETS = {
   // s10 a fair fight: two identical soft spots (the developer duplicates the key per sheet if needed)
   s10: P({ key: { dir: D(0, 0.75, 0.66), dist: 1.6, intensity: 1.41, angle: 0.95, softness: 8 }, fill: { intensity: 0.17 }, env: 0.44 }),
   // s11 catalogue / s12 the print room: neutral, crisp
-  s11: P({}),
-  s12: P({ key: { dir: D(-0.5, 0.6, 0.62), dist: 2.0, color: '#fdfcfa', intensity: 1.44, softness: 3 }, fill: { intensity: 0.22 } }),
+  s11: P({ exposure: 0.86 }),
+  s12: P({ key: { dir: D(-0.7, 0.55, 0.46), dist: 1.05, color: '#fdfdfc', intensity: 1.45, softness: 3 }, fill: { intensity: 0.18 }, exposure: 0.88 }),
   // s14 the end of the day: a low, warm, golden key from the right
   s14: P({ key: { dir: D(0.9, 0.22, 0.38), dist: 1.4, color: '#ffc98a', intensity: 1.64, softness: 6 }, fill: { dir: D(-0.8, 0.3, 0.5), color: '#dfe6ff', intensity: 0.14 }, back: { dir: D(0.6, 0.2, -1), intensity: 0.42, color: '#ffcf96' }, env: 0.31, backdrop: { pool: 0.1, poolColor: '#ffe9cf', poolOffset: [0.8, 0.2, -0.6] } }),
 
@@ -202,7 +202,7 @@ export class LightRig {
       U.uPoolC.value[0].set(pc.r, pc.g, pc.b, b.pool ?? 0);
       if (U.uPoolAdd) U.uPoolAdd.value.x = b.poolAdd ?? 0;
     }
-    if (contact && S.contact) contact.setStrength(S.contact.contact, S.contact.soft, S.contact.mid);
+    if (contact && S.contact) { contact.setStrength(S.contact.contact, S.contact.soft, S.contact.mid); contact.setReach(S.contact.reach ?? 0.35); }
     return this;
   }
   /** world-space direction FROM the target TOWARD the key light (used to shear the contact shadow) */

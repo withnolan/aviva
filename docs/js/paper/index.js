@@ -29,6 +29,7 @@ export { createPencil } from './pencil.js';
 // pass the final values with createPaperSystem(renderer, { colors }) or setColors() / setGround().
 export const TOKENS = {
   paper: '#F7F5F0', studio: '#ECEBE7', graphite: '#2A2926', ink: '#2E2A8E', inkDeep: '#1E1A60',
+  sheet: '#F3F4F1',                 // the 3D sheet's albedo: a cooler, truer copy-paper white than the page ground
   charcoal: '#1F2328', grey: '#CDD1D6', greyLight: '#E3E5E8',
   pencil: '#F2B820', pencilDeep: '#C98A0B', blueprint: '#2F6DB5',
 };
@@ -64,7 +65,7 @@ export function detectTier() {
 export const TIERS = [
   { name: 'low', segW: 70, tooth: 512, macro: 512, formation: [256, 362], shadow: 0, contact: 256, paint: 1024, dpr: 1.0 },
   { name: 'mobile', segW: 84, tooth: 1024, macro: 1024, formation: [512, 724], shadow: 1024, contact: 512, paint: 1024, dpr: 1.5 },
-  { name: 'desktop', segW: 128, tooth: 1024, macro: 1024, formation: [512, 724], shadow: 2048, contact: 512, paint: 1536, dpr: 2.0 },
+  { name: 'desktop', segW: 128, tooth: 1024, macro: 1024, formation: [512, 724], shadow: 2048, contact: 768, paint: 1536, dpr: 2.0 },
 ];
 
 export async function createPaperSystem(renderer, opts = {}) {
@@ -96,7 +97,7 @@ export async function createPaperSystem(renderer, opts = {}) {
   const shared = {
     uBlank: { value: blank },
     uKeyDir: { value: new THREE.Vector3(-0.5, 0.7, 0.5).normalize() },
-    uPaperColor: { value: lin(colors.paper).multiplyScalar(opts.albedo ?? 0.97) },
+    uPaperColor: { value: lin(colors.sheet).multiplyScalar(opts.albedo ?? 0.97) },
     uGraphite: { value: lin(colors.graphite).multiplyScalar(0.62) },
     uInkColor: { value: lin(colors.ink) }, uInkDeep: { value: lin(colors.inkDeep) },
     uTransTint: { value: new THREE.Color(1.0, 0.9, 0.76) },
@@ -143,7 +144,7 @@ export async function createPaperSystem(renderer, opts = {}) {
     /** colours: { paper, studio, graphite, ink, inkDeep } (hex). The backdrop stays exactly the studio token. */
     setColors(c = {}) {
       Object.assign(colors, c);
-      if (c.paper) shared.uPaperColor.value.set(c.paper).multiplyScalar(opts.albedo ?? 0.97);
+      if (c.sheet) shared.uPaperColor.value.set(c.sheet).multiplyScalar(opts.albedo ?? 0.97);
       if (c.graphite) { shared.uGraphite.value.set(c.graphite).multiplyScalar(0.62); backdrop.userData.uniforms.uPrintColor.value.set(c.graphite); }
       if (c.ink) shared.uInkColor.value.set(c.ink);
       if (c.inkDeep) shared.uInkDeep.value.set(c.inkDeep);

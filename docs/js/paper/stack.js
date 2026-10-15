@@ -108,6 +108,7 @@ export class Stack {
     // the top sheet: a full sheet, face up (rest +y = away, -z)
     this.topSheet = sys.createSheet({ name: name + '.top', width, height, seed: seed + 3 });
     this.topSheet.object.rotation.x = -Math.PI / 2;
+    this.topSheet.set({ rest: 0.18 });                     // the top of a ream lies almost flat: only a hint of curl
     this.object.add(this.topSheet.object);
     // the fan: instanced falling sheets
     const base = createSheetGeometry(segments[0], segments[1], this.size);
