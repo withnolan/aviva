@@ -82,6 +82,7 @@ The user stopped work until next week. All four agents are paused, everything is
 9. [ ] Build tasks (to be split): hero letters, copy + caps, tiers + stack, sets/props, renders for c1–c8/F1–F6/OG, annotation layer, extra moments.
 
 ## Running now
+- **2026-10-15, stopped by the user.** Pausing: fact-check (Sonnet web-researcher → `work/reviews/part10-factcheck.md`, queue 3) and density comparison (Sonnet reference-analyst → `work/scripts/oryzo-capture.mjs` + `work/reviews/density.md`, queue 4). On resume: resume both via SendMessage if reachable, else relaunch with the same briefs. Then queue 5 (CD Part 11).
 - **2026-10-15:** fresh-eyes #0 done → synthesis. Now: CD → finish Part 10 (step 2); paper VD → in-site sheet realism (new step 8a). Earlier: fresh-eyes panel #0 ran (2 agents with no context: award juror, first-time visitor; ORYZO live first, then AVIVA). Everyone else paused.
 - **2026-10-14, the user asked to stop everything except finishing the site skeleton.**
   - creative-director: PAUSED. p2/p3 applied to the brief, plus the caps pass (58 converted, 16 kept). Part 10 has its intro and 10.1 rows 1–70. Next: mention p3 in the intro, add 10.1 row 71 (the counter path), then 10.2 for the design VD (paper.html still has the old title, abstract, §1, header, Tables 2–3 and "Training tokens"; the PDF is still void-of-all-characters.pdf), 10.3 for the paper VD (hero beats in vh, s14 echo), 10.4 brief-only items, 10.5 facts for the Sonnet check, then the report.
