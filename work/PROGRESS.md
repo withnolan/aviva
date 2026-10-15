@@ -81,6 +81,7 @@ The user stopped work until next week. All four agents are paused, everything is
 9. [ ] Build tasks (to be split): hero letters, copy + caps, tiers + stack, sets/props, renders for c1–c8/F1–F6/OG, annotation layer, extra moments.
 
 ## Running now
+- **2026-10-15:** fresh-eyes panel #0 running (2 agents with no context: award juror, first-time visitor; ORYZO live first, then AVIVA). Everyone else paused.
 - **2026-10-14, the user asked to stop everything except finishing the site skeleton.**
   - creative-director: PAUSED. p2/p3 applied to the brief, plus the caps pass (58 converted, 16 kept). Part 10 has its intro and 10.1 rows 1–70. Next: mention p3 in the intro, add 10.1 row 71 (the counter path), then 10.2 for the design VD (paper.html still has the old title, abstract, §1, header, Tables 2–3 and "Training tokens"; the PDF is still void-of-all-characters.pdf), 10.3 for the paper VD (hero beats in vh, s14 echo), 10.4 brief-only items, 10.5 facts for the Sonnet check, then the report.
   - paper VD: PAUSED. Done: letters contrast (A/V ±26°), `stack.js` createStack (block + instanced fan), `boat.js` + `boat` key, PaintLayer.clear mipmaps, the "AVIVA HB" stamp. Next: review `work/screenshots/lab/check4/folds.jpg`, ink bleed module + 3 mm dot, macro fibres, s14/s03 lights, tiers/instances, contact-final + README + 05b with API notes for the WD.
