@@ -72,8 +72,8 @@ The user stopped work until next week. All four agents are paused, everything is
 ## Task queue (decision #38: one small task at a time; tick when done)
 1. [x] (done 2026-10-15: AVIVA 6–6.5 vs ORYZO 8.5–9; see `work/reviews/fresh0-synthesis.md`) (brief ready: `work/briefs/fresh0.md`; 2 general-purpose agents in parallel, personas: award-site juror (Opus), first-time visitor sent the link by a friend (Opus)) Fresh-eyes panel #0 on the current build (desktop, 1440): 2 personas, no context, ORYZO first (live if allowed, else the raw frames only, #40) → `work/reviews/fresh0-*.md`.
 2. [x] (done 2026-10-15; hero H0–H9 + s14 echo in 10.3; s01 pinned 2 vh; page ≈ 58.5 vh, accepted) CD: finish Part 10 (rows 71+, 10.2 design VD, 10.3 paper VD/hero beats, 10.4, 10.5).
-3. [ ] Sonnet fact-check of the Part 10 facts (+ the UV/optical-brightener fact for #35).
-4. [ ] Reference-analyst (Sonnet): density comparison, ORYZO frames vs our 1440 shots → `work/reviews/density.md`.
+3. [x] (done 2026-10-15: 4 must-fix wordings for the CD: #2 'earliest surviving', #6 'often', #15 mountain dash-dot-dot / valley dashes, UV 'most white office paper') Sonnet fact-check of the Part 10 facts (+ the UV/optical-brightener fact for #35).
+4. [ ] (PAUSED: capture script written, untested; ORYZO scroll stalls at ~9,200 px in every method; see density.md) Reference-analyst (Sonnet): density comparison, ORYZO frames vs our 1440 shots → `work/reviews/density.md`.
 5. [ ] CD: Part 11, the richness pass and new section map (uses 1, 4 and the user's feedback).
 6. [ ] Lead: approve Parts 10/11 and split the build into small tasks below.
 7. [ ] Design VD: PDF rebuild as aviva-a4.pdf with the new text (2 steps: text, then figures + render check).
