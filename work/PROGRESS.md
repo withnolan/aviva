@@ -70,18 +70,19 @@ The user stopped work until next week. All four agents are paused, everything is
 - [ ] Optional photos in `reference/photos/` (back-lit sheet, surface macro, tent fold; extras: torn edge, crumpled-then-flattened). `git pull` to get them; reference only, never in docs/.
 
 ## Task queue (decision #38: one small task at a time; tick when done)
-1. [ ] (brief ready: `work/briefs/fresh0.md`; 2 general-purpose agents in parallel, personas: award-site juror (Opus), first-time visitor sent the link by a friend (Opus)) Fresh-eyes panel #0 on the current build (desktop, 1440): 2 personas, no context, ORYZO first (live if allowed, else the raw frames only, #40) → `work/reviews/fresh0-*.md`.
+1. [x] (done 2026-10-15: AVIVA 6–6.5 vs ORYZO 8.5–9; see `work/reviews/fresh0-synthesis.md`) (brief ready: `work/briefs/fresh0.md`; 2 general-purpose agents in parallel, personas: award-site juror (Opus), first-time visitor sent the link by a friend (Opus)) Fresh-eyes panel #0 on the current build (desktop, 1440): 2 personas, no context, ORYZO first (live if allowed, else the raw frames only, #40) → `work/reviews/fresh0-*.md`.
 2. [ ] CD: finish Part 10 (rows 71+, 10.2 design VD, 10.3 paper VD/hero beats, 10.4, 10.5).
 3. [ ] Sonnet fact-check of the Part 10 facts (+ the UV/optical-brightener fact for #35).
 4. [ ] Reference-analyst (Sonnet): density comparison, ORYZO frames vs our 1440 shots → `work/reviews/density.md`.
 5. [ ] CD: Part 11, the richness pass and new section map (uses 1, 4 and the user's feedback).
 6. [ ] Lead: approve Parts 10/11 and split the build into small tasks below.
 7. [ ] Design VD: PDF rebuild as aviva-a4.pdf with the new text (2 steps: text, then figures + render check).
+8a. [ ] Paper VD: make the sheet read as real paper *in the site* (fresh0 #1): exposure/tone, contact shadow, edge thickness, slight curl/sag, less cream; check in s01/s03/s11 shots.
 8. [ ] Paper VD: finish the look-dev list (folds montage → ink → fibres → lights → contact sheet + docs), one item per task.
 9. [ ] Build tasks (to be split): hero letters, copy + caps, tiers + stack, sets/props, renders for c1–c8/F1–F6/OG, annotation layer, extra moments.
 
 ## Running now
-- **2026-10-15:** fresh-eyes panel #0 running (2 agents with no context: award juror, first-time visitor; ORYZO live first, then AVIVA). Everyone else paused.
+- **2026-10-15:** fresh-eyes #0 done → synthesis. Now: CD → finish Part 10 (step 2); paper VD → in-site sheet realism (new step 8a). Earlier: fresh-eyes panel #0 ran (2 agents with no context: award juror, first-time visitor; ORYZO live first, then AVIVA). Everyone else paused.
 - **2026-10-14, the user asked to stop everything except finishing the site skeleton.**
   - creative-director: PAUSED. p2/p3 applied to the brief, plus the caps pass (58 converted, 16 kept). Part 10 has its intro and 10.1 rows 1–70. Next: mention p3 in the intro, add 10.1 row 71 (the counter path), then 10.2 for the design VD (paper.html still has the old title, abstract, §1, header, Tables 2–3 and "Training tokens"; the PDF is still void-of-all-characters.pdf), 10.3 for the paper VD (hero beats in vh, s14 echo), 10.4 brief-only items, 10.5 facts for the Sonnet check, then the report.
   - paper VD: PAUSED. Done: letters contrast (A/V ±26°), `stack.js` createStack (block + instanced fan), `boat.js` + `boat` key, PaintLayer.clear mipmaps, the "AVIVA HB" stamp. Next: review `work/screenshots/lab/check4/folds.jpg`, ink bleed module + 3 mm dot, macro fibres, s14/s03 lights, tiers/instances, contact-final + README + 05b with API notes for the WD.
