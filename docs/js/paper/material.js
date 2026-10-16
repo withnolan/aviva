@@ -57,7 +57,7 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uFoldCount: { value: 0 }, uFoldQ: { value: arr4(MAX_FOLDS) }, uFoldA: { value: arr4(MAX_FOLDS) }, uFoldM: { value: arr4(MAX_FOLDS) }, uFoldR: { value: arr4(MAX_FOLDS) },
     uBend: { value: v4() }, uPleat: { value: v4(0.015, 0, 0, 0.05) }, uFlutter: { value: v4(0, 9, 0, 0) }, uCockle: { value: v4(0.00045, 16, 3.7, 0) },
     uFormP: { value: v4(0, 0, 0.12, 0.37) },
-    uEdgeP: { value: v4(1.4, 0.18, 0.1, 0.5) },
+    uEdgeP: { value: v4(1.4, 0.18, 0.1, 0.85) },
     uTransP: { value: v4(0.22, 0.35, 0.3, 0) },
     uWatermarkRect: { value: v4(0, -0.035, 0.034, 0.048) },
     uPaint: { value: shared.uBlank.value }, uPaintP: { value: v4(0, 1, 0.12, 0.92) },
@@ -117,7 +117,7 @@ else {                                                                      // a
   alb = min(alb * (1.0 + uEdgeP.z * 0.5 * rim), vec3(1.0));
 }
 #endif
-alb = mix(alb, min(alb * 1.05 + 0.03, vec3(0.98)), tearBand * uEdgeP.w);     // torn edge: raw, whiter fibres
+alb = mix(alb, min(alb * 1.06 + 0.04, vec3(0.985)), tearBand * uEdgeP.w);    // torn edge: raw, whiter fibres (delaminated, thinner)
 // remembered creases: a faint line where the sheet was folded and unfolded
 for (int i = 0; i < ${MAX_CREASES}; i++) {
   if (uCrease[i].w <= 0.0) continue;

@@ -149,10 +149,17 @@ float tearKeep(vec2 r, float pxm, out float band) {
     // the torn stretch is along < front; ahead of the front both pieces meet exactly (complementary)
     float torn = 1.0 - smoothstep(F.x - 0.004, F.x, along);
     float gap = F.y * torn * smoothstep(F.x, F.x - 0.05, along);
-    float fz = (pp_tn2(r * 2600.0) - 0.5) * 0.0005 * torn + (pp_tn2(r * 900.0) - 0.5) * 0.0004 * torn;   // fibrous fringe
+    float fz = (pp_tn2(r * 2600.0) - 0.5) * 0.0005 * torn + (pp_tn2(r * 900.0) - 0.5) * 0.0004 * torn;   // ragged at 0.4 and 1.1 mm
     float s = d - 0.5 * gap + fz;
+    // the fibre fringe: single fibres pulled out of the torn edge, ~0.7 mm long and a hair wide, sticking out across it.
+    // Only drawn where a pixel is small enough to resolve them (macro and close-ups); at hero size the edge is just ragged.
+    float fibreVis = torn * (1.0 - smoothstep(0.00004, 0.00012, pxm));
+    if (fibreVis > 0.0 && s < 0.0 && s > -0.0008) {
+      float fib = pp_tn2(vec2(along * 6500.0, s * 1300.0 + 3.1)) * 0.75 + pp_tn2(vec2(along * 15000.0, 7.7)) * 0.25;
+      if (fib > mix(1.2, 0.74, fibreVis) + 0.25 * (-s / 0.0008)) s = 0.00001;
+    }
     keep = min(keep, s);
-    band = max(band, torn * (1.0 - smoothstep(0.0, max(0.0011, 1.5 * pxm), max(s, 0.0))));
+    band = max(band, torn * (1.0 - smoothstep(0.0, max(0.0013, 1.5 * pxm), max(s, 0.0))));
   }
   return keep;
 }

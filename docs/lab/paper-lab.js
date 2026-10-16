@@ -155,7 +155,7 @@ async function apply(search) {
   }
   if (P.has('mottle')) sheet.uniforms.uFormP.value.z = num('mottle'); else sheet.uniforms.uFormP.value.z = 0.12;
   sheet.uniforms.uFacet.value = num('facet', 0.5);
-  if (P.has('edge')) { const [bw, bs, wb] = vec('edge'); sheet.uniforms.uEdgeP.value.set(bw, bs, wb, 0.5); } else sheet.uniforms.uEdgeP.value.set(1.4, 0.18, 0.1, 0.5);
+  if (P.has('edge')) { const [bw, bs, wb] = vec('edge'); sheet.uniforms.uEdgeP.value.set(bw, bs, wb, 0.85); } else sheet.uniforms.uEdgeP.value.set(1.4, 0.18, 0.1, 0.85);
   sheet.reset();
   sheet.set({
     bend: num('bend', 0), bendAxis: rad(num('axis', 90)), twist: num('twist', 0),

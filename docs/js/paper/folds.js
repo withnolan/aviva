@@ -28,7 +28,7 @@ export function fold2D({ p, dir, side, toward = 1, angle = Math.PI, radius = 0.0
 }
 
 /** Dart paper plane on A4 as 7 folds (verified step by step). t in 0..7 runs the sequence. */
-export function dartPlane(t = 7, { size = A4, wing = 0.045, dihedral = 0.0, r = 0.0004 } = {}) {
+export function dartPlane(t = 7, { size = A4, wing = 0.045, dihedral = 0.0, r = 0.0011 } = {}) {   // r ~1 mesh cell: diagonal creases stay smooth (no sawtooth)
   const hw = size.w / 2, hh = size.h / 2, f = [];
   f.push(fold2D({ p: [0, hh], dir: [1, -1], side: [1, 1], toward: 1, radius: r }));
   f.push(fold2D({ p: [0, hh], dir: [-1, -1], side: [-1, 1], toward: 1, radius: r }));
