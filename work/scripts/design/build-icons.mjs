@@ -1,4 +1,4 @@
-// Builds the aviva icon set: docs/assets/icons/<name>.svg + docs/assets/icons/sprite.svg (<symbol id="i-<name>">).
+// Builds the AVIVA icon set: docs/assets/icons/<name>.svg + docs/assets/icons/sprite.svg (<symbol id="i-<name>">).
 // Style (brief 5.8): 24 px grid, 1.5 px line, round caps and joins, no fills, currentColor. Paper white on ink
 // comes free: the icons inherit `color`. Usage: node work/scripts/design/build-icons.mjs [preview.png]
 import fs from 'node:fs';
@@ -45,6 +45,25 @@ function rating(n) {
   return [tl, n >= 4 ? tr : ear, br, bl].join('');
 }
 
+
+// The s12 model options (brief 5.11, Part 10.2 #27): one footprint (an A4 sheet in isometric view, 1 : sqrt 2),
+// three thicknesses: one sheet, a bound block (the Notebook Pro, with its binding strip), a tall stack (the Ream).
+function model(kind) {
+  const w = 7.4, d = w * S2, T = { sheet: 0, notebook: 3.6, ream: 9 }[kind];
+  const ex = [0.866, 0.5], ey = [-0.866, 0.5];
+  const left = 0.866 * d, right = 0.866 * w, Ox = 12 + (left - right) / 2, Oy = 12 - ((w + d) / 2 + T) / 2;
+  const P = (a, b, t = 0) => [Ox + a * ex[0] + b * ey[0], Oy + a * ex[1] + b * ey[1] + t];
+  const pt = ([x, y]) => `${r(x)} ${r(y)}`;
+  const O = P(0, 0), A = P(w, 0), B = P(w, d), C = P(0, d);
+  let path = `M${pt(O)}L${pt(A)}L${pt(B)}L${pt(C)}Z`;                                   // the top face
+  if (T) {
+    path += `M${pt(C)}V${r(C[1] + T)}L${pt(P(w, d, T))}L${pt(P(w, 0, T))}V${r(A[1])}M${pt(B)}V${r(B[1] + T)}`;  // the two visible sides
+  }
+  if (kind === 'notebook') path += `M${pt(P(1.7, 0))}L${pt(P(1.7, d))}V${r(P(1.7, d)[1] + T)}`;   // the binding strip
+  if (kind === 'ream') for (const f of [1 / 3, 2 / 3]) path += `M${pt(P(0, d, T * f))}L${pt(P(w, d, T * f))}L${pt(P(w, 0, T * f))}`;  // the stack's layers
+  return path;
+}
+
 const P = {
   // Writing and making
   pencil: `<path transform="rotate(-45 12 12)" d="${pencil(2.2, 21.8)}"/>`,
@@ -67,6 +86,10 @@ const P = {
   // Ratings
   'rating-4': `<path d="${rating(4)}"/>`,
   'rating-3': `<path d="${rating(3)}"/>`,
+  // The lineup (s12 model options)
+  'model-sheet': `<path d="${model('sheet')}"/>`,
+  'model-notebook': `<path d="${model('notebook')}"/>`,
+  'model-ream': `<path d="${model('ream')}"/>`,
 };
 
 const head = (inner, id) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>\n`;

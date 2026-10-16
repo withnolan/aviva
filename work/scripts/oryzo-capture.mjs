@@ -28,16 +28,17 @@ page.on('pageerror', (e) => console.log('[pageerror]', String(e).slice(0, 160)))
 await page.goto(url, { waitUntil: 'load', timeout: 120000 });
 await page.waitForTimeout(first);
 const metrics = () => page.evaluate(() => ({ y: Math.round(scrollY), max: document.documentElement.scrollHeight - innerHeight }));
+const jump = (y) => page.evaluate((y) => { const S = window.__aviva && window.__aviva.scroll; if (S) S.scrollTo(y, { immediate: true }); else window.scrollTo({ top: y, behavior: 'instant' }); }, y); // our site: Lenis via __aviva.scroll
 const log = [];
 for (let i = 0; i < N; i++) {
   const { max } = await metrics();
   const target = Math.round((max * i) / (N - 1));
-  if (mode === 'scrollTo') await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), target);
+  if (mode === 'scrollTo') await jump(target);
   else if (mode === 'keys') { await page.keyboard.press(i === N - 1 ? 'End' : 'PageDown'); }
   else { await page.mouse.move(720, 450); await page.mouse.wheel(0, target - (await metrics()).y); }
   await page.waitForTimeout(settle);
   let m = await metrics();
-  if (mode === 'scrollTo' && Math.abs(m.y - target) > 40) { await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), target); await page.waitForTimeout(settle); m = await metrics(); }
+  if (mode === 'scrollTo' && Math.abs(m.y - target) > 40) { await jump(target); await page.waitForTimeout(settle); m = await metrics(); }
   const file = path.join(out, `${prefix}-${String(i).padStart(2, '0')}.jpg`);
   await page.screenshot({ path: file, type: 'jpeg', quality: 80 });
   log.push({ i, target, reached: m.y, max: m.max, file }); console.log(i, 'target', target, 'reached', m.y, 'of', m.max);
