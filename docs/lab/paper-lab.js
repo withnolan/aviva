@@ -64,6 +64,12 @@ const STATES = {
   boat: 'cam=-22,8,0.55&target=0,0.6,0&pos=0,0.5,0&rot=0,0,0&boat=1&light=card4&ground=grey',
   boatnear: 'cam=-35,22,0.32&target=0,0.6,0&pos=0,0.5,0&rot=0,0,0&boat=1&light=studio&ground=grey',
   boathat: 'cam=-20,12,0.9&target=0,0.5,0&pos=0,0.5,0&rot=0,0,0&boat=0.4&light=card4&ground=grey',
+  // s07 The Bleed (brief 5.3): the ink front on the sheet, then the screen-space carry; s07-s09 the persistent 3 mm dot
+  bleedmacro: 'cam=0,0,0.03&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1&bleed=0.35&grade=1',
+  bleed40: 'cam=0,0,0.03&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1&bleed=0.85&grade=1&bleedov=0.42',
+  bleed70: 'cam=0,0,0.03&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1&bleed=1&grade=1&bleedov=0.7',
+  bleed90: 'cam=0,0,0.03&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1&bleed=1&grade=1&bleedov=0.9',
+  dotkept: 'cam=0,0,1.3&target=0,0.5,0&pos=0,0.5,0&rot=0,-12,0&dot=1&light=s08&ground=ink',
   // decision #28: the stack that grows (s12 tiers)
   ream: 'cam=-32,26,0.72&target=0,0.03,0&pos=0,0.5,0&stack=500,500&light=grey&ground=grey&aim=0,0.03,0',
   notebook: 'cam=-32,26,0.72&target=0,0.01,0&pos=0,0.5,0&stack=80,80&light=grey&ground=grey&aim=0,0.01,0',
@@ -111,7 +117,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null, pencilProp = null, stackObj = null; const letterSheets = [];
+let paint = null, pencilProp = null, stackObj = null, bleedOv = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -257,6 +263,13 @@ function frame() {
   paper.update(scene, camera, 1 / 60);
   renderer.info.reset();
   renderer.render(scene, camera);
+  // The Bleed's screen-space carry over the scene: bleedov=coverage (0..1)
+  const ov = num('bleedov', 0);
+  if (ov > 0) {
+    if (!bleedOv) bleedOv = paper.createBleed();
+    const U = bleedOv.material.uniforms; U.uCov.value = ov; U.uAspect.value = innerWidth / innerHeight;
+    const ac = renderer.autoClear; renderer.autoClear = false; renderer.render(bleedOv.scene, bleedOv.camera); renderer.autoClear = ac;
+  }
 }
 
 /* ------------------------------------------------------------------ demo strokes */

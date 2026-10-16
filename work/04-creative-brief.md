@@ -1,11 +1,11 @@
 # 04: Creative brief, AVIVA A4 (concept A, "Void of All Characters", now with AI)
 
-Author: creative-director · Concept chosen by the lead: decision #14 (Concept A, with 5 enrichments). Updated for decisions #27–#31: the AI flip, the Pro lineup, the AVIVA capitals and the folded-letter hero (changelog in Part 10).
+Author: creative-director · Concept chosen by the lead: decision #14 (Concept A, with 5 enrichments). Updated for decisions #27–#31: the AI flip, the Pro lineup, the AVIVA capitals and the folded-letter hero (changelog in Part 10). Part 11 (decisions #35, #41–#43) is the richness pass and the new section map; where it differs from Parts 2–5, Part 11 wins until Step B folds it in.
 **This file is the single source of truth for every word on the site and every scene.** The web-developer builds the scroll timeline from Part 2 and maps the copy ids in Part 3 onto the DOM. The visual-designer works from Part 5. Nothing in this file is a placeholder: where a value depends on someone else (the typeface, exact hex values), the brief says who decides it.
 
 Fact tags: `R§x.y` = section of `work/01-research.md`; confidence `high` / `med` / `derived` (arithmetic, re-run in the fact-check). **R§13** = the research additions (ISO 216 table, derived checks, record rules, pencil facts; R§13.10 = the fact-check pass). `low` items are never used.
 
-Contents: 1 Brand · 2 Section plan · 3 Final copy · 4 The research paper · 5 Visual direction · 6 Moments of delight · 7 Do-not-reuse check · 8 Needs and resolved questions · 9 Changelog (fact-check pass) · 10 Changelog (AI flip, lineup, capitals, folded-letter hero).
+Contents: 1 Brand · 2 Section plan · 3 Final copy · 4 The research paper · 5 Visual direction · 6 Moments of delight · 7 Do-not-reuse check · 8 Needs and resolved questions · 9 Changelog (fact-check pass) · 10 Changelog (AI flip, lineup, capitals, folded-letter hero) · 11 Richness pass and the new section map (Step A; Step B adds its copy and changelog).
 
 ---
 
@@ -1592,3 +1592,159 @@ This lists only claims that are new in this pass, or reused in a new form. Rows 
 | 16 | "Fits a C5 envelope (A4): folded once" | the s12 table | R§1.1 high · R§13.10 #8 | C5 is 162 × 229 mm; A4 folded once is 148.5 × 210 mm |
 | 17 | "Post-training: fillers and sizing, at the mill" | paper Table 2 (new wording of §4) | R§13.10 #11 | the new table wording only |
 | 18 | "Hallucination rate 0.00 % (source: the user)"; "Data contamination: limited to what users write on it"; card c4 "SOURCE: YOU" | Tables 2 and 4, card c4 | true by construction (a joke) | only that the wording claims no more than "every mark was made by its user" |
+
+**Result** (`work/reviews/part10-factcheck.md`, 2026-10-15): 15 rows were correct as written and 3 needed a wording change. All three were applied on 2026-10-16 by `p5.py`:
+- #2: "earliest surviving" (paper §4, `s06.e1.n`, 10.2 #10).
+- #6: "often" instead of "usually" (card c3, paper §2 and §6, 10.1 #35, 10.2 #9).
+- #15: the mountain fold is drawn dash-dot-dot and the valley fold in plain dashes, never a plain dotted line (`s00.fold.a` / `.v`).
+
+The extra claim X1 (UV) is used in Part 11 with "most white office paper". The optional items (#7, #8, #13, #17 and #1) go to Part 11 Step B.
+
+---
+
+## Part 11. Richness pass: the new section map (decisions #35, #41, #42, #43; 2026-10-16)
+
+**Why.** Two reviews found the same gap:
+- **Fresh-eyes review #0:** the site is funnier than ORYZO but emptier, the middle third reads like a document, and there's no "whoa".
+- **The density review:** 4.5 rich elements per screen against ORYZO's 6.8; 12 set-ups, only 3 of them staged; a third of our screens near empty.
+- **The user's goal (#42):** the site should show what Claude can build next to a team's year of work.
+
+So every section now gets its own environment, its own signature effect and its own mouse effect, and says one line per beat. This part is the map. **Step B** (the next task) writes the per-section copy, every label, alt and fallback line, the R§ tags, and a changelog by owner.
+
+**Targets** (decision #41):
+- ≥ 6 rich elements per screen on average, and ≥ 25 % of screens at 8 or more;
+- ≤ 10 % of screens that are one object plus text;
+- ≥ 16 distinct set-ups;
+- ≥ 1 prop per screen;
+- ≤ 5.5 lines of copy per screen.
+
+**Rules:**
+- Desktop only (#34).
+- 60 fps on a real GPU. At most one heavy effect per screen. Budgets: cranes ≤ 300, sheets ≤ 499, planes ≤ 24, confetti ≤ 400 pieces.
+- Reduced motion gets a calm version: each signature effect becomes a still or a 400 ms cross-fade, and the mouse effects are off, except the pencil, because drawing is the interaction.
+- Every signature effect is different from the others, and so is every mouse effect.
+- Same technique, different everything else (teardown §8; guardrails in 11.5).
+- The blues are darker (#43): copy and art say "ink" or "ink-blue", never "bright" or "ultramarine".
+- Real facts come only from `work/01-research.md`.
+
+**Owners:** **PVD** = paper visual-designer (3D sets, props, materials, renders, effects); **DVD** = design visual-designer (illustrations, annotation art, standees, icons, page renders); **WD** = web-developer (DOM, layout, choreography, interactions, cursor).
+
+### 11.1 The section map (page order; ≈ 62.5 vh, ORYZO ≈ 63 vh)
+
+| # | id · vh · pin | Set-up (its environment) | Rich moment (props, renders, drawings, annotations, motion) | Signature effect | Mouse effect | Interaction | One line per beat | Owner |
+|---|---|---|---|---|---|---|---|---|
+| 0 | `s00-loader` · 0 (≈ 2.2 s) · – | **The drawing.** A print-shop technical drawing on white | five letter outlines, the chain dimension and counter, fold lines in Yoshizawa–Randlett notation, crop marks, "ISO 216" | a vector drawing that 3D objects then fill: the match-cut performed by the fold-in (10.3 H2) | the cursor is a registration mark (⊕) that snaps to the nearest vertex and reads its position in mm | none (skip link after load) | LOADING WEIGHTS → 24.95 g LOADED | DVD drawing · WD SVG + cursor · PVD geometry |
+| 1 | `s01-hero` · 2 · pin | **The white studio.** Cyclorama, warm key | the fold-in (five sheets), the graphite "4", five small fold labels under the letters (kept on the rest frame, p5), the merge into one sheet | **the fold-in**: five sheets fold themselves into AVIVA in mid-air, with real panel kinematics | the letters lean up to 3° toward the cursor on soft springs; the I's hairline glints as the cursor crosses it | none: the intro plays by itself, and scroll unfolds | INTRODUCING AVIVA A4 · NOW WITH AI / Every great product starts with a blank sheet of paper. / AVIVA A4. Pre-trained on trees. / MODEL MERGE: 5 SHEETS → 1 / Ours stopped there. | PVD · WD |
+| 2 | `s02-thin` · 3 · pin | **The metrology bench.** A dark granite surface plate under a cool top light | a digital micrometer whose spindle closes on the sheet as it turns edge-on (the readout counts down to 0.10 mm); a 10-sheet stack beside it (1.0 mm); hairline dimension leaders; the verso label | **rack focus**: a macro depth-of-field pull from the micrometer's readout to the hairline edge | the cursor is the rim light: move it and the highlight slides along the 0.1 mm edge | none | 0.1 mm. / From the side, it is barely here. / 0.10 mm / 10 SHEETS: 1.0 mm / VERSO: ALSO BLANK. | PVD bench + micrometer · WD readout · DVD leaders |
+| 3 | `s03-intelligence` · 7 (was 6) · pin | **The drafting board** (5.5 vh): a 35° slope, a parallel rule, drafting tape at the corners, an architect's lamp. Then **the blacklight room** (coda, 1.5 vh): the lamp off, a UV tube on | rule, tape, lamp and the AVIVA HB pencil; the status line; the thinking curl; the Regenerate crumple. In the coda, the sheet glows blue-white with the visitor's strokes dark on it, and the tape and board stay dark | **Dark mode**: a UV relight in which the sheet fluoresces (optical brighteners) and graphite stays dark. Its own violet-black palette, never a false-colour ramp | the AVIVA HB pencil draws real graphite into the paper's tooth, and the sheet dimples a hair under the nib | draw / erase / regenerate / type a line (as now), plus a **DARK MODE** switch in the coda (a toggle; keyboard) | Intelligence, built in. / It learns from every stroke, remembers every one, and answers in your handwriting. / (status, one at a time) Answer: see above. / One more thing: dark mode. / Most white office paper contains optical brighteners: they turn ultraviolet into blue. Blacklight not included. | PVD board + UV material · WD switch + status |
+| 4 | `s04-outputs` · 8 · pin | **The weights room** (0–2.5 vh): pale studio, the giant "4.99 g". Then **the drying loft** (2.5–8 vh): a long line under high-window light | the sheet falling in front of and behind the numerals; a velvet-lined case of brass calibration weights that add up to 4.99 g (2 + 2 + 0.5 + 0.2 + 0.2 + 0.05 + 0.02 + 0.02); leader callouts on the numerals; the line with clips and eight outputs (Part 5.4), each with PROMPT / OUTPUT tags | **paper physics on the line**: each output bends under its own weight and sways in a slow draught, caught by its clip | the cursor is a breeze: sweep it across the line and the outputs swing away, then settle | hover | OPEN WEIGHTS / We weighed the weights. / 80 g/m² × 0.06237 m² = 4.99 g. / Selected outputs. / Unretouched. | PVD weights + line · DVD tags · WD |
+| 5 | `s05-architecture` · 5 · pin | **The ISO 216 wall.** A cream drafting wall with the nested A0–A8 rectangles in graphite hairlines; the matching size turns ink-blue as the sheet halves | dimension lines, the fold, the tear, the halves and quarters, the wall diagram | **the tear and the confetti**: a fibre-accurate ragged tear edge; at the third tear, the refusal sets off a puff of A7–A10-sized confetti that flutters down | the dotted line stretches toward the pointer like a perforation, and the tear follows the cursor | drag along the line / hold to tear (as now) | Halve it. It's still AVIVA. / 297 ÷ 210 = 1.414 / Distil it. / Tear AVIVA in half: two smaller models, the same shape, every capability intact. Even the paper cut. / Below A6, it's confetti. | DVD wall · PVD tear + confetti · WD |
+| 6 | `s06-release-notes` · 4 | **The machine room.** A low-poly dot-matrix printer prints the changelog on fanfold paper with tractor-feed edges; the strip rises as you scroll and folds into a zig-zag pile | the printer, the fanfold pile, 13 graphite margin drawings (one per entry), version tags, and the hero sheet beside it with its cues | **the fanfold strip**: one continuous sheet that feeds, creases at its perforations and stacks itself in zig-zags | **the torch**: from v2.0 (Watermarks), the cursor is a back-light behind the hero sheet, revealing the AVIVA watermark and the cloudy formation wherever it passes | hover an entry: its margin drawing redraws, and the print head jumps to its line | Release notes. / Shipping, carefully, for about 2,200 years. / then one line per entry (its title; the note shows only at the print head), ≤ 4 entries on screen | DVD strip + 13 drawings · PVD printer + strip + torch · WD |
+| 6b | **`s06b-roadmap` (new)** · 1.5 · pin | **The crease pattern.** A hairline 5 mm drafting grid on cream; the sheet face-on | the AVIVA HB pencil and a steel rule draw the dart plane's seven folds on the sheet (valley dashes, mountain dash-dot-dot, numbered, with fold arrows), plus 3 leader callouts of true geometry (the centre line at 105 mm; the first two folds bring the top corners to it at 45°) | **crease relief**: each line, once drawn, pre-creases the sheet by a few degrees, so the flat sheet takes on the plane's relief under raking light | hover a fold line to preview it: the sheet folds 30° along it, then springs back | hover or focus the fold numbers 1–7 (Tab) | ROADMAP / v6.0, planned: flight. / Seven folds. No new features. | DVD notation · PVD relief · WD |
+| 7 | `s07-surface` · 4.5 · pin | **The fibre field** (macro, grazing light) → **the ink bloom** → The Bleed | fibres; the bar magnifier; a glass pipette entering the frame to release the drop; the ink front with a mm scale bar and an elapsed-time readout; the wipe arrives already carrying the blooming macro (the fix for density screen 16) | **ink fluid sim and The Bleed**: capillary flow through the fibres, then a ragged ink-front shader transition that turns the page ink-blue (the darker ink, #43) | the ink follows the pointer: its front spreads faster toward the cursor (capillary pull) | drag the magnifier (as now) | No glue. Just attraction. / DRAG THE MAGNIFIER / ONE DROP OF INK / Absorption: total. / KEPT. | PVD · WD |
+| 8 | `s08-afterlife` · 3 | **The generations stage.** A lit ink-blue floor (not a flat wash) with seven pools of light | seven sheets in a row, GEN 1 → GEN 7, each greyer and softer-edged than the last (shorter fibres); a two-pan balance with the sheet on one pan and a sealed jar labelled 4.64 g CO₂e on the other, the beam tipping a hair toward the sheet (4.99 > 4.64); recycling arrows; a callout "≈ ¾ in Europe". It replaces the three DOM cards (#40 risk) | **back-light**: each generation glows from behind, and the light through it gets cloudier as its fibres shorten | parallax on the row; the balance beam dips a hair toward whichever pan you hover | hover or focus a generation for its label | It comes back. / Five to seven times. Researchers are aiming for 25. / Its footprint is about its own weight. / About three-quarters of Europe's paper and board comes back. / (small) AVIVA is fictional and holds no certifications. | PVD generations + balance · DVD labels · WD |
+| 9 | `s09-reviews` · 4 | **The office after hours.** A dark office floor; six reviewers as paper cut-out standees (graphite illustrations on card, with a folded foot), each under its own downlight | six standees: the printer, Biscuit the cat, the novelist's untouched manuscript, the shredder, the half-length HB pencil, the recycling bin. Six tent cards carry the quotes, rated by their corners (the shredder's card is dog-eared); the sheet at the centre dog-ears on cue | **volumetric downlights**: soft light cones that fade up one by one as each review is read | the standees turn to face your cursor on springs, and the hovered one's light brightens | hover or focus a reviewer to bring up its quote | Rated in corners. / 4/4: all corners intact. A dog-ear costs one. / then one quote at a time, with its name | DVD standees · PVD card material + lights · WD |
+| 10 | `s10-arena` · 3 · pin | **The arena.** A dark stage with two lecterns (A, B), two spotlights, a split-flap scoreboard, and an audience of ≈ 300 paper cranes in tiers | lecterns, scoreboard, crane audience, three vote buttons, the flaps flipping, the losing sheet crumpling | **the crane crowd**: 300 instanced cranes whose wings flap in a wave (applause) after each vote | every crane turns its head to follow your cursor; the vote buttons are magnetic | vote A / B / Tie (as now) | Tested against the competition. / Say something profound. / You preferred AVIVA. / Both responses were AVIVA. / Statistically indistinguishable from itself. | PVD cranes + lecterns + flaps · WD vote + board · DVD board type |
+| 11 | `s11-claims` · 7 · horizontal pin | **Nine sets, one per claim** (11.3) | nine renders, each with its own environment, light and colour, plus meta tags | **the darkroom**: each card arrives as a blank sheet, and its render develops on it like a print in a tray as it nears the centre | 2.5D parallax inside each render (background, subject and foreground layers), plus a 2° tilt toward the cursor | none (the cards are focusable; the row follows scroll) | per card: the headline and one meta line; the caption shows on the centre card only | PVD 9 renders · DVD cards · WD layers + pin |
+| 12 | `s12-sizes` · 4 · pin | **The family portrait.** The cool-grey studio with three low graphite plinths | the print dialog; the fan-in (79 / 420); the binding strip; when the table rises, the three stacks side by side with dimension callouts (0.1 mm / ≈ 8 mm / ≈ 5 cm) | **the 500-sheet deal**: an instanced fan-in of up to 499 sheets, each with its own flutter and settle | **riffle**: run the cursor along the stack's edge and the top sheets fan up under it; the dialog's options are magnetic | the Model radio group (as now) | More sheets. More context. / Every AVIVA has the same intelligence per sheet. / the selected tier's line / the table | PVD stack + plinths · WD dialog + table (and the 148 × 210 bug) · DVD icons |
+| 13 | `s13-paper` · 2 | **The printout.** The paper's eight pages laid in a 4 × 2 grid on the white studio floor, seen at about 35°, under a soft top light | eight page renders from the PDF; a small viewer of `aviva-a4.obj` (a 4-vertex wireframe sheet) with a model card; the buttons; the BibTeX | **page curl**: every page lies with a slight natural curl, and the one under the cursor peels up at the corner (the module's `curl`) | the corner under the cursor lifts toward it; drag the .obj model to turn it | Paper / Model / BibTeX / Copy (as now), plus dragging the model | The paper. / AVIVA A4: A Multimodal Foundation Model at 80 g/m² / the abstract's first sentence / buttons | DVD page renders · PVD pages + viewer · WD |
+| 13b | **`s13b-session` (new)** · 1.5 | **The cleanup.** The white studio floor at a low angle, with the recycling-bin standee from s09 on the right | everything the visitor used rolls in: the crumpled balls from Regenerate and the Arena, the torn quarters and confetti from s05. They drop into the bin one by one while a counter ticks. It fixes the blank screen between s13 and s14 | **rigid-body physics**: the balls roll, collide and bounce into the bin | the cursor nudges the debris (a push field) | none | YOUR SESSION / Sheets used: {n}. / The bin has seen them before. | PVD physics + debris · WD counter |
+| 14 | `s14-release` · 2.5 · pin | **Golden hour.** The white studio under a low golden key from the right | the A echo with the "4" (10.3 E1–E4); the pencil; the drawing revealed; the dart-plane fold and flight; then a flock of planes crossing the far sky | **the flock**: after your plane leaves, 24 planes cross the background in a loose formation (boids: separation, alignment, cohesion) | before the release the sheet leans toward the cursor and ripples under it; after it, the planes steer around the cursor | draw / RELEASE IT (as now) | Pre-trained on trees. / Fine-tuned on you. / Your drawing is now part of the model. / AVIVA A4 has been released. / AVIVA was designed and built by withnolan. | PVD fold + flight + flock · WD |
+| 15 | `s15-footer` · 0.5 | **The bottom edge.** The page ends at a deckle edge | the colophon, the live count, the links, the disclaimer | **the deckle edge**: the site's last pixels are a ragged, fibrous hand-made paper edge with a soft shadow | the deckle's fibres stir as the cursor passes; the links are magnetic | links | Colophon: set in one typeface, rendered in real time, best printed on AVIVA A4. / the count / the disclaimer | WD · DVD deckle |
+
+**Set-ups:** 20 families (28 if each claim card counts as its own set, as the density review counted ORYZO's gallery):
+1. the drawing; 2. the white studio; 3. the metrology bench; 4. the drafting board; 5. the blacklight room; 6. the weights room; 7. the drying loft; 8. the ISO 216 wall; 9. the machine room; 10. the crease pattern; 11. the fibre field; 12. the ink bloom; 13. the generations stage; 14. the office after hours; 15. the arena; 16. the nine claim sets; 17. the family portrait; 18. the printout; 19. the cleanup; 20. golden hour.
+
+The deckle-edge footer is a frame, not a set.
+
+### 11.2 The ten emptiest screens (density review §4), fixed
+
+| # | Screen (now R) | Fix | Est. R |
+|---|---|---|---|
+| 1 | aviva-28, the blank cream screen between s13 and s14 (1) | **s13b The cleanup**: the visitor's own debris, rigid-body physics, the bin, a counter | 8 |
+| 2 | aviva-14, the s06 → s07 handover (2) | **s06b Roadmap**: the crease pattern, a grid, the pencil and rule, 3 callouts, fold preview on hover | 8 |
+| 3 | aviva-17, s08 ink field (2) | **s08 Generations**: seven back-lit sheets, the balance and jar, arrows, callouts on a lit floor | 10 |
+| 4 | aviva-05, s03 end (2) | **s03 coda, Dark mode**: the blacklight room, the switch, the glowing sheet carrying the visitor's strokes | 7 |
+| 5 | aviva-01 / 02, s02 (2) | **The metrology bench**: granite, micrometer and readout, the 10-sheet stack, leaders, rack focus | 8 |
+| 6 | aviva-00, hero (2) | **The fold-in** (10.3), the "4", the fold labels kept on the rest frame | 9 at rest, 11 mid-fold |
+| 7 | aviva-16, the s07 → s08 wash (3) | the wipe carries the blooming macro, the pipette, the scale bar and timer; the ink follows the cursor | 7 |
+| 8 | aviva-20, Arena intro (3) | **The arena**: lecterns, spotlights, split-flap board, 300 cranes | 12 |
+| 9 | aviva-22 / 23 / 24, s11 placeholders (5–6) | **nine developed renders in nine sets**, each with its own light and colour | 8 |
+| 10 | aviva-18 / 19, s09 reviews (4–6) | **The office after hours**: six standees, tent cards rated by corners, downlights | 12 |
+
+**Runners-up:**
+- aviva-06 (4.99 g, 3): the brass weights and callouts, ≈ 7.
+- aviva-12 (release notes, 4): the fanfold printer and 13 margin drawings, ≈ 9.
+- aviva-27 (the paper, 4): the printout grid and the .obj viewer, ≈ 10.
+
+### 11.3 The middle third, as scenes
+- **The changelog (s06)** is no longer a wall of text. A dot-matrix printer prints it on fanfold paper as you scroll: one line per entry, the note shown only at the print head, and a graphite drawing in the margin of each entry. The examples are illustrations of the facts already in 3.7 (each sourced): the Fangmatan map fragment, Cai Lun's bark, hemp, rags and fishing net, the Diamond Sutra's colophon, a watermark, the Gutenberg Bible, Réaumur's wasp nest, Lichtenberg's 1 : √2, Robert's endless web, Keller's grinder, the A0 square metre, ISO 216, the 1975 "paperless office" terminal. The hero sheet stands beside the printout, and the cursor torch reveals its watermark.
+- **The claims (s11)** get nine sets, one per card, each with its own environment, light and colour. Every card develops from blank, like a print:
+  - c1 *Context window*: the sheet set into a real sash window in a pale wall, daylight beyond.
+  - c2 *Multimodal*: a yellow sweep, warm side light, the AVIVA HB pencil with a scribble, an ink dot, a crease and a torn corner.
+  - c3 *Persistent memory*: slate grey, raking light, the dot and an erased impression.
+  - c4 *Zero hallucinations*: the fibre macro, white, grazing light.
+  - c5 *Agentic*: a long office corridor, the dart plane mid-glide, motion blur.
+  - c6 *Refusal*: the sheet on a clipboard against a grey wall, a handwritten list, warm.
+  - c7 *Alignment*: a light table, four text blocks set left, centred, right and justified.
+  - c8 *Known side effect*: the edge macro against the one dark backdrop.
+  - c9 *Roadmap*: the six-fold bar on a night floor, a small grey Moon far behind.
+- **The lineup and its table (s12)** become a family portrait: three graphite plinths, the stacks at true thickness with dimension callouts, and the riffle under the cursor. The table stays as data, under the portrait.
+
+### 11.4 Density check against #41 (estimates; the reference-analyst re-measures after the build)
+At one capture every ≈ 2 vh, 62.5 vh gives about 31 screens. The estimates below come from the counting rules of `work/reviews/density.md` §1.
+
+| Metric | Target (#41) | Now | Part 11 (est.) |
+|---|---|---|---|
+| Average rich elements per screen | ≥ 6 | 4.5 | ≈ 8.5 |
+| Screens at 8 or more | ≥ 25 % | 0 % | ≈ 70 % |
+| One object plus text (strict) | ≤ 10 % | 30 % | 0 by design (every set has a prop); the footer is the loosest at ≈ 4 |
+| Distinct set-ups | ≥ 16 | 12 (3 staged) | 20 (28 counting cards) |
+| Props per screen | ≥ 1 | 0.47 | ≥ 2 (every row of 11.1 names at least one) |
+| Copy lines per screen | ≤ 5.5 | 7.7 | ≤ 5, by the one-line-per-beat rule and the one-quote / one-note-at-a-time rules |
+
+### 11.5 Similarity guardrails (teardown §8), for the new elements
+- **Blacklight "dark mode"** vs ORYZO's thermal view (#8, #34):
+  - It is a real fluorescence under a UV tube in a dark room, in violet-black and blue-white.
+  - It is never a false-colour ramp or a re-skin of the whole scene, and has no temperature or "creativity" scale.
+- **The cursor torch** vs ORYZO's cursor light revealing neon sketches (#48): ours is a back-light *behind* the sheet, revealing the watermark and formation by transmitted light. It's never on the tier picker, never red, never neon.
+- **The drafting board** vs ORYZO's top-down cutting-mat desk (#1):
+  - It sits at a 35° slope and is seen from writing height.
+  - No cutting mat, cutter, eraser or paper-clip cluster.
+  - Nothing is seen from above.
+- **Annotations** (s00, s02, s06b, s07, s12) vs ORYZO's dashed selection frame, bezier rings and serif formula ornaments (#19, #28, #33, #54):
+  - We use engineering dimensions, origami fold notation, crop marks and mono leader callouts.
+  - No dashed selection frame around the product.
+  - No formula as a corner ornament.
+- **Generations and the balance** vs ORYZO's three info cards, the "sustainability" giant word and the leaf gobo (#39, #40): it's a staged scene, with no cards, no giant word and no gobo.
+- **Standee reviewers** vs ORYZO's testimonial list and characters (#13, #41): a cast on a set, rated by corners, no stars, none of their characters.
+- **The crane audience and the planes** vs the floating particles at ORYZO's end (#16): our crowds are folded objects with behaviour, not a particle drift. Confetti appears only at the tear, mid-page.
+- **Lineup plinths** vs ORYZO's glowing pills and 1/2/3 stack (#46, #47): hairline controls, counts of 1 / 80 / 500, nothing glows.
+- **The printout and .obj viewer** vs ORYZO's academic and repo jokes (#49, #50): one sheet, 4 vertices, no model sizes, no "coming soon".
+- **The deckle-edge footer** vs ORYZO's dashed credit box (#52): no box, no "built with love", no copy-URL pill.
+- **The hero** vs #21–#23: we drop the density review's "looping inset render" idea (too close to ORYZO's #23 launch-film thumbnail), and use no glass credit panel and no giant wordmark at the top left.
+- **The ream wrapper reveal** is dropped (#41).
+
+### 11.6 Kept, dropped, moved; and what Step B writes
+- **Kept:**
+  - every interaction (pencil, erase, regenerate, tear, magnifier, vote, print dialog, release) and the 10.3 hero;
+  - The Bleed, the drying line and the reviewers;
+  - the jokes the reviewers liked: the outputs on the line, the shredder and bin reviews, Reviewer 2 in the paper, "0.1 mm.", the ink section, "Answer: see above.", the Arena.
+- **New sections:**
+  - `s06b-roadmap` (1.5 vh) and `s13b-session` (1.5 vh);
+  - the dark-mode coda adds 1 vh to s03;
+  - the page grows from ≈ 58.5 to ≈ 62.5 vh.
+- **Dropped:**
+  - the ream wrapper (#41);
+  - the s08 DOM cards (now a scene);
+  - the hero inset render (#23 risk);
+  - floating dust motes (#16 risk).
+- **Moved:**
+  - the v2.0 watermark cue becomes the cursor torch;
+  - the session count gets its own scene (s13b) and stays in the footer.
+- **Step B (next task):**
+  - per-section copy: every label, alt, aria, reduced-motion line and fallback line;
+  - R§ tags for the new facts: R§14.6 brighteners; Dias & Arroja 4.64 g; 75.1 % (2024); the calibration-weight sum; the s06b fold geometry; the micrometer readout within R§1.3 and the s02 note's 95–110 µm;
+  - the optional fact-check items;
+  - updates to Parts 2, 3 and 5;
+  - a Part 11 changelog by owner.

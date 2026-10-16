@@ -32,8 +32,8 @@ float fibres(vec2 q){
   for (int k = 0; k < 4; k++) {
     float a = float(k) * 0.785 + (k < 2 ? 0.0 : 0.2) + uSeed * 0.1;
     vec2 d = vec2(cos(a), sin(a)), r = vec2(dot(q, d), dot(q, vec2(-d.y, d.x)));
-    float n = bn(vec2(r.x * 7.0, r.y * 70.0) + float(k) * 17.3) * 0.7 + bn(vec2(r.x * 15.0, r.y * 140.0) + float(k) * 5.1) * 0.3;
-    f = max(f, smoothstep(0.62, 0.9, n) * (k < 2 ? 1.0 : 0.7));
+    float n = bn(vec2(r.x * 9.0, r.y * 160.0) + float(k) * 17.3) * 0.7 + bn(vec2(r.x * 20.0, r.y * 320.0) + float(k) * 5.1) * 0.3;
+    f = max(f, smoothstep(0.66, 0.92, n) * (k < 2 ? 1.0 : 0.65));
   }
   return f;
 }
@@ -44,15 +44,20 @@ void main(){
   float fib = fibres(q * 1.3);
   float d = length(q) * (1.0 + 0.32 * (bfbm(q * 2.6) - 0.5)) - 0.09 * (bfbm(q * 9.0) - 0.5);
   float c = clamp(uCov, 0.0, 1.0);
-  float R = mix(0.02, 1.9, pow(c, 0.85));                      // the front's radius (screen heights)
-  float field = d - fib * 0.16 * (0.4 + 0.6 * smoothstep(0.0, 0.3, c));   // fibres carry the ink ahead of the blot
+  // the front's radius (screen heights) from the area it should cover: uCov ~ the inked fraction of the screen
+  // (0.4 at the hand-over from the sheet), opening up toward the corners at the end
+  float R = sqrt(c * uAspect / 3.14159) * (1.0 + 0.4 * c * c) + 0.01;
   float w = 0.012 + 0.02 * c;
-  float body = smoothstep(R + w, R - w, field);
+  float body = smoothstep(R + w, R - w, d);
+  // fibres carry diluted ink ahead of the blot: thin, feathery, lighter tendrils that fade with their length
+  float reach = fib * 0.075 * (0.4 + 0.6 * smoothstep(0.0, 0.3, c));
+  float tendril = smoothstep(R + reach + w, R + w * 0.5, d) * step(0.001, fib) * (1.0 - body) * 0.55;
+  float field = d - reach;
   // islands: what is left of the white breaks up and shrinks, with fibrous, feathered edges (never a clean shape)
   float isl = bfbm(q * 3.2 + 11.0) + 0.12 * (fib - 0.5) + 0.05 * (bn(q * 40.0) - 0.5);
-  float it = mix(0.95, 0.18, smoothstep(0.38, 1.0, c));          // threshold: rises as coverage climbs
-  float islandInk = smoothstep(it + 0.035, it - 0.035, isl) * smoothstep(0.32, 0.45, c);
-  float a = max(body, islandInk);
+  float it = mix(0.95, 0.22, smoothstep(0.45, 1.0, c));          // threshold: rises as coverage climbs
+  float islandInk = smoothstep(it + 0.035, it - 0.035, isl) * smoothstep(0.42, 0.55, c) * smoothstep(R + 0.45, R - 0.1, field);
+  float a = max(max(body, islandInk), tendril);
   a = mix(a, 1.0, smoothstep(0.93, 1.0, c));                     // the last specks go: a clean ink ground at the end
   // colour: deep core behind the front, the ink body, a pale damp halo just ahead
   float depth = smoothstep(R - 0.02, R - 0.35, field);
