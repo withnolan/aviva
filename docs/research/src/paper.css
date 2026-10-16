@@ -1,6 +1,6 @@
-/* paper.css: print stylesheet for "Void of All Characters" (aviva Research, technical report AV-A4-001).
+/* paper.css: print stylesheet for "AVIVA A4: A Multimodal Foundation Model at 80 g/m²" (AVIVA Research, technical report AV-A4-001).
    Owner: visual-designer. Source of the words: work/04-creative-brief.md, Part 4 (as corrected in Part 9).
-   Printed to docs/research/void-of-all-characters.pdf by work/scripts/design/build-paper.mjs (Playwright page.pdf).
+   Printed to docs/research/aviva-a4.pdf by work/scripts/design/build-paper.mjs (Playwright page.pdf).
 
    Page model: eight fixed A4 pages (section.page), each composed by hand to follow the brief's page plan (4.1).
    Inside a page: running head, the text block (.frame) and the folio. Text runs in two balanced columns (.cols);
@@ -328,3 +328,6 @@ td.num { white-space: nowrap; }
   pointer-events: none;
 }
 .hl--pink::after { background: var(--hl-pink); transform: rotate(0.6deg); }
+
+/* Table 2 (page 4) is a two-column band of prose values */
+#tab2 th:first-child, #tab2 td:first-child { width: 31%; }

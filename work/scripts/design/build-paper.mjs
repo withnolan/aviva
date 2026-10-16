@@ -62,10 +62,10 @@ from pypdf import PdfReader, PdfWriter
 src = sys.argv[1]
 r = PdfReader(src); w = PdfWriter(clone_from=r)
 w.add_metadata({
-  '/Title': 'Void of All Characters: Pre-training a Foundation Model on Nothing',
-  '/Author': 'Ada Margin, Gus Gutter, Lena Leading, Bea Bleed (aviva Research)',
-  '/Subject': 'aviva Research technical report AV-A4-001 (2026). A parody research paper from aviva, a fictional parody project inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale.',
-  '/Keywords': 'foundation models; pre-training; distillation; hallucination; ISO 216; paper',
+  '/Title': 'AVIVA A4: A Multimodal Foundation Model at 80 g/m²',
+  '/Author': 'Ada Margin, Gus Gutter, Lena Leading, Bea Bleed (AVIVA Research)',
+  '/Subject': 'AVIVA Research technical report AV-A4-001 (2026). A parody research paper from AVIVA, a fictional parody project inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale.',
+  '/Keywords': 'foundation models; multimodal; persistent memory; distillation; ISO 216; paper',
 })
 with open(src, 'wb') as f: w.write(f)
 `, out]);

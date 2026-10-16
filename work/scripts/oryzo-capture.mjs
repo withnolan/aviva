@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // oryzo-capture.mjs: step through a whole long scroll page at 1440x900 and save N evenly spaced JPGs.
-// UNTESTED END TO END (paused at the probe stage); see "Findings" below before trusting it.
+// Findings: wait >= 25 s after load, then plain window.scrollTo works over the whole page (verified to 55,000 px).
 //   node work/scripts/oryzo-capture.mjs                                   -> ORYZO, 40 frames -> work/screenshots/density/oryzo/
 //   node work/scripts/oryzo-capture.mjs --url http://localhost:8080/?nointro --out work/screenshots/density/aviva --n 30 --prefix aviva
-// options: --url (https://oryzo.ai) --out --n (40) --settle ms (2500) --first ms (22000: ORYZO's loader is slow under software WebGL)
+// options: --url (https://oryzo.ai) --out --n (40) --settle ms (2500) --first ms (30000: ORYZO's loader is slow under software WebGL)
 //          --mode scrollTo|keys|wheel (scrollTo)
 // Findings so far (probe, headless SwiftShader, ~1 fps):
 //  - oryzo.ai: no Lenis on window, no `lenis` class on <html>. scrollHeight is 49,967 px right after load and grows to ~56,691 px
@@ -18,7 +18,7 @@ import path from 'node:path';
 const argv = process.argv.slice(2), o = {};
 for (let i = 0; i < argv.length; i++) if (argv[i].startsWith('--')) { const v = argv[i + 1]; o[argv[i].slice(2)] = (v === undefined || v.startsWith('--')) ? true : (i++, v); }
 const url = o.url || 'https://oryzo.ai', out = o.out || 'work/screenshots/density/oryzo', N = +(o.n || 40);
-const settle = +(o.settle || 2500), first = +(o.first || 22000), mode = o.mode || 'scrollTo', prefix = o.prefix || 'oryzo';
+const settle = +(o.settle || 2500), first = +(o.first || 30000), mode = o.mode || 'scrollTo', prefix = o.prefix || 'oryzo';
 fs.mkdirSync(out, { recursive: true });
 const args = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--enable-webgl'];
 let browser;

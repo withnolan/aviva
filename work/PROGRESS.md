@@ -76,7 +76,7 @@ The user stopped work until next week. All four agents are paused, everything is
 4. [ ] (PAUSED: capture script written, untested; ORYZO scroll stalls at ~9,200 px in every method; see density.md) Reference-analyst (Sonnet): density comparison, ORYZO frames vs our 1440 shots → `work/reviews/density.md`.
 5. [ ] CD: Part 11, the richness pass and new section map (uses 1, 4 and the user's feedback).
 6. [ ] Lead: approve Parts 10/11 and split the build into small tasks below.
-7. [ ] Design VD: PDF rebuild as aviva-a4.pdf with the new text (2 steps: text, then figures + render check).
+7. [~] (step 1 done 2026-10-16: aviva-a4.pdf, 8 pages, text + fact-check fixes; old PDF removed. WD to-do: s13 BibTeX box → margin2026aviva entry) Design VD: PDF rebuild as aviva-a4.pdf with the new text (2 steps: text, then figures + render check).
 8a. [x] (done 2026-10-15: rest curl `rest`/`restCorner`, truer white TOKENS.sheet #F3F4F1, closer raking keys, exposure, contact reach. WD to-do: tilt upright poses ry ±6–8°, rx 3–5°; `rest:0` for dead-flat; use setColors({sheet}); claim renders c1–c8 still CSS placeholders) Paper VD: make the sheet read as real paper *in the site* (fresh0 #1): exposure/tone, contact shadow, edge thickness, slight curl/sag, less cream; check in s01/s03/s11 shots.
 8. [ ] Paper VD: finish the look-dev list (folds montage → ink → fibres → lights → contact sheet + docs), one item per task.
 9. [ ] Build tasks (to be split): hero letters, copy + caps, tiers + stack, sets/props, renders for c1–c8/F1–F6/OG, annotation layer, extra moments.

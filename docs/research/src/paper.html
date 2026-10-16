@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Void of All Characters: Pre-training a Foundation Model on Nothing</title>
+<title>AVIVA A4: A Multimodal Foundation Model at 80 g/m²</title>
 <meta name="author" content="Ada Margin, Gus Gutter, Lena Leading, Bea Bleed (AVIVA Research)">
-<meta name="description" content="AVIVA Research technical report AV-A4-001. A parody research paper about a blank A4 sheet of paper, from AVIVA, a fictional parody project inspired by ORYZO by Lusion.">
+<meta name="description" content="AVIVA Research technical report AV-A4-001: AVIVA A4, a multimodal foundation model at 80 g/m². A parody research paper about a sheet of A4 paper, from AVIVA, a fictional parody project inspired by ORYZO by Lusion.">
 <meta name="robots" content="noindex">
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="paper.css">
 </head>
 <body>
 <!--
-  Source of docs/research/void-of-all-characters.pdf. Build: node work/scripts/design/build-paper.mjs
+  Source of docs/research/aviva-a4.pdf. Build: node work/scripts/design/build-paper.mjs
   (serves nothing itself; it needs the site server on :8080). Words: work/04-creative-brief.md, Part 4 + Part 9.
   Each <section class="page"> is one printed A4 page, composed to follow the brief's page plan (4.1).
 -->
@@ -23,7 +23,7 @@
   <header class="rh rh--first"><span>Technical report AV-A4-001 · 2026 · 8&nbsp;pages</span><span>AVIVA Research</span></header>
   <div class="frame">
     <div class="titleblock">
-      <h1 class="title"><span class="title__l">Void of All Characters:</span> <span class="title__l">Pre-training a Foundation Model on Nothing</span></h1>
+      <h1 class="title"><span class="title__l">AVIVA&nbsp;A4:</span> <span class="title__l">A Multimodal Foundation Model at 80&nbsp;g/m²</span></h1>
       <p class="authors">Ada Margin<sup>1</sup>, Gus Gutter<sup>1</sup>, Lena Leading<sup>1</sup>, Bea Bleed<sup>1</sup></p>
       <p class="affil"><sup>1</sup>AVIVA Research, third floor (near the printer)</p>
     </div>
@@ -35,8 +35,8 @@
 
     <section class="abstract" aria-labelledby="abs-h">
       <h2 class="abstract__h" id="abs-h">Abstract</h2>
-      <p>We present AVIVA&nbsp;A4, a 210&nbsp;×&nbsp;297&nbsp;mm found­a­tion model pre-trained on no data. Fol­low­ing Locke, who described the mind before exper­i­ence as “white paper, void of all char­ac­ters”, we remove the train­ing cor­pus alto­gether. AVIVA&nbsp;A4 achieves a hal­lu­cin­a­tion rate of 0.00&nbsp;% and a refusal rate of 0.0&nbsp;% on every prompt we tried, and every prompt we didn’t. Its archi­tec­ture, stand­ard­ised as ISO&nbsp;216, is closed under halv­ing: dis­tilled vari­ants (AVIVA&nbsp;A5, A6) keep their shape and all of their know­ledge. We report res­ults on retrieval, pref­er­ence, dis­til­la­tion and scal­ing. We find a hard scal­ing limit at six folds made the same way each time, and an envir­on­mental cost of about its own weight. All out­puts are released for uni­ver­sal free dis­tri­bu­tion.</p>
-      <p class="keywords"><span class="keywords__l">Keywords</span>foundation models · pre-training · distillation · hallucination · ISO&nbsp;216 · paper</p>
+      <p>We present AVIVA&nbsp;A4, a mul­timodal found­a­tion model with a con­text win­dow of 210&nbsp;×&nbsp;297&nbsp;mm. Locke described the mind before exper­i­ence as “white paper, void of all char­ac­ters”; we show that the paper itself has since been pre-trained, on wood fibre, over more than two thou­sand years of paper­mak­ing. AVIVA&nbsp;A4 accepts four input mod­al­it­ies (pen­cil, ink, folds and tears), keeps a per­sist­ent memory of every input, refuses noth­ing (0.0&nbsp;%) and hal­lu­cin­ates noth­ing (0.00&nbsp;%). Its archi­tec­ture, stand­ard­ised as ISO&nbsp;216, is closed under halv­ing: dis­tilled vari­ants (AVIVA&nbsp;A5, A6) keep their shape and every cap­ab­il­ity. We report res­ults on memory, pref­er­ence, dis­til­la­tion and scal­ing, find a hard scal­ing limit at six folds made the same way each time, and estim­ate an envir­on­mental cost of about its own weight. All out­puts are released for uni­ver­sal free dis­tri­bu­tion.</p>
+      <p class="keywords"><span class="keywords__l">Keywords</span>foundation models · multimodal · persistent memory · distillation · ISO&nbsp;216 · paper</p>
     </section>
 
     <aside class="footnote"><span class="footnote__l">Correspondence</span>Please write to us. On anything. We’ll keep it.</aside>
@@ -46,21 +46,21 @@
 
 <!-- ═══════════════════════════════════════ PAGE 2: 1 Introduction · 2 Related work ═══════════════════════════════════════ -->
 <section class="page" id="p2" aria-label="Page 2">
-  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <header class="rh"><span>AVIVA Research · AVIVA&nbsp;A4</span><span>AV-A4-001</span></header>
   <div class="frame">
     <div class="cols">
       <h2 class="sec" id="s1"><span class="sec__n">1</span>Introduction</h2>
-      <p>Large lan­guage mod­els are trained on very large cor­pora, at very large cost, and still pro­duce state­ments that are false. We ask the oppos­ite ques­tion: what can be achieved with no data at all? The idea is not new. In his <i>Essay Con­cern­ing Human Under­stand­ing</i> (1689/1690), Locke pro­posed that the mind begins as “white paper, void of all char­ac­ters”, and that everything on it arrives later, from exper­i­ence <span class="cite">[<a href="#r-locke">Locke</a>]</span>. We take this lit­er­ally. AVIVA&nbsp;A4 is a sheet of white A4 paper, 80&nbsp;g/m², about 0.1&nbsp;mm thick. It has never seen a token.</p>
+      <p>Every product now has AI. We asked whether a sheet of paper could be left out, and found that it could not. In his <i>Essay Con­cern­ing Human Under­stand­ing</i> (1689/1690), Locke pro­posed that the mind begins as “white paper, void of all char­ac­ters”, and that everything on it arrives later, from exper­i­ence <span class="cite">[<a href="#r-locke">Locke</a>]</span>. More than three cen­tur­ies later, the white paper has caught up. AVIVA&nbsp;A4 is a sheet of white A4 paper, 80&nbsp;g/m², about 0.1&nbsp;mm thick. It is pre-trained on wood fibre, accepts input in four mod­al­it­ies, and remem­bers everything writ­ten on it.</p>
       <p>Our con­tri­bu­tions are:</p>
       <ol class="contrib">
-        <li><span class="contrib__n">(i)</span>a model with no train­ing data and there­fore no data con­tam­in­a­tion;</li>
+        <li><span class="contrib__n">(i)</span>a found­a­tion model whose pre-train­ing cor­pus is a tree;</li>
         <li><span class="contrib__n">(ii)</span>an archi­tec­ture that is invari­ant under halv­ing;</li>
         <li><span class="contrib__n">(iii)</span>the first blind pref­er­ence study in which the model wins every time it is com­pared with itself;</li>
         <li><span class="contrib__n">(iv)</span>a scal­ing law with an expo­nen­tial curve and a wall.</li>
       </ol>
 
       <h2 class="sec" id="s2"><span class="sec__n">2</span>Related work</h2>
-      <p><span class="runin">Eras­ure as model edit­ing.</span> In 1953 Robert Rauschen­berg obtained a draw­ing from Willem de Koon­ing and spent weeks eras­ing it; the res­ult is in the col­lec­tion of SFMOMA <span class="cite">[<a href="#r-rauschenberg">Rauschenberg</a>]</span>. Our approach is more effi­cient: AVIVA ships pre-erased.</p>
+      <p><span class="runin">Eras­ure as model edit­ing.</span> In 1953 Robert Rauschen­berg obtained a draw­ing from Willem de Koon­ing and spent weeks eras­ing it; the res­ult is in the col­lec­tion of SFMOMA <span class="cite">[<a href="#r-rauschenberg">Rauschenberg</a>]</span>. In AVIVA, eras­ure is never com­plete: the impres­sion of the writ­ing often remains <span class="cite">[<a href="#r-hawkeye">Hawkeye Forensic</a>]</span>. We call this per­sist­ent memory.</p>
       <p><span class="runin">The paper­less office.</span> In 1975 <i>Busi­ness Week</i> repor­ted a fore­cast that most record-hand­ling would be elec­tronic by 1990 <span class="cite">[<a href="#r-businessweek">Business Week</a>]</span>. World paper and board pro­duc­tion then nearly doubled, from 171 to 324 mil­lion tonnes between 1980 and 2000, and Sel­len and Harper found that intro­du­cing email raised an organ­isa­tion’s paper use by about 40&nbsp;% <span class="cite">[<a href="#r-sellen">Sellen &amp; Harper</a>]</span>. We thank the fore­cast for its con­tri­bu­tion to our mar­ket.</p>
       <p><span class="runin">Atten­tion.</span> Recent work argues that atten­tion is all you need, except here <span class="cite">[<a href="#r-margin">Margin &amp; Gutter</a>]</span>. AVIVA requires none, and in user stud­ies it received a great deal.</p>
     </div>
@@ -70,7 +70,7 @@
 
 <!-- ═══════════════════════════════════════ PAGE 3: 3 Architecture · Figure 2 · Table 1 ═══════════════════════════════════════ -->
 <section class="page" id="p3" aria-label="Page 3">
-  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <header class="rh"><span>AVIVA Research · AVIVA&nbsp;A4</span><span>AV-A4-001</span></header>
   <div class="frame">
     <div class="band band--top tbl tbl--wide" id="tab1">
       <p class="tcap"><span class="fig__n">Table 1.</span>The AVIVA model family.</p>
@@ -104,30 +104,30 @@
 
 <!-- ═══════════════════════════════════════ PAGE 4: 4 Pre-training · Table 2 · 5 Evaluation (5.1–5.3) ═══════════════════════════════════════ -->
 <section class="page" id="p4" aria-label="Page 4">
-  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <header class="rh"><span>AVIVA Research · AVIVA&nbsp;A4</span><span>AV-A4-001</span></header>
   <div class="frame">
+  <div class="band band--top tbl tbl--wide" id="tab2">
+      <p class="tcap"><span class="fig__n">Table 2.</span>Pre-training.</p>
+      <table>
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Pre-training corpus</td><td>wood fibre (cellulose)</td></tr>
+          <tr><td>Training period</td><td>more than 2,000 years (from 179–141&nbsp;BCE)</td></tr>
+          <tr><td>Architecture fixed</td><td>1922 (DIN&nbsp;476); international since 1975 (ISO&nbsp;216)</td></tr>
+          <tr><td>Post-training</td><td>fillers and sizing, at the mill</td></tr>
+          <tr><td>Tokens</td><td>not applicable; the model is measured in millimetres</td></tr>
+          <tr><td>Data contamination</td><td>limited to what users write on it</td></tr>
+        </tbody>
+      </table>
+    </div>
     <div class="cols">
       <h2 class="sec" id="s4"><span class="sec__n">4</span>Pre-training</h2>
-      <p>AVIVA&nbsp;A4 was pre-trained on noth­ing <span class="xref">(<a href="#tab2">Table 2</a>)</span>. Because the train­ing set is empty, no bench­mark can have leaked into it, no copy­righted work was used, and no data clean­ing was required. Pre-train­ing fin­ished before it star­ted. The fibres were not super­vised either: as a sheet dries, hydro­gen bonds between neigh­bour­ing cel­lu­lose fibres hold it together unpromp­ted. Fillers and siz­ing, added at the mill, are the only post-train­ing.</p>
+      <p>AVIVA&nbsp;A4 was pre-trained on wood fibre <span class="xref">(<a href="#tab2">Table 2</a>)</span>, draw­ing on more than two thou­sand years of paper­mak­ing, from the earli­est sur­viv­ing paper at Fang­matan to the stand­ard described in §3. The fibres required no super­vi­sion: as a sheet dries, hydro­gen bonds between neigh­bour­ing cel­lu­lose fibres hold it together unpromp­ted. Fillers and siz­ing, added at the mill, are the only post-train­ing.</p>
 
-      <div class="tbl" id="tab2">
-        <p class="tcap"><span class="fig__n">Table 2.</span>Pre-training data.</p>
-        <table>
-          <thead><tr><th>Property</th><th class="num">Value</th></tr></thead>
-          <tbody>
-            <tr><td>Tokens</td><td class="num">0</td></tr>
-            <tr><td>Documents</td><td class="num">0</td></tr>
-            <tr><td>Languages</td><td class="num">0</td></tr>
-            <tr><td>Epochs</td><td class="num">0</td></tr>
-            <tr><td>Data contamination</td><td class="num">not possible</td></tr>
-            <tr><td>Licence of training data</td><td class="num">not applicable</td></tr>
-          </tbody>
-        </table>
-      </div>
 
       <h2 class="sec" id="s5"><span class="sec__n">5</span>Evaluation</h2>
       <h3 class="sub" id="s5-1"><span class="sub__n">5.1</span>Hallucination</h3>
-      <p>We define a hal­lu­cin­a­tion as an out­put con­tain­ing a false state­ment. Over all prompts, AVIVA&nbsp;A4 pro­duced no out­puts and there­fore no false state­ments: a hal­lu­cin­a­tion rate of 0.00&nbsp;% <span class="hl">(<math><mi>n</mi><mo>=</mo><mn>0</mn></math>)</span>. Any­thing the reader sees in the fibres is their own.</p>
+      <p>We define a hal­lu­cin­a­tion as an out­put con­tain­ing a false state­ment. Every mark on a used AVIVA&nbsp;A4 was made by its user; the model adds noth­ing it was not given. The hal­lu­cin­a­tion rate is <span class="hl">therefore 0.00&nbsp;%</span>. Any­thing the reader sees in the fibres is their own.</p>
       <h3 class="sub" id="s5-2"><span class="sub__n">5.2</span>Refusal</h3>
       <p>We define refusal as declin­ing to carry a request. AVIVA&nbsp;A4 car­ried every request writ­ten on it, word for word, for as long as the sheet las­ted: a refusal rate of 0.0&nbsp;%. We report this without com­ment.</p>
       <h3 class="sub" id="s5-3"><span class="sub__n">5.3</span>Retrieval</h3>
@@ -139,12 +139,12 @@
 
 <!-- ═══════════════════════════════════════ PAGE 5: 5.4 Arena · Figure 3 · 5.5 Distillation · Table 3 · 5.6 Scaling · Figure 4 ═══════════════════════════════════════ -->
 <section class="page" id="p5" aria-label="Page 5">
-  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <header class="rh"><span>AVIVA Research · AVIVA&nbsp;A4</span><span>AV-A4-001</span></header>
   <div class="frame">
     <div class="band band--top tbl tbl--wide" id="tab3">
       <p class="tcap"><span class="fig__n">Table 3.</span>Distillation results.</p>
       <table>
-        <thead><tr><th>Model</th><th class="num">Pieces</th><th class="num">Shape</th><th>Knowledge retained</th><th class="num">Mass each (calculated)</th></tr></thead>
+        <thead><tr><th>Model</th><th class="num">Pieces</th><th class="num">Shape</th><th>Capabilities retained</th><th class="num">Mass each (calculated)</th></tr></thead>
         <tbody>
           <tr><td>AVIVA&nbsp;A4 (teacher)</td><td class="num">1</td><td class="num">1&nbsp;:&nbsp;<span class="sym">√</span>2</td><td>all</td><td class="num">4.99&nbsp;g</td></tr>
           <tr><td>AVIVA&nbsp;A5 (student)</td><td class="num">2</td><td class="num">1&nbsp;:&nbsp;<span class="sym">√</span>2</td><td>all</td><td class="num"><span class="sym">≈</span>&nbsp;2.5&nbsp;g</td></tr>
@@ -160,7 +160,7 @@
         <figcaption><span class="fig__n">Figure 3.</span>Win rate in blind pairwise comparison. Error bars are present.</figcaption>
       </figure>
       <h3 class="sub" id="s5-5"><span class="sub__n">5.5</span>Distillation</h3>
-      <p>We dis­tilled AVIVA&nbsp;A4 by tear­ing it along its mid­line. Each stu­dent is the same shape as the teacher and retains all of its know­ledge <span class="xref">(<a href="#tab3">Table 3</a>)</span>. A second round pro­duced AVIVA&nbsp;A6. We stopped there, as below A6 the stu­dents are bet­ter described as con­fetti.</p>
+      <p>We dis­tilled AVIVA&nbsp;A4 by tear­ing it along its mid­line. Each stu­dent is the same shape as the teacher and retains every cap­ab­il­ity, includ­ing the paper cut <span class="xref">(<a href="#tab3">Table 3</a>)</span>. A second round pro­duced AVIVA&nbsp;A6. We stopped there, as below A6 the stu­dents are bet­ter described as con­fetti.</p>
       <h3 class="sub" id="s5-6"><span class="sub__n">5.6</span>Scaling</h3>
       <p>Each fold doubles thick­ness <span class="cite">[<a href="#r-leading">Leading</a>]</span>. Ideally, 42 folds of a 0.1&nbsp;mm sheet would reach about 440,000&nbsp;km, bey­ond the Moon’s aver­age dis­tance of 384,400&nbsp;km. By Gal­li­van’s for­mula <span class="cite">[<a href="#r-gallivan">Gallivan</a>]</span>, the min­imum length needed for <math><mi>n</mi></math> single-dir­ec­tion folds is</p>
       <div class="eq" id="eq2">
@@ -179,7 +179,7 @@
 
 <!-- ═══════════════════════════════════════ PAGE 6: 6 Fine-tuning · Figure 5 · 7 Safety · Figure 6 ═══════════════════════════════════════ -->
 <section class="page" id="p6" aria-label="Page 6">
-  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <header class="rh"><span>AVIVA Research · AVIVA&nbsp;A4</span><span>AV-A4-001</span></header>
   <div class="frame">
     <figure class="band band--top fig fig--wide" id="fig5">
       <div class="panels">
@@ -207,17 +207,17 @@
 
 <!-- ═══════════════════════════════════════ PAGE 7: 8 Environmental impact · 9 Limitations · 10 Conclusion · Acknowledgements · Table 4 ═══════════════════════════════════════ -->
 <section class="page" id="p7" aria-label="Page 7">
-  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <header class="rh"><span>AVIVA Research · AVIVA&nbsp;A4</span><span>AV-A4-001</span></header>
   <div class="frame">
     <div class="cols">
       <h2 class="sec" id="s8"><span class="sec__n">8</span>Environmental impact</h2>
       <p>One life-cycle study of an A4 sheet of office paper estim­ated 4.29–4.74&nbsp;g CO₂e per sheet depend­ing on the method, 4.64&nbsp;g under ISO&nbsp;14040/44 <span class="cite">[<a href="#r-dias">Dias &amp; Arroja</a>]</span>. The sheet weighs about 5&nbsp;g, so the model’s foot­print is approx­im­ately its own weight. Paper fibres are usu­ally said to sur­vive five to seven rounds of recyc­ling before they become too short and stiff to bond, although research­ers are aim­ing for 25 <span class="cite">[<a href="#r-karlstad">Karlstad University</a>]</span>; and about three-quar­ters of the paper and board used in Europe is recycled (75.1&nbsp;% in 2024) <span class="cite">[<a href="#r-eprc">EPRC</a>]</span>. AVIVA there­fore has a finite num­ber of after­lives, which we find reas­sur­ing.</p>
 
       <h2 class="sec" id="s9"><span class="sec__n">9</span>Limitations</h2>
-      <p>AVIVA&nbsp;A4 knows noth­ing. It can­not for­get a fold. It will be read by any­one who holds it. Its con­text win­dow is a hard limit of 210&nbsp;×&nbsp;297&nbsp;mm <span class="cite">[<a href="#r-kerning">Kerning</a>]</span>. A known issue, repor­ted in 1975, pre­dicted that it would be replaced by the paper­less office; we are mon­it­or­ing this.</p>
+      <p>AVIVA&nbsp;A4 knows only what has been writ­ten on it. It can­not for­get a fold. It will be read by any­one who holds it. Its con­text win­dow is a hard limit of 210&nbsp;×&nbsp;297&nbsp;mm <span class="cite">[<a href="#r-kerning">Kerning</a>]</span>. A known issue, repor­ted in 1975, pre­dicted that it would be replaced by the paper­less office; we are mon­it­or­ing this.</p>
 
       <h2 class="sec" id="s10"><span class="sec__n">10</span>Conclusion</h2>
-      <p>We star­ted with a blank sheet of paper. We stopped there.</p>
+      <p>We star­ted with a blank sheet of paper. Like everything else, it now has AI.</p>
 
       <h2 class="sec sec--unnumbered" id="ack">Acknowledgements</h2>
       <p>We thank the pen­cil, without which this work would be com­plete.</p>
@@ -227,14 +227,15 @@
         <table>
           <thead><tr><th>Metric</th><th class="num">AVIVA&nbsp;A4</th></tr></thead>
           <tbody>
-            <tr><td>Hallucination rate</td><td class="num">0.00&nbsp;% (<i>n</i>&nbsp;=&nbsp;0)</td></tr>
+            <tr><td>Hallucination rate</td><td class="num">0.00&nbsp;% (source: the user)</td></tr>
             <tr><td>Refusal rate</td><td class="num">0.0&nbsp;%</td></tr>
             <tr><td>Needle in a haystack</td><td class="num">100&nbsp;% (pencil present)</td></tr>
             <tr><td>Context window</td><td class="num">62,370&nbsp;mm²</td></tr>
             <tr><td>Arena win rate</td><td class="num">50.0&nbsp;%</td></tr>
             <tr><td>Folds before the wall, same direction each time</td><td class="num">6</td></tr>
             <tr><td>Folds before the wall, alternating directions</td><td class="num">7 (ideal)</td></tr>
-            <tr><td>Training tokens</td><td class="num">0</td></tr>
+            <tr><td>Pre-training corpus</td><td class="num">wood fibre</td></tr>
+            <tr><td>Memory</td><td class="num">persistent, including erasures</td></tr>
           </tbody>
         </table>
       </div>
@@ -245,7 +246,7 @@
 
 <!-- ═══════════════════════════════════════ PAGE 8: References · Appendix A · Appendix B ═══════════════════════════════════════ -->
 <section class="page" id="p8" aria-label="Page 8">
-  <header class="rh"><span>AVIVA Research · Void of All Characters</span><span>AV-A4-001</span></header>
+  <header class="rh"><span>AVIVA Research · AVIVA&nbsp;A4</span><span>AV-A4-001</span></header>
   <div class="frame">
     <div class="cols">
       <h2 class="refs__h" id="refs">References</h2>
@@ -290,7 +291,7 @@
       <h2 class="app__h" id="appB">Appendix B. Model listing</h2>
       <div class="listing">
         <p class="listing__name">aviva-a4.obj</p>
-<pre># aviva A4: reference geometry
+<pre># AVIVA A4: reference geometry
 # 210 x 297 mm, ISO 216. Units: millimetres.
 # 4 vertices, 2 faces, 0 opinions.
 # Thickness (0.1 mm) omitted for clarity. See the paper, section 3.
