@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 40" preserveAspectRatio="none">
+  <!-- aviva highlighter stroke, used as a mask (alpha = ink) under a background of the mark colour token.
+       A chisel tip drawn left to right: angled ends, a slight upward drift, a darker landing where the tip first
+       touches, a thinner lift at the end, two faint felt streaks. Spec: work/05-design-system.md, "Highlighter mark". -->
+  <defs>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-opacity="1"/>
+      <stop offset="0.06" stop-opacity="0.93"/>
+      <stop offset="0.5" stop-opacity="0.88"/>
+      <stop offset="0.9" stop-opacity="0.86"/>
+      <stop offset="1" stop-opacity="0.7"/>
+    </linearGradient>
+  </defs>
+  <path d="M7.5 7.4C38 6.2 70 6.9 104 6.1S171 5.2 203 4.9C219 4.7 230 4.3 238.6 3.8L233.8 34.6C211 35.1 186 34.6 160 35.6S104 36.9 74 36.4C48 36 24 37.4 1.4 37.8Z" fill="url(#ink)"/>
+  <path d="M10 14.2C70 13.4 140 12.6 236 11.2" fill="none" stroke="#000" stroke-opacity="0.07" stroke-width="1.6"/>
+  <path d="M4.5 30.6C64 29.7 150 29.1 234.5 28.3" fill="none" stroke="#000" stroke-opacity="0.09" stroke-width="1.2"/>
+</svg>
