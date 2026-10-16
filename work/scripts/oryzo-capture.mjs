@@ -5,12 +5,12 @@
 //   node work/scripts/oryzo-capture.mjs --url http://localhost:8080/?nointro --out work/screenshots/density/aviva --n 30 --prefix aviva
 // options: --url (https://oryzo.ai) --out --n (40) --settle ms (2500) --first ms (30000: ORYZO's loader is slow under software WebGL)
 //          --mode scrollTo|keys|wheel (scrollTo)
-// Findings so far (probe, headless SwiftShader, ~1 fps):
-//  - oryzo.ai: no Lenis on window, no `lenis` class on <html>. scrollHeight is 49,967 px right after load and grows to ~56,691 px
-//    about 15 s later, so it is re-read before every step.
-//  - Native window.scrollTo(0, y) holds (scrollY stayed at 9000 for 4 s) once ~20 s have passed since load. Right after load
-//    the page ignored it. Wheel and End were clamped at 9,200 in the probe: unresolved (possibly the page unlocks scroll
-//    range progressively); this script therefore logs the real scrollY and retries before each shot.
+// Findings (headless SwiftShader, about 1 fps on oryzo.ai):
+//  - oryzo.ai: no Lenis on window, no `lenis` class on <html>. scrollHeight is 49,967 px right after load and becomes ~56,691 px
+//    about 15 s later, so it is re-read before every step. It ignores or snaps back native scrolling for the first ~15-20 s.
+//  - After ~25-30 s, window.scrollTo({top, behavior:"instant"}) is honoured everywhere (tested 9,200 to 55,000). Wheel and End feed
+//    its smoothed scroller and crawl at 1 fps, so do not use them (the old "stall at 9,200" was that artefact). Run time ~5.5 min for 40 frames.
+//  - Our site: the script uses window.__aviva.scroll.scrollTo(y, {immediate:true}) when it exists (Lenis).
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';

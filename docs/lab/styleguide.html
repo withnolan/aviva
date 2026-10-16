@@ -167,10 +167,11 @@ body { background: var(--color-paper); color: var(--color-graphite); }
 .sg-lineup { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: var(--space-8); align-items: start; }
 .sg-lineup__col { display: grid; gap: var(--space-5); }
 .sg-lineup__notes { max-width: 54ch; padding-top: var(--space-2); }
-.sg-lineup__ico { display: block; width: 144px; height: 48px; }
+.sg-lineup__ico { display: block; width: 136px; height: 40px; }
 .sg-lineup__cap { color: var(--text-muted); margin: var(--space-3) 0 var(--space-5); }
-.sg-specs { display: grid; gap: var(--space-3); margin: 0; padding-left: 1.1em; color: var(--text-muted); }
+.sg-specs { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; color: var(--text-muted); }
 .sg-specs b { color: var(--text); font-weight: var(--fw-medium); }
+.sg-specs code { white-space: nowrap; }
 
 /* pencil cursor, v2 colours (05 §9.19) */
 .sg-pencil { width: 24px; height: 96px; }
@@ -181,10 +182,10 @@ body { background: var(--color-paper); color: var(--color-graphite); }
 
 /* assets */
 .sg-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); background: var(--ground); border-top: var(--hairline) solid var(--color-rule); border-left: var(--hairline) solid var(--color-rule); }
-.sg-icons figure { margin: 0; padding: var(--space-5) var(--space-3) var(--space-4); border-right: var(--hairline) solid var(--color-rule); border-bottom: var(--hairline) solid var(--color-rule); display: grid; justify-items: center; gap: var(--space-3); }
+.sg-icons figure { margin: 0; padding: var(--space-5) var(--space-2) var(--space-4); border-right: var(--hairline) solid var(--color-rule); border-bottom: var(--hairline) solid var(--color-rule); display: grid; justify-items: center; gap: var(--space-3); }
 .sg-icons svg { width: 24px; height: 24px; }
 .sg-icons .sg-i16 { width: 16px; height: 16px; }
-.sg-icons figcaption { color: var(--text-muted); text-align: center; }
+.sg-icons figcaption { color: var(--text-muted); text-align: center; white-space: nowrap; }
 .sg-draw { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-5); }
 .sg-draw figure { margin: 0; display: grid; justify-items: center; gap: var(--space-3); }
 .sg-draw img { width: 96px; height: 96px; }
@@ -473,7 +474,7 @@ body { background: var(--color-paper); color: var(--color-graphite); }
           <p class="sr-only" id="sg-model-sr" aria-live="polite"></p>
         </div>
         <div class="sg-lineup__notes">
-          <svg class="sg-lineup__ico" viewBox="0 0 120 40" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-model-sheet" width="40" height="40"/><use href="../assets/icons/sprite.svg#i-model-notebook" x="40" width="40" height="40"/><use href="../assets/icons/sprite.svg#i-model-ream" x="80" width="40" height="40"/></svg>
+          <svg class="sg-lineup__ico" viewBox="0 0 136 40" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-model-sheet" width="40" height="40"/><use href="../assets/icons/sprite.svg#i-model-notebook" x="48" width="40" height="40"/><use href="../assets/icons/sprite.svg#i-model-ream" x="96" width="40" height="40"/></svg>
           <p class="micro sg-lineup__cap">ONE FOOTPRINT, THREE THICKNESSES</p>
           <ul class="sg-specs small">
             <li><b>Model</b> is the first row: its key sits above a full-width radio group, because the longest name, AVIVA REAM PRO MAX, needs the dialog’s whole width.</li>
