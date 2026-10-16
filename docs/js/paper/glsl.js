@@ -219,7 +219,7 @@ uniform sampler2D uFibreGeo; uniform vec4 uFibreGeoP;   // x tile (mm), y max of
 vec3 inkFront(vec2 p, float t, float Rmax) {
   float r = length(p), a = atan(p.y, p.x);
   float R = Rmax * (0.04 + 0.96 * sqrt(clamp(t, 0.0, 1.0)));
-  float rag = 1.0 + 0.16 * (pp_fbm2(vec2(cos(a), sin(a)) * 1.7 + 2.0) - 0.5) + 0.08 * (pp_fbm2(p / Rmax * 9.0) - 0.5);
+  float rag = 1.0 + 0.3 * (pp_fbm2(vec2(cos(a), sin(a)) * 1.7 + 2.0) - 0.5) + 0.12 * (pp_fbm2(p / Rmax * 9.0) - 0.5);   // as ragged as the screen-space carry
   float Re = R * rag;
   float aa = max(fwidth(r), Rmax * 0.002);
   float blot = 1.0 - smoothstep(Re - aa * 1.5 - R * 0.015, Re + aa, r);
