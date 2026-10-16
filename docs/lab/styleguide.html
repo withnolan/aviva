@@ -155,6 +155,23 @@ body { background: var(--color-paper); color: var(--color-graphite); }
 /* SPEC (request 15.10): inside an uppercase label the stroke covers the cap height, not the x-height */
 :is(.label, .micro, .eyebrow) .hl::after { inset: -0.28em -0.36em -0.26em -0.32em; }
 
+/* SPEC (request 15.11): the s12 lineup. The Model radio group is the .seg rectangle stood on end */
+.sg-spec .dlg__row--model { grid-template-columns: minmax(0, 1fr); align-items: start; gap: 8px; padding-block: 10px 14px; }
+.sg-spec .seg--model { display: grid; width: 100%; }
+.sg-spec .seg--model .seg__opt { justify-content: flex-start; gap: 12px; min-height: 44px; padding: 0 14px 0 12px; border-left: 0; }
+.sg-spec .seg--model .seg__opt + .seg__opt { border-top: var(--line-strong); }
+.sg-spec .seg__ico { width: 20px; height: 20px; flex: none; }
+.sg-spec .cmp__t thead th { vertical-align: bottom; }
+.sg-spec .cmp__ico { display: block; width: 20px; height: 20px; margin-bottom: 10px; }
+/* guide layout for the lineup frame */
+.sg-lineup { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: var(--space-8); align-items: start; }
+.sg-lineup__col { display: grid; gap: var(--space-5); }
+.sg-lineup__notes { max-width: 54ch; padding-top: var(--space-2); }
+.sg-lineup__ico { display: block; width: 144px; height: 48px; }
+.sg-lineup__cap { color: var(--text-muted); margin: var(--space-3) 0 var(--space-5); }
+.sg-specs { display: grid; gap: var(--space-3); margin: 0; padding-left: 1.1em; color: var(--text-muted); }
+.sg-specs b { color: var(--text); font-weight: var(--fw-medium); }
+
 /* pencil cursor, v2 colours (05 §9.19) */
 .sg-pencil { width: 24px; height: 96px; }
 .sg-pencil .pw { fill: #E9D9BF; } .sg-pencil .pl { fill: var(--color-graphite); } .sg-pencil .pb { fill: var(--pencil); }
@@ -424,6 +441,49 @@ body { background: var(--color-paper); color: var(--color-graphite); }
         </div>
       </div>
     </div>
+
+    <div class="sg-sub"><h3>The print dialog: choosing a model</h3><span class="micro">9.5, 9.12 · s12, ON COOL GREY · <span class="sg-tag sg-tag--pend">SPEC</span> MODEL RADIO GROUP, TIER TEXT (REQUEST 15.11)</span></div>
+    <div class="sg-frame sg-spec" data-ground="grey">
+      <div class="sg-lineup">
+        <div class="sg-lineup__col">
+          <div class="dlg" role="group" aria-labelledby="sg-dlg-t">
+            <p class="dlg__title" id="sg-dlg-t">Print</p>
+            <div class="dlg__row dlg__row--model">
+              <span class="dlg__k small" aria-hidden="true">Model</span>
+              <div class="seg seg--model" role="radiogroup" aria-label="Model" id="sg-model">
+                <label class="seg__opt"><input type="radio" name="sg-model" value="base" checked><svg class="seg__ico" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-model-sheet"/></svg><span>AVIVA</span></label>
+                <label class="seg__opt"><input type="radio" name="sg-model" value="pro"><svg class="seg__ico" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-model-notebook"/></svg><span>AVIVA NOTEBOOK PRO</span></label>
+                <label class="seg__opt"><input type="radio" name="sg-model" value="max"><svg class="seg__ico" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-model-ream"/></svg><span>AVIVA REAM PRO MAX</span></label>
+              </div>
+            </div>
+            <div class="dlg__row"><span class="dlg__k small">Paper size</span><span class="dlg__v small">A4 <span class="dlg__n micro">A5 and A3 too: see the table.</span></span></div>
+            <div class="dlg__row"><span class="dlg__k small">Orientation</span><span class="dlg__v small">Portrait <span class="dlg__n micro">Landscape is the same sheet, turned.</span></span></div>
+            <div class="dlg__row"><span class="dlg__k small">Copies</span><span class="dlg__v small" data-m="copies">1</span></div>
+            <div class="dlg__row"><span class="dlg__k small">Pages</span><span class="dlg__v small" data-m="pages">1 of 1 (blank)</span></div>
+            <div class="dlg__foot">
+              <button class="btn btn--primary btn--disabled" type="button" aria-disabled="true" aria-describedby="sg-dlg-tip"><span class="icon icon--printer" aria-hidden="true"></span>PRINT</button>
+              <span class="tip micro" id="sg-dlg-tip">Nothing to print. Nothing is for sale.</span>
+            </div>
+          </div>
+          <div class="tier">
+            <div class="tier__t" data-tier="base"><p class="tier__name h3">AVIVA</p><p class="body">The original. One sheet, one 210&nbsp;×&nbsp;297&nbsp;mm context window, every capability on this page.</p><p class="tier__dims label">1 SHEET · 4.99&nbsp;g</p></div>
+            <div class="tier__t" data-tier="pro" hidden><p class="tier__name h3">AVIVA Notebook Pro</p><p class="body">For professionals. 80 sheets, bound in order: 4.99&nbsp;m² of context, and a memory that keeps your pages in sequence.</p><p class="tier__dims label">80 SHEETS · ≈&nbsp;399&nbsp;g</p></div>
+            <div class="tier__t" data-tier="max" hidden><p class="tier__name h3">AVIVA Ream Pro Max</p><p class="body">For the enterprise. 500 sheets, 31.2&nbsp;m² of context and about 2.5&nbsp;kg of capability. “Ream” comes from the Arabic <i>rizma</i>, a bundle.</p><p class="tier__dims label">500 SHEETS · ≈&nbsp;2.5&nbsp;kg</p></div>
+          </div>
+          <p class="sr-only" id="sg-model-sr" aria-live="polite"></p>
+        </div>
+        <div class="sg-lineup__notes">
+          <svg class="sg-lineup__ico" viewBox="0 0 120 40" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-model-sheet" width="40" height="40"/><use href="../assets/icons/sprite.svg#i-model-notebook" x="40" width="40" height="40"/><use href="../assets/icons/sprite.svg#i-model-ream" x="80" width="40" height="40"/></svg>
+          <p class="micro sg-lineup__cap">ONE FOOTPRINT, THREE THICKNESSES</p>
+          <ul class="sg-specs small">
+            <li><b>Model</b> is the first row: its key sits above a full-width radio group, because the longest name, AVIVA REAM PRO MAX, needs the dialog’s whole width.</li>
+            <li>The group is the <code>.seg</code> hairline rectangle stood on end: options 44&nbsp;px tall, hairlines between them, 20&nbsp;px icons (<code>i-model-sheet</code>, <code>i-model-notebook</code>, <code>i-model-ream</code>), the selected option filled with the button colour.</li>
+            <li>Native radios, so the arrow keys move the choice. Copies, Pages, the tier text and the table’s marked column follow it; a visually hidden line announces “AVIVA Notebook Pro selected: 80 sheets.”</li>
+            <li>Paper size is fixed at A4 now; Orientation stays Portrait. PRINT stays disabled.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ═══════════════════════════════════════ 07 CONTENT ═══════════════════════════════════════ -->
@@ -482,27 +542,38 @@ body { background: var(--color-paper); color: var(--color-graphite); }
     </div>
 
     <div class="sg-grid" style="margin-top:var(--space-5)">
-      <div class="sg-frame" data-ground="grey"><span class="sg-frame__l micro">COMPARISON TABLE · 9.13 · ON THE COOL GREY OF s12</span>
-        <div class="cmp"><div class="cmp__scroll" tabindex="0" role="region" aria-label="Example comparison">
-          <table class="cmp__t">
-            <thead><tr><td></td><th scope="col">AVIVA A5</th><th scope="col" class="is-sel">AVIVA A4</th><th scope="col">AVIVA A3</th></tr></thead>
+      <div class="sg-frame sg-spec" data-ground="grey"><span class="sg-frame__l micro">COMPARISON TABLE · 9.13 · THE LINEUP, ON THE COOL GREY OF s12 · <span class="sg-tag sg-tag--pend">SPEC</span> MODEL ICONS IN THE HEAD (REQUEST 15.11)</span>
+        <div class="cmp"><div class="cmp__scroll" tabindex="0" role="region" aria-labelledby="sg-cmp-cap">
+          <table class="cmp__t" id="sg-cmp">
+            <caption class="sr-only" id="sg-cmp-cap">AVIVA, AVIVA Notebook Pro and AVIVA Ream Pro Max compared.</caption>
+            <thead><tr><td></td><th scope="col" data-tier="base" class="is-sel"><svg class="cmp__ico" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-model-sheet"/></svg>AVIVA</th><th scope="col" data-tier="pro"><svg class="cmp__ico" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-model-notebook"/></svg>AVIVA NOTEBOOK PRO</th><th scope="col" data-tier="max"><svg class="cmp__ico" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-model-ream"/></svg>AVIVA REAM PRO MAX</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Size</th><td>148 × 210 mm</td><td>210 × 297 mm</td><td>297 × 420 mm</td></tr>
-              <tr><th scope="row">Weight at 80 g/m²</th><td>2.49 g</td><td>4.99 g</td><td>9.98 g</td></tr>
-              <tr><th scope="row">Aspect ratio</th><td>1 : √2</td><td>1 : √2</td><td>1 : √2</td></tr>
-              <tr><th scope="row">Knowledge</th><td>None</td><td>None</td><td>None</td></tr>
+              <tr><th scope="row">Sheets</th><td>1</td><td>80</td><td>500</td></tr>
+              <tr><th scope="row">Sizes</th><td>A5 · A4 · A3</td><td>A5 · A4 · A3</td><td>A5 · A4 · A3</td></tr>
+              <tr><th scope="row">Context window (A4)</th><td>62,370&nbsp;mm²</td><td>4.99&nbsp;m²</td><td>31.2&nbsp;m²</td></tr>
+              <tr><th scope="row">Weight (A4, calculated)</th><td>4.99&nbsp;g</td><td>≈&nbsp;399&nbsp;g</td><td>≈&nbsp;2.5&nbsp;kg</td></tr>
+              <tr><th scope="row">Thickness</th><td>0.1&nbsp;mm</td><td>≈&nbsp;8&nbsp;mm</td><td>≈&nbsp;5&nbsp;cm</td></tr>
+              <tr><th scope="row">Aspect ratio</th><td>1&nbsp;:&nbsp;√2</td><td>1&nbsp;:&nbsp;√2</td><td>1&nbsp;:&nbsp;√2</td></tr>
+              <tr><th scope="row">Modalities</th><td>pencil · ink · fold · tear</td><td>pencil · ink · fold · tear</td><td>pencil · ink · fold · tear</td></tr>
+              <tr><th scope="row">Memory</th><td>every mark</td><td>every mark, in order</td><td>every mark, on all 500 sheets</td></tr>
+              <tr><th scope="row">Regenerations included</th><td>0</td><td>79</td><td>499</td></tr>
+              <tr><th scope="row">Hallucinations</th><td>0</td><td>0</td><td>0</td></tr>
+              <tr><th scope="row">Fits a C5 envelope (A4)</th><td>folded once</td><td>no</td><td>no</td></tr>
             </tbody>
           </table>
-        </div><p class="cmp__foot micro">Dimensions: ISO 216. Areas and weights calculated at 80 g/m², not weighed.</p></div>
+        </div><p class="cmp__foot micro">Sizes: ISO 216. Context, weight and thickness calculated for A4 sheets at 80&nbsp;g/m², paper only, not weighed. Notebook binding not included.</p></div>
       </div>
       <div class="sg-frame"><span class="sg-frame__l micro">CODE BOX (BIBTEX) · 9.14</span>
         <div class="paper__bibhead"><p class="paper__l micro">BibTeX</p><button class="btn btn--small" type="button"><span class="icon icon--copy" aria-hidden="true"></span><span class="btn__txt">COPY</span></button></div>
-<pre class="bib" tabindex="0" style="margin-top:var(--space-3)"><code>@inproceedings{margin2026void,
-  title     = {Void of All Characters: ...},
-  author    = {Margin, Ada and Gutter, Gus and
-               Leading, Lena and Bleed, Bea},
+<pre class="bib" tabindex="0" style="margin-top:var(--space-3)"><code>@inproceedings{margin2026aviva,
+  title     = {{AVIVA} A4: A Multimodal Foundation Model at 80 g/m^2},
+  author    = {Margin, Ada and Gutter, Gus and Leading, Lena and Bleed, Bea},
+  booktitle = {Proceedings of the First Workshop on Things That Were Already Finished},
   year      = {2026},
   pages     = {1--8},
+  publisher = {{AVIVA} Research},
+  address   = {Third floor, near the printer},
+  note      = {{AVIVA} A4: 210 x 297 mm, 80 g/m^2. Pre-trained on wood fibre; fine-tuned by its users.}
 }</code></pre>
       </div>
     </div>
@@ -756,7 +827,7 @@ body { background: var(--color-paper); color: var(--color-graphite); }
   }
 
   // ---------- icons, glyphs
-  const ICONS = ['pencil', 'eraser', 'regenerate', 'tear', 'magnifier', 'dog-ear', 'crop-marks', 'ruler-tick', 'turn-over', 'plane', 'copy', 'download', 'external', 'printer', 'check', 'rating-4', 'rating-3'];
+  const ICONS = ['pencil', 'eraser', 'regenerate', 'tear', 'magnifier', 'dog-ear', 'crop-marks', 'ruler-tick', 'turn-over', 'plane', 'copy', 'download', 'external', 'printer', 'check', 'rating-4', 'rating-3', 'model-sheet', 'model-notebook', 'model-ream'];
   for (const id of ['#sg-icons', '#sg-icons-dark']) for (const n of ICONS) $(id).insertAdjacentHTML('beforeend', `<figure><span style="display:flex;gap:14px;align-items:center"><svg aria-hidden="true"><use href="../assets/icons/sprite.svg#i-${n}"/></svg><svg class="sg-i16" aria-hidden="true"><use href="../assets/icons/sprite.svg#i-${n}"/></svg></span><figcaption class="micro">${n.toUpperCase()}</figcaption></figure>`);
   const GLYPHS = [['map', 'v0.1'], ['seal', 'v1.0'], ['pin', 'v1.1'], ['scroll', 'v1.4'], ['watermark', 'v2.0'], ['book', 'v2.1'], ['wasp', 'v2.2'], ['letter', 'v2.3'], ['roller', 'v3.0'], ['log', 'v4.0'], ['area', 'v5.0'], ['globe', 'v5.1'], ['screen', 'KNOWN ISSUE'], ['reeds', 'REMOVED']];
   for (const [n, ver] of GLYPHS) $('#sg-glyphs').insertAdjacentHTML('beforeend', `<figure><svg class="sg-i16" style="width:16px;height:16px" aria-hidden="true"><use href="../assets/illustrations/glyphs/sprite.svg#g-${n}"/></svg><figcaption class="micro">${n.toUpperCase()} · ${ver}</figcaption></figure>`);
@@ -766,6 +837,17 @@ body { background: var(--color-paper); color: var(--color-graphite); }
   if (rl) { const h = rl.getBoundingClientRect().height; $('.ruler__marker', rl).style.setProperty('--ruler-y', (h * 112 / 297).toFixed(0));
     $('.ruler__marker', re).style.setProperty('--ruler-y', re.getBoundingClientRect().height.toFixed(0));
     for (const n of [50, 100, 150, 200, 250]) for (const r of $$('.ruler')) { const l = document.createElement('span'); l.className = 'ruler__lab'; l.textContent = n; l.style.top = (n / 297 * 100) + '%'; $('.ruler__track', r).appendChild(l); } }
+
+  // ---------- s12 lineup: the Model radio group drives Copies, Pages, the tier text, the table's marked column
+  const MODELS = { base: ['AVIVA', 1], pro: ['AVIVA Notebook Pro', 80], max: ['AVIVA Ream Pro Max', 500] };
+  for (const r of $$('input[name="sg-model"]')) r.addEventListener('change', () => {
+    const [name, n] = MODELS[r.value];
+    $('[data-m="copies"]').textContent = n;
+    $('[data-m="pages"]').textContent = `${n} of ${n} (blank)`;
+    for (const t of $$('.sg-lineup .tier__t')) t.hidden = t.dataset.tier !== r.value;
+    for (const th of $$('#sg-cmp thead th')) th.classList.toggle('is-sel', th.dataset.tier === r.value);
+    $('#sg-model-sr').textContent = `${name} selected: ${n} ${n === 1 ? 'sheet' : 'sheets'}.`;
+  });
 
   // ---------- marks: drawn on load; REPLAY re-draws them
   const marks = () => $$('.hl, .u-pencil');
