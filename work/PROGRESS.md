@@ -82,6 +82,7 @@ The user stopped work until next week. All four agents are paused, everything is
 9. [ ] Build tasks (to be split): hero letters, copy + caps, tiers + stack, sets/props, renders for c1–c8/F1–F6/OG, annotation layer, extra moments.
 
 ## Running now
+- **2026-10-16, resumed:** reference-analyst → density comparison (queue 4, fix the ORYZO capture stall first; fall back to the 84 frames); design VD → PDF text from Part 10.2 + fact-check fixes, build aviva-a4.pdf (queue 7, step 1). Next: CD Part 11 (queue 5, after density) + its fact-check fixes.
 - **2026-10-15, stopped by the user.** Pausing: fact-check (Sonnet web-researcher → `work/reviews/part10-factcheck.md`, queue 3) and density comparison (Sonnet reference-analyst → `work/scripts/oryzo-capture.mjs` + `work/reviews/density.md`, queue 4). On resume: resume both via SendMessage if reachable, else relaunch with the same briefs. Then queue 5 (CD Part 11).
 - **2026-10-15:** fresh-eyes #0 done → synthesis. Now: CD → finish Part 10 (step 2); paper VD → in-site sheet realism (new step 8a). Earlier: fresh-eyes panel #0 ran (2 agents with no context: award juror, first-time visitor; ORYZO live first, then AVIVA). Everyone else paused.
 - **2026-10-14, the user asked to stop everything except finishing the site skeleton.**
