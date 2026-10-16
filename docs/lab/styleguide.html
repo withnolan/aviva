@@ -405,17 +405,12 @@ body { background: var(--color-paper); color: var(--color-graphite); }
           <p class="status">Both responses were AVIVA A4.</p>
         </div>
       </div>
-      <div class="sg-frame"><span class="sg-frame__l micro">SEGMENTED CONTROL (ARENA) · RADIO GROUP (PAPER SIZE) · 9.5</span>
+      <div class="sg-frame"><span class="sg-frame__l micro">SEGMENTED CONTROL (ARENA) · 9.5</span>
         <div class="sg-stack">
           <div class="seg" role="group" aria-label="Example vote, light">
             <button class="seg__opt" type="button">A IS BETTER</button><button class="seg__opt" type="button">TIE</button><button class="seg__opt" type="button">B IS BETTER</button>
           </div>
-          <div class="seg seg--size" role="radiogroup" aria-label="Paper size">
-            <label class="seg__opt"><input type="radio" name="sg-size" value="A5"><span class="sheet-ico sheet-ico--a5" aria-hidden="true"></span><span>A5</span></label>
-            <label class="seg__opt"><input type="radio" name="sg-size" value="A4" checked><span class="sheet-ico sheet-ico--a4" aria-hidden="true"></span><span>A4</span></label>
-            <label class="seg__opt"><input type="radio" name="sg-size" value="A3"><span class="sheet-ico sheet-ico--a3" aria-hidden="true"></span><span>A3</span></label>
-          </div>
-          <p class="small muted">Each size option carries a sheet drawn at its relative size: A5 9&nbsp;px, A4 12.7&nbsp;px, A3 18&nbsp;px tall, 1&nbsp;:&nbsp;√2.</p>
+          <p class="small muted">Toggle buttons with <code>aria-pressed</code>: the pressed one fills with the button colour. The same hairline rectangle, turned on its side, is the Model radio group in the print dialog below.</p>
         </div>
       </div>
       <div class="sg-frame"><span class="sg-frame__l micro">RULED INPUT · STATUS LINE · 9.6, 9.7</span>
