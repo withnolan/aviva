@@ -210,12 +210,13 @@ async function apply(search) {
   // the hero rest frame through the API (brief 10.3): hero=1 [hfold=0..1 for every letter, hyaw=deg turn of A/V]
   if (num('hero', 0) > 0) {
     if (!heroObj) { heroObj = paper.createLetters(); scene.add(heroObj.object); }
-    heroObj.object.visible = true; heroObj.rest();
+    // haim=deg overrides LETTER_LAYOUT.aimDeg (the rest turn toward the key); hyaw=deg adds a mirrored turn (experiments)
+    heroObj.object.visible = true; heroObj.rest({ aimDeg: P.has('haim') ? num('haim', 12) : undefined });
     const hy = rad(num('hyaw', 0));
-    heroObj.items.forEach((it, i) => heroObj.set(i, { fold: num('hfold', 1), yaw: it.char === 'I' ? 0 : (i < 2 ? hy : -hy) }));
+    heroObj.items.forEach((it, i) => heroObj.set(i, { fold: num('hfold', 1), yaw: it.state.yaw + (it.char === 'I' ? 0 : (i < 2 ? hy : -hy)) }));
     sheet.set({ visible: false });
     if (num('herocam', 1) > 0) {
-      const C = heroObj.restCamera(innerWidth / innerHeight);
+      const C = heroObj.restCamera(innerWidth / innerHeight, num('hpre', 0) > 0 ? { distK: 1.06, pitchDeg: -9 } : {});
       camera.fov = C.fov; camera.position.copy(C.position); camera.lookAt(C.target); camera.updateProjectionMatrix();
       paper.lights.aim(new THREE.Vector3(0, 0.06, 0));
     }
