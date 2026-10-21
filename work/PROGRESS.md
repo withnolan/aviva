@@ -29,7 +29,7 @@ Branch: `claude/elegant-curie-dduigw` → PR into `main` (user merges).
 - [x] **Phase 0 — Setup**: mission saved, folders, npm install, shoot tool verified, network checked, ORYZO-1 repo cloned, commit + push, draft PR (#1).
 - [x] **Phase 1 — Discovery**: reference teardown (reference-analyst), paper + parody research (web-researcher A), tech research (web-researcher B). Lead reviews all three.
 - [x] **Phase 2 — Concepts**: 3 concepts (creative-director), lead scores + chooses.
-- [ ] **Phase 3 — Brief, look-dev, skeleton**: creative brief; then in parallel design system + paper look-dev, technical skeleton, fact-check. Lead iterates paper look until it's clearly real.
+- [x] **Phase 3 — Brief, look-dev, skeleton** (done 2026-10-21; Parts 10–11 of the brief): creative brief; then in parallel design system + paper look-dev, technical skeleton, fact-check. Lead iterates paper look until it's clearly real.
 - [ ] **Phase 4 — Build**: sections in chunks, screenshots between chunks.
 - [ ] **Phase 5 — Review loops** (3–6 rounds): fidelity + similarity, creative, visual → fix list → fixes.
 - [ ] **Phase 6 — Final QA + hand-over**: QA run, README, CREDITS, LICENSE, `git rm -r reference`, PR ready.
@@ -74,7 +74,7 @@ The user stopped work until next week. All four agents are paused, everything is
 2. [x] (done 2026-10-15; hero H0–H9 + s14 echo in 10.3; s01 pinned 2 vh; page ≈ 58.5 vh, accepted) CD: finish Part 10 (rows 71+, 10.2 design VD, 10.3 paper VD/hero beats, 10.4, 10.5).
 3. [x] (done 2026-10-15: 4 must-fix wordings for the CD: #2 'earliest surviving', #6 'often', #15 mountain dash-dot-dot / valley dashes, UV 'most white office paper') Sonnet fact-check of the Part 10 facts (+ the UV/optical-brightener fact for #35).
 4. [x] (done 2026-10-16: 6.8 vs 4.5 rich elements/screen; targets in decision #41) Reference-analyst (Sonnet): density comparison, ORYZO frames vs our 1440 shots → `work/reviews/density.md`.
-5. [~] (step A done 2026-10-16: section map approved, decision #44; step B = copy + changelog next) CD: Part 11, the richness pass and new section map (uses 1, 4 and the user's feedback).
+5. [x] (step B done 2026-10-21: copy, 41 build tasks in brief 11.9, 15 facts in 11.10 for a Sonnet check) (step A done 2026-10-16: section map approved, decision #44; step B = copy + changelog next) CD: Part 11, the richness pass and new section map (uses 1, 4 and the user's feedback).
 6. [ ] Lead: approve Parts 10/11 and split the build into small tasks below.
 7. [~] (step 2 done 2026-10-16: style guide model picker + lineup table + model icons + 05 doc; WD to-dos 05 §15.11–15.13; OG + F1–F6 wait for the new hero/scenes. Screen-reader line: 'AVIVA selected: 1 sheet.' singular, lead decision) (step 1 done 2026-10-16: aviva-a4.pdf, 8 pages, text + fact-check fixes; old PDF removed. WD to-do: s13 BibTeX box → margin2026aviva entry) Design VD: PDF rebuild as aviva-a4.pdf with the new text (2 steps: text, then figures + render check).
 8a. [x] (done 2026-10-15: rest curl `rest`/`restCorner`, truer white TOKENS.sheet #F3F4F1, closer raking keys, exposure, contact reach. WD to-do: tilt upright poses ry ±6–8°, rx 3–5°; `rest:0` for dead-flat; use setColors({sheet}); claim renders c1–c8 still CSS placeholders) Paper VD: make the sheet read as real paper *in the site* (fresh0 #1): exposure/tone, contact shadow, edge thickness, slight curl/sag, less cream; check in s01/s03/s11 shots.
@@ -82,6 +82,7 @@ The user stopped work until next week. All four agents are paused, everything is
 9. [ ] Build tasks (to be split): hero letters, copy + caps, tiers + stack, sets/props, renders for c1–c8/F1–F6/OG, annotation layer, extra moments.
 
 ## Running now
+- **2026-10-21: Phase 4 started.** WD → T1 (s01 pin, intro timeline H0–H4 with fast-forward). Paper VD → macro fibres + calmer lights. Then: T2/T3 (paper VD letters), the 11.10 fact-check (Sonnet), T4–T6. Track T-numbers here as they finish.
 - **2026-10-21, resumed:** CD → Part 11 step B (copy, fact list, fold into Parts 2/3/5, changelog split into numbered build tasks); design VD → darker blue tokens (#43). Next: paper VD macro fibres/lights; then the build tasks from the Part 11 changelog.
 - **2026-10-16: all agents stopped (user).** Both final tasks done and committed. Earlier: user: stop after the current tasks. Finishing: CD → Part 11 step A (section map + effect/mouse columns, #42); paper VD → folds montage + ink bleed (darker ink, #43). Nothing new starts after these. Next on resume: CD Part 11 step B (copy + changelog); design VD darker blue tokens (#43); paper VD next look-dev item; then the build.
 - **2026-10-16, resumed:** reference-analyst → density comparison (queue 4, fix the ORYZO capture stall first; fall back to the 84 frames); design VD → PDF text from Part 10.2 + fact-check fixes, build aviva-a4.pdf (queue 7, step 1). Next: CD Part 11 (queue 5, after density) + its fact-check fixes.
