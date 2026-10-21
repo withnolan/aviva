@@ -9,7 +9,7 @@ import { DEG, A4, STAGE, heroFraming } from './scene.js';
 
 const FLOOR_ANCHOR = new THREE.Vector3(0, 0, 0);
 export const SIZE_SCALE = { A5: Math.SQRT1_2, A4: 1, A3: Math.SQRT2 };
-const STUDIO = new THREE.Color('#ECEBE7'), INK = new THREE.Color('#2E2A8E');
+const STUDIO = new THREE.Color('#ECEBE7'), INK = new THREE.Color('#1F1B6E');
 const LOOPED = new Set(['s04', 's08']);           // sections with time-based motion (sway, breathing)
 
 /** horizontal pitch of the drying-line outputs, in % of the viewport width (brief 2B, design system §10) */

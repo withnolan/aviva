@@ -160,8 +160,8 @@ if (process.argv[2]) {
   const glyphs = Object.entries(G).map(([n, d]) => `<figure>${gs(d, 32)}${gs(d, 16)}<figcaption>${n}</figcaption></figure>`).join('');
   const css = `body{margin:0;font:500 10px/1.2 sans-serif;letter-spacing:.08em;text-transform:uppercase}.g{display:flex;flex-wrap:wrap;gap:12px;padding:16px}figure{margin:0;padding:10px;border:1px solid var(--r);display:grid;justify-items:center;gap:6px}figcaption{color:var(--m)}`;
   await p.setContent(`<!doctype html><style>${css}</style>` +
-    `<div class=g style="background:#2E2A8E;color:#F7F5F0;--r:rgba(247,245,240,.28);--m:#C8C6E4">${cells(192)}</div>` +
-    `<div class=g style="background:#2E2A8E;color:#F7F5F0;--r:rgba(247,245,240,.28);--m:#C8C6E4">${cells(96)}</div>` +
+    `<div class=g style="background:#1F1B6E;color:#F7F5F0;--r:rgba(247,245,240,.28);--m:#C8C6E4">${cells(192)}</div>` +
+    `<div class=g style="background:#1F1B6E;color:#F7F5F0;--r:rgba(247,245,240,.28);--m:#C8C6E4">${cells(96)}</div>` +
     `<div class=g style="background:#F7F5F0;color:#2A2926;--r:#D9D6CE;--m:#615F58">${cells(96)}</div>` +
     `<div class=g style="background:#F7F5F0;color:#2A2926;--r:#D9D6CE;--m:#615F58">${glyphs}</div>`);
   await p.screenshot({ path: process.argv[2], fullPage: true });

@@ -132,7 +132,7 @@ const toLin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
 const toSRGB = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
 const hexLin = (h) => [1, 3, 5].map((i) => toLin(parseInt(h.slice(i, i + 2), 16) / 255));
 const BG = hexLin('#F2F4F4');                              // brightfield illumination, a touch cool
-const INK = hexLin('#2E2A8E');                             // the brand ink: C = 1 over clear field gives exactly this
+const INK = hexLin('#1F1B6E');                             // the brand ink: C = 1 over clear field gives exactly this
 const A = INK.map((c, i) => -Math.log(c / BG[i]));         // absorbance per unit concentration (Beer–Lambert)
 
 function render(t) {

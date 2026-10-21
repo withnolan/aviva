@@ -1,4 +1,4 @@
-/* aviva design tokens, v1 (final). Owner: visual-designer. Spec: work/05-design-system.md.
+/* AVIVA design tokens, v2.1. Owner: visual-designer. Spec: work/05-design-system.md.
    Living style guide: docs/lab/styleguide.html.
 
    The NAMES are a contract with the web-developer and never change; values may be tuned.
@@ -10,18 +10,21 @@
    WCAG 2.x contrast (text/ground), checked with work/scripts/design/contrast-table.mjs:
      graphite #2A2926   on paper 13.35 · on studio 12.19 · on studio shade #E2E1DC 11.11
      muted    #615F58   on paper  5.87 · on studio  5.36 · on studio shade 4.88          (AA ≥ 4.5)
-     ink      #2E2A8E   on paper 10.49 · on studio  9.58                                 (focus, links)
-     paper on graphite 13.35 (primary button) · paper on ink 10.49 · on ink-deep 14.05
-     on-ink-muted #C8C6E4 on ink 6.88 · rule-strong #827F77 on paper 3.67 / studio 3.35  (UI ≥ 3)
-     rule-strong on ink (paper 62 %) 5.00 · decorative rules and disabled labels are exempt.
+     ink      #1F1B6E   on paper 13.38 · on studio 12.22                                 (focus, links: keep the underline,
+                        ink and graphite now have the same lightness, 1.00 : 1, so colour alone never marks a link)
+     paper on graphite 13.35 (primary button) · paper on ink 13.38 · on ink-deep 16.33
+     on-ink-muted #C8C6E4 on ink 8.79 / ink-deep 10.72 · rule-strong #827F77 on paper 3.67 / studio 3.35  (UI ≥ 3)
+     rule-strong on ink (paper 62 %) 5.92 · decorative rules and disabled labels are exempt.
    v2 (decision #24: charcoal, grey, pencil, blueprint, highlighter; full table in 05 §2.1):
      paper on charcoal 14.50 · on charcoal-raised 12.37 · on-charcoal-muted #A9B0B9 7.22 / 6.16 · charcoal on paper 14.50
      rule-strong on charcoal (paper 44 %) 3.94 · pencil on charcoal 9.71 · blueprint-light on charcoal 7.43
      graphite on grey-200 10.65 · grey-100 11.84 · grey-300 9.56 · muted-deep #55534D 5.63 / 6.26 / 5.05
-     rule-strong-grey #72716B 3.59 on grey-200 · ink on grey-200 8.37 (focus) · blueprint on paper 6.01 · grey-200 4.80
+     rule-strong-grey #72716B 3.59 on grey-200 · ink on grey-200 10.68 (focus) · blueprint on paper 8.36 · grey-200 6.67
      graphite under a highlighter (mask alpha 0.88): yellow 11.24 (paper) / 9.01 (grey-200), pink 7.19 / 5.77;
      on charcoal (the mark lies under graphite text) yellow 9.58, pink 5.81. Pencil yellow on paper is 1.49: objects
-     only there, never text or UI. */
+     only there, never text or UI.
+   v2.1 (decision #43, darker blues): ink #1F1B6E and ink-deep #120F45, exactly the 3D sheet's ink (TOKENS.ink /
+     inkDeep in docs/js/paper/index.js); blueprint #1D4590. Every pair above was re-checked and still passes. */
 
 :root {
   /* ── Palette constants ─────────────────────────────────────────────────────────── */
@@ -30,8 +33,8 @@
   --color-graphite: #2A2926;       /* all type, the wordmark, lines and icons. Warm, never black */
   --color-graphite-muted: #615F58; /* secondary text, labels, notes */
   --color-graphite-soft: #A3A099;  /* [added] disabled labels, faint marks, ghost strokes (not for text you must read) */
-  --color-ink: #2E2A8E;            /* ink-blue: the one accent and the s07–s10 ground. Deep, slightly violet */
-  --color-ink-deep: #1E1A60;       /* ink core, pressed states on ink, sunken wells on ink */
+  --color-ink: #1F1B6E;            /* ink-blue: the one accent and the s07–s10 ground. A deep indigo, fountain-pen ink (#43) */
+  --color-ink-deep: #120F45;       /* ink core, pressed states on ink, sunken wells on ink */
   --color-on-ink: #F7F5F0;         /* paper white on ink */
   --color-on-ink-muted: #C8C6E4;   /* secondary text on ink */
 
@@ -48,15 +51,15 @@
   --color-graphite-muted-deep: #55534D; /* secondary text on the grey grounds (the ordinary muted is too light there) */
   --color-pencil: #F3C623;            /* HB-pencil yellow: the pencil cursor, claim card c4, the s03 CTA underline. Never text on light grounds */
   --color-pencil-shade: #CFA21A;      /* the pencil's shaded facets */
-  --color-blueprint: #2A5BAE;         /* technical blue (hue 218°), lighter than ink: dimension lines, the loader, the paper's diagrams */
+  --color-blueprint: #1D4590;         /* technical blue (hue 219°), lighter and bluer than ink: dimension lines, the loader, the paper's diagrams */
   --color-blueprint-light: #8FB3F0;   /* blueprint on dark grounds (charcoal) */
   --color-hl-yellow: #EAF33F;         /* highlighter, fluorescent lemon (hue 63°: yellow, not green). Light grounds only */
   --color-hl-pink: #FF94CA;           /* highlighter, pink. Light grounds only */
   /* The same colours in linear RGB for three.js (new THREE.Color().setRGB(r, g, b, LinearSRGBColorSpace)):
      paper 0.9301 0.9131 0.8714 · studio 0.8388 0.8308 0.7991 · graphite 0.0232 0.0222 0.0194
-     ink 0.0273 0.0232 0.2705 · ink-deep 0.0130 0.0103 0.1170
+     ink 0.0137 0.0110 0.1559 · ink-deep 0.0060 0.0048 0.0595
      charcoal 0.0137 0.0168 0.0212 · charcoal-raised 0.0232 0.0284 0.0369 · grey-100 0.7913 0.8070 0.8228
-     grey-200 0.6939 0.7231 0.7529 · pencil 0.8963 0.5647 0.0168 · blueprint 0.0232 0.1046 0.4233 */
+     grey-200 0.6939 0.7231 0.7529 · pencil 0.8963 0.5647 0.0168 · blueprint 0.0123 0.0595 0.2789 */
 
   /* ── Roles (remapped by [data-ground]) ─────────────────────────────────────────── */
   --ground: var(--color-paper);

@@ -107,7 +107,7 @@ if (process.argv[2]) {
   const p = await b.newPage({ viewport: { width: 1200, height: 560 }, deviceScaleFactor: 2 });
   const cells = Object.entries(P).map(([n, inner]) => `<figure><div class=row>${[24, 48].map((s) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`).join('')}</div><figcaption>${n}</figcaption></figure>`).join('');
   const css = `body{margin:0;font:500 10px/1.2 sans-serif;letter-spacing:.08em;text-transform:uppercase}.g{display:grid;grid-template-columns:repeat(9,1fr);gap:10px;padding:20px}figure{margin:0;padding:12px;border:1px solid var(--r)}.row{display:flex;gap:12px;align-items:center;height:52px}figcaption{margin-top:8px;color:var(--m)}`;
-  await p.setContent(`<!doctype html><style>${css}</style><div class=g style="background:#F7F5F0;color:#2A2926;--r:#D9D6CE;--m:#615F58">${cells}</div><div class=g style="background:#2E2A8E;color:#F7F5F0;--r:rgba(247,245,240,.28);--m:#C8C6E4">${cells}</div>`);
+  await p.setContent(`<!doctype html><style>${css}</style><div class=g style="background:#F7F5F0;color:#2A2926;--r:#D9D6CE;--m:#615F58">${cells}</div><div class=g style="background:#1F1B6E;color:#F7F5F0;--r:rgba(247,245,240,.28);--m:#C8C6E4">${cells}</div>`);
   await p.screenshot({ path: process.argv[2], fullPage: true });
   await b.close();
 }

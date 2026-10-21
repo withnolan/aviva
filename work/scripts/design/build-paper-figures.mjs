@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const OUT = 'docs/research/src/figures';
-const G = '#2A2926', MUTED = '#615F58', BP = '#2A5BAE', RULE = '#CFCCC4', SOFT = '#8F8C85';
+const G = '#2A2926', MUTED = '#615F58', BP = '#1D4590', RULE = '#CFCCC4', SOFT = '#8F8C85';
 const PT = 0.3528;                       // 1 pt in mm
 const r = (v) => +(+v).toFixed(3);
 const FONT = 'font-family="Hanken Grotesk, Helvetica, Arial, sans-serif"';

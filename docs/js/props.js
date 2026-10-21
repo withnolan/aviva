@@ -54,7 +54,7 @@ export function createDryingLine(count = 8) {
 
 /** The ink drop: a small, slightly elongated glossy droplet. */
 export function createDrop() {
-  const m = new THREE.MeshPhysicalMaterial({ color: '#2E2A8E', roughness: 0.12, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.08 });
+  const m = new THREE.MeshPhysicalMaterial({ color: '#1F1B6E', roughness: 0.12, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.08 });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.0022, 24, 16), m);
   mesh.name = 'prop.drop'; mesh.visible = false;
   return mesh;
@@ -66,7 +66,7 @@ export function createBleed() {
     transparent: true, depthTest: false, depthWrite: false, toneMapped: false,
     uniforms: {
       uCov: { value: 0 }, uAspect: { value: 1.6 }, uCenter: { value: new THREE.Vector2(0.5, 0.5) },
-      uColor: { value: new THREE.Vector3(0.180, 0.165, 0.557) },      // #2E2A8E, already in display space
+      uColor: { value: new THREE.Vector3(0.122, 0.106, 0.431) },      // #1F1B6E, already in display space
       uFlat: { value: 0 }, uSeed: { value: 3.1 },
     },
     vertexShader: /* glsl */`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,

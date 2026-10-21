@@ -1,4 +1,5 @@
-// Prints the WCAG 2.x contrast table for aviva's palette (v2: paper, ink, charcoal and grey grounds).
+// Prints the WCAG 2.x contrast table for AVIVA's palette (v2: paper, ink, charcoal and grey grounds; v2.1 darker
+// ink and blueprint, decision #43).
 // Usage: node work/scripts/design/contrast-table.mjs [--md]   (--md prints Markdown rows for work/05-design-system.md)
 // Every pair the site uses is listed with the minimum it needs: 4.5 for text (AA, any size), 3 for UI boundaries
 // and meaningful graphics (WCAG 1.4.11), "n/a" for decorative or disabled marks (exempt).
@@ -7,12 +8,12 @@ import { ratio, over } from './contrast.mjs';
 
 const P = {
   paper: '#F7F5F0', studio: '#ECEBE7', studioShade: '#E2E1DC', graphite: '#2A2926', muted: '#615F58',
-  ink: '#2E2A8E', inkDeep: '#1E1A60', onInk: '#F7F5F0', onInkMuted: '#C8C6E4', rule: '#D9D6CE', ruleStrong: '#827F77',
+  ink: '#1F1B6E', inkDeep: '#120F45', onInk: '#F7F5F0', onInkMuted: '#C8C6E4', inkBtnHover: '#E4E2EE', rule: '#D9D6CE', ruleStrong: '#827F77',
   disabled: '#A3A099',
   // v2
   charcoal: '#1F2328', charcoalRaised: '#2A2F36', charcoalDeep: '#171A1E', onCharcoalMuted: '#A9B0B9',
   grey100: '#E6E8EA', grey200: '#D9DDE1', grey300: '#CDD2D7', mutedDeep: '#55534D', ruleGrey: '#BFC4CA', ruleStrongGrey: '#72716B',
-  pencil: '#F3C623', blueprint: '#2A5BAE', blueprintLight: '#8FB3F0', hlYellow: '#EAF33F', hlPink: '#FF94CA',
+  pencil: '#F3C623', blueprint: '#1D4590', blueprintLight: '#8FB3F0', hlYellow: '#EAF33F', hlPink: '#FF94CA',
 };
 const mul = (a, b) => '#' + [1, 3, 5].map((i) => Math.round(parseInt(a.slice(i, i + 2), 16) * parseInt(b.slice(i, i + 2), 16) / 255).toString(16).padStart(2, '0')).join('');
 // highlighter as drawn: the mark's mask alpha is ≈ 0.88 (assets/marks/highlighter.svg); on light grounds it multiplies
@@ -31,10 +32,13 @@ const rows = [
   ['rule', 'paper', 'decorative hairline (exempt)', 1], ['disabled', 'paper', 'disabled label (exempt)', 1],
   ['— ink ground (s07–s10)'],
   ['onInk', 'ink', 'text on ink ground', 4.5], ['onInkMuted', 'ink', 'secondary on ink', 4.5], ['onInk', 'inkDeep', 'text on ink-deep', 4.5],
-  ['ink', 'onInk', 'button label on paper button (ink ground)', 4.5],
+  ['onInkMuted', 'inkDeep', 'secondary on ink-deep (s08 cards, wells)', 4.5],
+  ['ink', 'onInk', 'button label on paper button (ink ground)', 4.5], ['ink', 'inkBtnHover', 'button label on the hovered paper button', 4.5],
+  ['onInk', 'ink', 'focus ring (paper) on ink', 3],
   ['— v2: new accents on light grounds'],
   ['blueprint', 'paper', 'dimension labels, loader, diagrams', 4.5], ['blueprint', 'studio', 'dimension labels over the studio', 4.5],
   ['blueprint', 'grey100', 'dimension labels on light grey', 4.5], ['blueprint', 'grey200', 'dimension labels on cool grey', 4.5],
+  ['blueprint', 'grey300', 'dimension lines in a grey well (graphics)', 3], ['onInk', 'blueprint', 'paper text on a blueprint fill (if ever used)', 4.5],
   ['pencil', 'paper', 'pencil yellow on paper: objects only, never text or UI (exempt)', 1],
   ['— v2: charcoal ground (s02, s03, s15)'],
   ['onInk', 'charcoal', 'text (paper) on charcoal', 4.5], ['onInk', 'charcoalRaised', 'text on raised charcoal', 4.5], ['onInk', 'charcoalDeep', 'text in a charcoal well', 4.5],

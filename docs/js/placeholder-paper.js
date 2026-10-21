@@ -18,7 +18,7 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 export const A4 = { w: 0.21, h: 0.297 };
-const TOKENS = { paper: '#F7F5F0', studio: '#ECEBE7', graphite: '#2A2926', ink: '#2E2A8E' };
+const TOKENS = { paper: '#F7F5F0', studio: '#ECEBE7', graphite: '#2A2926', ink: '#1F1B6E' };
 
 /* ------------------------------------------------------------------------------------------------ folds */
 // fold2D: a crease line in the sheet's own plane: point p, direction dir, `side` points to the part that moves,
@@ -200,7 +200,7 @@ class Surface {
       const cx = (at[0] / A4.w + 0.5) * w, cy = (1 - (at[1] / A4.h + 0.5)) * h;
       const R = (0.004 + 0.25 * Math.sqrt(t)) * w;
       x.save();
-      x.fillStyle = 'rgba(46,42,142,0.92)';
+      x.fillStyle = 'rgba(31,27,110,0.92)';
       x.beginPath();
       for (let i = 0; i <= 64; i++) {
         const ang = (i / 64) * Math.PI * 2;
@@ -209,7 +209,7 @@ class Surface {
         i ? x.lineTo(px, py) : x.moveTo(px, py);
       }
       x.fill();
-      x.strokeStyle = 'rgba(46,42,142,0.55)'; x.lineWidth = 1.2;
+      x.strokeStyle = 'rgba(31,27,110,0.55)'; x.lineWidth = 1.2;
       for (let i = 0; i < 26; i++) {
         const ang = i * 2.39996, len = R * (1.1 + 0.6 * ((i * 37) % 10) / 10);
         x.beginPath(); x.moveTo(cx + Math.cos(ang) * R * 0.7, cy + Math.sin(ang) * R * 0.7);
@@ -220,7 +220,7 @@ class Surface {
     if (S.inkDot > 0.01) {
       const at = S.inkDotAt, px = (at[0] / A4.w + 0.5) * w, py = (1 - (at[1] / A4.h + 0.5)) * h;
       const rad = (S.inkDotRadius / A4.w) * w;
-      x.save(); x.globalAlpha = S.inkDot; x.fillStyle = '#2E2A8E';
+      x.save(); x.globalAlpha = S.inkDot; x.fillStyle = '#1F1B6E';
       x.beginPath(); x.arc(px, py, rad, 0, Math.PI * 2); x.fill(); x.restore();
     }
     this.texture.needsUpdate = true;
