@@ -360,3 +360,13 @@ html.is-dark .pencil__body { stroke: none; }
 @media (max-width: 360px) {
   .nav__links ul { gap: 10px; }
 }
+
+/* ---------- magnetic controls (magnetic.js): a few px toward the pointer, an eased return; never in reduced motion */
+[data-magnetic] { transform: translate3d(var(--mx, 0px), var(--my, 0px), 0); transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1); }
+[data-magnetic].is-magnet { transition-duration: 140ms; transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
+/* inside a segmented hairline group the frame stays put and only the content leans */
+.seg__opt[data-magnetic] { transform: none; transition: none; }
+.seg__opt[data-magnetic] > :not(input) { transform: translate3d(var(--mx, 0px), var(--my, 0px), 0); transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1); }
+.seg__opt[data-magnetic].is-magnet > :not(input) { transition-duration: 140ms; }
+button.seg__opt[data-magnetic] { text-shadow: none; }
+.reduce-motion [data-magnetic], .reduce-motion .seg__opt[data-magnetic] > * { transform: none !important; }

@@ -9,6 +9,8 @@ import { E, tween, timeline } from './events.js';
 import { copy, sanitise } from './copy.js';
 import { clamp, damp, seg } from './util.js';
 import { setVar } from './ui.js';
+import { magnetize } from './magnetic.js';
+import { createSplitFlap } from './splitflap.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -297,6 +299,8 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
   const votes = $$('#s10-votes [data-vote]'), lb = $('#s10-lb');
   const res = { win: $('.s10__out[data-res="win"]'), tie: $('.s10__out[data-res="tie"]'), none: $('.s10__out[data-res="none"]') };
   const showRes = (k) => { for (const n in res) if (res[n]) res[n].hidden = n !== k; };
+  const board = lb ? createSplitFlap(lb, { reduce: () => reduce }) : null;
+  const showBoard = () => { if (!lb) return; const first = lb.hidden; lb.hidden = false; board && (first ? setTimeout(() => board.show(), 120) : board.show()); };
   for (const b of votes) b.addEventListener('click', () => {
     const V = E.arena;
     if (V.busy) return;
@@ -304,7 +308,7 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
     V.voted = v;
     for (const o of votes) o.setAttribute('aria-pressed', String(o === b));
     showRes(v === 'tie' ? 'tie' : 'win');
-    if (lb) lb.hidden = false;
+    showBoard();
     if (!world) return;                                            // the static page: results only
     if (v === 'tie') {
       V.busy = true; V.loser = null;
@@ -329,17 +333,22 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
       .to(V, { drop: 1, duration: 0.8, ease: 'power2.out' });
   });
 
-  /* ================================================================== s12: paper size */
-  const sr12 = $('#s12-sr');
-  const DIMS = { A5: '148 × 210 mm', A4: '210 × 297 mm', A3: '297 × 420 mm' };
-  for (const r of $$('#s12-size input[type="radio"]')) r.addEventListener('change', () => {
+  /* ================================================================== s12: the lineup (Model) */
+  const sr12 = $('#s12-sr'), copies12 = $('#s12-copies'), pages12 = $('#s12-pages');
+  const MODELS = { base: { n: 1, name: 'AVIVA' }, pro: { n: 80, name: 'AVIVA Notebook Pro' }, max: { n: 500, name: 'AVIVA Ream Pro Max' } };
+  for (const r of $$('#s12-model input[type="radio"]')) r.addEventListener('change', () => {
     if (!r.checked) return;
-    E.size.choice = r.value;
+    const m = MODELS[r.value];
+    E.size.model = r.value; E.size.choice = 'A4';        // the sheet stays A4: the Pro models only add sheets (T24 stacks)
     for (const t of $$('#s12-tier [data-tier]')) t.hidden = t.dataset.tier !== r.value;
-    $$('.cmp__t thead th').forEach((th, i) => th.classList.toggle('is-sel', ['A5', 'A4', 'A3'][i] === r.value));
-    if (sr12) sr12.textContent = copy('s12.sr.change', { size: r.value, dims: DIMS[r.value] });
+    for (const th of $$('#s12-cmp thead th[data-tier]')) th.classList.toggle('is-sel', th.dataset.tier === r.value);
+    if (copies12) copies12.textContent = String(m.n);
+    if (pages12) pages12.textContent = `${m.n} of ${m.n} (blank)`;
+    if (sr12) sr12.textContent = m.n === 1 ? copy('s12.sr.change.one') : copy('s12.sr.change', { model: m.name, n: m.n });
     world && world.markDirty();
   });
+
+  magnetize(document);                                    // [data-magnetic]: the s10 votes, the s12 options
 
   /* ================================================================== s13: copy BibTeX */
   const copyBtn = $('#s13-copy'), bib = $('#s13-bib');
@@ -432,7 +441,7 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
     // s07: the magnifier follows its value across the content width
     if (loupe && s07 && s07.w > 0) setVar(loupe, '--lx', (40 + E.loupe.x * (innerWidth - 80)).toFixed(1));
     // s10: no vote is also a preference
-    if (s10 && s10.w > 0.5 && s10.p > 2.2 && !E.arena.voted && res.none && res.none.hidden) { showRes('none'); if (lb) lb.hidden = false; }
+    if (s10 && s10.w > 0.5 && s10.p > 2.2 && !E.arena.voted && res.none && res.none.hidden) { showRes('none'); showBoard(); }
     // s14: the release (button or scroll), the variants
     if (s14 && s14.w > 0) {
       const r = world.ctx.rel;

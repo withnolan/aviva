@@ -95,7 +95,7 @@
         <ul>
           <li><a href="#s01-hero" data-nav="0" data-copy="nav.1">SHEET<span class="nav__dog" aria-hidden="true"></span></a></li>
           <li><a href="#s05-architecture" data-nav="1" data-copy="nav.2">SPECS<span class="nav__dog" aria-hidden="true"></span></a></li>
-          <li><a href="#s12-sizes" data-nav="2" data-copy="nav.3">SIZES<span class="nav__dog" aria-hidden="true"></span></a></li>
+          <li><a href="#s12-sizes" data-nav="2" data-copy="nav.3">MODELS<span class="nav__dog" aria-hidden="true"></span></a></li>
           <li><a href="#s13-paper" data-nav="3" data-copy="nav.4">PAPER<span class="nav__dog" aria-hidden="true"></span></a></li>
         </ul>
       </nav>
@@ -612,7 +612,7 @@
         <div class="s10__head" data-at="0.1" data-until="2.3">
           <p class="eyebrow" data-copy="s10.eyebrow">THE ARENA</p>
           <h2 class="h2" id="s10-h2" data-copy="s10.h2" data-split>Tested against the competition.</h2>
-          <p class="body" data-copy="s10.body">Two responses to the same prompt. Pick the better one. You won’t be told which model is which until you vote.</p>
+          <p class="body" data-copy="s10.body">Two responses to the same prompt. Pick the better one.</p>
         </div>
         <div class="s10__prompt" data-at="0.45" data-until="2.3">
           <p class="micro" data-copy="s10.prompt.l">PROMPT</p>
@@ -622,36 +622,35 @@
         <p class="s10__label s10__label--b micro" data-copy="s10.b.label" data-at="0.5" data-until="2.3">RESPONSE B</p>
         <div class="s10__vote" data-at="0.55" data-until="2.3">
           <div class="seg" role="group" aria-labelledby="s10-h2" id="s10-votes">
-            <button class="seg__opt" type="button" data-vote="a" aria-label="Vote: response A is better" data-copy="s10.btn.a">A IS BETTER</button>
-            <button class="seg__opt" type="button" data-vote="tie" aria-label="Vote: it’s a tie" data-copy="s10.btn.tie">TIE</button>
-            <button class="seg__opt" type="button" data-vote="b" aria-label="Vote: response B is better" data-copy="s10.btn.b">B IS BETTER</button>
+            <button class="seg__opt" type="button" data-magnetic data-vote="a" aria-label="Vote: response A is better" data-copy="s10.btn.a"><span>A IS BETTER</span></button>
+            <button class="seg__opt" type="button" data-magnetic data-vote="tie" aria-label="Vote: it’s a tie" data-copy="s10.btn.tie"><span>TIE</span></button>
+            <button class="seg__opt" type="button" data-magnetic data-vote="b" aria-label="Vote: response B is better" data-copy="s10.btn.b"><span>B IS BETTER</span></button>
           </div>
           <div class="s10__res" id="s10-res" aria-live="polite">
             <div class="s10__out" data-res="win" hidden>
-              <p class="lead" data-copy="s10.res.win">You preferred aviva.</p>
-              <p class="small" data-copy="s10.res.win.sub">So does everyone. Both responses were aviva.</p>
+              <p class="lead" data-copy="s10.res.win">You preferred AVIVA.</p>
+              <p class="small" data-copy="s10.res.win.sub">So does everyone. Both responses were AVIVA.</p>
               <p class="small muted" data-copy="s10.res.regen">The other one has been regenerated.</p>
             </div>
             <div class="s10__out" data-res="tie" hidden>
-              <p class="lead" data-copy="s10.res.tie">A tie. Both responses were aviva. Both were right.</p>
+              <p class="lead" data-copy="s10.res.tie">A tie. Both responses were AVIVA. Both were right.</p>
             </div>
             <div class="s10__out" data-res="none" hidden>
               <p class="lead" data-copy="s10.res.none">No vote. Also a valid preference.</p>
             </div>
           </div>
         </div>
-        <div class="lb" id="s10-lb" data-at="0.55" data-until="2.3" hidden>
-          <p class="micro" data-copy="s10.lb.title">LEADERBOARD</p>
-          <table class="lb__t">
-            <thead><tr data-copy="s10.lb.head"><th scope="col">RANK</th><th scope="col">MODEL</th><th scope="col">WIN RATE</th></tr></thead>
-            <tbody>
-              <tr data-copy="s10.lb.r1"><td>1</td><td>aviva A4</td><td>50.0 %</td></tr>
-              <tr data-copy="s10.lb.r2"><td>1</td><td>aviva A4</td><td>50.0 %</td></tr>
-            </tbody>
-          </table>
-          <p class="small muted" data-copy="s10.lb.note">Statistically indistinguishable from itself.</p>
+        <div class="lb board" id="s10-lb" data-at="0.55" data-until="2.3" hidden>
+          <p class="board__title micro" data-copy="s10.lb.title">LEADERBOARD</p>
+          <div class="board__housing">
+            <p class="board__head micro" data-copy="s10.lb.head" aria-hidden="true"><span>RANK</span><span>MODEL</span><span>WIN RATE</span></p>
+            <p class="board__row" data-copy="s10.lb.r1"><span data-flap="1"></span><span data-flap="AVIVA A4"></span><span data-flap="50.0%"></span></p>
+            <p class="board__row" data-copy="s10.lb.r2"><span data-flap="1"></span><span data-flap="AVIVA A4"></span><span data-flap="50.0%"></span></p>
+          </div>
+          <p class="sr-only" data-copy="s10.board.sr">Scoreboard: AVIVA A4, 50.0 %. AVIVA A4, 50.0 %.</p>
+          <p class="board__note small muted" data-copy="s10.lb.note">Statistically indistinguishable from itself.</p>
         </div>
-        <p class="s10__coda lead" data-copy="s10.coda" data-at="2.3" data-until="3.2">In a blind test, aviva beat aviva. Then aviva beat aviva back.</p>
+        <p class="s10__coda lead" data-copy="s10.coda" data-at="2.3" data-until="3.2">In a blind test, AVIVA beat AVIVA. Then AVIVA beat AVIVA back.</p>
         <figure class="fb-still" data-still="f4">
           <img data-src="assets/fallback/f4.webp" alt="Two identical blank sheets side by side, labelled Response A and Response B." width="1600" height="1000">
         </figure>
@@ -746,27 +745,31 @@
       <div class="stage s12" id="s12-stage">
         <div class="s12__col" id="s12-col">
           <div class="s12__head" data-at="0.05">
-            <p class="eyebrow" data-copy="s12.eyebrow">PAPER SIZE</p>
-            <h2 class="h2" id="s12-h2" data-copy="s12.h2" data-split>One shape. Three sizes.</h2>
-            <p class="body" data-copy="s12.body">Every aviva is 1 : √2. Only the context window changes.</p>
+            <p class="eyebrow" data-copy="s12.eyebrow">THE LINEUP</p>
+            <h2 class="h2" id="s12-h2" data-copy="s12.h2" data-split>More sheets. More context.</h2>
+            <p class="body" data-copy="s12.body">Every AVIVA has the same intelligence per sheet. The Pro models simply have more sheets.</p>
           </div>
 
           <div class="dlg" role="group" aria-labelledby="s12-dlg-title" data-at="0.2">
             <p class="dlg__title" id="s12-dlg-title" data-copy="s12.dlg.title">Print</p>
-            <div class="dlg__row dlg__row--size">
-              <span class="dlg__k small" id="s12-size-l" data-copy="s12.dlg.size">Paper size</span>
-              <div class="seg seg--size" role="radiogroup" aria-labelledby="s12-size-l" id="s12-size">
-                <label class="seg__opt"><input type="radio" name="paper-size" value="A5"><span class="sheet-ico sheet-ico--a5" aria-hidden="true"></span><span>A5</span></label>
-                <label class="seg__opt"><input type="radio" name="paper-size" value="A4" checked><span class="sheet-ico sheet-ico--a4" aria-hidden="true"></span><span>A4</span></label>
-                <label class="seg__opt"><input type="radio" name="paper-size" value="A3"><span class="sheet-ico sheet-ico--a3" aria-hidden="true"></span><span>A3</span></label>
+            <div class="dlg__row dlg__row--model">
+              <span class="dlg__k small" aria-hidden="true" data-copy="s12.dlg.model">Model</span>
+              <div class="seg seg--model" role="radiogroup" aria-label="Model" id="s12-model">
+                <label class="seg__opt" data-magnetic="4"><input type="radio" name="s12-model" value="base" checked><svg class="seg__ico" aria-hidden="true"><use href="assets/icons/sprite.svg#i-model-sheet"/></svg><span>AVIVA</span></label>
+                <label class="seg__opt" data-magnetic="4"><input type="radio" name="s12-model" value="pro"><svg class="seg__ico" aria-hidden="true"><use href="assets/icons/sprite.svg#i-model-notebook"/></svg><span>AVIVA NOTEBOOK PRO</span></label>
+                <label class="seg__opt" data-magnetic="4"><input type="radio" name="s12-model" value="max"><svg class="seg__ico" aria-hidden="true"><use href="assets/icons/sprite.svg#i-model-ream"/></svg><span>AVIVA REAM PRO MAX</span></label>
               </div>
+            </div>
+            <div class="dlg__row" data-copy="s12.dlg.size">
+              <span class="dlg__k small">Paper size</span>
+              <span class="dlg__v small">A4 <span class="dlg__n micro" data-copy="s12.dlg.size.n">A5 and A3 too: see the table.</span></span>
             </div>
             <div class="dlg__row" data-copy="s12.dlg.orient">
               <span class="dlg__k small">Orientation</span>
               <span class="dlg__v small">Portrait <span class="dlg__n micro" data-copy="s12.dlg.orient.n">Landscape is the same sheet, turned.</span></span>
             </div>
-            <div class="dlg__row" data-copy="s12.dlg.copies"><span class="dlg__k small">Copies</span><span class="dlg__v small">1</span></div>
-            <div class="dlg__row" data-copy="s12.dlg.pages"><span class="dlg__k small">Pages</span><span class="dlg__v small">1 of 1 (blank)</span></div>
+            <div class="dlg__row" data-copy="s12.dlg.copies"><span class="dlg__k small">Copies</span><span class="dlg__v small" id="s12-copies">1</span></div>
+            <div class="dlg__row" data-copy="s12.dlg.pages"><span class="dlg__k small">Pages</span><span class="dlg__v small" id="s12-pages">1 of 1 (blank)</span></div>
             <div class="dlg__foot">
               <button class="btn btn--primary btn--disabled" type="button" aria-disabled="true" aria-describedby="s12-print-tip" data-copy="s12.dlg.print">
                 <span class="icon icon--printer" aria-hidden="true"></span>PRINT
@@ -775,45 +778,42 @@
             </div>
           </div>
 
-          <div class="tier" id="s12-tier" data-at="0.3">
-            <div class="tier__t" data-tier="A5" data-copy="s12.t.a5" hidden>
-              <p class="tier__name h3">aviva A5</p><p class="body">Distilled. Half the context window, all of the shape.</p><p class="tier__dims label">148 × 210 mm</p>
-            </div>
-            <div class="tier__t" data-tier="A4" data-copy="s12.t.a4">
-              <p class="tier__name h3">aviva A4</p><p class="body">The reference model. The one everybody means.</p><p class="tier__dims label">210 × 297 mm</p>
-            </div>
-            <div class="tier__t" data-tier="A3" data-copy="s12.t.a3" hidden>
-              <p class="tier__name h3">aviva A3</p><p class="body">Twice the context window. The same shape. The same knowledge.</p><p class="tier__dims label">297 × 420 mm</p>
-            </div>
-          </div>
-          <p class="sr-only" id="s12-sr" aria-live="polite"></p>
+
         </div>
+
+        <div class="tier s12__tier" id="s12-tier" data-at="0.3" data-until="2.3">
+          <div class="tier__t" data-tier="base" data-copy="s12.t.base"><p class="tier__name h3">AVIVA</p><p class="body">The original. One sheet, one 210&nbsp;×&nbsp;297&nbsp;mm context window, every capability on this page.</p><p class="tier__dims label">1 SHEET · 4.99&nbsp;g</p></div>
+          <div class="tier__t" data-tier="pro" data-copy="s12.t.pro" hidden><p class="tier__name h3">AVIVA Notebook Pro</p><p class="body">For professionals. 80 sheets, bound in order: 4.99&nbsp;m² of context, and a memory that keeps your pages in sequence.</p><p class="tier__dims label">80 SHEETS · ≈&nbsp;399&nbsp;g</p></div>
+          <div class="tier__t" data-tier="max" data-copy="s12.t.max" hidden><p class="tier__name h3">AVIVA Ream Pro Max</p><p class="body">For the enterprise. 500 sheets, 31.2&nbsp;m² of context and about 2.5&nbsp;kg of capability. “Ream” comes from the Arabic <i>rizma</i>, a bundle.</p><p class="tier__dims label">500 SHEETS · ≈&nbsp;2.5&nbsp;kg</p></div>
+        </div>
+        <p class="sr-only" id="s12-sr" aria-live="polite"></p>
 
         <div class="cmp" id="s12-cmp" data-at="2.3">
           <div class="cmp__scroll" tabindex="0" role="region" aria-labelledby="s12-cap" data-lenis-prevent-horizontal>
             <table class="cmp__t" data-copy="s12.tbl">
-              <caption class="sr-only" id="s12-cap">aviva A5, A4 and A3 compared.</caption>
+              <caption class="sr-only" id="s12-cap">AVIVA, AVIVA Notebook Pro and AVIVA Ream Pro Max compared.</caption>
               <thead>
-                <tr><td></td><th scope="col">aviva A5</th><th scope="col">aviva A4</th><th scope="col">aviva A3</th></tr>
+                <tr><td></td><th scope="col" data-tier="base" class="is-sel"><svg class="cmp__ico" aria-hidden="true"><use href="assets/icons/sprite.svg#i-model-sheet"/></svg>AVIVA</th><th scope="col" data-tier="pro"><svg class="cmp__ico" aria-hidden="true"><use href="assets/icons/sprite.svg#i-model-notebook"/></svg>AVIVA NOTEBOOK PRO</th><th scope="col" data-tier="max"><svg class="cmp__ico" aria-hidden="true"><use href="assets/icons/sprite.svg#i-model-ream"/></svg>AVIVA REAM PRO MAX</th></tr>
               </thead>
               <tbody>
-                <tr><th scope="row">Size</th><td>148 × 210 mm</td><td>210 × 297 mm</td><td>297 × 420 mm</td></tr>
-                <tr><th scope="row">Area</th><td>0.031 m²</td><td>0.062 m²</td><td>0.125 m²</td></tr>
-                <tr><th scope="row">Context window</th><td>31,080 mm²</td><td>62,370 mm²</td><td>124,740 mm²</td></tr>
-                <tr><th scope="row">Weight at 80 g/m²</th><td>2.49 g</td><td>4.99 g</td><td>9.98 g</td></tr>
-                <tr><th scope="row">Aspect ratio</th><td>1 : √2</td><td>1 : √2</td><td>1 : √2</td></tr>
-                <tr><th scope="row">Thickness</th><td>0.1 mm</td><td>0.1 mm</td><td>0.1 mm</td></tr>
-                <tr><th scope="row">Halves into</th><td>2 × A6</td><td>2 × A5</td><td>2 × A4</td></tr>
-                <tr><th scope="row">Fits a C5 envelope</th><td>Flat</td><td>Folded once</td><td>Folded twice</td></tr>
-                <tr><th scope="row">Knowledge</th><td>None</td><td>None</td><td>None</td></tr>
+                <tr><th scope="row">Sheets</th><td>1</td><td>80</td><td>500</td></tr>
+                <tr><th scope="row">Sizes</th><td>A5 · A4 · A3</td><td>A5 · A4 · A3</td><td>A5 · A4 · A3</td></tr>
+                <tr><th scope="row">Context window (A4)</th><td>62,370&nbsp;mm²</td><td>4.99&nbsp;m²</td><td>31.2&nbsp;m²</td></tr>
+                <tr><th scope="row">Weight (A4, calculated)</th><td>4.99&nbsp;g</td><td>≈&nbsp;399&nbsp;g</td><td>≈&nbsp;2.5&nbsp;kg</td></tr>
+                <tr><th scope="row">Thickness</th><td>0.1&nbsp;mm</td><td>≈&nbsp;8&nbsp;mm</td><td>≈&nbsp;5&nbsp;cm</td></tr>
+                <tr><th scope="row">Aspect ratio</th><td>1&nbsp;:&nbsp;√2</td><td>1&nbsp;:&nbsp;√2</td><td>1&nbsp;:&nbsp;√2</td></tr>
+                <tr><th scope="row">Modalities</th><td>pencil · ink · fold · tear</td><td>pencil · ink · fold · tear</td><td>pencil · ink · fold · tear</td></tr>
+                <tr><th scope="row">Memory</th><td>every mark</td><td>every mark, in order</td><td>every mark, on all 500 sheets</td></tr>
+                <tr><th scope="row">Regenerations included</th><td>0</td><td>79</td><td>499</td></tr>
                 <tr><th scope="row">Hallucinations</th><td>0</td><td>0</td><td>0</td></tr>
+                <tr><th scope="row">Fits a C5 envelope (A4)</th><td>folded once</td><td>no</td><td>no</td></tr>
               </tbody>
             </table>
           </div>
-          <p class="cmp__foot micro" data-copy="s12.tbl.foot">Dimensions: ISO 216. Areas and weights calculated at 80 g/m², not weighed.</p>
+          <p class="cmp__foot micro" data-copy="s12.tbl.foot">Sizes: ISO 216. Context, weight and thickness calculated for A4 sheets at 80&nbsp;g/m², paper only, not weighed. Notebook binding not included.</p>
         </div>
         <figure class="fb-still" data-still="f5">
-          <img data-src="assets/fallback/f5.webp" alt="Three blank sheets of the same shape, at sizes A5, A4 and A3." width="1600" height="1000">
+          <img data-src="assets/fallback/f5.webp" alt="The three AVIVA models side by side: one sheet, an 80-sheet notebook and a 500-sheet ream." width="1600" height="1000">
         </figure>
       </div>
     </section>
@@ -986,7 +986,9 @@
     <span data-copy="s07.loupe.valuetext">{n} mm across the sheet</span>
     <span data-copy="s07.bleed.sr">The ink spreads until the whole page turns ink-blue.</span>
     <span data-copy="s09.rating.sr">Rated {n} out of 4 corners.</span>
-    <span data-copy="s12.sr.change">aviva {size} selected: {dims}.</span>
+    <span data-copy="s12.sr.change">{model} selected: {n} sheets.</span>
+    <span data-copy="s12.sr.change.one">AVIVA selected: 1 sheet.</span>
+    <span data-copy="s10.crowd.sr">The audience of paper cranes applauds.</span>
     <span data-copy="s13.bib.copied">COPIED</span>
     <span data-copy="s14.released">aviva A4 has been released.</span>
     <span data-copy="s15.ream">Sheets used during your visit: {n} of 500.</span>

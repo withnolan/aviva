@@ -494,9 +494,14 @@
 .dlg__k { color: var(--text-muted); }
 .dlg__n { display: block; color: var(--text-muted); margin-top: 2px; }
 .dlg__foot { padding-top: var(--space-4); }
-.seg--size .seg__opt { padding: 0 12px; gap: 6px; }
-.sheet-ico { display: inline-block; border: 1px solid currentColor; aspect-ratio: 210 / 297; }
-.sheet-ico--a5 { height: 9px; } .sheet-ico--a4 { height: 12.7px; } .sheet-ico--a3 { height: 18px; }
+/* the Model radio group (style guide 06, request 15.11): the .seg hairline rectangle stood on end */
+.dlg__row--model { grid-template-columns: minmax(0, 1fr); align-items: start; gap: 8px; padding-block: 10px 14px; }
+.seg--model { display: grid; width: 100%; }
+.seg--model .seg__opt { justify-content: flex-start; gap: 12px; min-height: 44px; padding: 0 14px 0 12px; border-left: 0; }
+.seg--model .seg__opt + .seg__opt { border-top: var(--line-strong); }
+.seg__ico { width: 20px; height: 20px; flex: none; }
+.cmp__t thead th { vertical-align: bottom; }
+.cmp__ico { display: block; width: 20px; height: 20px; margin-bottom: 10px; }
 .tier { min-height: 7.5rem; }
 .tier__t { display: grid; gap: 4px; }
 .tier__dims { color: var(--text-muted); margin-top: 4px; }
@@ -744,3 +749,42 @@
 
   .foot__in { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); padding-top: var(--space-6); }
 }
+
+/* ======================= s10 · the split-flap scoreboard (brief 3.11, 5.12; splitflap.js) ======================= */
+/* graphite housing, paper-white flaps, dark digits; the leaf falls (top half) and lands (bottom half) */
+.board { display: grid; gap: var(--space-3); }
+.board__title { margin: 0; }
+.board__housing {
+  display: grid; gap: 6px; padding: 12px 12px 14px;
+  background: var(--color-graphite, #2A2926); border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 18px 40px -18px rgba(0, 0, 0, 0.55);
+}
+.board__head, .board__row { display: grid; grid-template-columns: 2.4em auto auto; justify-content: space-between; gap: 14px; align-items: center; margin: 0; }
+.board__head { color: rgba(247, 245, 240, 0.55); padding-bottom: 2px; }
+.board__head span:last-child { text-align: right; }
+.board__row > span { display: flex; gap: 2px; white-space: nowrap; }
+.board__row > span:last-child { justify-content: flex-end; }
+.board__note { margin: 0; }
+.flap {
+  --fd: 55ms;
+  position: relative; display: inline-block; width: 0.74em; height: 1.32em; flex: none;
+  font-family: var(--font-sans); font-size: 0.95rem; font-weight: var(--fw-medium); line-height: 1.32em;
+  color: var(--color-graphite, #2A2926); perspective: 300px;
+}
+.flap > span { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; background: var(--color-paper, #F7F5F0); backface-visibility: hidden; }
+.flap > span::before { content: attr(data-c); position: absolute; left: 0; right: 0; height: 200%; display: flex; align-items: center; justify-content: center; }
+.flap__t, .flap__lt { top: 0; border-radius: 1.5px 1.5px 0 0; transform-origin: 50% 100%; }
+.flap__b, .flap__lb { bottom: 0; border-radius: 0 0 1.5px 1.5px; transform-origin: 50% 0; }
+.flap__b::before, .flap__lb::before { top: -100%; }
+.flap__lt { z-index: 2; }
+.flap__lb { z-index: 2; transform: rotateX(90deg); }
+.flap::after { content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 0.5px); height: 1px; background: rgba(42, 41, 38, 0.38); z-index: 3; }
+.flap.is-flip .flap__lt { animation: flap-fall var(--fd) cubic-bezier(0.55, 0, 1, 0.45) forwards; }
+.flap.is-flip .flap__lb { animation: flap-land var(--fd) cubic-bezier(0, 0.55, 0.45, 1) var(--fd) forwards; }
+@keyframes flap-fall { from { transform: rotateX(0deg); } to { transform: rotateX(-90deg); } }
+@keyframes flap-land { from { transform: rotateX(90deg); } to { transform: rotateX(0deg); } }
+.reduce-motion .flap.is-flip > span { animation: none !important; }
+
+/* s12: the tier text sits right of the sheet, clear of the tall Print dialog (desktop) */
+.s12__tier { top: 40%; right: calc(var(--gutter) + 56px); width: min(240px, 18vw); }
+.lb.board { width: min(300px, 22vw); }                 /* the flaps need the room: two rows of 1 · AVIVA A4 · 50.0% */

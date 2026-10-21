@@ -31,7 +31,7 @@ import { createStaticCasterMaterial } from './material.js';
  * end (the key's side): each A shows its key-lit outer panel and a shaded inside, each V a lit panel and a shaded
  * inside, on both halves of the word (seen straight, the left half shows only fill-lit faces and fades into the white).
  */
-export const LETTER_LAYOUT = { word: 'AVIVA', capMM: 141, gapK: 0.22, letterMM: 92, depthMM: 210, fourMM: 100, fourGapMM: 4, capVh: 0.30, baselineY: 0.66, pitchDeg: -6, fov: 30, aimDeg: 12, marginK: 0.955 };
+export const LETTER_LAYOUT = { word: 'AVIVA', capMM: 141, gapK: 0.22, letterMM: 92, depthMM: 210, fourMM: 100, fourGapMM: 4, capVh: 0.30, baselineY: 0.66, pitchDeg: -6, fov: 30, aimDeg: 12, iAimDeg: 0.4, marginK: 0.955 };
 
 function restX(chars = [...LETTER_LAYOUT.word], aimDeg = LETTER_LAYOUT.aimDeg) {
   const L = LETTER_LAYOUT, W = L.letterMM / 1000, g = L.gapK * L.capMM / 1000, h = L.depthMM / 2000;
@@ -44,7 +44,9 @@ function restX(chars = [...LETTER_LAYOUT.word], aimDeg = LETTER_LAYOUT.aimDeg) {
   // the rest camera's horizontal distance to the front plane (16:10), for each letter's natural view angle
   const D = ((L.capMM / 1000) / L.capVh) / (2 * Math.tan(THREE.MathUtils.degToRad(L.fov / 2))) * Math.cos(THREE.MathUtils.degToRad(L.pitchDeg));
   const aim = THREE.MathUtils.degToRad(aimDeg);
-  const yaws = front.map((x, i) => (chars[i].toUpperCase() === 'I' ? 0 : aim - Math.atan2(x, D)));
+  // the I stays on the centre line, turned just enough (iAimDeg) that its key-lit outer layer, not the dark slot between
+  // its two layers, faces the camera: a bright hairline
+  const yaws = front.map((x, i) => (chars[i].toUpperCase() === 'I' ? THREE.MathUtils.degToRad(L.iAimDeg) : aim - Math.atan2(x, D)));
   // the sheets' centres: the front outline stays put, the sheet swings behind it (ridge direction = (sin yaw, 0, cos yaw))
   const xs = front.map((x, i) => x - h * Math.sin(yaws[i])), zs = yaws.map((y) => h - h * Math.cos(y));
   const last = front[front.length - 1] + widths[widths.length - 1] / 2;
@@ -89,13 +91,13 @@ export class Letters {
    * @param {object} o word ('AVIVA'), four (true), apexDeg (36), segments ([96, 136] per sheet), crossbar (false: a
    *   faint pre-crease at 42 % of each A leg, 10.3 "keep it only if it reads"), graphite (hex for the "4")
    */
-  constructor(sys, { word = LETTER_LAYOUT.word, four = true, apexDeg = 36, segments = [96, 136], crossbar = false, graphite = '#2A2926' } = {}) {
+  constructor(sys, { word = LETTER_LAYOUT.word, four = true, apexDeg = 36, segments = [96, 136], crossbar = false, graphite = '#2A2926', shadowTaps = 40 } = {}) {
     this.sys = sys; this.word = word; this.apex = THREE.MathUtils.degToRad(apexDeg);
     this.object = new THREE.Group(); this.object.name = 'paper.letters';
     this.chars = [...word];
     const R = restX(this.chars);
     this.items = this.chars.map((ch, i) => {
-      const sheet = sys.createSheet({ name: 'letter' + i + ch, segments, seed: 101 + i * 7 });
+      const sheet = sys.createSheet({ name: 'letter' + i + ch, segments, seed: 101 + i * 7, shadowTaps });
       this.object.add(sheet.object);
       if (crossbar && ch.toUpperCase() === 'A') sheet.set({ creases: [{ n: [0, 1], d: 0.0624, strength: 0.6 }, { n: [0, 1], d: -0.0624, strength: 0.6 }] });
       return { char: ch.toUpperCase(), sheet, state: { fold: 1, pose: 1, airQuat: new THREE.Quaternion(), x: R.xs[i] ?? 0, z: R.zs[i] ?? 0, lift: 0, yaw: R.yaws[i] ?? 0, flutter: 0, visible: true }, _key: '' };

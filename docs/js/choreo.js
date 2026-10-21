@@ -259,8 +259,9 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     },
     s12(S, p) {
       const M = ctx.M;
-      const preview = p < 0.8 ? 'A4' : p < 1.4 ? 'A5' : p < 2.0 ? 'A3' : 'A4';
-      const choice = E.size.choice || preview;
+      // the lineup is all A4 (3.13): the dimension lines always read 210 x 297 (fresh-eyes #6); the models add
+      // sheets, not size (the stacks and the passive preview at 0.8 / 1.4 / 2.0 vh are T24)
+      const choice = 'A4';
       const rise = seg(p, 2.4, 3.3), exit = seg(p, 3.4, 4);
       S.many('A.', { on: 1, op: 1, x: lerp(M ? 50 : 62, 50, rise), y: lerp(lerp(M ? 64 : 52, 20, rise), -32, exit), size: lerp(M ? 26 : 44, 26, rise),
         rx: -8 * (1 - rise), ry: 0, rz: 0, scale: lerp(SIZE_SCALE[choice], 1, rise), dot: 1, creaseDog: E.cues.dogEarSeen ? 1 : 0 });

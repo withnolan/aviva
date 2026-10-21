@@ -138,16 +138,16 @@ const box = (page) => page.evaluate(() => { const w = window.__aviva.world; cons
   await page.click('[data-vote="tie"]'); await page.waitForTimeout(1200);
   note('arena tie shown', await page.evaluate(() => !document.querySelector('[data-res="tie"]').hidden));
 
-  // s12: paper size A5 then A3 (keyboard arrows in the radio group)
+  // s12: the Model radio group, then the arrow keys (3.13)
   await go(page, 's12', 1.0);
-  await page.click('#s12-size label:nth-child(1)');
+  await page.click('#s12-model label:nth-child(2)');
   await page.waitForTimeout(1600);
-  note('size A5: tier text', await page.evaluate(() => document.querySelector('#s12-tier [data-tier]:not([hidden]) .tier__name').textContent));
-  await shot(page, '14-s12-a5');
-  await page.keyboard.press('ArrowRight'); await page.keyboard.press('ArrowRight');
+  note('model pro: tier text / copies', await page.evaluate(() => [document.querySelector('#s12-tier [data-tier]:not([hidden]) .tier__name').textContent, document.getElementById('s12-copies').textContent]));
+  await shot(page, '14-s12-pro');
+  await page.keyboard.press('ArrowRight');
   await page.waitForTimeout(1600);
-  note('size after arrows', await page.evaluate(() => window.__aviva.E.size.choice));
-  await shot(page, '15-s12-a3');
+  note('model after arrow', await page.evaluate(() => window.__aviva.E.size.model));
+  await shot(page, '15-s12-max');
 
   // s13: copy BibTeX
   await go(page, 's13', 1.2, 1200);
@@ -216,8 +216,8 @@ const box = (page) => page.evaluate(() => { const w = window.__aviva.world; cons
   note('static: arena works', await page.evaluate(() => !document.querySelector('[data-res="win"]').hidden));
   await shot(page, '43-static-s10');
   await go(page, 's12', 1.0, 1200);
-  await page.click('#s12-size label:nth-child(3)'); await page.waitForTimeout(400);
-  note('static: size picker works', await page.evaluate(() => document.querySelector('#s12-tier [data-tier]:not([hidden]) .tier__name').textContent));
+  await page.click('#s12-model label:nth-child(3)'); await page.waitForTimeout(400);
+  note('static: model picker works', await page.evaluate(() => document.querySelector('#s12-tier [data-tier]:not([hidden]) .tier__name').textContent));
   await shot(page, '44-static-s12');
   await page.click('#fb-dismiss');
   note('static: banner dismissed', await page.evaluate(() => document.getElementById('fb-banner').hidden));

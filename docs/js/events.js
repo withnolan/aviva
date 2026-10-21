@@ -16,7 +16,7 @@ export const E = {
   tear: { p1: 0, p2: 0, split1: 0, split2: 0, refuse: 0, busy: false },
   loupe: { x: 0.5 },                                  // s07 magnifier position across the sheet, 0..1
   arena: { loser: null, crumple: 0, roll: 0, drop: 1, hidden: 0, bow: 0, fade: 1, winner: 'A', voted: null, busy: false },
-  size: { choice: null },                             // s12: 'A5' | 'A4' | 'A3' once the visitor clicked
+  size: { choice: 'A4', model: 'base' },               // s12: the sheet is always A4; model 'base' | 'pro' | 'max'
   release: { plane: 0, fly: 0, fade: 1, started: false, done: false },
   hover: { x: 0, y: 0, on: 0 },                       // s04: pointer position (−1..1) for the outputs' sway
   cues: {},                                           // s06 / s09 scroll cues (written by ui.js)

@@ -34,7 +34,8 @@ const DEFAULT_STATE = () => ({
 let SEED = 1;
 
 export class Sheet {
-  constructor(sys, { width = 0.21, height = 0.297, segments = null, name = 'sheet', castShadow = true, contact = true, seed = SEED++ } = {}) {
+  constructor(sys, { width = 0.21, height = 0.297, segments = null, name = 'sheet', castShadow = true, contact = true, seed = SEED++, shadowTaps = 16 } = {}) {
+    this.shadowTaps = shadowTaps;                     // PCF taps of this sheet's material (16; the hero letters take more)
     this.sys = sys; this.name = name; this.size = { w: width, h: height };
     const seg = segments || sys.segmentsFor(width);
     this.segments = seg;
@@ -63,7 +64,7 @@ export class Sheet {
   _newPiece(key, uniforms, center) {
     const object = new THREE.Group(); object.name = `paper.${this.name}.${key}`;
     object.position.set(center[0], center[1], 0);
-    const mesh = new THREE.Mesh(this.geometry, createPaperMaterial(uniforms, { variant: 'slab' }));
+    const mesh = new THREE.Mesh(this.geometry, createPaperMaterial(uniforms, { variant: 'slab', shadowTaps: this.shadowTaps }));
     mesh.position.set(-center[0], -center[1], 0);
     mesh.frustumCulled = false; mesh.castShadow = this.castShadow; mesh.receiveShadow = true;
     mesh.customDepthMaterial = createPaperDepthMaterial(uniforms, 'slab');

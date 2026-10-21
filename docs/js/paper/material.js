@@ -19,7 +19,7 @@ const v4 = (x = 0, y = 0, z = 0, w = 0) => new THREE.Vector4(x, y, z, w);   // N
  * shows as a regular dither. The paper gets 16 hardware-PCF taps on a fixed Vogel disk (smooth, no noise). Acne is
  * handled in the shadow map itself (slope-scaled polygon offset that grows with the kernel, see lights.js).
  */
-function paperShadowChunk(taps = 16) {
+function paperShadowChunk() {
   const src = THREE.ShaderChunk.shadowmap_pars_fragment;
   const a = src.indexOf('float getShadow( sampler2DShadow shadowMap');
   if (a < 0) return src;
@@ -34,15 +34,15 @@ function paperShadowChunk(taps = 16) {
     if ( inFrustum && shadowCoord.z <= 1.0 ) {
       float radius = shadowRadius / shadowMapSize.x;
       float acc = 0.0;
-      for ( int i = 0; i < ${taps}; i ++ ) {
-        float r = sqrt( ( float( i ) + 0.5 ) / ${taps}.0 ), th = float( i ) * 2.399963229728653;
+      for ( int i = 0; i < PAPER_SHADOW_TAPS; i ++ ) {
+        float r = sqrt( ( float( i ) + 0.5 ) / float( PAPER_SHADOW_TAPS ) ), th = float( i ) * 2.399963229728653;
         acc += texture( shadowMap, vec3( shadowCoord.xy + vec2( cos( th ), sin( th ) ) * r * radius, shadowCoord.z ) );
       }
-      shadow = acc / ${taps}.0;
+      shadow = acc / float( PAPER_SHADOW_TAPS );
     }
     return mix( 1.0, shadow, shadowIntensity );
   `;
-  return src.slice(0, a) + fn + src.slice(close);
+  return src.slice(0, a) + '#ifndef PAPER_SHADOW_TAPS\n#define PAPER_SHADOW_TAPS 16\n#endif\n' + fn + src.slice(close);
 }
 let SHADOW_CHUNK = null;
 const arr4 = (n) => Array.from({ length: n }, () => v4());
@@ -290,7 +290,7 @@ function patchVertex(shader, variant) {
 function patchFragment(shader) {
   shader.fragmentShader = shader.fragmentShader
     .replace('#include <common>', '#include <common>\n' + PAPER_FRAG_PARS + FRAG_PARS_EXTRA)
-    .replace('#include <shadowmap_pars_fragment>', SHADOW_CHUNK || (SHADOW_CHUNK = paperShadowChunk(16)))
+    .replace('#include <shadowmap_pars_fragment>', SHADOW_CHUNK || (SHADOW_CHUNK = paperShadowChunk()))
     .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\n' + FRAG_CLIP)
     .replace('#include <color_fragment>', FRAG_COLOR)
     .replace('#include <roughnessmap_fragment>', FRAG_ROUGH)
@@ -306,7 +306,7 @@ function patchFragment(shader) {
  * @param {object} uniforms makeSheetUniforms(...) result (per sheet)
  * @param {object} opt { variant: 'slab'|'crumple'|'static', color, roughness, sheen }
  */
-export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.9, sheen = 0.8, sheenRoughness = 0.62, specularIntensity = 0.3, instanced = false } = {}) {
+export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.9, sheen = 0.8, sheenRoughness = 0.62, specularIntensity = 0.3, instanced = false, shadowTaps = 16 } = {}) {
   const mat = new THREE.MeshPhysicalMaterial({
     color: 0xffffff, roughness, metalness: 0, ior: 1.45, specularIntensity,
     sheen, sheenColor: new THREE.Color(0.22, 0.215, 0.2), sheenRoughness,
@@ -316,6 +316,9 @@ export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.
   if (variant === 'crumple') mat.defines = { PAPER_CRUMPLE: '' };
   if (variant === 'static') mat.defines = { PAPER_STATIC: '' };
   if (instanced) mat.defines = { ...(mat.defines || {}), PAPER_INSTANCED: '' };
+  // the PCF kernel: 16 taps by default; a hero object whose soft self-shadows fill the screen (the letters) takes more
+  const taps = Math.max(4, Math.min(64, Math.round(shadowTaps)));
+  if (taps !== 16) mat.defines = { ...(mat.defines || {}), PAPER_SHADOW_TAPS: String(taps) };
   mat.userData.uniforms = uniforms; mat.userData.variant = variant;
   mat.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
@@ -323,7 +326,7 @@ export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.
     patchFragment(shader);
     mat.userData.shader = shader;
   };
-  mat.customProgramCacheKey = () => 'aviva-paper-' + variant + (instanced ? '-inst' : '') + '-v6';
+  mat.customProgramCacheKey = () => 'aviva-paper-' + variant + (instanced ? '-inst' : '') + (taps !== 16 ? '-t' + taps : '') + '-v6';
   return mat;
 }
 

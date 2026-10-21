@@ -190,9 +190,10 @@ const _qa = new THREE.Quaternion(), _m4 = new THREE.Matrix4(), _vb = new THREE.V
  */
 export function letterPose(letter = 'A', t = 1, { sheet = A4, apex = THREE.MathUtils.degToRad(36), yaw = Math.PI / 2, radius = 0.0006 } = {}) {
   const L = String(letter).toUpperCase();
-  const full = L === 'I' ? THREE.MathUtils.degToRad(178) : Math.PI - apex;
+  // the I closes to 179.6 deg on a tight 0.3 mm crease: two layers, < 2 mm apart at the feet (10.3: a hairline, never a smear)
+  const full = L === 'I' ? THREE.MathUtils.degToRad(179.6) : Math.PI - apex;
   const th = full * ease(t);
-  const f = fold2D({ p: [0, 0], dir: [1, 0], side: [0, 1], toward: -1, angle: Math.PI, radius });
+  const f = fold2D({ p: [0, 0], dir: [1, 0], side: [0, 1], toward: -1, angle: Math.PI, radius: L === 'I' ? Math.min(radius, 0.0003) : radius });
   f.a.w = -Math.PI; f.t = th / Math.PI;                                    // one mountain crease across the middle (y = 0)
   // the panels' directions from the crease (sheet frame) and their bisector: down for A and I, up for V
   _vb.set(0, Math.cos(th) - 1, -Math.sin(th));
