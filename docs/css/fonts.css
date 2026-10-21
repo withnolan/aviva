@@ -1,0 +1,39 @@
+/* aviva web fonts, self-hosted (SIL Open Font License 1.1; licences in ../assets/fonts/).
+   Owner: visual-designer. Built by work/scripts/design/build-fonts.py.
+
+   Hanken Grotesk, variable, weight axis limited to 300–500 (one file serves --fw-light, --fw-regular and
+   --fw-medium and everything between). Latin subset with the copy's maths and unit signs (× ÷ ² µ ± ≈ √ ₂ ¾).
+   Superior figures are re-drawn to sit at cap height; U+2082 (CO₂e), U+2009 and U+202F are added.
+   Its default figures are already tabular (every digit is 0.56 em), so counters and tables line up
+   without font-variant-numeric.
+
+   DM Mono, Regular only. Used in the BibTeX code box (s13) and nowhere else on the site. The browser only
+   downloads it when that box renders. */
+
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("../assets/fonts/hanken-grotesk-var-latin.woff2") format("woff2");
+  font-weight: 300 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Mono";
+  src: url("../assets/fonts/dm-mono-400-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Metric-matched fallback, so the swap from Arial to Hanken Grotesk barely moves the layout.
+   Hanken Grotesk: ascender 1.000 em, descender 0.303 em, no line gap; on the copy's own sentences its
+   average advance is 1.011 × Arial's (measured against Liberation Sans, which has Arial's metrics). */
+@font-face {
+  font-family: "Hanken Grotesk Fallback";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Helvetica");
+  size-adjust: 101.1%;
+  ascent-override: 98.9%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}

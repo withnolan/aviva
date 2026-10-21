@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>paper proto</title>
+<script type="importmap">{ "imports": { "three": "../vendor/three/three.module.js", "three/addons/": "../vendor/three/addons/" } }</script>
+<style>html,body{margin:0;background:#f1f1ef;overflow:hidden}canvas{display:block;width:100vw;height:100vh}</style>
+</head><body><canvas id="c"></canvas>
+<script type="module">
+import * as THREE from 'three';
+import { createPaper, setFolds, dartPlaneFolds, halvingFolds, fold2D, A4 } from './paper.js';
+import { makeStudioEnvironment } from './studio.js';
+import { ContactShadow, createCasterMaterial } from './contact.js';
+import { DEFORM_GLSL, VERT_BEGIN } from './paper.js';
+
+globalThis.__cdbg = new URLSearchParams(location.search).get('dbg') === 'c'; const q = new URLSearchParams(location.search), num = (k, d) => q.has(k) ? parseFloat(q.get(k)) : d;
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight, false);
+renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = num('exp', 1.0);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(q.get('bg') || '#eceae6');
+const cam = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.01, 20);
+const pmrem = new THREE.PMREMGenerator(renderer); const envRT = pmrem.fromScene(makeStudioEnvironment(), 0.02); scene.environment = envRT.texture; scene.environmentIntensity = num('env', 0.55);
+
+const key = new THREE.DirectionalLight('#fff6ea', num('key', 1.1)); key.position.set(-0.6, 1.4, 0.9); key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048); key.shadow.camera.left = -0.3; key.shadow.camera.right = 0.3; key.shadow.camera.top = 0.3; key.shadow.camera.bottom = -0.3; key.shadow.camera.near = 0.2; key.shadow.camera.far = 3; key.shadow.bias = -0.0004; key.shadow.normalBias = 0.0008; key.shadow.radius = 4;
+scene.add(key);
+if (q.has('back')) { const bl = new THREE.DirectionalLight('#ffffff', num('back', 3)); bl.position.set(0.3, 0.6, -1.2); scene.add(bl); }
+
+const paper = createPaper({ renderer: q.has('cpu') ? null : renderer, segW: num('sw', 84), segH: num('sh', 119) });
+const { mesh, shared, material } = paper; scene.add(mesh);
+console.log('texture gen ms', paper.texMs.toFixed(0));
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.MeshStandardMaterial({ color: '#eeece8', roughness: 1 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -0.06; floor.receiveShadow = true; if (!q.has('nofloor')) scene.add(floor);
+
+// ---- pose from URL ----
+const pose = q.get('pose') || 'flat', t = num('t', 0);
+const ease = (x) => x * x * (3 - 2 * x);
+shared.uThickness.value = num('thick', 0.0006);
+let folds = [];
+if (pose === 'dart') { folds = dartPlaneFolds(); folds.forEach((f, i) => f.t = ease(Math.min(Math.max(t - i, 0), 1))); }
+if (pose === 'halve') { folds = halvingFolds(); folds.forEach((f, i) => f.t = ease(Math.min(Math.max(t - i, 0), 1))); }
+if (pose === 'curl') { folds = [fold2D({ p: [0.105 - 0.09 * t, 0.148], dir: [1, 0.6], side: [-1, 0.2], toward: 1, angle: Math.PI * 0.9, radius: 0.018 })]; /* curl one corner: hinge near the right edge */ folds[0] = fold2D({ p: [0.105 - 0.16 * t, 0], dir: [0.15, 1], side: [1, 0], toward: 1, angle: Math.PI * num('ang', 0.95), radius: num('rad', 0.02) }); }
+if (pose === 'bend') shared.uBend.value.set(num('k', 6), num('axis', 0), 0, 0);
+if (pose === 'tear') {
+  // two full-sheet pieces, each discards the other's side along a jagged line in rest space; the pieces then move apart (here: rotate/translate)
+  const B = createPaper({ renderer, segW: num('sw', 84), segH: num('sh', 119) }); scene.add(B.mesh);
+  shared.uTear.value.set(Math.cos(0.12), Math.sin(0.12), 0.01, +1); B.shared.uTear.value.set(Math.cos(0.12), Math.sin(0.12), 0.01, -1);
+  B.shared.uThickness.value = shared.uThickness.value; B.shared.uPixelSize.value = shared.uPixelSize.value;
+  B.mesh.rotation.set(THREE.MathUtils.degToRad(num('rx', -90)), 0, 0); B.mesh.position.set(0, 0, 0);
+  const sep = t; mesh.position.x = sep * 0.05; mesh.rotation.z = -sep * 0.35; B.mesh.position.x = -sep * 0.03; B.mesh.rotation.z = sep * 0.2; B.mesh.position.y = 0; mesh.position.y = 0;
+  B.mesh.userData.isB = true; window.__B = B;
+}
+if (pose === 'fan') { shared.uPleat.value.set(num('w', 0.015), num('g', 0.5), num('open', 0), num('piv', 0.05)); }
+if (pose === 'crumple') { shared.uCrumple.value = t;  }
+if (pose === 'flutter') { shared.uBend.value.set(2, 0.3, 0.8, 0.012); shared.uFlutter.value.set(num('time', 1), 14, 1, 0); }
+setFolds(shared, folds);
+material.userData.macro = num('macro', 0); if (q.has('wire')) material.wireframe = true;
+
+// mesh placement
+mesh.rotation.set(THREE.MathUtils.degToRad(num('rx', -90)), THREE.MathUtils.degToRad(num('ry', 0)), THREE.MathUtils.degToRad(num('rz', 0)));
+mesh.position.set(num('px', 0), num('py', 0), num('pz', 0));
+cam.position.set(num('cx', 0), num('cy', 0.45), num('cz', 0.95)); cam.lookAt(num('lx', 0), num('ly', 0), num('lz', 0));
+cam.fov = num('fov', 30); cam.updateProjectionMatrix();
+function updatePixelSize() { const d = cam.position.distanceTo(mesh.position); shared.uPixelSize.value = 2 * d * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)) / (innerHeight * renderer.getPixelRatio()); }
+updatePixelSize();
+const draw = () => { if (material.userData.shader) if (window.__B) { const BU = window.__B.material.userData.shader.uniforms; BU.uTrans.value = num('trans', 0.22); } { const U = material.userData.shader.uniforms; U.uMacro.value = num('macro', 0); U.uTrans.value = num('trans', 0.22); } renderer.render(scene, cam); };
+let contact = null;
+if (q.has('contact')) {
+  floor.receiveShadow = false; key.castShadow = q.has('both');
+  floor.material.color.set(q.get('floorc') || '#eeece8');
+  contact = new ContactShadow(renderer, { size: 1.0, height: num('ch', 0.35), res: 512, blur: num('blur', 3.0), opacity: num('cop', 0.6), floorY: floor.position.y });
+  scene.add(contact.group);
+  const twin = new THREE.Mesh(mesh.geometry, createCasterMaterial(shared, DEFORM_GLSL, VERT_BEGIN, num('dark', 2.2))); twin.layers.set(1); twin.frustumCulled = false; mesh.add(twin);
+  mesh.updateMatrixWorld(true);
+}
+let picker = null;
+if (q.has('pick')) {
+  const { SheetPicker, createPickMaterial } = await import('./picking.js');
+  const pt = new THREE.Mesh(mesh.geometry, createPickMaterial(shared, DEFORM_GLSL)); pt.layers.set(2); pt.frustumCulled = false; mesh.add(pt); mesh.updateMatrixWorld(true);
+  picker = new SheetPicker(renderer, scene, cam, 4);
+}
+await renderer.compileAsync(scene, cam);
+if (q.has('draw')) {
+  const { PaintLayer } = await import('./paint.js');
+  const pl = new PaintLayer(renderer, { width: num('pw', 1536), toothTexture: paper.textures.fibre });
+  const U = material.userData.shader.uniforms; U.uPaint.value = pl.texture; U.uPaintOn.value = 1;
+  // synthetic hand-writing: a spiral, a wavy underline, and a quick scribble, with timestamps (speed -> pressure)
+  let t0 = 0; const stroke = (pts, dt) => { pl.begin(pts[0][0], pts[0][1], t0); for (let i = 1; i < pts.length; i++) { t0 += dt; pl.move(pts[i][0], pts[i][1], t0); } pl.end(); t0 += 200; };
+  const sp = []; for (let i = 0; i < 160; i++) { const a = i * 0.18, r = 0.01 + i * 0.0016; sp.push([0.5 + r * Math.cos(a) * 1.0, 0.68 + r * Math.sin(a) * 0.7]); } stroke(sp, 8);
+  const wv = []; for (let i = 0; i < 120; i++) wv.push([0.18 + i * 0.0055, 0.38 + Math.sin(i * 0.25) * 0.012]); stroke(wv, 14);
+  const sc = []; for (let i = 0; i < 80; i++) sc.push([0.3 + (i % 2) * 0.25 + Math.sin(i) * 0.01, 0.22 - i * 0.0018]); stroke(sc, 4); pl.flush();
+}
+if (picker) { const out = []; for (const [fx, fy] of [[0.5, 0.5], [0.3, 0.5], [0.5, 0.3], [0.05, 0.05]]) { const r = await picker.pick(innerWidth * fx, innerHeight * fy, canvas); out.push([fx, fy, r && { u: +r.u.toFixed(3), v: +r.v.toFixed(3), side: r.side }]); } console.log('PICK ' + JSON.stringify(out)); }
+if (contact) { contact.update(scene); const px = new Uint8Array(512*512*4); renderer.readRenderTargetPixels(contact.rt, 0, 0, 512, 512, px); let mx = 0, cnt = 0; for (let i = 3; i < px.length; i += 4) { if (px[i] > mx) mx = px[i]; if (px[i] > 10) cnt++; } console.log('contact rt alpha max', mx, 'count>10', cnt); }
+draw(); draw();
+window.__ready = true; window.__info = { calls: renderer.info.render.calls, tris: renderer.info.render.triangles, geom: renderer.info.memory.geometries, tex: renderer.info.memory.textures };
+</script></body></html>

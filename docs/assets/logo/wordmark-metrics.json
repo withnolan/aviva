@@ -1,0 +1,73 @@
+{
+ "version": 2,
+ "case": "upper",
+ "weight": 340.0,
+ "stem_gap": 72.0,
+ "diag_gap": 68.0,
+ "units_per_em": 1000,
+ "width": 2217.7,
+ "cap_height": 697,
+ "top_with_overshoot": 697,
+ "bottom_overshoot": 0,
+ "letters": [
+  {
+   "id": "wm-a1",
+   "glyph": "A",
+   "left": 0.0,
+   "right": 584.0
+  },
+  {
+   "id": "wm-v1",
+   "glyph": "V",
+   "left": 390.3,
+   "right": 1001.9
+  },
+  {
+   "id": "wm-i",
+   "glyph": "I",
+   "left": 1071.6,
+   "right": 1146.0
+  },
+  {
+   "id": "wm-v2",
+   "glyph": "V",
+   "left": 1215.7,
+   "right": 1827.3
+  },
+  {
+   "id": "wm-a2",
+   "glyph": "A",
+   "left": 1633.7,
+   "right": 2217.7
+  }
+ ],
+ "floor_viewbox": "-88.71 -785.71 2395.16 874.42",
+ "floor_uv": {
+  "note": "u right, v down, origin top-left of wordmark-floor.png",
+  "baseline_v": 0.8986,
+  "cap_v": 0.1014,
+  "letters_u": {
+   "wm-a1": [
+    0.037,
+    0.2809
+   ],
+   "wm-v1": [
+    0.2,
+    0.4553
+   ],
+   "wm-i": [
+    0.4844,
+    0.5155
+   ],
+   "wm-v2": [
+    0.5446,
+    0.7999
+   ],
+   "wm-a2": [
+    0.7191,
+    0.963
+   ]
+  },
+  "i_centre_u": 0.5
+ }
+}
