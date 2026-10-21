@@ -59,7 +59,7 @@ export const LIGHT_PRESETS = {
   s06v2: P({ key: { dir: D(-0.55, 0.55, 0.62), dist: 1.8, color: '#f4f6ff', intensity: 0.39 }, back: { dir: D(0.1, 0.25, -1), intensity: 1.78, color: '#fff1dc' }, fill: { intensity: 0.09 }, env: 0.25 }),
   // s07 the microscope: grazing key ~80 deg from the normal, from the left
   // (a grazing key lights a face weakly: it is stronger, and the env and a cool fill keep the macro white, not grey)
-  s07: P({ key: { dir: D(-0.96, 0.12, 0.25), dist: 0.9, color: '#f8faff', intensity: 2.7, angle: 0.8, softness: 3 }, fill: { dir: D(0.6, 0.3, 0.75), color: '#eef3ff', intensity: 0.22 }, env: 0.42, exposure: 1.0 }),
+  s07: P({ key: { dir: D(-0.96, 0.12, 0.25), dist: 0.9, color: '#f8faff', intensity: 2.2, angle: 0.8, softness: 3 }, fill: { dir: D(0.6, 0.3, 0.75), color: '#eef3ff', intensity: 0.12 }, env: 0.3, exposure: 0.88 }),
   // s08 glow on ink: back-light dominant, soft front fill
   s08: P({ key: { intensity: 0.31, color: '#f2f4ff' }, back: { dir: D(0.05, 0.3, -1), intensity: 1.88, color: '#fff0d8' }, fill: { intensity: 0.12 }, env: 0.29, contact: { contact: 0, mid: 0, soft: 0 } }),
   // s09 evening on ink: soft overhead key + low back-light

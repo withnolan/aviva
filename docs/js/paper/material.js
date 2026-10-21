@@ -246,7 +246,7 @@ if (uTransP.x > 0.0) {
 
 // macro: light scattered inside the translucent fibres fills their shadows (a soft, shadowless term, macro only)
 const FRAG_MACRO_FILL = /* glsl */`
-if (paperMacroFade > 0.001) reflectedLight.indirectDiffuse += material.diffuseColor * (0.42 * paperMacroFade) * vec3(0.96, 0.98, 1.0);
+if (paperMacroFade > 0.001) reflectedLight.indirectDiffuse += material.diffuseColor * (0.22 * paperMacroFade) * vec3(0.96, 0.98, 1.0);
 `;
 const FRAG_AO = /* glsl */`
 #ifdef PAPER_CRUMPLE

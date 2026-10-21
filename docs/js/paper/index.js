@@ -104,7 +104,7 @@ export async function createPaperSystem(renderer, opts = {}) {
     uInkColor: { value: lin(colors.ink) }, uInkDeep: { value: lin(colors.inkDeep) },
     uTransTint: { value: new THREE.Color(1.0, 0.9, 0.76) },
     uTooth: { value: tex.tooth }, uToothP: { value: new THREE.Vector4(0.03, opts.toothStrength ?? 0.65, 0.37, 0.61) },
-    uMacro: { value: blank }, uMacroP: { value: new THREE.Vector4(0.006, 0.75, 0, 1024) },
+    uMacro: { value: blank }, uMacroP: { value: new THREE.Vector4(0.006, 1.05, 0, 1024) },
     uFormation: { value: tex.formation },
     uWatermark: { value: tex.watermark },
     uFloorPrint: { value: tex.floorPrint }, uFloorRect: { value: new THREE.Vector4(-0.5, 0.2, 1, -0.4) },
