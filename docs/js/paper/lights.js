@@ -46,7 +46,7 @@ export const LIGHT_PRESETS = {
     backdrop: { gain: 1, pool: 0, poolAdd: 0.016, poolColor: '#cfd6e6', poolOffset: [0, 0.05, -1.2], poolRadius: 0.95 }, contact: { contact: 0.2, mid: 0.12, soft: 0.06 } }),
   // s03 a desk at night, ON CHARCOAL: a warm desk-lamp key (~4000 K), close and soft-edged so its falloff runs across the
   // sheet, a warm pool of lamp light on the dark desk below, almost no fill, a faint cool rim to hold the far edge
-  s03: P({ key: { dir: D(-0.42, 0.72, 0.55), dist: 0.62, color: '#fff6ec', intensity: 1.45, angle: 0.72, penumbra: 1, softness: 7 }, fill: { dir: D(0.85, 0.2, 0.5), intensity: 0.04, color: '#c9d6ff' },
+  s03: P({ key: { dir: D(-0.42, 0.72, 0.55), dist: 0.62, color: '#fffaf4', intensity: 1.45, angle: 0.72, penumbra: 1, softness: 7 }, fill: { dir: D(0.85, 0.2, 0.5), intensity: 0.04, color: '#c9d6ff' },
     rim: { dir: D(0.8, 0.3, -0.5), intensity: 0.22, color: '#dfe8ff' }, env: 0.09,
     backdrop: { pool: 0.55, poolAdd: 0.05, poolColor: '#ffd6a6', poolOffset: [-0.12, -0.42, -0.15], poolRadius: 0.5 }, contact: { contact: 0.25, mid: 0.2, soft: 0.55, reach: 0.6 } }),
   // the white-ground versions of s02 / s03 (before decision #24)
@@ -58,7 +58,8 @@ export const LIGHT_PRESETS = {
   s06: P({ key: { dir: D(-0.58, 0.55, 0.6), dist: 1.1, color: '#f6f8ff', intensity: 1.32, softness: 8 }, fill: { color: '#eef2ff', intensity: 0.2 }, env: 0.46 }),
   s06v2: P({ key: { dir: D(-0.55, 0.55, 0.62), dist: 1.8, color: '#f4f6ff', intensity: 0.39 }, back: { dir: D(0.1, 0.25, -1), intensity: 1.78, color: '#fff1dc' }, fill: { intensity: 0.09 }, env: 0.25 }),
   // s07 the microscope: grazing key ~80 deg from the normal, from the left
-  s07: P({ key: { dir: D(-0.98, 0.05, 0.18), dist: 0.9, color: '#fff8ee', intensity: 1.68, angle: 0.8, softness: 3 }, fill: { intensity: 0.04 }, env: 0.21 }),
+  // (a grazing key lights a face weakly: it is stronger, and the env and a cool fill keep the macro white, not grey)
+  s07: P({ key: { dir: D(-0.96, 0.12, 0.25), dist: 0.9, color: '#f8faff', intensity: 2.7, angle: 0.8, softness: 3 }, fill: { dir: D(0.6, 0.3, 0.75), color: '#eef3ff', intensity: 0.22 }, env: 0.42, exposure: 1.0 }),
   // s08 glow on ink: back-light dominant, soft front fill
   s08: P({ key: { intensity: 0.31, color: '#f2f4ff' }, back: { dir: D(0.05, 0.3, -1), intensity: 1.88, color: '#fff0d8' }, fill: { intensity: 0.12 }, env: 0.29, contact: { contact: 0, mid: 0, soft: 0 } }),
   // s09 evening on ink: soft overhead key + low back-light
@@ -69,7 +70,7 @@ export const LIGHT_PRESETS = {
   s11: P({ exposure: 0.86 }),
   s12: P({ key: { dir: D(-0.7, 0.55, 0.46), dist: 1.05, color: '#fdfdfc', intensity: 1.45, softness: 3 }, fill: { intensity: 0.18 }, exposure: 0.88 }),
   // s14 the end of the day: a low, warm, golden key from the right
-  s14: P({ key: { dir: D(0.9, 0.22, 0.38), dist: 1.4, color: '#ffc98a', intensity: 1.64, softness: 6 }, fill: { dir: D(-0.8, 0.3, 0.5), color: '#dfe6ff', intensity: 0.14 }, back: { dir: D(0.6, 0.2, -1), intensity: 0.42, color: '#ffcf96' }, env: 0.31, backdrop: { pool: 0.1, poolColor: '#ffe9cf', poolOffset: [0.8, 0.2, -0.6] } }),
+  s14: P({ key: { dir: D(0.86, 0.3, 0.42), dist: 1.2, color: '#ffe7cc', intensity: 1.5, softness: 6 }, fill: { dir: D(-0.8, 0.3, 0.5), color: '#dfe6ff', intensity: 0.14 }, back: { dir: D(0.6, 0.2, -1), intensity: 0.35, color: '#ffe6c8' }, env: 0.4, backdrop: { pool: 0.08, poolColor: '#fff0dc', poolOffset: [0.8, 0.2, -0.6] } }),
 
   // drying line (s04), card by card (brief 5.4)
   card1: P({ key: { intensity: 0.34, color: '#eef2ff' }, back: { dir: D(0.05, 0.45, -1), intensity: 1.66, color: '#f0f4ff' }, fill: { intensity: 0.09 }, env: 0.27 }),            // cool back-light: glow + formation clouds

@@ -166,14 +166,18 @@ precision highp float; varying vec2 vUv;
 uniform float uTileMM, uSeed, uGrain, uCellMM, uMaxOff, uMaxHalf;
 ${NOISE_GLSL}
 #define FIB 4
+// Cellulose fibres as they look under a raking light at 1-3 cm: fine, flattened RIBBONS (15-30 um wide, ~1 mm long,
+// a gentle curve and a twist that narrows them), lying almost flat after calendering (little height between layers),
+// over a felt of fines with a few bright filler specks. Ribbons are drawn smoothly (no needle tips): their ends fade.
 void main(){
   float cells = floor(uTileMM / uCellMM + 0.5), cmm = uTileMM / cells;
   vec2 p = vUv * cells, ip = floor(p);
-  // fines and filler: a low felt under the fibres, with a few round filler grains
-  float base = 0.16 + 0.05 * pnoise(vUv * 60.0, vec2(60.0), uSeed + 3.0) + 0.03 * pnoise(vUv * 240.0, vec2(240.0), uSeed + 5.0);
-  vec2 fp = vUv * cells * 6.0; vec2 fi = floor(fp); vec2 fo = hash22(mod(fi, cells * 6.0) + uSeed) ; float fr = length(fract(fp) - fo);
-  base += 0.05 * smoothstep(0.16, 0.0, fr) * step(0.7, hash12(mod(fi, cells * 6.0) + 9.0));
-  float h = base, bright = 0.5, mask = 0.0;
+  // fines + filler: a low, fine felt between the fibres, and sparse round filler grains (bright, matte)
+  float base = 0.42 + 0.035 * pnoise(vUv * 90.0, vec2(90.0), uSeed + 3.0) + 0.025 * pnoise(vUv * 260.0, vec2(260.0), uSeed + 5.0);
+  vec2 fp = vUv * cells * 7.0; vec2 fi = floor(fp); vec2 fo = hash22(mod(fi, cells * 7.0) + uSeed); float fr = length(fract(fp) - fo);
+  float filler = smoothstep(0.14, 0.0, fr) * step(0.82, hash12(mod(fi, cells * 7.0) + 9.0));
+  base += 0.03 * filler;
+  float h = base, bright = 0.5 + 0.3 * filler, mask = 0.0;
   vec4 geo = vec4(0.5, 0.5, 0.0, 0.0);
   for (int j = -3; j <= 3; j++) for (int i = -3; i <= 3; i++) {
     vec2 cell = ip + vec2(float(i), float(j)), wc = mod(cell, cells);
@@ -181,25 +185,25 @@ void main(){
       vec4 r = hash42(wc * 3.0 + float(k) * 7.31 + uSeed);
       vec4 s = hash42(wc * 5.0 + float(k) * 3.17 + uSeed + 11.0);
       vec2 c = cell + r.xy;
-      float ang = (s.x < uGrain ? 0.0 : s.y * 3.14159) + (s.z - 0.5) * 0.7;
+      float ang = (s.x < uGrain ? (s.y - 0.5) * 0.6 : s.y * 3.14159) + (s.z - 0.5) * 0.5;
       vec2 d = vec2(cos(ang), sin(ang)), n = vec2(-d.y, d.x);
-      float len = mix(1.1, 3.0, r.z * r.z);                   // half length in cells
+      float len = mix(1.6, 3.4, r.z);                        // half length in cells (0.4-0.85 mm at 0.25 mm cells)
       vec2 q = p - c; float t = dot(q, d);
       if (abs(t) > len) continue;
-      float bend = (s.w - 0.5) * 0.4;
-      float w = dot(q, n) - bend * (t * t - len * len) / len;
-      float twist = abs(cos(t * (1.0 + 1.8 * s.z) + r.x * 6.0));
-      float halfW = (0.035 + 0.05 * r.w) * (0.45 + 0.55 * twist) * (0.3 / cmm);   // 10-26 um half width
+      float bend = (s.w - 0.5) * 0.9;                        // a gentle curve
+      float w = dot(q, n) - bend * (t * t - len * len) / (len * len) * 0.6;
+      float twist = 0.55 + 0.45 * abs(cos(t * (0.9 + 1.4 * s.z) + r.x * 6.0));   // the ribbon turns: wide, narrow, wide
+      float halfW = (0.03 + 0.03 * r.w) * twist * (0.25 / cmm);                  // 7-15 um half width x twist
       float a = abs(w) / halfW; if (a > 1.0) continue;
-      float tipFade = smoothstep(len, len * 0.82, abs(t));
-      float layer = hash12(wc * 13.0 + float(k)) * 0.62 + 0.24;
-      // flattened tube with a collapsed lumen (a groove down the middle), fine fibrils along the length
-      float prof = sqrt(max(1.0 - a * a, 0.0)) * (1.0 - 0.32 * exp(-a * a * 10.0) * twist) * tipFade;
-      prof *= 1.0 + 0.06 * sin(w / halfW * 9.0 + t * 0.7);
-      float hh = layer + 0.2 * prof;
+      float tipFade = smoothstep(len, len * 0.7, abs(t));
+      float layer = 0.44 + 0.14 * hash12(wc * 13.0 + float(k));                  // calendered: layers nearly level
+      // a flattened tube: soft shoulder, the collapsed lumen a faint groove, fine fibrils along it
+      float prof = sqrt(max(1.0 - a * a, 0.0)) * (1.0 - 0.2 * exp(-a * a * 9.0) * twist) * tipFade;
+      prof *= 1.0 + 0.05 * sin(w / halfW * 7.0 + t * 1.3);
+      float hh = layer + 0.09 * prof;
       if (hh > h) {
-        h = hh; bright = 0.35 + 0.65 * hash12(wc * 7.0 + float(k) * 1.3); mask = tipFade;
-        vec2 off = (c - p) * cmm;                              // fibre centre relative to this texel (mm)
+        h = hh; bright = 0.55 + 0.25 * hash12(wc * 7.0 + float(k) * 1.3) + 0.2 * twist; mask = tipFade;
+        vec2 off = (c - p) * cmm;
         geo = vec4(clamp(off / uMaxOff, -1.0, 1.0) * 0.5 + 0.5, fract(ang / 3.14159265), clamp(len * cmm / uMaxHalf, 0.0, 1.0));
       }
     }
@@ -212,7 +216,7 @@ void main(){
 }`;
 
 /** 6 mm macro tile: RG normal, B height, A per-fibre brightness. */
-export function makeMacroTile(renderer, { size = 1024, tileMM = 6, seed = 9, strength = 7, grain = 0.4, cellMM = 0.25 } = {}) {
+export function makeMacroTile(renderer, { size = 1024, tileMM = 6, seed = 9, strength = 11, grain = 0.4, cellMM = 0.25 } = {}) {
   const h = rt(size, size, { mip: false });
   const m = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: MACRO_FRAG, depthTest: false, depthWrite: false,
     uniforms: { uTileMM: { value: tileMM }, uSeed: { value: seed }, uGrain: { value: grain }, uCellMM: { value: cellMM }, uMaxOff: { value: 1.0 }, uMaxHalf: { value: 1.0 } } });

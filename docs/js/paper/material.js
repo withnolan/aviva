@@ -108,7 +108,9 @@ if (uMacroP.z > 0.0) {
 }
 vec3 alb = uPaperColor * (1.0 + (paperForm.r - 0.5) * uFormP.z + (paperForm.a - 0.5) * uFormP.z * 0.7);   // formation mottle + fine fill
 alb *= 1.0 + (paperTooth.b - 0.5) * 0.05;                                   // micro-shadowing in the tooth valleys
-alb *= 1.0 + ((paperMacroS.b - 0.5) * 0.16 + (paperMacroS.a - 0.5) * 0.06) * paperMacroFade;   // fibre cavities / fibre-to-fibre tone
+// at macro scale the sheet is white cellulose: a cooler white, shallow cavities, each fibre a touch brighter on its crown
+alb = mix(alb, vec3(0.9, 0.915, 0.94) * (1.0 + (paperForm.r - 0.5) * uFormP.z), 0.6 * paperMacroFade);
+alb *= 1.0 + ((paperMacroS.b - 0.5) * 0.1 + (paperMacroS.a - 0.5) * 0.08) * paperMacroFade;   // fibre cavities / fibre-to-fibre tone
 if (paperFace == 0.0) alb = min(alb * (1.0 + uEdgeP.z), vec3(1.0));          // the cut edge: raw fibres, a touch brighter
 #if !defined(PAPER_CRUMPLE) && !defined(PAPER_STATIC)
 else {                                                                      // a crisp, slightly brighter rim on the face (~1 px)
@@ -181,7 +183,7 @@ const FRAG_NORMAL = /* glsl */`
 if (paperFace != 0.0) {
   mat3 ptbn = paperTBN(-vViewPosition, normal, vRest);
   vec2 tn = (paperTooth.rg * 2.0 - 1.0) * uToothP.y;
-  if (paperMacroFade > 0.001) tn += (paperMacroS.rg * 2.0 - 1.0) * uMacroP.y * paperMacroFade;
+  if (paperMacroFade > 0.001) tn = mix(tn, tn * 0.5, paperMacroFade) + (paperMacroS.rg * 2.0 - 1.0) * uMacroP.y * paperMacroFade;   // the fibres take over from the tooth
   #if !defined(PAPER_CRUMPLE) && !defined(PAPER_STATIC)
   vec2 ad = 0.5 * uSheet - abs(vRest);
   float bw = max(uEdgeP.x * paperPx, 0.00008);
@@ -242,6 +244,10 @@ if (uTransP.x > 0.0) {
 }
 `;
 
+// macro: light scattered inside the translucent fibres fills their shadows (a soft, shadowless term, macro only)
+const FRAG_MACRO_FILL = /* glsl */`
+if (paperMacroFade > 0.001) reflectedLight.indirectDiffuse += material.diffuseColor * (0.42 * paperMacroFade) * vec3(0.96, 0.98, 1.0);
+`;
 const FRAG_AO = /* glsl */`
 #ifdef PAPER_CRUMPLE
   float paperAO = gl_FrontFacing ? vColor.r : vColor.g;
@@ -290,7 +296,7 @@ function patchFragment(shader) {
     .replace('#include <roughnessmap_fragment>', FRAG_ROUGH)
     .replace('#include <normal_fragment_maps>', FRAG_NORMAL)
     .replace('#include <lights_physical_fragment>', '#include <lights_physical_fragment>\n' + FRAG_PHYS)
-    .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\n' + FRAG_TRANS)
+    .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\n' + FRAG_TRANS + FRAG_MACRO_FILL)
     .replace('#include <aomap_fragment>', '#include <aomap_fragment>\n' + FRAG_AO)
     .replace('#include <opaque_fragment>', 'outgoingLight *= uGain;\n#include <opaque_fragment>');
 }
@@ -317,7 +323,7 @@ export function createPaperMaterial(uniforms, { variant = 'slab', roughness = 0.
     patchFragment(shader);
     mat.userData.shader = shader;
   };
-  mat.customProgramCacheKey = () => 'aviva-paper-' + variant + (instanced ? '-inst' : '') + '-v5';
+  mat.customProgramCacheKey = () => 'aviva-paper-' + variant + (instanced ? '-inst' : '') + '-v6';
   return mat;
 }
 

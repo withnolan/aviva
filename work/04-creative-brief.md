@@ -66,17 +66,18 @@ sheet · white · A4 · 210 × 297 mm · 80 g/m² · 0.1 mm · 4.99 g · fibres 
 
 ## Part 2. Section plan
 
-### Final page order (≈ 58 vh total; ORYZO ≈ 63 vh)
+### Final page order (≈ 62.5 vh total with Part 11; ORYZO ≈ 63 vh)
 
 | # | id | Section | vh | Pinned | Ground | ORYZO beat it answers (teardown §2 row) |
 |---|---|---|---|---|---|---|
 | 0 | `s00-loader` | Loading weights | 0 (≈ 2.2 s) | (none) | white | 1 Loader |
 | 1 | `s01-hero` | AVIVA, folded / Every great product… | 2 | yes (the letters unfold and merge under the h1) | white | 2 Hero |
 | 2 | `s02-thin` | 0.1 mm. | 3 | yes | white | 3 Rotation |
-| 3 | `s03-intelligence` | Intelligence, built in. | 6 | yes | white | 4 "Powered by AI" |
+| 3 | `s03-intelligence` | Intelligence, built in. / Dark mode. | 7 | yes | white | 4 "Powered by AI" |
 | 4 | `s04-outputs` | 4.99 g / Selected outputs | 8 | yes | white | 5 Fly-through type + gallery |
 | 5 | `s05-architecture` | Halve it. / Distil it. | 5 | yes | white | 9 Precision claim + 10 Gimmick (merged) |
 | 6 | `s06-release-notes` | Release notes. | 4 | (none) | white | **new** (a features-type beat) |
+| 6b | `s06b-roadmap` | Roadmap. (new, Part 11) | 1.5 | yes | cream, 5 mm grid | **new** (an annotation bridge into the macro) |
 | 7 | `s07-surface` | No glue. / Absorption / **The Bleed** | 4.5 | yes | white → ink-blue | 11 Macro + 8 Alternate vision (merged) + 6 Signature |
 | 8 | `s08-afterlife` | It comes back. | 3 | (none) | ink-blue | 12 Sustainability |
 | 9 | `s09-reviews` | Rated in corners. | 4 | (none) | ink-blue | 13 Testimonials |
@@ -84,14 +85,17 @@ sheet · white · A4 · 210 × 297 mm · 80 g/m² · 0.1 mm · 4.99 g · fibres 
 | 11 | `s11-claims` | Claims | 7 | yes (horizontal) | white | 14 Claim gallery |
 | 12 | `s12-sizes` | More sheets. More context. (the lineup) | 4 | yes | white | 15 Tiers + comparison |
 | 13 | `s13-paper` | The paper. | 2 | (none) | white | 16 Academic |
+| 13b | `s13b-session` | Your session. (new, Part 11) | 1.5 | (none) | white | **new** (a callback before the ending) |
 | 14 | `s14-release` | Fine-tuned on you. / Release it. | 2.5 | yes | white | 17 Ending CTA |
 | 15 | `s15-footer` | Footer + colophon | 0.5 | (none) | white | 17 Footer |
 
 > **Grounds:** the Ground column above predates decision #24. The design system's ground map (charcoal, cool grey, ink-blue and white) overrides it (decision #29).
 
+> **Sets, signature and mouse effects (Part 11):** 11.1 is authoritative for each section's environment, props, signature effect and mouse effect, and 5.12 says how each set looks. 2A and 2B below remain the product's choreography; the sets are built around it.
+
 **Totals:**
-- **Pinned beats:** 10 (s01 joined them in the 2026-10-14 pass).
-- **Long beats:** 8 (s04), 7 (s11), 6 (s03), 5 (s05).
+- **Pinned beats:** 11 (s01 joined them in the 2026-10-14 pass; s06b in Part 11).
+- **Long beats:** 8 (s04), 7 (s03, s11), 5 (s05).
 - **Short beats:** everything else, 0.5–4.5 vh.
 - **Product visibility:** the sheet, or the hanging outputs, is on screen in ≈ 95 % of the scroll. It's absent only in s13 and s15. In s11 it waits behind the cards, and every card shows a render of it.
 
@@ -113,10 +117,11 @@ The mission's rhythm is: hero → AI moment → portability → features with fa
 | `s00-loader` | Cover loading; signal "this was designed"; set up the one match-cut | A print-shop drawing of the five folded letters, with fold types and angles, measured to the millimetre. The model "loads its weights": 24.95 g, five sheets. | 0 · (none) | None (not skippable until assets are ready; focus lands on the skip-link afterwards) | Row 1, T1 drawing → object match-cut · #41 |
 | `s01-hero` | Brand, premise, first look at the product | The brand name is spelled by the product: five sheets drop in and fold themselves into AVIVA (two mountain folds, two valley folds, one sheet edge-on), with a "4" after the last A. On the first scroll they unfold and merge into one blank sheet ("MODEL MERGE: 5 SHEETS → 1"), and the h1 lands: "Ours stopped there." | 2 · yes | None (the fold-in plays by itself after the loader, and any input fast-forwards it; the first scroll unfolds and merges the letters; reduced motion cross-fades) | Row 2 giant logotype + reveal + side copy · #11, #13, #17 (decision #31) |
 | `s02-thin` | Strip the context; show the object alone | The superlative "thinnest ever" is literally true, and the product nearly disappears | 3 · yes | None | Row 3 scroll rotation with copy · #9, #10, #16 |
-| `s03-intelligence` | The AI-hype beat, played straight | "Intelligence, built in." The AI learns from every stroke ("Memory updated."), remembers even what you erase, and answers in your own handwriting ("Answer: see above."). Regenerate crumples it and returns the same answer | 6 · yes | **Draw** with the pencil cursor. **Erase** (toggle). **Regenerate**. Keyboard: "Type a line" + Enter → a pre-baked pencil stroke. Touch: "Draw" toggle (locks scroll while drawing), "Done" | Row 4 AI moment · #31, #32 |
+| `s03-intelligence` | The AI-hype beat, played straight | "Intelligence, built in." The AI learns from every stroke ("Memory updated."), remembers even what you erase, and answers in your own handwriting ("Answer: see above."). Regenerate crumples it and returns the same answer | 7 · yes | **Draw** with the pencil cursor; the **DARK MODE** switch in the coda (Part 11). **Erase** (toggle). **Regenerate**. Keyboard: "Type a line" + Enter → a pre-baked pencil stroke. Touch: "Draw" toggle (locks scroll while drawing), "Done" | Row 4 AI moment · #31, #32 |
 | `s04-outputs` | Portability → gallery | "Open weights", weighed. Then a gallery of beautifully lit outputs: most are blank, three are literal folds | 8 · yes | None (hovering near a hanging output makes it sway towards the cursor) | Row 5 type fly-through + horizontal gallery · #7, #13, #23, #40 |
 | `s05-architecture` | Features with fake-precise metrics + the interactive gimmick | √2 is real, so halving keeps the shape. Distillation keeps "everything it knows", which is nothing. "Below A6, it's confetti." | 5 · yes | **Drag along the dotted line** to tear (twice). Keyboard: "Hold to tear" (hold Space or Enter). Touch: drag, or press and hold the button | Rows 9 + 10 · #32, #33 (a draggable scrub that isn't an arc slider), #10 |
 | `s06-release-notes` | Features as history; set up the macro | 2,200 years of paper as a software changelog, with semantic versions and a "known issue" | 4 · (none) | None (links in entries are not needed) | Floating product while DOM scrolls (§3.13 technique) · #36 |
+| `s06b-roadmap` | Bridge from the changelog into the macro; preview the ending | The roadmap is the paper plane: seven folds in origami notation, "No new features." | 1.5 · yes | Point at or focus a fold number to preview that fold (Tab, Enter) | New: an annotation layer on the product (fold notation, not ORYZO's sketches, #9 / #19) |
 | `s07-surface` | Material macro + alternate vision + **signature** | "No glue. Just attraction." (hydrogen bonds). "Absorption: total." Then the ink takes over the page. | 4.5 · yes | **Drag the bar magnifier** across the surface. Keyboard: ←/→ move it (slider). Touch: drag | Rows 11 + 8 + 6 · T11 continuous camera move · #12, #14, #15, #19, #20 |
 | `s08-afterlife` | Sustainability-type beat with real facts | It comes back, a finite number of times. Its footprint is almost its own weight. | 3 · (none) | None | Row 12 statement + 3 cards · #17, #36 |
 | `s09-reviews` | Social proof | Reviews from office equipment and a cat, rated in corners; a dog-ear costs one | 4 · (none) | None | Row 13 rows around a floating product · #37 |
@@ -124,6 +129,7 @@ The mission's rhythm is: hero → AI moment → portability → features with fa
 | `s11-claims` | Benchmark-style capability claims | Every AI capability claim is literally, measurably true of a sheet: context window, multimodal, persistent memory, agentic flight, zero hallucinations, refusal rate, alignment, the side effect and the scaling roadmap | 7 · yes (horizontal) | None (on pointer devices, cards tilt their render 2° on hover) | Row 14 horizontal pin ≈ 1:1 · #7, T16/T17 |
 | `s12-sizes` | Tiers + comparison | The Apple-style lineup, by sheet count: AVIVA / AVIVA Notebook Pro / AVIVA Ream Pro Max. Same intelligence per sheet; the Pro models simply have more sheets. The picker lives in a print dialog whose PRINT button is disabled | 4 · yes | **Model** radio group: AVIVA / AVIVA Notebook Pro / AVIVA Ream Pro Max (arrow keys; tap) | Row 15 tier toggle + stack + comparison table · #34 (decision #28) |
 | `s13-paper` | Academic parody | The full ritual of a model release, for a model pre-trained on trees | 2 · (none) | Links: Paper (PDF), Model (.obj), BibTeX; Copy BibTeX button | Row 16 · #38 |
+| `s13b-session` | Fill the gap before the ending; pay off the visitor's own actions | Everything you crumpled, tore or regenerated rolls into the recycling bin, and the count is real | 1.5 · (none) | None (the cursor nudges the debris) | New: a callback, with rigid-body physics |
 | `s14-release` | The CTA and the payoff | Pre-trained on trees, fine-tuned on the visitor's doodle. The sheet comes back folded into the A, opens to show what it learned, and its release is a paper plane. | 2.5 · yes | **Draw** again (the pencil returns), **Release it** (button; Enter), "Type a line" again on keyboard; touch: Draw / Done | Row 17 CTA · #39 |
 | `s15-footer` | Honest sign-off | A colophon "printed on nothing" + the live count of sheets used during the visit | 0.5 · (none) | Links | Row 17 footer · #39 |
 
@@ -143,17 +149,19 @@ The mission's rhythm is: hero → AI moment → portability → features with fa
 | `s00-loader` | No sheet yet. An SVG drawing registered to the hero letters' first pose, with outlines projected from the 3D letters (`Vector3.project`): the five letters A V I V A plus the "4", each in front elevation, crop marks around the whole word, a cap-height dimension (141 mm) and the apex angle (36°) on the first A, and a fold label under each letter. | Lines draw on, and the counter climbs from 000 to 297 mm along a chain dimension that follows the first A's outline (left foot → apex → right foot: 2 × 148.5 mm, the sheet's unfolded length). | At 297, the **fold-in** starts (10.3, H2–H3): five flat sheets drop into the frame and fold themselves into the drawing's outlines. Each outline fades as its sheet lands in it, so the drawing → object match-cut is the landing (and it happens only here). Then the "4" draws on, and the crop marks and dimensions retract and fade (300 ms); the fold labels stay until the first scroll (Part 11). | Camera at the pre-settle pose (≈ ×1.06 distance, pitch −9°; it settles in H4), level horizon. The studio and the default key fade up under the drawing at 297. |
 | `s01-hero` | **AVIVA, folded (decision #31).** Five A4 sheets, each folded in half across its long side (two 210 × 148.5 mm panels). The crease runs into the scene, so each letter is seen end-on. They stand on the studio floor in a row centred on x 50 %, with the baseline at y 66 % and a cap height of ≈ 30 vh% (141 mm; enlarged from 27 vh% for the opening, letter gaps tightened to ≈ 0.22 × the cap height):<br>• **A** (x ≈ 23.5 %): a mountain fold stood as a tent, apex angle 36°. Optional (tier B): a faint pre-crease at 42 % of the leg height, a thin shadow line on the visible panel faces that hints at a crossbar. The Λ alone reads as A in this word (5.2).<br>• **V** (≈ 39.5 %): the same fold as a valley, crease on the floor.<br>• **I** (exactly 50 %): the same fold closed flat, standing upright, seen exactly edge-on (a bright hairline, ≥ 1.2 px).<br>• **V** (≈ 60.5 %) and **A** (≈ 76.5 %).<br>• **"4"** (≈ 90 %): graphite, in the site typeface, a thin upright type plane at cap height, so the last A reads "A4".<br>Soft contact shadows under every letter. **They arrive by themselves** (the intro, 10.3 H2–H4): the sheets drop in and fold into these poses, then the camera settles. Mobile: the same row scaled to 92 % of the width. | **First scroll, pinned, 0 → 1.5 vh (unfold and merge; frame-accurate beats H5–H9 in 10.3):**<br>• 0 → 0.2 vh: the "4", the side copy and the spec line fade out.<br>• Staggered from the outside in, each letter (1) **turns** to face the camera, ry ±90° (A's 0.10–0.40, V's 0.25–0.55, I 0.40–0.70 vh); (2) **unfolds** flat into an upright A4 portrait, fold angle → 180° (A's 0.40–0.80, V's 0.55–0.95, I 0.70–1.10 vh): each A's far panel swings up over its ridge, each V rises as its lower panel swings down, the I opens upwards; (3) **slides** to x 50 % and parks 2–4 mm behind the I-sheet, hidden once fully covered (A's 0.80–1.25, V's 0.95–1.35 vh).<br>• 1.0 → 1.6 vh: `s01.merge` shows.<br>• 1.10 → 1.50 vh: the camera eases back (≈ ×1.24 distance), rises to the sheet's mid-height and levels to pitch 0. The merged sheet lifts ≈ 20 mm off the floor and its contact shadow fades: from here on it floats. The end frame governs the exact distance. | 1.5 vh: one flat sheet, upright at (50, 52), 46 vh%, with a faint horizontal crease at mid-height (the fold's memory; it stays on this sheet through s02–s04 and catches the rim light in s02). `s01.h1.l2` appears. 1.5 → 2.0 vh: hold; the pin releases at 2.0 vh. | Pitch −6° → 0. Warm key from the top left, raking 60°; cool fill from the right; the tent interiors read slightly darker; soft, light contact shadows (decision #12b). Reduced motion: a 1 s cross-fade from the letters to the single sheet on the first scroll. `showThrough` stays in the module, unused (decision #31). |
 | `s02-thin` | Upright at (50, 52), 46 vh%, straight from the s01 merge. 0 → 0.8 vh: a slow push-in to (50, 50). | 0.8 → 1.6 vh: upright at (50, 50), **52 vh% (its largest)**, turning ry 0 → 90°. 1.6 → 2.2 vh: holds **edge-on**, a bright hairline (edge strip ≥ 1.2 px, R-tech §2.1). | 2.2 → 3 vh: turns ry 90 → 180°, showing the back (the "verso" label). It ends facing the camera, ready to tilt. | Pitch 0, push-in 4 %. As it turns edge-on, the key swings to a left rim so the edge catches the light. The background behind the edge drops slightly (≈ 4 % darker) for contrast. |
-| `s03-intelligence` | 0 → 0.8 vh: it tilts back to a **writing slope**, rx +35° (top edge away), moving to (50, 57) at 46 vh%. | 0.8 → 5 vh: static slope, with the **pencil cursor** active over the sheet (`paint`). **Thinking curl:** 1.2 s after the last stroke, the top-right corner lifts (`curl(corner TR, r 15 mm, 25°)`) for 1 s, then settles. **Regenerate:** `crumple(0 → 0.9)` in 0.6 s, the ball rolls out of frame to the left (x −10 %) in 0.5 s, and a fresh sheet drops in from above with a flutter (0.9 s) into the slope pose. **Erase:** strokes are removed, leaving a 12 % ghost. | 5 → 6 vh: it rises (rx 35 → 0) to (50, 38), shrinks to 30 vh%, then exits upwards out of frame. **The paint layer is kept for s14.** | Pitch −12°. **Warmer, closer key** (desk-lamp warmth, ≈ 4200 K look) with soft falloff; less fill; the background warms a touch. |
+| `s03-intelligence` | 0 → 0.8 vh: it tilts back to a **writing slope**, rx +35° (top edge away), moving to (50, 57) at 46 vh%. | 0.8 → 5 vh: static slope, with the **pencil cursor** active over the sheet (`paint`). **Thinking curl:** 1.2 s after the last stroke, the top-right corner lifts (`curl(corner TR, r 15 mm, 25°)`) for 1 s, then settles. **Regenerate:** `crumple(0 → 0.9)` in 0.6 s, the ball rolls out of frame to the left (x −10 %) in 0.5 s, and a fresh sheet drops in from above with a flutter (0.9 s) into the slope pose. **Erase:** strokes are removed, leaving a 12 % ghost. | 5.0 → 5.4 vh: it rises upright (rx 35 → 0) at (50, 48), 40 vh%. 5.4 → 6.6 vh: **dark mode** (Part 11): the lamp goes off, a UV tube comes on, and the sheet fluoresces blue-white while its strokes stay dark. 6.6 → 7 vh: it shrinks to 30 vh% and exits upwards out of frame. **The paint layer is kept for s14.** | Pitch −12°. **Warmer, closer key** (desk-lamp warmth, ≈ 4200 K look) with soft falloff; less fill; the background warms a touch. |
 | `s04-outputs` | 0 → 2.5 vh: fit-width numerals **"4.99 g"** sit in the scene as a WebGL type plane (graphite, spanning the content width, centred at y 50 %, z = 0). The sheet enters from above (y −20 %) at 30 vh%, falling like a leaf: **in front of the "4"** (z +0.12) at 0.8 vh, **behind the ".99"** (z −0.10) at 1.6 vh, and out below the numerals by 2.5 vh. No bloom. | 2.5 → 3.2 vh: the camera pans down so the numerals leave the top of the frame, revealing **the drying line**: a thin graphite line across the viewport at y 18 %. The falling sheet **is caught by the first clip** at x 50 % and swings, damped. Seven more outputs hang to the right, spaced 26 vw apart. 3.2 → 7.6 vh: the line translates left ≈ 1:1 with scroll. Each output hangs at ≈ 34 vh% with its own pose and light (Part 5.4); the one passing the centre gets 1.08× scale and the brightest light. Sway: `flutter(0.4 cm)`. | 7.6 → 8 vh: the last output (card 8, blank) **unclips and drops**, and the camera follows it down into s05. It becomes the hero sheet. | Pitch 0. Per-card light presets (Part 5.4). The numerals are lit flat, with no glow. |
 | `s05-architecture` | 0 → 0.6 vh: the dropped sheet settles upright at (50, 52), 46 vh%. **Dimension lines** (SVG registered to the projected corners) draw on: 210 mm, 297 mm, and the "297 ÷ 210 = 1.414" readout. | 0.6 → 1.6 vh: **`fold(midline, 0 → 180°)`**: the top half folds down over the bottom half, re-dimensioned 210 × 148.5 mm ("still 1 : √2"), then unfolds, leaving a faint crease. 1.6 → 4.4 vh: **the gimmick.** A dotted tear line appears on the crease, and `tear(midline, p)` follows the drag or the hold (R-tech §2.5). At p = 1 the halves part and each rotates rz 90° into portrait, settling side by side at (36, 52) and (64, 52), 33 vh% each. **Tear 2:** a dotted line across both halves; on completion, four pieces settle in a 2 × 2 grid at x 38 / 62, y 32 / 70, 23 vh% each. **Tear 3:** the line appears, shivers and refuses ("Below A6, it's confetti."). **No-interaction fallback:** scroll triggers tear 1 at 2.4 vh and tear 2 at 3.4 vh, so the story always completes. | 4.4 → 5 vh: the four pieces tip and fall out of the frame with a flutter. A fresh A4 floats in from above to (70, 50), 40 vh%, ry −18°. The ream counter decrements. | Static camera, pitch 0. **Neutral, technical light** (≈ 5600 K), crisp shadows, pure studio white. |
-| `s06-release-notes` | At (70, 50), 40 vh%, ry −18°, `bend(1.5)`. It turns slowly, ry −18 → +18° across the section. | **Cues as each entry crosses the viewport centre:**<br>• v0.1: faint graphite map lines draw onto the sheet and fade (30 % opacity).<br>• v1.0: **nothing happens** (deadpan).<br>• v2.0: a **back-light** comes on and the **AVIVA watermark** (the crop-mark logomark) appears in the sheet, then fades as the light goes off.<br>• v3.0: the sheet drifts 3 % sideways, as if on a roller.<br>• v5.0 / v5.1: dimension lines snap on and stay.<br>• Known issue: the sheet **doubles**; a second instance slides out from behind, then merges back.<br>• Removed: nothing happens.<br>The v0.1, v3.0 and doubling cues are tier-B (nice to have). The watermark and the dimension lines are must-haves. | The camera starts a dolly towards the surface while the sheet turns to face it (ry → 0) and moves to the centre: the hand-over to s07. | Pitch 0. Soft, slightly cool key. A back-light for v2.0 only. |
+| `s06-release-notes` | At (70, 50), 40 vh%, ry −18°, `bend(1.5)`. It turns slowly, ry −18 → +18° across the section. | **Cues as each entry crosses the viewport centre:**<br>• v0.1: faint graphite map lines draw onto the sheet and fade (30 % opacity).<br>• v1.0: **nothing happens** (deadpan).<br>• v2.0: a **back-light** comes on and the **AVIVA watermark** (the crop-mark logomark) appears in the sheet, then fades as the light goes off.<br>• v3.0: the sheet drifts 3 % sideways, as if on a roller.<br>• v5.0 / v5.1: dimension lines snap on and stay.<br>• Known issue: the sheet **doubles**; a second instance slides out from behind, then merges back.<br>• Removed: nothing happens.<br>The v0.1, v3.0 and doubling cues are tier-B (nice to have). The watermark and the dimension lines are must-haves. | The camera starts a dolly towards the surface while the sheet turns to face it (ry → 0) and moves to the centre: the hand-over to s06b, which starts the dolly (Part 11). | Pitch 0. Soft, slightly cool key. A back-light for v2.0 only. |
+| `s06b-roadmap` | From s06: the sheet faces the camera at (50, 50), 46 vh%, on a hairline 5 mm grid. | 0.1 → 1.1 vh: the AVIVA HB pencil and a steel rule draw the seven fold lines, one every ≈ 0.14 vh. Each line, once drawn, pre-creases the sheet by 4–6° (`fold(line, 4–6°)`), so the flat sheet takes on the plane's relief. Pointing at or focusing a number runs `fold(line, 30°)` and springs back (0.6 s). | 1.1 → 1.5 vh: the creases relax to 1°, the lines fade to 20 %, and the camera starts the s07 dolly toward the surface. | Raking key from the left (≈ 70° from the normal) so the relief reads; pitch 0. |
 | `s07-surface` | 0 → 1.2 vh: **one continuous dolly** from 40 vh% framing into the surface until it **fills more than 100 % of the viewport width**. The key swings to grazing (≈ 80° from the normal, from the left) so fibres and tooth read, and the macro fibre layer fades in (R-tech §2.8, layer 3). | 1.2 → 2.2 vh: the **bar magnifier** (DOM) appears. Dragging it pans the camera ±4 %, and inside the bar the macro detail is boosted and a mm scale ticks. 2.2 → 2.8 vh: **one ink drop** (a small ink-blue droplet) falls and touches the centre. The view switches (< 0.5 vh) to the **absorption view**: the closed-form ink front (R-tech §2.13) spreads along the fibres, scrubbed by scroll, with ink concentration mapped to an ink-blue ramp and the fibres reading lighter. | 2.8 → 4.0 vh: **THE BLEED** (frame by frame in Part 5.3). The front runs past the frame, a screen-space ragged wipe takes over at 3.4 vh, and the viewport is fully ink-blue by 4.0 vh. CSS ground → ink-blue; nav and type → paper white. 4.0 → 4.5 vh: the camera **pulls back fast** to reveal the sheet floating at (50, 32), 30 vh%, **white, with one 3 mm ink dot** near its lower-right corner, which stays for the rest of the page. | Macro: fov 22°, tight near plane, grazing key. The pull-back returns to fov 30°. Then a back-light on: the sheet glows against the ink. |
 | `s08-afterlife` | At (50, 30), 30 vh%, turning slowly in ry. A back-light is on, so the cloudy formation glows (light through paper, R-tech §2.9). | Three DOM cards rise below the sheet. No deformation; the sheet just breathes (`bend(1 ↔ 2)`, a slow 6 s loop; off in reduced motion). | It drifts down to (50, 50), 34 vh%, for s09. | Back-light dominant, soft front fill. On the ink-blue ground. |
 | `s09-reviews` | Centred (50, 50), 34 vh%, turning slowly ry ±15°. Review rows (DOM) scroll past in two columns (x 4–36 % and 64–96 %), with the centre column left empty for the sheet. | When the shredder's row crosses the centre (≈ 2.4 vh): the **top-right corner dog-ears**, `fold(line 30 mm from the corner at 45°, 0 → 165°, r 0.6 mm)`, and stays. | 3.6 → 4 vh: the dog-ear **unfolds** (165 → 0°), leaving a faint crease. The sheet moves to (35, 50), 40 vh%, for the Arena. | A soft overhead key and a low back-light. On ink-blue. |
 | `s10-arena` | 0 → 0.5 vh: sheet A at (35, 50), 40 vh%. Sheet B, an identical second instance, slides in from the right to (65, 50). Same pose, same light. | 0.5 → 2.2 vh: voting is open. **On a vote:** the losing sheet `crumple(0 → 0.9)` in 0.6 s and rolls out of frame downwards; a fresh sheet drops into its place (0.8 s); the ream counter decrements. **Tie:** both sheets bow (rx +10° and back, 0.8 s). | 2.2 → 3 vh: the winner (on a tie, sheet A) rises out of frame towards the top, to its s11 position behind the cards, and the other slides out to the right. **The s11 white ground (DOM) scrolls up over the canvas** with a paper edge (1 px highlight + soft shadow). Once it covers the screen, the canvas clear colour switches to studio white. | Two matched soft spots, one per sheet. On ink-blue. |
 | `s11-claims` | The sheet at (50, 18), 22 vh%, turning slowly above the row as the card row rises from below and pins at vp-y 12 %. | 0.8 → 6.4 vh: the row of 9 cards translates left ≈ 1:1 with scroll. The cards alternate **portrait and landscape A-series proportions** (Part 5.6), so the sheet is visible only in the gaps above them. | 6.4 → 7 vh: the row lifts away upwards (a curtain lift) as the sheet descends to (62, 52), 44 vh%, for s12. | Neutral studio light. |
-| `s12-sizes` | **The lineup (decision #28).** The hero sheet at (62, 52), 44 vh%, rx −8°, ry −12°, turned slightly so the side of a stack will read. The print dialog (DOM) is on the left (x 6–34 %). | **AVIVA Notebook Pro:** 79 more sheets **fan in** from the right like a dealt deck (≈ 0.9 s, 10 ms apart). Each arrives with a small flutter (`flutter(0.3 cm)` → 0) and settles with a soft spring under the hero sheet. A hairline graphite binding strip draws on along the left edge, so the ≈ 8 mm block reads as a bound notebook.<br>**AVIVA Ream Pro Max:** 420 more fan in (≈ 1.2 s, a faster cadence). The binding strip fades, and the camera eases back 8 % and tilts down 6° so the top and side of the ≈ 5 cm block both read.<br>**AVIVA:** the extra sheets fan back out to the left in reverse order and leave.<br>True thickness, no exaggeration (8 mm ≈ 1.2 % vh, 5 cm ≈ 7.4 % vh at this scale). Build: an `InstancedMesh` of up to 499 thin slabs with a simplified paper material (a per-instance flutter during the fan-in only); the top sheet stays the live hero sheet.<br>**Passive preview:** if the visitor hasn't clicked, scroll previews Notebook Pro at 0.8 vh, Ream Pro Max at 1.4 vh and back to AVIVA at 2.0 vh. Once they click, scroll never overrides their choice.<br>Not ORYZO's stack (#47): counts of 1 / 80 / 500, sheets dealt in sideways with a flutter rather than identical objects dropping in, nothing glows. | 2.4 → 4 vh: the comparison table scrolls up, and the stack rises with it (to y 20 %, 26 vh%), then exits upwards. The top sheet continues as the s14 sheet. | Neutral, crisp light on the cool-grey ground (decision #24). A small camera ease-back for Ream Pro Max only. Reduced motion: the stack cross-fades between counts. |
-| `s13-paper` | No sheet; it waits above the frame. | (none) | (none) | Canvas idle (render on demand; studio white). |
+| `s12-sizes` | **The lineup (decision #28).** The hero sheet at (62, 52), 44 vh%, rx −8°, ry −12°, turned slightly so the side of a stack will read. The print dialog (DOM) is on the left (x 6–34 %). | **AVIVA Notebook Pro:** 79 more sheets **fan in** from the right like a dealt deck (≈ 0.9 s, 10 ms apart). Each arrives with a small flutter (`flutter(0.3 cm)` → 0) and settles with a soft spring under the hero sheet. A hairline graphite binding strip draws on along the left edge, so the ≈ 8 mm block reads as a bound notebook.<br>**AVIVA Ream Pro Max:** 420 more fan in (≈ 1.2 s, a faster cadence). The binding strip fades, and the camera eases back 8 % and tilts down 6° so the top and side of the ≈ 5 cm block both read.<br>**AVIVA:** the extra sheets fan back out to the left in reverse order and leave.<br>True thickness, no exaggeration (8 mm ≈ 1.2 % vh, 5 cm ≈ 7.4 % vh at this scale). Build: an `InstancedMesh` of up to 499 thin slabs with a simplified paper material (a per-instance flutter during the fan-in only); the top sheet stays the live hero sheet.<br>**Passive preview:** if the visitor hasn't clicked, scroll previews Notebook Pro at 0.8 vh, Ream Pro Max at 1.4 vh and back to AVIVA at 2.0 vh. Once they click, scroll never overrides their choice.<br>Not ORYZO's stack (#47): counts of 1 / 80 / 500, sheets dealt in sideways with a flutter rather than identical objects dropping in, nothing glows. | 2.4 → 4 vh: **Part 11, the family portrait:** the other two stacks slide in on their own plinths, so 1 / 80 / 500 stand side by side with dimension callouts; the comparison table scrolls up, and the portrait rises with it (to y 20 %, 26 vh%), then exits upwards. The top sheet continues as the s14 sheet. | Neutral, crisp light on the cool-grey ground (decision #24). A small camera ease-back for Ream Pro Max only. Reduced motion: the stack cross-fades between counts. |
+| `s13-paper` | **The printout (Part 11):** the paper's eight pages lie in a 4 × 2 grid on the white floor, each with a slight natural curl; the hero sheet waits above the frame. | The page under the cursor peels up at its corner (`curl`, r 20 mm, ≤ 25°). The .obj viewer (a wireframe rectangle) turns on drag or arrow keys. | 1.6 → 2 vh: the camera lowers toward the floor for s13b. | Soft top light, studio white; pitch −35° (never straight down, #1). |
+| `s13b-session` | The white floor at a low angle (pitch −20°); the bin standee from s09 at (80, 62). | 0.1 → 1.2 vh: the session's debris enters from the left (crumpled balls from s03 and s10, the s05 quarters, the confetti), rolls and bounces (rigid bodies, restitution ≈ 0.3) and drops into the bin one by one, while the counter ticks per item. If nothing was destroyed, nothing rolls in: the bin waits. | 1.2 → 1.5 vh: the bin settles, and the camera lifts toward the s14 A, which is already descending, so no frame is blank. | Warm overhead studio light. |
 | `s14-release` | **The A comes back (echo of the hero, decision #31).** 0 → 0.3 vh: the sheet descends from above, **folded into the A** (folded at mid-height with the drawn side inwards and stood as a tent, apex 36°: the outside shows the verso, and the drawing is hidden inside). It lands upright on the studio floor at (50, 60) at hero letter size (≈ 30 vh%), and the graphite "4" fades in beside it at the hero's A-to-4 spacing, so it reads "A4". 0.3 → 0.8 vh: the A turns to face the camera and **unfolds flat** (the hero's unfold, reused), rising to (50, 48), 46 vh%. It reveals **the s03 drawing** (if any) **and the s07 ink dot**, and the "4" fades. | 0.8 → 1.8 vh: the **pencil cursor returns** over the sheet (`paint`). The h2 lines appear once the sheet is open. | **Release** (on the button, or scroll-scrubbed from 1.8 → 2.5 vh): `fold` into a **dart plane** (7 folds, 1.2 s; R-tech `dartPlaneFolds`), then a glide out of frame to the upper right (a gentle climb and bank, 1.6 s). The credit stays centred where the sheet was. | **Light change for the finale:** a warm, low golden key from the right. The camera follows the climb slightly. |
 | `s15-footer` | No sheet (it has flown). | (none) | (none) | Studio white; rendering paused. |
 
@@ -1207,6 +1215,47 @@ The claim-card renders (5.6) are used in both modes.
 
 ---
 
+### 5.12 The sets (Part 11): look, light and props, set by set
+Where 5.4–5.6 differ, 5.12 wins. The blues follow decision #43 (ink ≈ #1F1B6E, ink-deep ≈ #120F45, blueprint ≈ #1D4590; the design VD sets the exact values). **Composition rule:** every set leaves the copy zones of its section clear, so no text ever sits under a 3D object (fresh-eyes review #0, problem 2). **Budget:** each set's assets load lazily with its section, so the first load stays under 3 MB; props are primitives with procedural materials wherever possible.
+
+| Set (section) | Ground and colour | Props and materials | Light | Camera |
+|---|---|---|---|---|
+| The drawing (s00) | paper white | graphite 0.5 px lines; fold lines per R§14.5 (mountain dash-dot-dot, valley dashes); mono labels | flat | the pre-settle pose (10.3) |
+| The white studio (s01) | warm-white cyclorama; the floor shows until H9 | five A4 letters, the graphite "4" | warm key from the top left, raking 60°; cool fill from the right; soft contact shadows | pitch −9° → −6° → 0 |
+| The metrology bench (s02) | charcoal; a speckled black granite surface plate fills the lower third | a digital outside micrometer (graphite-enamel frame, satin-chrome spindle and thimble, grey LCD with dark segments) lying with its axis horizontal, so the edge-on sheet stands between anvil and spindle; a 10-sheet stack flat on the granite, its layers visible at the edge | cool top light (≈ 5600 K); a rim light on the sheet's edge that follows the cursor | macro look, shallow depth of field: focus racks from the readout (1.6 vh) to the edge (2.2 vh) |
+| The drafting board (s03) | warm dark grey falling off around the board | a pale grey laminate board at 35° (not wood); an aluminium parallel rule on fine cables; cream drafting tape at the sheet's four corners; an architect's lamp head (graphite enamel) entering at the top left | a warm pool (≈ 4200 K) from the lamp; low fill | pitch −12° |
+| The blacklight room (s03 coda) | near-black violet; never a false-colour ramp or a scale | a thin UV tube across the top of the frame, glowing violet. The sheet's albedo becomes an emissive blue-white, modulated by the formation and masked by the paint layer, so graphite stays dark; the tape and board stay dark | the tube only; a faint bloom on the sheet's edges | as the board, with a 4 % push-in |
+| The weights room (s04, 0–2.5 vh) | pale warm grey | the "4.99 g" type plane; an open case lined with graphite felt holding two 2 g knob weights and six flat leaf weights (500, 200, 200, 50, 20, 20 mg) in brass and nickel silver, with a pair of tweezers | soft top light; warm highlights on the brass | as 2B s04 |
+| The drying loft (s04, 2.5–8 vh) | pale cool-grey back wall | the graphite line, brushed-steel clips, eight outputs (5.4) | two soft bars of window light from the upper left across the outputs | trucks left with the line |
+| The ISO 216 wall (s05) | cream | nested A0–A8 rectangles in 0.75 px graphite with corner labels and a title block at the bottom right; the active size redraws in ink-blue in 200 ms; confetti: up to 400 A7–A10-sized scraps with the paper flutter | neutral 5600 K, crisp shadows | static, pitch 0 |
+| The machine room (s06) | cool grey | a low-poly dot-matrix printer at the bottom left (graphite plastic, ≈ 420 × 300 × 120 mm, a platen slot, two tractor sprockets); the fanfold strip (tractor holes along both edges, a perforation every 297 mm) feeding upward and settling into a zig-zag pile; the 13 margin drawings; the hero sheet at the right | a soft, slightly cool key; from e5, the cursor back-light (torch) behind the hero sheet | pitch 0, panning slowly up with the strip |
+| The crease pattern (s06b) | cream with a 5 mm hairline grid (graphite at 10 %, every fifth line at 20 %) | the sheet face-on; seven fold lines, numbered circles and Yoshizawa–Randlett arrows; the AVIVA HB pencil and a steel rule | a raking key from the left (≈ 70°), so the relief reads | pitch 0, then the s07 dolly |
+| The fibre field and the ink bloom (s07) | the ink ramp from the new ink (#43) | the fibres, the bar magnifier; a clear glass pipette tip with a meniscus entering from the top; the drop; the mm scale bar and timer (DOM) | grazing key | fov 22° macro |
+| The generations stage (s08) | an ink-deep floor, lit by seven soft pools of light in a shallow curve | seven sheets on thin clear acrylic stands, 260 mm apart: GEN 1 bright white with crisp edges through to GEN 7, soft pale grey with feathered, fibrous edges; a two-pan balance (graphite-enamel beam, brass pans); a clear glass jar with a metal lid and a paper label (no cork: it is ORYZO's material) | a back-light behind each sheet, cloudier with each generation; soft front fill | pitch −8°; parallax with the cursor |
+| The office after hours (s09) | very dark ink-deep floor and wall | six standees, 30–45 cm tall: printed card 1.5 mm thick with white cut edges and a folded foot, in a shallow arc; six tent cards on the floor | one subtle volumetric downlight per standee, fading up in turn | pitch −6° |
+| The arena (s10) | an ink-deep stage; a satin floor with soft reflections | two lecterns (graphite, with paper-white front panels A and B), each with a small easel; a split-flap board above centre (graphite housing, white flaps, dark digits); ≈ 300 white paper cranes, ≈ 40 mm each, in five tiers at the edges | two warm spotlights from above; the audience softly lit from the stage | pitch −4° |
+| The nine claim sets (s11) | per card: c1 a pale wall with a sash window and sky; c2 a yellow sweep; c3 slate; c4 white macro; c5 a cool office corridor; c6 a grey wall with a clipboard; c7 a light table glowing from below; c8 a dark backdrop; c9 a night floor with a grey Moon | as 5.6 | each its own (5.6) | stills rendered at 2× the card size; the develop reveal goes from paper white through low contrast to the full image |
+| The family portrait (s12) | cool grey | three graphite plinths, 400 × 400 × 120 mm, 120 mm apart; the stacks at true thickness; dimension callouts (DOM) | crisp neutral key; a small ease-back for the Ream | as 2B s12 |
+| The printout (s13) | studio white | eight A4 pages in a 4 × 2 grid with 20 mm gaps, each textured with its PDF page, with a slight natural curl; the .obj wireframe (graphite lines, ink-blue vertex dots) in a 240 px viewer | soft top light | pitch −35°, never straight down (#1) |
+| The cleanup (s13b) | the studio-white floor | the bin standee from s09; the session's debris (baked crumple meshes, the s05 quarters, confetti) | warm overhead | pitch −20° |
+| Golden hour (s14) | the white studio, warmed | the A, the "4", the pencil, the plane; 24 dart planes, 60–90 mm, at the far depth | a low golden key from the right (≈ 3200 K), long soft shadows | as 2B s14 |
+| The deckle edge (s15) | where the white page meets the footer ground | a ragged, fibrous edge 24–40 px tall across the full width, with a soft shadow | (none) | (none) |
+
+**Design VD illustration list (Part 11):**
+- **13 margin drawings for s06**, one per entry, 120 × 120 px, 0.75 px graphite.
+- **6 standee illustrations for s09**, front views in graphite line and soft tone on white card, ≈ 1024 px tall, transparent WebP:
+  - the printer;
+  - Biscuit, curled;
+  - the manuscript stack, its top page typed "CHAPTER ONE";
+  - the shredder, with strips;
+  - the half-length HB pencil stamped AVIVA HB;
+  - the recycling bin.
+- **The ISO 216 wall and its title block** (SVG).
+- **The s06b fold-notation set** (SVG): lines, numbered circles, arrows.
+- **The deckle-edge mask** (SVG).
+- **Eight PDF page renders** (WebP, 1240 × 1754, ≤ 120 KB each, loaded with s13).
+- **The scoreboard flap type** (the site typeface).
+
 ## Part 6. Moments of delight
 
 1. **Print the product.** Ctrl/Cmd + P on any page prints a single blank A4 sheet with one 7 pt line at the foot: "AVIVA A4 · 210 × 297 mm · You have printed the product." The disclaimer follows in 6 pt. It's a print stylesheet that hides everything else, so the visitor walks away holding the actual product. (It isn't a downloadable PDF and isn't offered as our "weights" or paper; see Part 7, #50.)
@@ -1851,3 +1900,141 @@ At one capture every ≈ 2 vh, 62.5 vh gives about 31 screens. The estimates bel
   - the optional fact-check items;
   - updates to Parts 2, 3 and 5;
   - a Part 11 changelog by owner.
+
+### 11.7 Folded into Parts 2, 3 and 5 (Step B, 2026-10-21)
+With this step, Parts 2, 3 and 5 are authoritative again, and 11.1 stays as the summary map. Scripts: `p6a.py` (Part 3, 37 operations) and `p6b.py` (Parts 2 and 5, 17 operations), both in `work/scripts/brief/` and both self-checking.
+- **Part 2:**
+  - page order: s06b and s13b added, s03 at 7 vh, ≈ 62.5 vh in total, 11 pinned beats, new long beats;
+  - the "Sets, signature and mouse effects" note;
+  - 2A rows: the s03 switch, s06b, s13b;
+  - 2B rows: the s03 coda timing, the s06 → s06b hand-off, s06b, the s12 family portrait, the s13 printout, s13b.
+- **Part 3:**
+  - new ids marked **Part 11** in 3.1–3.16;
+  - cuts: `s03.cta`, `s04.note`;
+  - one-line trims: `s04.body`, `s05.body`, `s07.body`, `s08.body`, `s08.c1`–`c3`, `s10.body`, `s13.abstract` (on screen);
+  - the dark-mode block in 3.4, and the new 3.7b `s06b-roadmap` and 3.14b `s13b-session`;
+  - `s12.sr.change.one`;
+  - the Part 11 additions to 3.17, 3.18 and 3.19.
+- **Part 5:** the new 5.12, covering every set's ground, props, light and camera, plus the design-VD illustration list.
+- **Settled:** the singular line is `s12.sr.change.one` "AVIVA selected: 1 sheet."; `s12.sr.change` "{model} selected: {n} sheets." is for 80 and 500.
+
+### 11.8 Part 11 changelog by owner
+**Web-developer**
+1. **Sections:**
+   - add `s06b-roadmap` (1.5 vh, pinned) after s06, and `s13b-session` (1.5 vh) after s13;
+   - s03 grows to 7 vh;
+   - nav groups: s06b joins SPECS, s13b joins PAPER.
+2. **Copy:**
+   - every **Part 11** row in 3.1–3.16;
+   - the cuts and trims listed in 11.7;
+   - "AVIVA selected: 1 sheet."
+3. **Display rules (one line per beat):**
+   - `s03.note` only after the first Erase;
+   - s06 notes only at the print head;
+   - s09 one quote at a time;
+   - s11 captions on the centre card only;
+   - the hero text sequence (10.1 #73).
+4. **Controls and accessibility:** the DARK MODE switch, fold numbers 1–7, the model viewer, focusable reviewers, the session counter (3.17 additions).
+5. **Cursor system:**
+   - one registry for the cursor modes: registration mark (s00), pencil (s03, s14), lamp (s06), breeze (s04), push field (s13b);
+   - magnetic controls (s10, s12, s15);
+   - pointer inputs passed to the paper module for the lean and look-at effects.
+6. **DOM overlays:** the s02 readout, the s04 callouts, the s06 fanfold strip, the s06b callouts, the s07 scale and timer, the s08 labels, the s12 dimension callouts, the s13 model card.
+7. **Session state:** count regenerations, crumples and tears for `s13b.h3` and `s15.ream`, and hand the debris list to the paper module.
+8. **Reduced motion and layout:** the reduced-motion rules (3.19 additions), and the collision rule (5.12: no text under a 3D object).
+9. **Fix:** s12 shows 148 × 210 with A4 selected (fresh-eyes #6).
+
+**Paper visual-designer**
+1. **The sets** of 5.12, as primitives with procedural materials, loaded lazily per section.
+2. **The signature effects** of 11.1: the fold-in (10.3), rack focus, the UV relight, line physics, tear and confetti, the fanfold strip, crease relief, the ink pull with the new ink (#43), the generations back-light, volumetric downlights, the crane crowd, the darkroom develop (with the WD), the 500-sheet deal, page curl, rigid bodies, the flock.
+3. **The mouse responses:**
+   - s01 and s14: lean;
+   - s02: rim light;
+   - s03: nib dimple;
+   - s04: breeze;
+   - s05: perforation stretch;
+   - s06: torch;
+   - s06b: fold preview;
+   - s07: ink pull;
+   - s08: balance dip;
+   - s09: standee look-at;
+   - s10: crane gaze;
+   - s12: riffle;
+   - s13: corner lift;
+   - s13b: push field;
+   - s14: flock avoidance.
+4. **Renders:** the nine claim renders in their sets (5.6, 5.12) and the hero render for F1 and the OG image (10.3 #7).
+
+**Design visual-designer**
+1. **Illustrations:** the list in 5.12 (13 margin drawings, 6 standees, the ISO wall and title block, fold notation, the deckle mask, 8 page renders, the flap type).
+2. **Tokens:** the darker blue tokens (#43) and a token for the blacklight room's violet.
+3. **Style guide:** the fold-line styles (mountain dash-dot-dot, valley dashes).
+4. **Card frames:** the frames for the s11 darkroom develop.
+
+### 11.9 Build tasks (one agent each, ≈ 20 minutes; in this order)
+Every task ends with a 1440 × 900 screenshot of its section. The hero comes first, then the most visible sets. "→" marks a dependency.
+
+| # | Owner | Task | Done when |
+|---|---|---|---|
+| T1 | WD | s01 pinned for 2 vh; the intro timeline H0–H4 on time, with the input fast-forward; the h1 timings (10.1 #72–73) | the intro plays once, and scroll runs H5–H9 under a fixed h1 |
+| T2 | PVD | the five folded letters and the "4" at the rest frame in the white studio (10.3 table) | a still reads AVIVA, with "A4" at the end |
+| T3 | PVD | the fold-in H2: flat to folded in mid-air, the landing settle, the shadow bloom (→ T2) | a 3.5 s shot shows sheets mid-fold |
+| T4 | PVD + WD | the unfold and merge H5–H9 and the camera settle; the hand-off to s02 (→ T1, T3) | at 1.5 vh, one sheet at (50, 52), 46 vh% |
+| T5 | DVD + WD | the loader drawing: outlines, chain dimension, fold notation, labels, one SVG group per letter (10.1 #74) | each outline fades as its sheet lands |
+| T6 | WD + PVD | the ⊕ cursor (s00), the letters' lean (s01), the fold labels on the rest frame | works with a mouse; calm in reduced motion |
+| T7 | PVD | s02 bench: granite plate, micrometer, 10-sheet stack, light | a still at 2 vh |
+| T8 | PVD + WD | s02 micrometer close and readout, rack focus, rim light on the cursor (→ T7) | the readout lands on 0.10 at 2.2 vh |
+| T9 | PVD | s03 drafting board set (board, rule, tape, lamp) | the pencil still draws on the slope |
+| T10 | PVD + WD | s03 dark mode: UV material, room relight, the switch and its copy (→ T9) | strokes stay dark on the glowing sheet |
+| T11 | WD | the s02–s05 copy changes (Part 11 rows, cuts, trims, `s03.note` after Erase) | ≤ 5 lines on every screen |
+| T12 | PVD + WD | s04 weights case and the numeral callouts | a still at 1 vh |
+| T13 | PVD | s04 line physics and the cursor breeze | the outputs swing and settle |
+| T14 | PVD + WD | s07 pipette, the ink following the pointer, the darker ink; scale bar and timer | The Bleed in the new ink |
+| T15 | PVD | s10 arena set: lecterns, spotlights, split-flap board | a still at 1 vh |
+| T16 | PVD | s10 crane crowd: 300 instances, the wave, heads following the cursor (→ T15) | the frame budget holds (one heavy effect) |
+| T17 | WD | s10 board flips, magnetic vote buttons, the copy | a vote updates the board |
+| T18 | DVD | the six s09 standee illustrations | six WebP files |
+| T19 | PVD + WD | s09 set: card standees with feet, downlights, look-at, one quote at a time (→ T18) | a still at 2 vh |
+| T20 | PVD | s11 renders c1–c3 in their sets | three stills |
+| T21 | PVD | s11 renders c4–c6 | three stills |
+| T22 | PVD | s11 renders c7–c9 | three stills |
+| T23 | WD + DVD | s11 darkroom develop, 2.5D parallax layers, captions on the centre card (→ T20–T22) | cards develop as they pass the centre |
+| T24 | PVD + WD | s12 plinths, the family portrait, dimension callouts, the riffle | 1 / 80 / 500 side by side at 3 vh |
+| T25 | WD | s12 dialog: the 148 × 210 bug, the singular line, magnetic options | "AVIVA selected: 1 sheet." is announced |
+| T26 | DVD + WD | s06 fanfold strip styling and the 13 margin drawings | one line per entry; notes at the print head |
+| T27 | PVD | s06 printer prop, the strip feed and the zig-zag pile (→ T26) | the strip feeds as you scroll |
+| T28 | PVD + WD | s06 torch: the cursor back-light reveals the watermark and formation | the watermark shows only around the cursor |
+| T29 | DVD | s06b fold notation and the 5 mm grid | the SVG set |
+| T30 | PVD + WD | the s06b section: crease relief and the fold preview (→ T29) | the plane's relief reads under raking light |
+| T31 | DVD | the s05 ISO 216 wall and title block | the SVG |
+| T32 | PVD + WD | s05 confetti puff, the perforation stretch, the active size on the wall (→ T31) | confetti at the third tear |
+| T33 | PVD | s08 generations (a greying and fibre-length parameter, back-light), the balance and the jar | a still at 1.5 vh |
+| T34 | WD | s08 labels, hover, parallax, the trimmed copy | ≤ 5 lines |
+| T35 | DVD | the eight s13 page renders and the model-card style | eight WebP files |
+| T36 | PVD + WD | s13 printout grid with page curl, and the .obj viewer (→ T35) | the corner lifts under the cursor |
+| T37 | PVD + WD | s13b cleanup: rigid-body debris, the bin, the counter, the push field | no blank screen between s13 and s14 |
+| T38 | PVD + WD | s14 flock (boids), planes avoiding the cursor, the sheet's lean and ripple; the plane leaves above the footer (10.1 #75) | the flock crosses after the release |
+| T39 | WD + DVD | s15 deckle edge and magnetic links | the page ends on a paper edge |
+| T40 | WD | global pass: cursor registry, magnetic utility, reduced-motion versions, the collision check | no text under a 3D object at 1440 |
+| T41 | reference-analyst · lead | density re-measure against #41, and fresh-eyes panel #1 | scores in `work/reviews/` |
+
+### 11.10 New facts in Part 11, for the Sonnet fact-check
+| # | Claim, as written | Where | Source | What to check |
+|---|---|---|---|---|
+| 1 | "Most white office paper contains optical brighteners. They turn ultraviolet into blue, so under a blacklight, AVIVA glows." | `s03.dm.body` | R§14.6 | "most"; "turn ultraviolet into blue" as a fair plain version of "absorb UV, re-emit blue" |
+| 2 | "0.10 mm" (the micrometer readout) | `s02.mic.readout` | R§1.3 med · `s02.note` (95–110 µm) | that it sits inside the range |
+| 3 | "10 SHEETS: 1.0 mm" | `s02.stack` | derived (R§1.3) | 10 × 0.1 mm |
+| 4 | "CALIBRATION SET: 4.99 g IN 8 WEIGHTS" (2 + 2 + 0.5 + 0.2 + 0.2 + 0.05 + 0.02 + 0.02 g); the prop forms in 5.12 (knob weights, flat leaf weights below 1 g) | `s04.weights`, 5.12 | derived; prop realism | the sum, and whether real calibration sets use these denominations and forms |
+| 5 | "= 4.99 g. Calculated, strictly speaking." | `s04.call.3` | R§13.1 · R§13.10 #10 | the checked fact, in a new form |
+| 6 | "SHEET SIZES A0–A8 · AFTER LICHTENBERG (1786), DIN 476 (1922) AND ISO 216 (1975)" | `s05.wall.title` | R§2 high · R§14.8 | the three years; "after" as fair attribution |
+| 7 | "A0 = 1 m². Each size is half the one before." | `s05.wall.note` | R§1.1 high · R§14.8 | the wording |
+| 8 | confetti "A7–A10-sized" | 5.12, 11.1 | R§13.1 (ISO table) | that A7–A10 are ISO 216 sizes |
+| 9 | "CENTRE LINE: 105 mm"; "FOLDS 1–2: CORNERS TO THE CENTRE LINE, 45°" | `s06b.call.1`, `.call.2` | derived (R§1.1) | 210 ÷ 2, and the 45° geometry of a dart's first two folds |
+| 10 | "Five to seven times. Researchers are aiming for 25." | `s08.c1` | R§3.5 · R§13.10 #9 | shortened from the checked card text |
+| 11 | "About three-quarters of Europe's paper and board comes back." | `s08.c2` | R§13.3 high | "comes back" as a fair plain version of a 75.1 % recycling rate (2024) |
+| 12 | the jar "4.64 g CO₂e" against the pan "4.99 g", the beam tipping toward the sheet; "Its footprint is about its own weight." | `s08.c3`, `s08.pan`, 5.12 | R§13.4 · R§13.10 #16 · R§13.1 | 4.64 g under ISO 14040/44; the heavier side |
+| 13 | "GEN 1 · VIRGIN FIBRE" | `s08.gen.hover` | terminology, no tag yet | that "virgin fibre" is the standard term for fibre not recycled before |
+| 14 | "MODEL CARD · aviva-a4.obj · 4 VERTICES · 2 FACES · 210 × 297 mm" | `s13.model.card` | our file (4.7) | that it matches the listing |
+| 15 | "Sheets used: {n} of 500." | `s13b.h3` | R§1.2 high | a ream is 500 |
+
+Not listed, because they state no fact: "Dark mode.", "Blacklight not included.", "v6.0, planned: flight.", "Seven folds. No new features.", "NO GLUE · NO CUTS · NO TAPE", "YOUR CURSOR IS A LAMP NOW", "The bin has seen them before.", "Just the one. Thank you for your restraint.", "Now generally available."
