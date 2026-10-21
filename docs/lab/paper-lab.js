@@ -55,7 +55,10 @@ const STATES = {
   eraser: 'cam=0,12,0.6&target=0,0.5,0&pos=0,0.5,0&rot=-35,0,0&light=s03&draw=demo&erase=1',
   line: 'cam=0,12,0.75&target=0,0.5,0&pos=0,0.5,0&rot=-35,0,0&light=s03&draw=line',
   sixfold: 'cam=30,35,0.25&target=-0.09,0.43,0&pos=0,0.5,0&rot=-90,0,0&sixfold=6&thick=0.1&light=studio',
-  // decision #31: the folded-letter hero
+  // the hero rest frame (brief 10.3) through system.createLetters()
+  herorest: 'hero=1&light=letters&aim=0,0.06,0',
+  herorestturn: 'hero=1&hyaw=16&light=letters&aim=0,0.06,0',
+  // decision #31: the folded-letter hero (earlier lab version)
   letters: 'cam=0,12,1.32&target=0,0.07,0&pos=0,0.5,0&letters=AVIVA&lt=1&lsp=0.19&light=letters&aim=0,0.06,0',
   lettershalf: 'cam=0,20,1.32&target=0,0.05,0&pos=0,0.5,0&letters=AVIVA&lt=0.5&lsp=0.19&lslide=0.25&light=letters&aim=0,0.04,0',
   lettersflat: 'cam=0,40,1.32&target=0,0.0,0&pos=0,0.5,0&letters=AVIVA&lt=0.04&lsp=0.19&lslide=0.85&light=letters&aim=0,0,0',
@@ -117,7 +120,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null, pencilProp = null, stackObj = null, bleedOv = null; const letterSheets = [];
+let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -204,6 +207,19 @@ async function apply(search) {
   } else if (stackObj) stackObj.object.visible = false;
   paper.contact.uniforms.uCS.value.z = lw ? 0.8 : 0.45;
   paper.lights.shadowExtent = lw ? 1.25 : 0.6;
+  // the hero rest frame through the API (brief 10.3): hero=1 [hfold=0..1 for every letter, hyaw=deg turn of A/V]
+  if (num('hero', 0) > 0) {
+    if (!heroObj) { heroObj = paper.createLetters(); scene.add(heroObj.object); }
+    heroObj.object.visible = true; heroObj.rest();
+    const hy = rad(num('hyaw', 0));
+    heroObj.items.forEach((it, i) => heroObj.set(i, { fold: num('hfold', 1), yaw: it.char === 'I' ? 0 : (i < 2 ? hy : -hy) }));
+    sheet.set({ visible: false });
+    if (num('herocam', 1) > 0) {
+      const C = heroObj.restCamera(innerWidth / innerHeight);
+      camera.fov = C.fov; camera.position.copy(C.position); camera.lookAt(C.target); camera.updateProjectionMatrix();
+      paper.lights.aim(new THREE.Vector3(0, 0.06, 0));
+    }
+  } else if (heroObj) heroObj.object.visible = false;
   // the HB pencil prop: pencil=x,y,z,rx,ry,rz (the graphite point, world metres; degrees)
   const pz = str('pencil', '');
   if (pz) {

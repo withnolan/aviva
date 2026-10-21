@@ -105,12 +105,18 @@ export function createGrounds(scroll) {
       const nb = n.ground0;
       if (n.key === 's11') {                                 // the white page slides up over the ink (hard edge)
         const sw = Y >= n.top - 0.06 ? 1 : 0; cb = nb; rb = nb; tc = sw; tr = sw;
+      } else if (n.key === 's02') {
+        // the hero holds its white studio under the h1 until its pin releases (s02 fades the charcoal in, below)
       } else if (n.key === 's15') {
         // the footer paints its own charcoal: the studio behind it stays as it is
       } else if (nb !== ca) {
         const t = smoothstep(n.top - 1, n.top, Y);
         cb = nb; rb = nb; tc = t; tr = t;
       }
+    }
+    if (s.key === 's02' && k > 0 && p < 0.6) {          // after the hero's 2 vh hold (s01 is a held pin)
+      const pv = secs[k - 1]; ca = keyAt(pv, pv.len); ra = rolesKeyAt(pv, pv.len); cb = s.ground0; rb = s.ground0;
+      tc = tr = smoothstep(0, 0.6, p);
     }
     const A = read(ca), B = read(cb), RA = read(ra), RB = read(rb);
     out.canvas = tc <= 0 ? A.canvas : tc >= 1 ? B.canvas : mix(A.canvas, B.canvas, tc);

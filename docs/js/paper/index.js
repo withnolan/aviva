@@ -19,12 +19,14 @@ import { ContactShadows } from './contact.js';
 import { Sheet } from './sheet.js';
 import { Stack } from './stack.js';
 import { createBleed } from './bleed.js';
+import { Letters, LETTER_LAYOUT } from './letters.js';
 import { sheetSegments } from './geometry.js';
 import * as folds from './folds.js';
 
 export { LIGHT_PRESETS, blendPresets, folds, Sheet, Stack };
 export { createPencil } from './pencil.js';
 export { createBleed } from './bleed.js';
+export { Letters, LETTER_LAYOUT } from './letters.js';
 
 // Colours (sRGB hex). paper / studio / graphite / ink / inkDeep match docs/css/tokens.css. The decision #24 families
 // (charcoal, the cool greys, HB-pencil yellow, blueprint blue) are provisional here until tokens.css carries them:
@@ -140,6 +142,8 @@ export async function createPaperSystem(renderer, opts = {}) {
     createSheet(o = {}) { const s = new Sheet(sys, o); sheets.add(s); return s; },
     /** a stack that grows (s12 tiers): { max, fly, width, height, sheetThickness, seed }. See stack.js */
     createStack(o = {}) { return new Stack(sys, o); },
+    /** the hero: AVIVA in five folded sheets + the graphite "4" (letters.js; brief 10.3) */
+    createLetters(o = {}) { return new Letters(sys, o); },
     /** The Bleed's full-screen carry (bleed.js): a drop-in for the site's props.createBleed(), in the module's ink colours */
     createBleed(o = {}) { return createBleed({ ink: colors.ink, inkDeep: colors.inkDeep, ...o }); },
     stacks: new Set(),

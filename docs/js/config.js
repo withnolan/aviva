@@ -12,7 +12,7 @@ export const CREDIT = {
 // The section plan (brief Part 2): id, length in viewport heights, pinned or not, ground.
 // The DOM is the source of the lengths (style="--len:…"); this table is used to sanity-check it at boot.
 export const SECTIONS = [
-  { id: 's01-hero', key: 's01', len: 1.5, pin: false },
+  { id: 's01-hero', key: 's01', len: 2, pin: true },      // holds all 2 vh (sec--hold): the h1 stays to 2.0 vh
   { id: 's02-thin', key: 's02', len: 3, pin: true },
   { id: 's03-intelligence', key: 's03', len: 6, pin: true },
   { id: 's04-outputs', key: 's04', len: 8, pin: true },
@@ -50,7 +50,7 @@ export const FEATURES = {
   paperCrumple: true,      // docs/assets/paper/crumple.bin.gz (the baked crumple, decision #32). Off: a fold-based stand-in.
   fallbackStills: false,   // docs/assets/fallback/f1–f6.webp (brief 5.10). Until then: CSS-drawn sheet slots.
   claimRenders: false,     // docs/assets/claims/c1–c8.webp (brief 5.6). Until then: a drawn sheet in a studio well.
-  floorPrint: true,        // docs/assets/logo/wordmark-floor.png (the hero floor wordmark)
+  floorPrint: false,       // the old hero's floor wordmark decal: removed with the folded-letter hero (brief 10.3)
 };
 
 export const REAM_SIZE = 500;

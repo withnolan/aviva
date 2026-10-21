@@ -9,6 +9,9 @@
 .anchor-top { position: absolute; top: 0; left: 0; width: 1px; height: 1px; }
 .sec { position: relative; }
 .js .sec--pin { height: calc(var(--len) * var(--vh100)); }
+/* a pin that holds for its whole length (s01: 2 vh), then scrolls away over the next section's first viewport;
+   the negative margin keeps the section map (scroll.js) unchanged */
+.js .sec--pin.sec--hold { height: calc((var(--len) + 1) * var(--vh100)); margin-bottom: calc(-1 * var(--vh100)); }
 .sec--flow { min-height: calc(var(--len) * var(--vh100)); }
 .stage {
   position: sticky;
@@ -28,7 +31,8 @@
 .fallback-line, .fb-still { display: none; }
 
 /* ======================= s01 · hero ======================= */
-.hero { position: relative; height: var(--vh100); }
+.hero { height: var(--vh100); }                       /* the s01 stage (sticky) */
+.hero__merge { left: 0; right: 0; bottom: calc(var(--hint-h) + 22px); margin: 0; text-align: center; color: var(--text-muted); }
 .hero__eyebrow {
   position: absolute;
   top: calc(var(--nav-h) + 4.5%);

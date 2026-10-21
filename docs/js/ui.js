@@ -285,6 +285,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
   /* ---------------------------------------------------------------- per frame */
   const groundOut = { dark: false };
   let introDone = false;
+  const s01 = S.byKey('s01'), heroFoot = $('.hero__foot'), heroL2 = $('.hero__l2'), heroSteps = {};
   function frame() {
     const Y = S.Y, cur = S.current;
     // reveals inside pinned stages
@@ -307,12 +308,25 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
       if (k !== marker.__g) { marker.__g = k; if (k) marker.setAttribute('data-ground', k); else marker.removeAttribute('data-ground'); }
     }
     // hint: hidden in s13–s15, dimmed while moving fast or during a hand-over
-    const late = cur.key === 's13' || cur.key === 's14' || cur.key === 's15';
+    const late = cur.key === 's13' || cur.key === 's14' || cur.key === 's15' || !E.intro.hint || (cur.key === 's01' && cur.p > 0.12);
     const moving = Math.abs(S.velocity) > 7 || (cur.pin && cur.raw > cur.len - 0.92) || (!cur.pin && cur.raw > cur.h - 0.9);
     setHint(late || root.classList.contains('is-loading') ? 'off' : moving ? 'dim' : 'on');
+    hero();
     sections();
     updateDims();
     return groundOut;
+  }
+
+  /* ---------------------------------------------------------------- s01 (brief 10.1 #73) */
+  // side and spec leave at 0–0.2 vh (the hint too, above); the h1 stays all 2 vh; l2 lands at 1.5 vh (H9) and waits
+  function hero() {
+    if (!s01) return;
+    const p = s01.p;
+    if (heroFoot && (heroSteps.foot || heroSteps.all)) { const on = p < 0.12; if (on !== heroFoot.__on) { heroFoot.__on = on; heroFoot.classList.toggle('is-in', on); } }
+    if (heroL2) {
+      const on = E.intro.started && p >= 1.5;
+      if (on !== heroL2.__on) { heroL2.__on = on; heroL2.classList.toggle('is-in', on); if (on) { heroL2.classList.remove('is-pressed'); void heroL2.offsetWidth; heroL2.classList.add('is-pressed'); } }
+    }
   }
 
   /* ---------------------------------------------------------------- the section-driven DOM */
@@ -368,7 +382,8 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
 
   return {
     frame, consume, say, measure, resplit,
-    intro() { introDone = true; for (const el of $$('[data-intro]')) el.classList.add('is-in'); },
+    /** the intro's DOM beats: 'l1' (eyebrow), 'foot' (side + spec); no step: everything at once */
+    intro(step) { if (!step || step === 'foot') introDone = true; heroSteps[step || 'all'] = true; for (const el of $$(step ? `[data-intro="${step}"]` : '[data-intro]')) el.classList.add('is-in'); },
     get destroyed() { return destroyed; },
   };
 }

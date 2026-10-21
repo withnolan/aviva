@@ -45,7 +45,7 @@ export function createScroll({ reduce = false } = {}) {
     const sy = window.scrollY;
     for (const s of secs) {
       const r = s.el.getBoundingClientRect();
-      s.top = (r.top + sy) / S.vh; s.h = Math.max(0.01, r.height / S.vh); s.bot = s.top + s.h;
+      s.top = (r.top + sy) / S.vh; s.h = Math.max(0.01, r.height / S.vh); s.bot = s.top + (s.pin ? Math.min(s.h, s.len) : s.h);
     }
     S.max = Math.max(1, document.documentElement.scrollHeight - S.vh);
     S.changed = true; S.refreshCount++;

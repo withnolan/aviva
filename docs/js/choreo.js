@@ -4,7 +4,7 @@
 // rx/ry/rz in degrees) are resolved against the live camera, so the sheet stays exactly where the brief puts it.
 import * as THREE from 'three';
 import { kf, seg, clamp, lerp, smooth, smoothstep, ease } from './util.js';
-import { E } from './events.js';
+import { E, INTRO } from './events.js';
 import { DEG, A4, STAGE, heroFraming } from './scene.js';
 
 const FLOOR_ANCHOR = new THREE.Vector3(0, 0, 0);
@@ -17,65 +17,90 @@ export function outputSpacing(w) { return w <= 600 ? 74 : w <= 1024 ? 40 : 26; }
 
 export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const { camera, rig, size } = stage;
-  const { A, B, F, O } = sheets;              // hero, second instance, falling output 1, outputs 2–8
+  const { A, B, F, O, L = [] } = sheets;      // hero, second instance, falling output 1, outputs 2–8, the letters
+  const letterPose = paper.folds ? paper.folds.letterPose : null;       // the module's folds (placeholder: none)
   const ctx = {
-    M: false, reduce: false, time: 0, hero: null, W0: null, loop: false,
+    M: false, reduce: false, time: 0, hero: null, loop: false,
     tear: { p1: 0, s1: 0, p2: 0, s2: 0, live: false, fall: 0 }, rel: { plane: 0, fly: 0, fade: 1 },
     out: { off: 0, lineY: 118, spacing: 26, drop: 0, on: false }, s07: 0, sizeChoice: 'A4', heroOn: false,
     ground: null,                                  // THREE.Color set every frame by the world from grounds.js
   };
 
-  /* ------------------------------------------------------------------ the hero fall (world space) */
-  // W0: the loader's registration pose (50 %, 52 %, 46 vh%) seen from the level stage camera; W1: flat on the floor.
-  function computeW0() {
-    const t = Math.tan(15 * DEG), d = A4.h / (0.46 * 2 * t);
-    return { x: 0, y: STAGE.anchor.y + (-0.04) * t * d, z: STAGE.anchor.z + STAGE.dist - d };
+
+  /* ------------------------------------------------------------------ the hero letters (brief 10.3, decision #31) */
+  // Rest frame: five A4 sheets, each folded once across its long side, standing end-on in a row (x %), baseline at
+  // y 66 %, cap height 30 vh%; the "4" at 90 %. Index 2, the I, is the hero sheet A: the product. PLACEHOLDER poses
+  // from folds.letterPose (shape t: 0 flat on the floor, 1 the letter) until the paper module's letters replace them
+  // (T2-T4): each frame heroLetters() writes ctx.letters[i] = { on, pos, quat, folds, op } and ctx.four; apply() reads them.
+  const LETTERS = [
+    { ch: 'A', x: 23.5, yaw: 0.45, face: Math.PI, turn: [0.10, 0.40], open: [0.40, 0.80], merge: [0.80, 1.25], back: 0.004 },
+    { ch: 'V', x: 39.5, yaw: -0.45, face: Math.PI, turn: [0.25, 0.55], open: [0.55, 0.95], merge: [0.95, 1.35], back: 0.002 },
+    { ch: 'I', x: 50, yaw: 0, face: Math.PI, turn: [0.40, 0.70], open: [0.70, 1.10], merge: null, back: 0 },
+    { ch: 'V', x: 60.5, yaw: 0.45, face: 0, turn: [0.25, 0.55], open: [0.55, 0.95], merge: [0.95, 1.35], back: 0.002 },
+    { ch: 'A', x: 76.5, yaw: -0.45, face: 0, turn: [0.10, 0.40], open: [0.40, 0.80], merge: [0.80, 1.25], back: 0.004 },
+  ];
+  const HERO = { cap: 0.30, capM: 0.1412, baseline: 66, four: 90, start: 0.4, gap: 0.12, fall: 1.1, drop: 0.5 };
+  const APEX = 36 * DEG, Y_AXIS = new THREE.Vector3(0, 1, 0), Z_AXIS = new THREE.Vector3(0, 0, 1), _sq = new THREE.Quaternion();
+  ctx.letters = LETTERS.map(() => ({ on: false, op: 1, pos: new THREE.Vector3(), quat: new THREE.Quaternion(), folds: null }));
+  ctx.four = { op: 0, pos: new THREE.Vector3(), h: 0.145 };
+  ctx.heroLetters = false;
+  /** camera distance at which the letters' cap height is HERO.cap of the viewport height (fov 30) */
+  const restDist = () => HERO.capM / (HERO.cap * 2 * Math.tan(15 * DEG));
+  function heroLetters(c, p, D) {
+    const R = ctx.reduce, visW = 2 * D * Math.tan(15 * DEG) * size.aspect, I = E.intro;
+    ctx.heroLetters = true;
+    for (let i = 0; i < 5; i++) {
+      const Ld = LETTERS[i], o = ctx.letters[i];
+      const t0 = HERO.start + HERO.gap * i, f = R ? 1 : clamp((c - t0) / HERO.fall);   // H2: in reading order
+      const merged = Ld.merge ? (R ? (p > 0.1 ? 1 : 0) : seg(p, Ld.merge[0], Ld.merge[1])) : 0;
+      o.on = f > 0 && merged < 1;
+      o.op = R ? I.fade : 1;
+      if (!o.on) continue;
+      // the fold closes over the last 60 % of the fall (H2) and opens on scroll (H7); the turn to face the camera (H6)
+      const fold = smooth(clamp((f - 0.4) / 0.6)) * (1 - (R ? (p > 0.1 ? 1 : 0) : seg(p, Ld.open[0], Ld.open[1])));
+      const turn = R ? 0 : seg(p, Ld.turn[0], Ld.turn[1]);
+      const yaw = lerp(Math.PI / 2 + Ld.yaw, Ld.face, turn);
+      const P = letterPose ? letterPose(Ld.ch, fold, { apex: APEX, yaw }) : null;
+      if (P) { o.folds = P.folds; o.quat.copy(P.quaternion); } else { o.folds = null; o.quat.setFromAxisAngle(Y_AXIS, yaw - Math.PI / 2); }
+      // the landing settle: a short rotational overshoot about the view axis (zeta 0.7, <= 1.5 deg), no bounce
+      const tl = c - (t0 + HERO.fall);
+      if (!R && tl > 0 && tl < 0.7) o.quat.premultiply(_sq.setFromAxisAngle(Z_AXIS, 1.5 * DEG * Math.exp(-7 * tl) * Math.sin(14 * tl)));
+      if (!R && f < 1) o.quat.premultiply(_sq.setFromAxisAngle(Y_AXIS, 0.35 * (1 - f) * Math.sin(9 * f)));   // flutter
+      const x = (Ld.x - 50) / 100 * visW;
+      o.pos.set(lerp(x, 0, smooth(merged)), (P ? P.lift : A4.h / 2) + HERO.drop * (1 - f * f), -Ld.back * smooth(merged));
+    }
+    // H3: the "4" (graphite type plane) at cap height; it fades out by 0.15 vh (H5)
+    ctx.four.op = (R ? I.fade : seg(c, 2.1, 2.5)) * (1 - seg(p, 0, 0.15));
+    ctx.four.pos.set((HERO.four - 50) / 100 * visW, ctx.four.h / 2, 0);
   }
-  function fallPose(f, out) {
-    const W0 = ctx.W0, lift = 0.026, t0 = 0.12;
-    if (f <= 0) return Object.assign(out, { x: W0.x, y: W0.y, z: W0.z, rx: 0, ry: 0, rz: 0 });
-    if (f < t0) { const k = Math.sin((f / t0) * Math.PI / 2); return Object.assign(out, { x: W0.x, y: W0.y + lift * k, z: W0.z, rx: -4 * k, ry: 0, rz: 0 }); }
-    const tt = (f - t0) / (1 - t0), damp = (1 - tt) ** 1.15, w = 2 * Math.PI * 1.25 * tt;
-    const y = lerp(W0.y + lift, 0.0004, ease.sine(tt));
-    return Object.assign(out, {
-      x: 0.055 * Math.sin(w) * damp,
-      y: Math.max(0.0004, y),
-      z: lerp(W0.z, 0, ease.inOut(tt)) + 0.018 * Math.sin(w + 1.1) * damp,
-      rx: lerp(-4, -90, smooth(Math.min(1, tt * 1.15))) + 20 * Math.sin(w + 0.6) * damp,
-      ry: 12 * Math.sin(w) * damp,
-      rz: 6 * Math.sin(w * 0.5 + 0.4) * damp,
-    });
-  }
-  const _fp = {};
 
   /* ------------------------------------------------------------------ claims, one per section (brief 2B) */
   const C = {
     s01(S, p) {
-      const fall = ctx.reduce ? 1 : Math.max(E.intro.fall, clamp(p / 0.45));
-      if (fall < 1 && E.intro.started) ctx.loop = true;
-      fallPose(fall, _fp);
-      S.set('cam.floor', smooth(clamp(fall * 1.12)));
-      S.set('cam.pitch', -68 * smooth(clamp(fall * 1.08)));
-      S.set('cam.push', ctx.reduce ? 0 : 0.06 * seg(p, 0, 1.5, ease.linear));
-      S.many('A.', { on: 1, op: E.loader.sheet, world: 1, wx: _fp.x, wy: _fp.y, wz: _fp.z, wrx: _fp.rx, wry: _fp.ry, wrz: _fp.rz,
-        x: 50, y: 52, size: 46, ry: 0, rx: 0, rz: 0 });
-      S.set('A.flutter', ctx.reduce ? 0 : 0.008 * Math.sin(Math.PI * clamp(fall)));
-      S.set('A.show', 0.14 * (1 - smoothstep(0.0004, 0.0064, _fp.y)));
-      S.set('A.peel', ctx.reduce ? 0 : 0.08 * seg(p, 1.0, 1.5));
-      S.set('world.print', 1); S.set('world.shadow', 1);
-      S.light('s00', 1 - fall); S.light('s01', fall);
+      // brief 10.3. H1-H4 run on E.intro.clock (main.js playIntro), H5-H9 on scroll inside the 2 vh hold.
+      const I = E.intro, R = ctx.reduce, c = R ? INTRO.end : I.clock;
+      if (I.started && !I.done) ctx.loop = true;
+      const settle = R ? 1 : ease.out(clamp((c - 2.6) / 2.2));          // H4: x1.06 -> x1.00, pitch -9 -> -6
+      const h9 = R ? (p > 0.1 ? 1 : 0) : seg(p, 1.1, 1.5);                // H9: the product stands up, the camera levels
+      const HF = heroFraming(size.aspect, 30), D = restDist() * lerp(1.06, 1, settle);
+      S.set('cam.floor', 1 - h9);
+      S.set('cam.pitch', lerp(lerp(-9, -6, settle), 0, h9));
+      S.set('cam.push', (1 - D / HF.dist) * (1 - h9));
+      S.set('cam.panY', (HERO.baseline - HF.sy) * (1 - h9));
+      heroLetters(c, p, D);
+      S.many('A.', { on: ctx.letters[2].on ? 1 : 0, op: R ? I.fade : 1, world: 1 - h9, x: 50, y: 52, size: 46, rx: 0, ry: 0, rz: 0 });
+      S.set('world.print', 0); S.set('world.shadow', 1);
+      const k1 = R ? 1 : seg(c, 0, 0.4);                                   // H1: the studio fades up under the drawing
+      S.light('s00', 1 - k1); S.light('letters', k1 * (1 - h9)); S.light('s01', k1 * h9);
       S.setEnum('A.gen', 'h' + (E.regen.gen || 0));
     },
     s02(S, p) {
-      const lift = seg(p, 0.08, 0.8), up = seg(p, 0.3, 0.8);
-      S.set('cam.floor', 1 - lift); S.set('cam.pitch', -68 * (1 - lift));
-      S.set('cam.push', ctx.reduce ? 0 : 0.06 * (1 - lift) + 0.04 * seg(p, 0.8, 3, ease.linear));
-      S.many('A.', { on: 1, op: 1, world: 1 - up, wx: 0, wy: 0.0004 + 0.03 * up, wz: 0, wrx: -90, wry: 0, wrz: 0,
-        x: 50, y: 50, size: 52, rx: 0, rz: 0 });
+      // from the hero's end frame (10.3 H9): upright at (50, 52), 46 vh%, level camera; push-in to (50, 50), 52 vh%
+      S.set('cam.floor', 0); S.set('cam.pitch', 0);
+      S.set('cam.push', ctx.reduce ? 0 : 0.04 * seg(p, 0.8, 3, ease.linear));
+      S.many('A.', { on: 1, op: 1, world: 0, x: 50, y: kf(p, [[0, 52], [0.8, 50, ease.inOut]]), size: kf(p, [[0, 46], [0.8, 52, ease.inOut]]), rx: 0, rz: 0 });
       S.set('A.ry', kf(p, [[0.8, 0], [1.6, 90, ease.inOut], [2.2, 90], [3, 180, ease.inOut]]));
-      S.set('A.peel', ctx.reduce ? 0 : kf(p, [[0, 0.08], [0.35, 0.72, ease.out], [0.8, 0, ease.inOut]]));
-      S.set('A.show', 0.14 * (1 - seg(p, 0, 0.06)));
-      S.set('world.print', 1 - seg(p, 0.3, 0.8)); S.set('world.shadow', 1 - lift);
+      S.set('world.print', 0); S.set('world.shadow', 0);
       S.set('bg.dark', seg(p, 1.3, 1.6) * (1 - seg(p, 2.2, 2.5)));
       const k = seg(p, 0.6, 1.4);
       S.light('s01', 1 - k); S.light('s02', k);
@@ -271,10 +296,10 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   /* ------------------------------------------------------------------ per-frame: claim → resolve */
   function claim(secs, frame) {
     ctx.M = size.w <= 600 || size.aspect <= 0.8;      // the stacked layout: the same test as the CSS media query
+    ctx.heroLetters = false;
     ctx.reduce = frame.reduce;
     ctx.time = E.time;
     ctx.loop = false;
-    if (!ctx.W0) ctx.W0 = computeW0();
     state.reset();
     let total = 0;
     for (const s of secs) {
@@ -303,8 +328,8 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     stage.screenQuat(g('A.rx'), g('A.ry'), g('A.rz'), _q);
     const w = clamp(g('A.world'));
     if (w > 0.0005) {
-      _wp.set(g('A.wx'), g('A.wy'), g('A.wz'));
-      _e.set(g('A.wrx') * DEG, g('A.wry') * DEG, g('A.wrz') * DEG, 'XYZ'); _wq.setFromEuler(_e);
+      if (ctx.heroLetters) { _wp.copy(ctx.letters[2].pos); _wq.copy(ctx.letters[2].quat); }
+      else { _wp.set(g('A.wx'), g('A.wy'), g('A.wz')); _e.set(g('A.wrx') * DEG, g('A.wry') * DEG, g('A.wrz') * DEG, 'XYZ'); _wq.setFromEuler(_e); }
       _pos.lerp(_wp, w); _q.slerp(_wq, w); k = lerp(k, 1, w);
     }
     o.position.copy(_pos); o.quaternion.copy(_q); o.scale.setScalar(g('A.scale') * k);
@@ -478,8 +503,26 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
         curl: g('A.curl') > 0.001 ? { corner: state.enum('A.curlCorner'), t: g('A.curl'), r: 0.015, deg: 25, size: 0.06 } : null,
         bleed: front > 0.0005 ? { t: front, at: [0, 0], radiusMM: 9, amount: 1, grade: g('ink.grade') } : null,
         creases: creases.length ? creases : null,
+        folds: ctx.heroLetters ? ctx.letters[2].folds : null,
       });
       applyTear();
+    }
+
+    /* the other four letters (s01) and the "4" */
+    for (let i = 0; i < 4; i++) {
+      const s = L[i], o = ctx.letters[i < 2 ? i : i + 1], on = ctx.heroLetters && o.on;
+      s.object.visible = on;
+      if (!on) continue;
+      s.object.position.copy(o.pos); s.object.quaternion.copy(o.quat); s.object.scale.setScalar(1);
+      push(s, { folds: o.folds, opacity: o.op });
+    }
+    const four = props.four, fo = ctx.four;
+    four.mesh.visible = ctx.heroLetters && fo.op > 0.003;
+    if (four.mesh.visible) {
+      four.mesh.position.copy(fo.pos);
+      four.mesh.quaternion.setFromAxisAngle(Y_AXIS, Math.atan2(camera.position.x - fo.pos.x, camera.position.z - fo.pos.z));
+      four.mesh.scale.set(fo.h * four.aspect, fo.h, 1);
+      four.mesh.material.opacity = fo.op;
     }
 
     /* the second instance */

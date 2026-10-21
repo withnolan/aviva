@@ -2,9 +2,15 @@
 // choreography reads E every frame and folds the values into its claims (so scrolling back still works).
 import { gsap } from 'gsap';
 
+// The hero intro (brief 10.3 H1–H4): E.intro.clock counts seconds from "loaded" (H1, the loader's nominal 2.2 s; a
+// slow load shifts everything after H0). H1 0–0.4 the studio fades up · H2 0.4–2.2 the fold-in (five sheets, 0.12 s
+// apart, 1.1 s each) · H3 2.1–2.6 the "4" · H4 2.6–4.8 the settle. DOM beats: eyebrow + h1 l1 at 2.7 (4.9 s), side +
+// spec at 3.3 (5.5 s), the scroll hint at 3.8 (6.0 s); the loader drawing retracts at 2.6 and leaves at 3.0.
+export const INTRO = { end: 4.8, retract: 2.6, gone: 3.0, l1: 2.7, foot: 3.3, hint: 3.8, ff: 0.4 };
+
 export const E = {
   loader: { sheet: 0 },                              // sheet opacity at the end of the loader
-  intro: { fall: 0, started: false, landed: false },  // the hero leaf-fall, 0 → 1 over ≈ 2.4 s
+  intro: { clock: 0, fade: 0, started: false, done: false, ff: false, hint: false },   // the hero intro (INTRO)
   think: { curl: 0 },                                 // s03 "thinking" corner curl
   regen: { crumple: 0, roll: 0, drop: 1, hidden: 0, fade: 1, busy: false },
   tear: { p1: 0, p2: 0, split1: 0, split2: 0, refuse: 0, busy: false },

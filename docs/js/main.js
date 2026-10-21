@@ -5,7 +5,7 @@
 // whatever happens, and any failure of the 3D layer falls back to the static page (brief 3.20).
 import { loadCopy, copy } from './copy.js';
 import { FLAGS } from './config.js';
-import { E, tween } from './events.js';
+import { E, INTRO, tween, timeline } from './events.js';
 import { createScroll, gsap, ScrollTrigger } from './scroll.js';
 import { createGrounds } from './grounds.js';
 import { createUI, applyCredit } from './ui.js';
@@ -74,36 +74,62 @@ function createLoader() {
   return {
     progress(f) { target = Math.max(target, Math.min(1, f)); },
     finish() { target = 1; return finished; },
-    async out() {
-      // "NOTHING LOADED" for 400 ms, the sheet fades in inside the marks, the crop marks retract and fade
-      if (label) label.textContent = copy('s00.done');
-      if (sr) sr.textContent = copy('s00.sr.loaded');
-      await new Promise((r) => setTimeout(r, reduce ? 150 : 400));
-      el && el.classList.add('is-done', 'is-clear');
-      tween(E.loader, { sheet: 1, duration: reduce ? 0.3 : 0.4, ease: 'power1.out' });
-      await new Promise((r) => setTimeout(r, 420));
-      el && el.classList.add('is-gone');
+    /** the hand-off to the intro (brief 10.1 #74): 'loaded' (H1: the done label; the studio fades up under the
+     *  drawing), 'retract' (after the "4": crop marks and dimensions leave), 'gone' */
+    handOff(step) {
+      if (!el) return;
+      if (step === 'loaded') {
+        cancelAnimationFrame(raf); set(1); E.loader.sheet = 1;
+        if (label) label.textContent = copy('s00.done');
+        if (sr) sr.textContent = copy('s00.sr.loaded');
+        el.classList.add('is-clear');
+      } else if (step === 'retract') el.classList.add('is-done');
+      else if (step === 'gone') el.classList.add('is-gone');
     },
     kill() { cancelAnimationFrame(raf); if (!done) { done = true; resolveDone(); } el && el.classList.add('is-done', 'is-clear', 'is-gone'); E.loader.sheet = 1; },
   };
 }
 
-/* ------------------------------------------------------------------ the hero intro (s01, time-driven) */
-function heroIntro(ui) {
-  const l1 = $('.hero__l1'), l2 = $('.hero__l2');
-  const show = (el) => { if (!el || el.classList.contains('is-in')) return; el.classList.add('is-in'); el.classList.remove('is-pressed'); void el.offsetWidth; el.classList.add('is-pressed'); };
-  let l2Timer = 0;
-  const landed = () => {
-    show(l1); ui.intro();
-    l2Timer = setTimeout(() => show(l2), 1400);                    // the pause is the joke
+/* ------------------------------------------------------------------ the hero intro (brief 10.3 H1–H4) */
+// One timeline on E.intro.clock (events.js INTRO); choreo.js s01 poses the letters and the camera from it, and runs
+// H5–H9 on scroll. Any wheel, key or touch input (or a scroll by other means) fast-forwards what is left to the rest
+// frame in 0.4 s; scroll is never locked, and the intro never replays.
+function playIntro(ui, loader) {
+  const I = E.intro, l1 = $('.hero__l1');
+  if (I.started) return { ff() {} };
+  I.started = true;
+  const beats = {
+    l1() {
+      if (l1 && !l1.classList.contains('is-in')) { l1.classList.add('is-in'); l1.classList.remove('is-pressed'); void l1.offsetWidth; l1.classList.add('is-pressed'); }
+      ui.intro('l1');
+    },
+    foot() { ui.intro('foot'); },
+    hint() { I.hint = true; },
   };
-  if (reduce) { E.intro.fall = 1; landed(); }
-  else {
-    E.intro.started = true;
-    tween(E.intro, { fall: 1, duration: 2.4, ease: 'none', delay: 0.15, onComplete() { E.intro.landed = true; } });
-    setTimeout(landed, 2050);
+  if (reduce) {             // no fold-in, no push-in: the letters fade in standing (400 ms), the drawing fades (300 ms)
+    loader.handOff('loaded'); I.clock = INTRO.end;
+    tween(I, { fade: 1, duration: 0.4, ease: 'power1.out', onComplete() { loader.handOff('retract'); setTimeout(() => loader.handOff('gone'), 300); } });
+    beats.l1(); beats.foot(); beats.hint(); I.done = true;
+    return { ff() {} };
   }
-  return { firstScroll() { if (l1 && l1.classList.contains('is-in')) { clearTimeout(l2Timer); show(l2); } else { landed(); clearTimeout(l2Timer); show(l2); } } };
+  I.fade = 1;
+  const evs = ['wheel', 'keydown', 'touchstart'], opt = { passive: true };
+  const detach = () => { for (const e of evs) removeEventListener(e, ff, opt); };
+  const tl = timeline({ onComplete() { I.done = true; detach(); log('intro done'); } });
+  tl.to(I, { clock: INTRO.end, duration: INTRO.end, ease: 'none' }, 0)
+    .call(() => loader.handOff('loaded'), null, 0)
+    .call(() => loader.handOff('retract'), null, INTRO.retract)
+    .call(() => loader.handOff('gone'), null, INTRO.gone)
+    .call(beats.l1, null, INTRO.l1)
+    .call(beats.foot, null, INTRO.foot)
+    .call(beats.hint, null, INTRO.hint);
+  function ff() {
+    if (I.done || I.ff) return;
+    I.ff = true; detach(); log('intro fast-forward at', I.clock.toFixed(2));
+    tl.tweenTo(tl.duration(), { duration: INTRO.ff, ease: 'power1.inOut' });
+  }
+  for (const e of evs) addEventListener(e, ff, opt);
+  return { ff };
 }
 
 /* ------------------------------------------------------------------ boot */
@@ -170,7 +196,7 @@ async function boot() {
     const t2 = prof ? performance.now() : 0;
     ui.frame();
     const t3 = prof ? performance.now() : 0;
-    if (intro && scroll.Y > 0.02) { intro.firstScroll(); intro = null; }
+    if (intro && scroll.Y > 0.005) { intro.ff(); intro = null; }      // a scroll without wheel/key/touch (scrollbar)
     if (world) {
       const s07 = scroll.byKey('s07');
       if (s07 && s07.w > 0.5 && s07.p > 4.15 && !s07seen) { s07seen = true; world.showDotLabel(2600); }
@@ -221,7 +247,7 @@ async function boot() {
     root.classList.remove('is-loading');
     scroll.start();
     ScrollTrigger.refresh();
-    intro = heroIntro(ui);
+    intro = playIntro(ui, loader);
     aviva.ready = true;
     log('revealed');
     // after the hero has landed, when the page is idle: fetch and compile the baked crumple (world.warm)
@@ -237,8 +263,7 @@ async function boot() {
   log('warm-up frames done');
   loader.progress(1);
   await timeout(loader.finish(), 8000, 'loader').catch(() => {});
-  if (!revealed) await loader.out();
-  reveal();
+  reveal();                                 // H1: the intro takes over the loader (playIntro → loader.handOff)
 }
 
 // the watchdog: whatever happens, the page is readable and scrollable within 16 s

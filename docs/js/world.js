@@ -40,24 +40,26 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     const B = paper.createSheet({ name: 'twin', low: true });
     const F = paper.createSheet({ name: 'out1', low: true });
     const O = Array.from({ length: 7 }, (_, i) => paper.createSheet({ name: 'out' + (i + 2), low: true }));
-    for (const s of [A, B, F, ...O]) { stage.scene.add(s.object); s.object.visible = false; }
-    const numerals = createTypePlane('4.99 g');
+    // the hero letters A V _ V A (brief 10.3): the I in the middle is A itself, the product
+    const L = ['A', 'V', 'V', 'A'].map((ch, i) => paper.createSheet({ name: 'letter' + (i + 1) + ch, low: true }));
+    for (const s of [A, B, F, ...O, ...L]) { stage.scene.add(s.object); s.object.visible = false; }
+    const numerals = createTypePlane('4.99 g'), four = createTypePlane('4');
     const line = createDryingLine(8), drop = createDrop(), bleed = createBleed();
-    stage.scene.add(numerals.mesh, line.group, drop);
+    stage.scene.add(numerals.mesh, four.mesh, line.group, drop);
     const paint = await paper.createPaint();
     A.attachPaint(paint);
     if (FEATURES.floorPrint) await paper.loadFloorPrint('assets/logo/wordmark-floor.png');
     onProgress(0.78);
     if (document.fonts && document.fonts.load) {
-      document.fonts.load('300 100px "Hanken Grotesk"').then(() => { numerals.draw(); dirty = 2; }).catch(() => {});
+      document.fonts.load('300 100px "Hanken Grotesk"').then(() => { numerals.draw(); four.draw(); dirty = 2; }).catch(() => {});
     }
     const state = new SceneState();
     const springs = new Springs(state);
     springs.direct = reduced;
-    const props = { numerals, line, drop, bleed };
-    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O } });
+    const props = { numerals, line, drop, bleed, four };
+    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, L } });
     choreo.ctx.ground = new THREE.Color('#ECEBE7');
-    return { paper, A, B, F, O, props, paint, state, springs, choreo };
+    return { paper, A, B, F, O, L, props, paint, state, springs, choreo };
   }
 
   async function rebuild() {
