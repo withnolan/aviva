@@ -197,7 +197,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       S.set('ink.drop', seg(p, 2.15, 2.4, ease.in));
       S.set('ink.front', p < 4.0 ? front : 1 - seg(p, 4.1, 4.4));
       S.set('ink.grade', seg(p, 2.4, 2.55) * (1 - seg(p, 4.0, 4.1)));
-      const bleed = p < 3.4 || p >= 3.97 ? 0 : (R ? 0 : 0.4 + 0.6 * seg(p, 3.4, 3.95, ease.linear));
+      const bleed = p < 3.4 || p >= 3.97 ? 0 : (R ? 0 : 0.4 + 0.55 * seg(p, 3.4, 3.9, ease.linear));
       S.set('ink.bleed', bleed);
       S.set('bg.ink', p >= 3.95 || (R && p >= 3.4) ? 1 : 0);
       S.setEnum('ground', p >= 3.9 || (R && p >= 3.4) ? 'ink' : 'paper');
@@ -462,7 +462,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     }
   }
 
-  const bg = new THREE.Color();
+  const bg = new THREE.Color(), _sc = {};
   const MID_CREASE = [{ n: [0, 1], d: 0, strength: 1 }];
   const DOG_CREASE = { n: [0.7071, 0.7071], d: 0.7071 * (A4.w / 2 + A4.h / 2 - 0.03), strength: 0.8 };
   function apply() {
@@ -557,6 +557,9 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     /* the Bleed (screen space) */
     const bl = props.bleed.material.uniforms;
     bl.uCov.value = g('ink.bleed'); bl.uAspect.value = size.aspect; bl.uFlat.value = ctx.reduce ? 1 : 0;
+    if (bl.uCenter && bl.uCov.value > 0.0005 && aOn) {          // the front grows from where the drop landed: the sheet's centre
+      stage.toScreen(A.object.position, _sc); bl.uCenter.value.set(_sc.x / size.w, 1 - _sc.y / size.h);
+    }
 
     /* floor print and contact blob (the placeholder's; the module draws its own contact shadows) */
     const pr = g('world.print');

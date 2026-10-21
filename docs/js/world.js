@@ -44,7 +44,8 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     const L = ['A', 'V', 'V', 'A'].map((ch, i) => paper.createSheet({ name: 'letter' + (i + 1) + ch, low: true }));
     for (const s of [A, B, F, ...O, ...L]) { stage.scene.add(s.object); s.object.visible = false; }
     const numerals = createTypePlane('4.99 g'), four = createTypePlane('4');
-    const line = createDryingLine(8), drop = createDrop(), bleed = createBleed();
+    const line = createDryingLine(8), drop = createDrop();
+    const bleed = paper.raw && paper.raw.createBleed ? paper.raw.createBleed() : createBleed();   // the module's ink front at screen scale
     stage.scene.add(numerals.mesh, four.mesh, line.group, drop);
     const paint = await paper.createPaint();
     A.attachPaint(paint);
@@ -100,7 +101,8 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     r.setRenderTarget(null);
     r.clear();
     r.render(stage.scene, stage.camera);
-    if (W.props.bleed.active) r.render(W.props.bleed.scene, W.props.bleed.camera);
+    const bl = W.props.bleed;
+    if (bl.active) { const ac = r.autoClear; r.autoClear = false; r.render(bl.scene, bl.camera); r.autoClear = ac; }   // over the scene
   }
   const veilEl = canvas.parentElement && canvas.parentElement.classList.contains('gl') ? canvas.parentElement : null;
   function veil() {

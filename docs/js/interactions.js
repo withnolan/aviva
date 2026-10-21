@@ -39,12 +39,13 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
   const clearTimers = () => { for (const t of D.timers) clearTimeout(t); D.timers.length = 0; };
   function thinkSequence() {
     clearTimers();
+    D.timers.push(setTimeout(() => ui.say(st03, copy('s03.status.memory')), 400));
     D.timers.push(setTimeout(() => {
       ui.say(st03, copy('s03.status.thinking'));
       if (!reduce) timeline().to(E.think, { curl: 1, duration: 0.45, ease: 'power2.out' }).to(E.think, { curl: 0, duration: 0.5, ease: 'power2.inOut', delay: 0.15 });
-    }, 1200));
-    D.timers.push(setTimeout(() => ui.say(st03, copy('s03.status.thought')), 2600));
-    D.timers.push(setTimeout(() => ui.say(st03, copy('s03.status.answer'), { mark: true }), 3600));
+    }, 1400));
+    D.timers.push(setTimeout(() => ui.say(st03, copy('s03.status.thought')), 2800));
+    D.timers.push(setTimeout(() => ui.say(st03, copy('s03.status.answer'), { mark: true }), 3800));
   }
   function setPencil(on) {
     if (!pencil) return;
@@ -134,12 +135,16 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
   for (const b of $$('#s03-draw, #s14-draw')) b.addEventListener('click', () => setToggle(b, !(D.toggle && b.getAttribute('aria-pressed') === 'true')));
 
   // ERASE: the pencil turned round
-  const erase = $('#s03-erase');
+  const erase = $('#s03-erase'), note03 = $('#s03-note');
   if (erase) erase.addEventListener('click', () => {
     D.eraser = !D.eraser;
     erase.setAttribute('aria-pressed', String(D.eraser));
     pencil && pencil.classList.toggle('is-eraser', D.eraser);
     paint() && paint().setEraser(D.eraser);
+    if (D.eraser && note03 && !D.noteShown) {
+      D.noteShown = true; note03.hidden = false;
+      setTimeout(() => { note03.hidden = true; }, 4000);
+    }
   });
 
   // keyboard: "Type a line" draws a pre-baked line of quick handwriting (never the typed text)

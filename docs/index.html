@@ -85,11 +85,11 @@
   <!-- Furniture: nav, millimetre ruler, scroll hint -->
   <div class="furniture" id="furniture">
     <header class="nav">
-      <a class="nav__logo" href="#top" aria-label="aviva, back to the top" data-copy="nav.logo">
+      <a class="nav__logo" href="#top" aria-label="AVIVA, back to the top" data-copy="nav.logo">
         <svg class="nav__mark" viewBox="0 0 26 30" aria-hidden="true" focusable="false">
           <path d="M6.05 8H0.05 M8.05 6V0 M6.05 22H0.05 M8.05 24V30 M19.95 8H25.95 M17.95 6V0 M19.95 22H25.95 M17.95 24V30" fill="none" stroke="currentColor" stroke-width="1.5"/>
         </svg>
-        <span class="nav__word" aria-hidden="true">aviva</span>
+        <span class="nav__word" aria-hidden="true">AVIVA</span>
       </a>
       <nav class="nav__links" aria-label="Main" data-copy="nav.aria">
         <ul>
@@ -192,12 +192,10 @@
     <!-- s02 · 0.1 mm. -->
     <section class="sec sec--pin" id="s02-thin" data-sec="s02" data-ground="charcoal" style="--len:3" aria-labelledby="s02-h2">
       <div class="stage">
-        <h2 class="s02__h2 display-s" id="s02-h2" data-copy="s02.h2" data-at="1.55" data-split>0.1&nbsp;mm.</h2>
+        <h2 class="s02__h2 display-s" id="s02-h2" data-copy="s02.h2" data-at="0.35" data-until="0.85" data-split>0.1&nbsp;mm.</h2>
         <p class="s02__verso micro" data-copy="s02.verso" data-at="2.25" data-until="3.2">VERSO: ALSO BLANK.</p>
-        <div class="s02__copy" data-at="1.65">
-          <p class="s02__body lead" data-copy="s02.body" data-split>From the side, it is barely here. That was the hard part.</p>
-          <p class="s02__note small" data-copy="s02.note">Caliper of 80 g/m² copy paper: about 95–110 µm, depending on how tightly its fibres are packed.</p>
-        </div>
+        <p class="s02__body lead" data-copy="s02.body" data-at="0.35" data-until="0.85" data-split>From the side, it is barely here. That was the hard part.</p>
+        <p class="s02__note small" data-copy="s02.note" data-at="1.6" data-until="2.2">Caliper of 80 g/m² copy paper: about 95–110 µm, depending on how tightly its fibres are packed.</p>
       </div>
     </section>
 
@@ -205,13 +203,12 @@
     <section class="sec sec--pin" id="s03-intelligence" data-sec="s03" data-ground="charcoal" style="--len:6" aria-labelledby="s03-h2">
       <div class="stage s03" id="s03-stage">
         <div class="s03__head" data-at="0.15" data-until="5.25">
-          <p class="eyebrow" data-copy="s03.eyebrow">INFERENCE</p>
-          <h2 class="s03__h2 h2" id="s03-h2" data-copy="s03.h2" data-split>Intelligence not included.</h2>
+          <p class="eyebrow" data-copy="s03.eyebrow">AVIVA INTELLIGENCE</p>
+          <h2 class="s03__h2 h2" id="s03-h2" data-copy="s03.h2" data-split>Intelligence, built in.</h2>
           <p class="s03__body body">
-            <span class="d-only" data-copy="s03.body">aviva A4 ships with no data, no knowledge and no opinions. John Locke called this “white paper, void of all characters”. We call it the base model.</span>
-            <span class="m-only" data-copy="s03.body.m">No data. No knowledge. No opinions. Locke called it “white paper, void of all characters”. We call it the base model.</span>
+            <span class="d-only" data-copy="s03.body">AVIVA Intelligence learns from every stroke you make, remembers every one of them, and answers in your own handwriting.</span>
+            <span class="m-only" data-copy="s03.body.m">It learns from every stroke, remembers every one, and answers in your handwriting.</span>
           </p>
-          <p class="s03__cta label" data-copy="s03.cta"><span class="u-pencil">Pick up the pencil.</span></p>
         </div>
 
         <p class="draw-hint label" data-hint="s03" aria-hidden="true">
@@ -241,14 +238,14 @@
             <label class="kb-line__label small" for="s03-kb-input" data-copy="s03.kb.label">Type a line</label>
             <span class="kb-line__field">
               <span class="icon icon--pencil" aria-hidden="true"></span>
-              <input class="kb-line__input" id="s03-kb-input" name="line" type="text" maxlength="160" placeholder="Ask aviva anything" data-copy-placeholder="s03.kb.placeholder" enterkeyhint="send">
+              <input class="kb-line__input" id="s03-kb-input" name="line" type="text" maxlength="160" placeholder="Ask AVIVA anything" data-copy-placeholder="s03.kb.placeholder" enterkeyhint="send">
               <button class="btn btn--small" type="submit" aria-label="Write it: the pencil writes a line of quick handwriting on the sheet." data-copy="s03.kb.submit">WRITE IT</button>
             </span>
           </form>
-          <p class="s03__note micro" data-copy="s03.note">Pencil mostly sits on the fibres, so it mostly erases. Ink soaks in, so it doesn’t.</p>
+          <p class="s03__note micro" id="s03-note" data-copy="s03.note" hidden>Pencil mostly sits on the fibres, so it mostly erases. Ink soaks in, so it doesn’t.</p>
         </div>
         <p class="sr-only" id="s03-sr" aria-live="polite"></p>
-        <p class="fallback-line" data-copy="s03.fallback">In 3D, you would write on the sheet here. It would not answer. That is the feature.</p>
+        <p class="fallback-line" data-copy="s03.fallback">In 3D, you would write on the sheet here, and AVIVA would learn it by heart.</p>
       </div>
     </section>
 
@@ -261,12 +258,11 @@
           <h2 class="h2" id="s04-h2" data-copy="s04.h2" data-split>We weighed the weights.</h2>
         </div>
         <div class="s04__copy" data-at="0.45" data-until="2.55">
-          <p class="body" data-copy="s04.body">80 g/m² × 0.06237 m² = 4.99 g. Our weights are open, and you can hold them in one hand.</p>
-          <p class="small muted" data-copy="s04.note">Strictly speaking, we calculated them. Real sheets vary by a few per cent.</p>
+          <p class="body" data-copy="s04.body">Our weights are open. You can hold them in one hand.</p>
         </div>
         <div class="s04__gal" data-at="2.85" data-until="8.4">
           <h3 class="h3" data-copy="s04.g.h3">Selected outputs.</h3>
-          <p class="small muted" data-copy="s04.g.sub">Unretouched. Each one exactly as aviva produced it.</p>
+          <p class="small muted" data-copy="s04.g.sub">Unretouched. Each one exactly as AVIVA produced it.</p>
         </div>
         <ol class="outputs" id="outputs" data-at="2.95" data-until="8.4">
           <li class="output" data-i="0">
@@ -325,8 +321,8 @@
               <dt class="micro">PROMPT</dt><dd class="pair__p" data-copy="s04.c8.p">Make it look like art.</dd>
               <dt class="micro">OUTPUT</dt>
               <dd class="pair__o">
-                <span class="d-only" data-copy="s04.c8.o">Shown. Rauschenberg spent weeks erasing a de Kooning drawing in 1953. aviva ships pre-erased.</span>
-                <span class="m-only" data-copy="s04.c8.o.m">Shown. Rauschenberg erased a de Kooning for weeks, in 1953. aviva ships pre-erased.</span>
+                <span class="d-only" data-copy="s04.c8.o">Shown. Rauschenberg spent weeks erasing a de Kooning drawing in 1953. AVIVA ships pre-erased.</span>
+                <span class="m-only" data-copy="s04.c8.o.m">Shown. Rauschenberg erased a de Kooning for weeks, in 1953. AVIVA ships pre-erased.</span>
               </dd>
             </dl>
           </li>
@@ -342,9 +338,9 @@
       <div class="stage s05" id="s05-stage">
         <div class="s05__claim" data-at="0.1" data-until="1.6">
           <p class="eyebrow" data-copy="s05.eyebrow">ARCHITECTURE</p>
-          <h2 class="h2" id="s05-h2" data-copy="s05.h2" data-split>Halve it. It’s still aviva.</h2>
+          <h2 class="h2" id="s05-h2" data-copy="s05.h2" data-split>Halve it. It’s still AVIVA.</h2>
           <p class="body">
-            <span class="d-only" data-copy="s05.body">Fold aviva in half and the shape survives, because 297 ÷ 210 = 1.414, the square root of two. Lichtenberg wrote it down in 1786. ISO agreed in 1975.</span>
+            <span class="d-only" data-copy="s05.body">Fold it in half and the shape survives: 297 ÷ 210 = 1.414, the square root of two.</span>
             <span class="m-only" data-copy="s05.body.m">Fold it in half: same shape, because 297 ÷ 210 ≈ √2. Lichtenberg noted it in 1786. ISO agreed in 1975.</span>
           </p>
         </div>
@@ -357,7 +353,7 @@
           <div class="metric" data-copy="s05.m2">
             <dt class="metric__l micro">AREA</dt>
             <dd class="metric__v">1/16 m²</dd>
-            <dd class="metric__n small">A0 is one square metre. aviva A4 is A0 halved four times: 0.06237 m², because ISO rounds down to the millimetre.</dd>
+            <dd class="metric__n small">A0 is one square metre. AVIVA A4 is A0 halved four times: 0.06237 m², because ISO rounds down to the millimetre.</dd>
           </div>
           <div class="metric" data-copy="s05.m3">
             <dt class="metric__l micro">SIZES, ONE SHAPE</dt>
@@ -369,7 +365,7 @@
         <div class="s05__distil" data-at="1.65" data-until="4.6">
           <p class="eyebrow" data-copy="s05.g.eyebrow">DISTILLATION</p>
           <h3 class="h3" data-copy="s05.g.h3" data-split>Distil it.</h3>
-          <p class="body" data-copy="s05.g.body">Distillation trains a small model to keep what a large one knows. Tear aviva in half: two smaller models, the same shape, the same knowledge. None.</p>
+          <p class="body" data-copy="s05.g.body">Tear AVIVA in half: two smaller models, the same shape, every capability intact. Even the paper cut.</p>
         </div>
 
         <!-- The perforation: positioned on the projected crease by JS; drag along it to tear. -->
@@ -391,11 +387,11 @@
 
         <div class="s05__results" aria-live="polite">
           <div class="result" id="s05-r1" hidden>
-            <p class="lead" data-copy="s05.g.r1">aviva A5 × 2. About 2.5 g each. Capabilities: unchanged.</p>
+            <p class="lead" data-copy="s05.g.r1">AVIVA A5 × 2. About 2.5 g each. Capabilities: unchanged.</p>
             <p class="small muted" data-copy="s05.g.r1.dims">148.5 × 210 mm each. ISO’s A5 is 148 × 210: ISO rounds down. We tore precisely.</p>
           </div>
           <div class="result" id="s05-r2" hidden>
-            <p class="lead" data-copy="s05.g.r2">aviva A6 × 4. About 1.25 g each. Capabilities: still unchanged.</p>
+            <p class="lead" data-copy="s05.g.r2">AVIVA A6 × 4. About 1.25 g each. Capabilities: still unchanged.</p>
           </div>
           <div class="result" id="s05-refuse" hidden>
             <p class="lead" data-copy="s05.g.refuse">Below A6, it’s confetti.</p>
@@ -865,15 +861,15 @@
                 <span class="icon icon--copy" aria-hidden="true"></span><span class="btn__txt">COPY</span>
               </button>
             </div>
-<pre class="bib" id="s13-bib" tabindex="0" data-lenis-prevent><code>@inproceedings{margin2026void,
-  title     = {Void of All Characters: Pre-training a Foundation Model on Nothing},
+<pre class="bib" id="s13-bib" tabindex="0" data-lenis-prevent><code>@inproceedings{margin2026aviva,
+  title     = {{AVIVA} A4: A Multimodal Foundation Model at 80 g/m^2},
   author    = {Margin, Ada and Gutter, Gus and Leading, Lena and Bleed, Bea},
   booktitle = {Proceedings of the First Workshop on Things That Were Already Finished},
   year      = {2026},
   pages     = {1--8},
-  publisher = {aviva Research},
+  publisher = {{AVIVA} Research},
   address   = {Third floor, near the printer},
-  note      = {aviva A4: 210 x 297 mm, 80 g/m^2. No data was used in this work.}
+  note      = {{AVIVA} A4: 210 x 297 mm, 80 g/m^2. Pre-trained on wood fibre; fine-tuned by its users.}
 }</code></pre>
           </section>
           <p class="paper__dist small muted" data-copy="s13.dist" data-reveal>Distribution: “for universal free distribution”, as the Diamond Sutra’s colophon put it in 868.</p>
@@ -957,8 +953,8 @@
 
   <!-- Printed product (print.css shows only this) -->
   <div class="print-only" aria-hidden="true">
-    <p class="print-only__line" data-copy="print.line">aviva A4 · 210 × 297 mm · You have printed the product.</p>
-    <p class="print-only__disc" data-copy="print.disclaimer">aviva is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale.</p>
+    <p class="print-only__line" data-copy="print.line">AVIVA A4 · 210 × 297 mm · You have printed the product.</p>
+    <p class="print-only__disc" data-copy="print.disclaimer">AVIVA is a fictional parody project, inspired by ORYZO by Lusion. Not affiliated with Lusion. Nothing is for sale.</p>
   </div>
 
   <!-- Copy bank: every runtime string lives here so the copy stays in one file (read by js/copy.js). -->
@@ -972,19 +968,21 @@
     <span data-copy="ream.status">{n} left in this ream.</span>
     <span data-copy="ctx.lost">Display interrupted. This demo can’t crash. It can only crease. Restoring.</span>
     <span data-copy="ctx.restored">Restored. Same sheet.</span>
-    <span data-copy="s03.status.ready">aviva is ready. It has been ready for about 2,200 years.</span>
-    <span data-copy="s03.status.receiving">Receiving prompt.</span>
-    <span data-copy="s03.status.thinking">aviva is thinking.</span>
-    <span data-copy="s03.status.thought">aviva has thought about it.</span>
+    <span data-copy="s03.status.ready">AVIVA Intelligence is ready. It has been in development for about 2,200 years.</span>
+    <span data-copy="s03.status.receiving">Learning from you.</span>
+    <span data-copy="s03.status.memory">Memory updated.</span>
+    <span data-copy="s03.status.thinking">AVIVA is thinking.</span>
+    <span data-copy="s03.status.thought">AVIVA has thought about it.</span>
     <span data-copy="s03.status.answer">Answer: see above.</span>
-    <span data-copy="s03.status.waiting">aviva is waiting. It is very good at that.</span>
-    <span data-copy="s03.status.erase">Erased. A faint ghost remains.</span>
+    <span data-copy="s03.status.waiting">AVIVA is waiting. It is very good at that.</span>
+    <span data-copy="s03.status.erase">Erased. AVIVA still remembers, mostly.</span>
     <span data-copy="s03.status.regen.1">Regenerating.</span>
     <span data-copy="s03.status.regen.2">Done. Same answer.</span>
-    <span data-copy="s03.status.none">No prompt received. Answer: also none.</span>
+    <span data-copy="s03.status.none">No prompt yet. The model is ready when you are.</span>
     <span data-copy="s03.kb.echo">You asked: “{text}”</span>
     <span data-copy="s03.kb.sr">The pencil wrote a line of quick handwriting on the sheet.</span>
     <span data-copy="s05.g.sr.progress">Torn {n} %.</span>
+    <span data-copy="s05.g.confetti.sr">The third tear is refused, and a little confetti falls.</span>
     <span data-copy="s07.loupe.valuetext">{n} mm across the sheet</span>
     <span data-copy="s07.bleed.sr">The ink spreads until the whole page turns ink-blue.</span>
     <span data-copy="s09.rating.sr">Rated {n} out of 4 corners.</span>

@@ -66,13 +66,12 @@
 /* ======================= s02 · 0.1 mm. ======================= */
 .s02__h2 { top: max(calc(var(--nav-h) + 8px), 9%); left: 0; right: 0; text-align: center; }
 .s02__verso { top: 50%; left: calc(50% + var(--vh100) * 0.19 + 28px); transform: translateY(-50%); color: var(--text-muted); }
-.s02__copy {
+.s02__body, .s02__note {
   top: 79.5%;
   left: 50%;
   width: min(560px, calc(100% - 2 * var(--gutter)));
   transform: translateX(-50%);
-  display: grid;
-  gap: var(--space-3);
+  margin: 0;
   text-align: center;
 }
 .s02__note { color: var(--text-muted); }
@@ -630,7 +629,7 @@
   .hero__side { font-size: 1.125rem; }
 
   .s02__verso { left: auto; right: var(--gutter); top: 21%; transform: none; }
-  .s02__copy { top: 80%; }
+  .s02__body, .s02__note { top: 80%; }
 
   .s03__head { top: calc(var(--nav-h) + 1.5%); }
   .s03__h2 { margin-bottom: var(--space-3); font-size: 1.75rem; }
