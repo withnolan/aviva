@@ -287,6 +287,47 @@ ORYZO reveals text per character with blur, typing and mask slide-ups (teardown 
 `docs/assets/illustrations/printer.svg cat.svg lamp.svg shredder.svg pencil.svg bin.svg`: 96 × 96, 1.25 px line with a subtle graphite grain (an feTurbulence alpha mask, 0.85 frequency, alpha 0.8–1.0), objects only, a few light hatch strokes for shadow. A laser printer with a sheet coming out; a cat asleep, curled on a sheet; an anglepoise lamp over a blank page; a shredder taking a sheet, strips in its window; a half-length HB pencil with its cut end and "HB" on the barrel; a wire-mesh bin with one crumpled ball. Every stroke has an id (`#cat-tail` …) and `pathLength="1"`; as an `<img>` each drawing **draws itself on once** (1.1 s per stroke, 90 ms stagger, off in reduced motion). Colour: `currentColor`, defaulting to **paper white** when loaded as an `<img>` (they live on the ink ground of s09); inline them and they follow `color`.
 Release-notes glyphs, `docs/assets/illustrations/glyphs/` (16 px, 1.25 px line, default graphite; `glyphs/sprite.svg` with `#g-…`): **map** (v0.1) · **seal** (v1.0) · **pin** (v1.1) · **scroll** (v1.4) · **watermark**, a sheet with faint crop marks (v2.0) · **book** (v2.1) · **wasp** (v2.2) · **letter** (v2.3) · **roller**, two press rolls with the web between (v3.0) · **log** (v4.0) · **area** "1 m²" (v5.0) · **globe** (v5.1) · **screen** with a cross (known issue) · **reeds**, struck through (removed). Tier B: place them at 16 px in the version column, muted, `alt=""`.
 
+### 8.8 Drafting sets (Part 11: T31 and T29)
+All three files are built by `work/scripts/design/build-drafting.py` (edit the script, not the SVGs). Lettering is Hanken Grotesk turned into outlines and reused with `<use>`, so each file renders the same inline, as an `<img>` and when drawn into a canvas texture (an SVG image cannot load web fonts). Backgrounds are transparent. **Ground:** 5.12 asks for "cream" behind s05 and s06b, but decision #24 rules cream out (it is ORYZO's), so these sit on the studio or paper white.
+
+**`docs/assets/illustrations/iso216-wall.svg`** (s05, 30.7 KB, 8.6 KB gzipped). The ISO 216 sizes A0–A8 (true mm, 0.48 px per mm) drawn as portrait rectangles from **one shared top-right corner**, with a blueprint chain line (14 · 3 · 2 · 3) through every opposite corner, which is the proof that they are all 1 : √2 (labelled). A0 is the drawing sheet. It is marked "841 × 1189 mm" in blueprint, and in its own bottom-right corner sits the **title block**, as wide as A1. The title block has three rows: "SHEET SIZES A0–A8" with the logomark; "AFTER LICHTENBERG (1786), / DIN 476 (1922) AND ISO 216 (1975)"; and "A0 = 1 m². Each size is half the one before." (`s05.wall.title`, `s05.wall.note`, `s05.wall.label`, words unchanged).
+- Labels sit at each size's top-left corner (A0–A4). For A5–A7 they sit flush right in the strip the next size leaves free, so the diagonal never crosses a label. Rectangles: graphite 0.75 px at 55 %, A0 at 80 %.
+- **Placement at 1440 × 900:** the viewBox is `927 92 417 586` in viewport px. Left 927, top 92, 417 × 586: the right third, clear of the sheet (x ≤ 867), the claim column, the metrics band (y ≥ 700) and the mm ruler with its readout (x ≥ 1353). At other sizes, scale with the viewport height and keep the right edge 96 px (6.7 vw) from the window's right edge.
+- **How to place it:** a texture on the s05 back wall. Load it as an image, draw it into a canvas at 3× (1251 × 1758), make a `CanvasTexture` with alpha and put it on a plane at the wall's depth, sized to land on the box above. It then takes the sheet's crisp shadow (5.12). A DOM `<svg>` works only behind a transparent canvas, because the DOM is in front of the sheet.
+- **The active size:** set `href` on `#wall-active` and `#wall-active-label` to `#wall-a4` at the start, `#wall-a5` after tear 1 and `#wall-a6` after tear 2.
+  - It is drawn in ink, 2 px, with a 5 % ink fill, so it reads by weight and area. Since decision #43 ink and graphite have the same lightness, so a change of hue alone would not show.
+  - The 200 ms redraw: inline, animate `stroke-dashoffset` from 1 to 0 on `#wall-active` (every rect has `pathLength="1"`); as a texture, cross-fade two renders.
+- **Results column:** the A0/A1 lines run behind `.s05__results` after tear 1. Give it a ground backing: `background: var(--ground); padding: 8px 12px; margin: -8px -12px`, the same treatment as the ruler readout (request 15.9).
+
+**`docs/assets/illustrations/fold-notation.svg`** (s06b, 7.7 KB). The dart plane's seven folds on the flat A4 face, in **millimetres of the sheet** (viewBox `0 0 210 297`, y down, the nose at 105, 0). Register it to the sheet's projected corners like the s05 dimension lines, or rasterize it into the sheet's paint texture. The lines are the hinges of `folds.js` `dartPlane()` laid on the flat sheet, seen from the front, so the notation matches the 3D pre-creases. To convert to sheet metres: x = (x_svg − 105) / 1000, y = (148.5 − y_svg) / 1000.
+
+| Fold | Kind (front) | Line (mm), from the nose | Number at (mm) |
+|---|---|---|---|
+| 1 | valley | → 210, 105 (45°) | 170.1, 65.1 |
+| 2 | valley | → 0, 105 | 39.9, 65.1 |
+| 3 | valley | → 210, 253.5 (22.5°) | 152.2, 114.1 |
+| 4 | valley | → 0, 253.5 | 57.8, 114.1 |
+| 5 | **mountain** | → 105, 297 (the centre line) | 105, 236.1 |
+| 6 | valley | → 60, 297 (wing; 45 mm out at the tail) | 77.1, 184.1 |
+| 7 | valley | → 150, 297 | 132.9, 184.1 |
+
+- **Notation** (Yoshizawa–Randlett; fact-check #15):
+  - valley = dashes 4 / 2.4 mm; mountain = **dash-dot-dot** 4.5 · 1.5 · 0.75 · 1.5 · 0.75 · 1.5 mm, never a plain dotted line;
+  - graphite 1 px (0.72 mm), the pencil's line;
+  - lines start 3 mm from the nose, so the seven meet cleanly;
+  - fold 7 is "mountain on the back layer" in `folds.js` but a valley seen from the front, because that layer was turned over by fold 5.
+- **Numbers:** blueprint circles, r 5.75 mm (16 px), numerals in Hanken 500. Put the DOM buttons ("Fold {n} of 7: preview", a hit area of at least 24 px) over `#fold-num-n`, using `data-at`, and hide `#fold-nums`, or keep it as the visual layer under transparent buttons.
+- **States:**
+  - The custom property `--draw` (0 to 1) on `#fold-n` reveals that line from the nose, for the pencil's line-by-line drawing.
+  - `.is-active` on `#fold-n` and `#fold-num-n` (hover or focus) turns the line blueprint at 1.5 px, fills the circle and shows the **fold arrow**: an arc with a solid head for a valley and a hollow half head for the mountain. Arrows show only on preview.
+  - Reduced motion: lines at full draw; the preview highlights without folding.
+- **Callout anchors** (DOM leaders, `s06b.call.*`): CENTRE LINE → (105, 120) on fold 5; FOLDS 1–2 → (141.8, 36.8) on fold 1; NO GLUE · NO CUTS · NO TAPE needs no anchor.
+
+**`docs/assets/illustrations/crease-grid.svg`** (s06b, 0.6 KB). A seamless 25 mm tile, centred on its major line: minor lines every 5 mm at graphite 10 % (0.5 px), every fifth line at 20 % (0.7 px), as 5.12 asks.
+- **Scale:** it matches the sheet, so 25 mm = 25 × sheet px ÷ 297. At 46 vh on a 900 px window that is a 34.85 px tile (3.87 vh).
+- **Registration:** `background-position: calc(sheetLeft - tile / 2) calc(sheetTop - tile / 2)` puts a major line through the sheet's top-left corner.
+- **In 3D:** `RepeatWrapping` with repeat = backdrop width in mm ÷ 25, or the same lines drawn in the backdrop shader.
+
 ---
 
 ## 9. Components
@@ -507,3 +548,5 @@ Status on 2026-10-16. Done already in the build: `.print-only` hidden on screen;
 11. s12, the lineup (Part 10.2): the Model radio group with its icons (9.5), the dialog rows and tier text (9.12), the lineup table with icons in its head (9.13), and the live line with "1 sheet" for the base model. Remove `.seg--size`, `.sheet-ico` and the A5 / A4 / A3 tier blocks.
 12. Print: the `.print-only` copy in capitals: "AVIVA A4 · 210 × 297 mm · You have printed the product." and "AVIVA is a fictional parody project, …" (12, decision #30).
 13. s13: the BibTeX box shows `docs/research/citation.bib` verbatim; it still shows the old `margin2026void` entry (9.14).
+14. s05 wall (T32, with the paper VD): `iso216-wall.svg` as the back-wall texture at the 8.8 box, the active size by `href` (A4 → A5 → A6), and a ground backing on `.s05__results` (8.8).
+15. s06b (T30): `fold-notation.svg` registered to the sheet, DOM fold buttons over `#fold-num-n`, `--draw` for the pencil's lines, `.is-active` for previews, `crease-grid.svg` at 25 mm = 25 × sheet px ÷ 297 (8.8).
