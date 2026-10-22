@@ -40,7 +40,7 @@ function paperShadowChunk() {
       }
       shadow = acc / float( PAPER_SHADOW_TAPS );
     }
-    return mix( 1.0, shadow, shadowIntensity );
+    return mix( 1.0, shadow, shadowIntensity * uShadowK );
   `;
   return src.slice(0, a) + '#ifndef PAPER_SHADOW_TAPS\n#define PAPER_SHADOW_TAPS 16\n#endif\n' + fn + src.slice(close);
 }
@@ -67,7 +67,7 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uShow: { value: v4(0, 0, 0.006, 1.9) },
     uCrease: { value: arr4(MAX_CREASES) },
     uTear0: { value: v4() }, uTear1: { value: v4() }, uTearFx0: { value: v4(1, 0, 0.0016, 55) }, uTearFx1: { value: v4(1, 0, 0.0016, 55) },
-    uGain: { value: 1 }, uFacet: { value: 0.5 }, uShift: { value: new THREE.Vector3() }, uRest: { value: v4() },
+    uGain: { value: 1 }, uShadowK: { value: 1 }, uFacet: { value: 0.5 }, uShift: { value: new THREE.Vector3() }, uRest: { value: v4() },
   };
 }
 

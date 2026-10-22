@@ -56,8 +56,9 @@ const STATES = {
   line: 'cam=0,12,0.75&target=0,0.5,0&pos=0,0.5,0&rot=-35,0,0&light=s03&draw=line',
   sixfold: 'cam=30,35,0.25&target=-0.09,0.43,0&pos=0,0.5,0&rot=-90,0,0&sixfold=6&thick=0.1&light=studio',
   // the hero rest frame (brief 10.3) through system.createLetters()
-  herorest: 'hero=1&light=letters&aim=0,0.06,0',
-  herorestturn: 'hero=1&hyaw=16&light=letters&aim=0,0.06,0',
+  herorest: 'hero=1&light=letters',
+  herorestpre: 'hero=1&hpre=1&light=letters',
+  herorestturn: 'hero=1&hyaw=16&light=letters',
   // decision #31: the folded-letter hero (earlier lab version)
   letters: 'cam=0,12,1.32&target=0,0.07,0&pos=0,0.5,0&letters=AVIVA&lt=1&lsp=0.19&light=letters&aim=0,0.06,0',
   lettershalf: 'cam=0,20,1.32&target=0,0.05,0&pos=0,0.5,0&letters=AVIVA&lt=0.5&lsp=0.19&lslide=0.25&light=letters&aim=0,0.04,0',
@@ -120,7 +121,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null; const letterSheets = [];
+let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -218,9 +219,10 @@ async function apply(search) {
     if (num('herocam', 1) > 0) {
       const C = heroObj.restCamera(innerWidth / innerHeight, num('hpre', 0) > 0 ? { distK: 1.06, pitchDeg: -9 } : {});
       camera.fov = C.fov; camera.position.copy(C.position); camera.lookAt(C.target); camera.updateProjectionMatrix();
-      paper.lights.aim(new THREE.Vector3(0, 0.06, 0));
     }
-  } else if (heroObj) heroObj.object.visible = false;
+    heroStage = heroObj.restStage();
+    paper.contact.uniforms.uCS.value.z = heroStage.contactHalf; paper.lights.shadowExtent = heroStage.shadowExtent;
+  } else { heroStage = null; if (heroObj) heroObj.object.visible = false; }
   // the HB pencil prop: pencil=x,y,z,rx,ry,rz (the graphite point, world metres; degrees)
   const pz = str('pencil', '');
   if (pz) {
@@ -247,7 +249,7 @@ async function apply(search) {
   if (P.has('env')) L.env = num('env');
   if (P.has('exp')) L.exposure = num('exp');
   if (P.has('cop')) { const [a, b, c] = vec('cop'); L.contact = c === undefined ? { contact: a, soft: b } : { contact: a, mid: b, soft: c }; }
-  paper.lights.aim(new THREE.Vector3(...vec('aim', vec('pos', [0, 0.5, 0]))));
+  paper.lights.aim(heroStage && !P.has('aim') ? heroStage.aim : new THREE.Vector3(...vec('aim', vec('pos', [0, 0.5, 0]))));
 
   // render: a couple of frames (contact shadow, async crumple / textures)
   if (num('crumple', 0) > 0) { await paper.loadCrumple(P.has('cfile') ? new URL(str('cfile'), location.href).href : undefined); sheet.set({ crumple: num('crumple', 0) }); }
@@ -273,7 +275,8 @@ function frame() {
     const [name, mode, rep] = dbg.split(',');
     if (name === 'macro' || name === 'geo') paper.ensureMacro();
     if (name === 'geo') paper.ensureFibreGeo();
-    dbgMat.uniforms.t.value = { tooth: paper.textures.tooth, macro: paper.textures.macro, formation: paper.textures.formation, geo: paper.textures.fibreGeo, watermark: paper.textures.watermark, print: paper.shared.uFloorPrint.value }[name];
+    if (name.startsWith('contact')) paper.update(scene, camera, 1 / 60);   // the contact maps are rendered by update()
+    dbgMat.uniforms.t.value = { tooth: paper.textures.tooth, macro: paper.textures.macro, formation: paper.textures.formation, geo: paper.textures.fibreGeo, watermark: paper.textures.watermark, print: paper.shared.uFloorPrint.value, contactA: paper.contact.textureA, contactM: paper.contact.textureM, contactB: paper.contact.textureB }[name];
     dbgMat.uniforms.mode.value = +(mode || 0); dbgMat.uniforms.rep.value = +(rep || 1);
     const tm = renderer.toneMapping; renderer.toneMapping = THREE.NoToneMapping; renderer.render(dbgScene, dbgCam); renderer.toneMapping = tm; return;
   }

@@ -14,7 +14,7 @@
 //   thickness (m, 0.0001 real)   translucency 0..1   watermark 0..1   showThrough 0..1
 //   inkDot 0..1 (+ inkDotAt [x,y] m, inkDotRadius m)   bleed { t, at:[x,y], radiusMM, amount, grade }
 //   macro 0..1   paint true|false (+ paintFace 1|-1|0)   overlay { texture, opacity, face }
-//   creases [{ n:[nx,ny], d, strength }] (<= 4, remembered folds)   gain   visible
+//   creases [{ n:[nx,ny], d, strength }] (<= 4, remembered folds)   gain   shadowRecv (0..1, received key shadow)   visible
 //   tear { p1: 0..1, p2: 0..1 | [top, bottom], gap (m), jag (m) }   -> pieces: sheet.piece('T'|'B'|'TL'|'TR'|'BL'|'BR')
 import * as THREE from 'three';
 import { createSheetGeometry, releaseSheetGeometry } from './geometry.js';
@@ -28,7 +28,7 @@ const DEFAULT_STATE = () => ({
   rest: 1, restCorner: 0,
   folds: null, plane: 0, halving: 0, sixfold: 0, dogEar: 0, dogEarCorner: 'tr', peel: 0, curl: null, fan: 0, crumple: 0,
   boat: 0, thickness: 0.0001, translucency: 0.24, watermark: 0, showThrough: 0, inkDot: 0, inkDotAt: [0.072, -0.118], inkDotRadius: 0.0015,
-  bleed: null, macro: 0, paint: false, paintFace: 1, overlay: null, creases: null, gain: 1, visible: true, tear: null,
+  bleed: null, macro: 0, paint: false, paintFace: 1, overlay: null, creases: null, gain: 1, shadowRecv: 1, visible: true, tear: null,
 });
 
 let SEED = 1;
@@ -126,7 +126,7 @@ export class Sheet {
       const c = S.creases && S.creases[i];
       if (c) { const n = new THREE.Vector2(...c.n).normalize(); U.uCrease.value[i].set(n.x, n.y, c.d ?? 0, c.strength ?? 1); } else U.uCrease.value[i].w = 0;
     }
-    U.uGain.value = S.gain;
+    U.uGain.value = S.gain; U.uShadowK.value = S.shadowRecv ?? 1;
     for (const p of this.pieces) p.object.visible = S.visible && !(S.crumple >= F.CRUMPLE_SWAP && this.crumpleMesh) && !(S.boat >= 0.5);
     if ('boat' in s || 'visible' in s) this._applyBoat();
     if ('tear' in s) this._applyTear(S.tear);

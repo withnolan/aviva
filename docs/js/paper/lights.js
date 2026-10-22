@@ -94,7 +94,7 @@ export const LIGHT_PRESETS = {
   // front (azimuth ~46 deg off the camera axis, elevation ~34 deg), so each sheet's shadow falls behind the row rather
   // than across its neighbour; a cool fill from the right; soft floor shadows that ground every letter. Letters.rest()
   // turns every A and V to be seen from 12 deg left of its end, so each shows a key-lit panel and a shaded inside.
-  letters: P({ key: { dir: D(-0.6, 0.55, 0.58), dist: 1.6, color: '#fff4e6', intensity: 1.5, angle: 0.75, softness: 9 }, fill: { dir: D(0.9, 0.25, 0.35), color: '#eaf0ff', intensity: 0.3 },
+  letters: P({ key: { dir: D(-0.6, 0.55, 0.58), dist: 1.6, color: '#fff7ef', intensity: 1.5, angle: 0.75, softness: 9 }, fill: { dir: D(0.9, 0.25, 0.35), color: '#eaf0ff', intensity: 0.3 },
     rim: { dir: D(0.3, 0.5, -0.8), intensity: 0.2, color: '#ffffff' }, env: 0.48, exposure: 1.0, backdrop: { pool: 0.06 }, contact: { contact: 0.45, mid: 0.36, soft: 0.26 } }),
 
   // look-dev utilities

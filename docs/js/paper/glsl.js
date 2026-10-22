@@ -172,6 +172,7 @@ uniform vec2 uSheet;
 uniform vec3 uKeyDir;                              // world direction toward the key light (the cut edge shades like the lit face)
 uniform vec3 uPaperColor;                          // linear albedo
 uniform float uGain;                               // per-sheet light gain (drying-line focus etc.)
+uniform float uShadowK;                            // per-sheet received key shadow, 0..1 (the hero I: its neighbour's shadow off the hairline)
 uniform sampler2D uTooth;  uniform vec4 uToothP;   // x tile (m), y strength, zw bottom-face offset (tiles)
 uniform sampler2D uMacro;  uniform vec4 uMacroP;   // x tile (m), y strength, z amount 0..1, w texels per tile
 uniform sampler2D uFormation; uniform vec4 uFormP; // xy offset (sheet uv), z mottle amount, w back-face offset
