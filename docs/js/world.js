@@ -40,27 +40,34 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     const B = paper.createSheet({ name: 'twin', low: true });
     const F = paper.createSheet({ name: 'out1', low: true });
     const O = Array.from({ length: 7 }, (_, i) => paper.createSheet({ name: 'out' + (i + 2), low: true }));
-    // the hero letters A V _ V A (brief 10.3): the I in the middle is A itself, the product
-    const L = ['A', 'V', 'V', 'A'].map((ch, i) => paper.createSheet({ name: 'letter' + (i + 1) + ch, low: true }));
-    for (const s of [A, B, F, ...O, ...L]) { stage.scene.add(s.object); s.object.visible = false; }
-    const numerals = createTypePlane('4.99 g'), four = createTypePlane('4');
+    for (const s of [A, B, F, ...O]) { stage.scene.add(s.object); s.object.visible = false; }
+    // the hero (brief 10.3): five folded sheets + the "4" (letters.js). At H9 the sheet A takes over from the I at the
+    // same pose and the same paper (formation patch and cockle phase copied), so the hand-off cannot be seen
+    let hero = null;
+    try { hero = paper.createLetters(); } catch (e) { console.warn('[aviva] letters:', e && e.message); }
+    if (hero) {
+      stage.scene.add(hero.object); hero.object.visible = false;
+      const I = hero.items[2].sheet.uniforms, U = A.raw && A.raw.uniforms;
+      if (U && I) { U.uFormP.value.copy(I.uFormP.value); U.uCockle.value.z = I.uCockle.value.z; }
+    }
+    const numerals = createTypePlane('4.99 g');
     const line = createDryingLine(8), drop = createDrop();
     const bleed = paper.raw && paper.raw.createBleed ? paper.raw.createBleed() : createBleed();   // the module's ink front at screen scale
-    stage.scene.add(numerals.mesh, four.mesh, line.group, drop);
+    stage.scene.add(numerals.mesh, line.group, drop);
     const paint = await paper.createPaint();
     A.attachPaint(paint);
     if (FEATURES.floorPrint) await paper.loadFloorPrint('assets/logo/wordmark-floor.png');
     onProgress(0.78);
     if (document.fonts && document.fonts.load) {
-      document.fonts.load('300 100px "Hanken Grotesk"').then(() => { numerals.draw(); four.draw(); dirty = 2; }).catch(() => {});
+      document.fonts.load('300 100px "Hanken Grotesk"').then(() => { numerals.draw(); dirty = 2; }).catch(() => {});
     }
     const state = new SceneState();
     const springs = new Springs(state);
     springs.direct = reduced;
-    const props = { numerals, line, drop, bleed, four };
-    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, L } });
+    const props = { numerals, line, drop, bleed };
+    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, hero } });
     choreo.ctx.ground = new THREE.Color('#ECEBE7');
-    return { paper, A, B, F, O, L, props, paint, state, springs, choreo };
+    return { paper, A, B, F, O, hero, props, paint, state, springs, choreo };
   }
 
   async function rebuild() {

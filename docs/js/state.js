@@ -13,7 +13,8 @@
 const CHANNELS = [
   // camera rig
   ['cam.pitch', 0, 5], ['cam.yaw', 0, 5], ['cam.roll', 0, 5], ['cam.floor', 0, 4.5], ['cam.push', 0, 5],
-  ['cam.fov', 30, 5], ['cam.panX', 0, 6], ['cam.panY', 0, 6],
+  ['cam.fov', 30, 5], ['cam.panX', 0, 6], ['cam.panY', 0, 6], ['cam.hero', 0, 5],
+  ['hero.lx', 0, 4.5], ['hero.lon', 0, 3], ['hero.glint', 0, 7],
   // ground, studio
   ['bg.ink', 0, 0], ['bg.dark', 0, 4], ['bg.warm', 0, 3], ['world.print', 0, 6], ['world.shadow', 1, 6],
   // ink: drop, absorption front, the screen-space bleed, grade

@@ -18,7 +18,8 @@ export const E = {
   arena: { loser: null, crumple: 0, roll: 0, drop: 1, hidden: 0, bow: 0, fade: 1, winner: 'A', voted: null, busy: false },
   size: { choice: 'A4', model: 'base' },               // s12: the sheet is always A4; model 'base' | 'pro' | 'max'
   release: { plane: 0, fly: 0, fade: 1, started: false, done: false },
-  hover: { x: 0, y: 0, on: 0 },                       // s04: pointer position (−1..1) for the outputs' sway
+  hover: { x: 0, y: 0, on: 0 },
+  pointer: { nx: 0, ny: 0, x: 0, y: 0, on: false },     // the mouse anywhere on the page (interactions.js)                       // s04: pointer position (−1..1) for the outputs' sway
   cues: {},                                           // s06 / s09 scroll cues (written by ui.js)
   layout: { s10Top: 0 },                              // DOM edges the 3D layout keeps clear of (ui.js measures, % of the viewport)
   dissolve: { k: 0 },                                 // reduced motion: veil amount

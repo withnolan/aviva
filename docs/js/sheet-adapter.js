@@ -97,7 +97,7 @@ function wrapPlaceholder(sys, renderer) {
   const lights = cachedLights(sys.lights);
   const wrapped = [];
   const paper = {
-    kind: 'placeholder', raw: sys, lights, folds: null,
+    kind: 'placeholder', raw: sys, lights, folds: null, createLetters: () => null, contact: null,
     install: (scene) => { sys.install(scene); paper.scene = scene; return paper; },
     createSheet({ name = 'sheet', hero = false, low = false } = {}) {
       const s = sys.createSheet({ name, surface: hero, segments: low ? [28, 40] : [42, 60] });
@@ -141,6 +141,9 @@ function wrapReal(sys, m, renderer) {
 
   const paper = {
     kind: 'real', raw: sys, lights, tier: sys.tier, folds: m.folds,
+    /** the hero letters (letters.js): five module Sheets + the "4"; the site drives them with hero.set(i, {...}) */
+    createLetters: (o) => (sys.createLetters ? sys.createLetters(o) : null),
+    contact: sys.contact || null,
     install: (scene) => { sys.install(scene); paper.scene = scene; return paper; },
     createSheet({ name = 'sheet', hero = false, low = false } = {}) {
       const segs = low ? [64, 90] : null;
