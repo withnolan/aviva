@@ -349,6 +349,9 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
   });
 
   magnetize(document);                                    // [data-magnetic]: the s10 votes, the s12 options
+  // the mouse anywhere (the hero letters lean toward it, T6)
+  addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; const P = E.pointer; P.x = e.clientX; P.y = e.clientY; P.nx = (e.clientX / innerWidth) * 2 - 1; P.ny = (e.clientY / innerHeight) * 2 - 1; P.on = true; }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', () => { E.pointer.on = false; });
 
   /* ================================================================== s13: copy BibTeX */
   const copyBtn = $('#s13-copy'), bib = $('#s13-bib');

@@ -370,3 +370,10 @@ html.is-dark .pencil__body { stroke: none; }
 .seg__opt[data-magnetic].is-magnet > :not(input) { transition-duration: 140ms; }
 button.seg__opt[data-magnetic] { text-shadow: none; }
 .reduce-motion [data-magnetic], .reduce-motion .seg__opt[data-magnetic] > * { transform: none !important; }
+
+/* ---------- s00: the registration-mark cursor (T6), while the loader drawing is up */
+.reg-cursor { position: fixed; left: 0; top: 0; width: 40px; height: 40px; margin: -20px 0 0 -20px; z-index: 10000; pointer-events: none;
+  color: var(--dims, #1D4590); opacity: 0; transform: translate3d(var(--cx, -100px), var(--cy, -100px), 0); transition: opacity 200ms ease-out; }
+.reg-cursor svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1; }
+html.is-reg .reg-cursor.is-on { opacity: 1; }
+html.is-reg, html.is-reg * { cursor: none !important; }

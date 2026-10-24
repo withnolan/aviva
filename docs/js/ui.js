@@ -286,6 +286,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
   const groundOut = { dark: false };
   let introDone = false;
   const s01 = S.byKey('s01'), heroFoot = $('.hero__foot'), heroL2 = $('.hero__l2'), heroSteps = {};
+  const folds = $$('#hero-folds .fold-l'), FEET = [{}, {}, {}, {}, {}];
   function frame() {
     const Y = S.Y, cur = S.current;
     // reveals inside pinned stages
@@ -323,6 +324,15 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
     if (!s01) return;
     const p = s01.p;
     if (heroFoot && (heroSteps.foot || heroSteps.all)) { const on = p < 0.12; if (on !== heroFoot.__on) { heroFoot.__on = on; heroFoot.classList.toggle('is-in', on); } }
+    // T6: the fold labels under the letters, each from its landing (H2) until H5
+    if (folds.length && world && world.heroFeet) {
+      const ok = world.heroFeet(FEET), c = E.intro.clock;
+      for (let i = 0; i < folds.length; i++) {
+        const on = ok && E.intro.started && c >= 1.5 + 0.12 * i && p < 0.15;
+        if (on) { setVar(folds[i], '--x', FEET[i].x.toFixed(1)); setVar(folds[i], '--y', FEET[i].y.toFixed(1)); }
+        if (on !== folds[i].__on) { folds[i].__on = on; folds[i].classList.toggle('is-in', on); }
+      }
+    }
     if (heroL2) {
       const on = E.intro.started && p >= 1.5;
       if (on !== heroL2.__on) { heroL2.__on = on; heroL2.classList.toggle('is-in', on); if (on) { heroL2.classList.remove('is-pressed'); void heroL2.offsetWidth; heroL2.classList.add('is-pressed'); } }

@@ -64,6 +64,7 @@
   <script type="module" src="js/main.js"></script>
 </head>
 <body>
+  <div class="reg-cursor" id="reg-cursor" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="8.5"/><line x1="20" y1="2" x2="20" y2="38"/><line x1="2" y1="20" x2="38" y2="20"/></svg></div>
   <a class="skip-link" href="#content" data-copy="skip.link">Skip to content</a>
 
   <!-- No-WebGL banner (fallback.js shows it) -->
@@ -179,6 +180,13 @@
         </h1>
         <p class="sr-only" data-copy="s01.letters.sr">Five folded sheets of paper stand in a row and spell AVIVA: tents for the A’s, valley folds for the V’s and one sheet seen edge-on for the I. A 4 stands beside the last A.</p>
         <p class="hero__merge micro" data-copy="s01.merge" data-at="1.0" data-until="1.6">MODEL MERGE: 5 SHEETS → 1</p>
+        <div class="hero__folds" id="hero-folds" aria-hidden="true">
+          <p class="fold-l micro"><svg class="fold-l__ln fold-l__ln--m" viewBox="0 0 28 2"><line x1="0" y1="1" x2="28" y2="1"/></svg><span data-copy="s00.fold.a">MOUNTAIN</span></p>
+          <p class="fold-l micro"><svg class="fold-l__ln fold-l__ln--v" viewBox="0 0 28 2"><line x1="0" y1="1" x2="28" y2="1"/></svg><span data-copy="s00.fold.v">VALLEY</span></p>
+          <p class="fold-l micro"><svg class="fold-l__ln" viewBox="0 0 28 2"><line x1="0" y1="1" x2="28" y2="1"/></svg><span data-copy="s00.fold.i">EDGE-ON</span></p>
+          <p class="fold-l micro"><svg class="fold-l__ln fold-l__ln--v" viewBox="0 0 28 2"><line x1="0" y1="1" x2="28" y2="1"/></svg><span>VALLEY</span></p>
+          <p class="fold-l micro"><svg class="fold-l__ln fold-l__ln--m" viewBox="0 0 28 2"><line x1="0" y1="1" x2="28" y2="1"/></svg><span>MOUNTAIN</span></p>
+        </div>
         <div class="hero__foot" data-intro="foot">
           <p class="hero__side" data-copy="s01.side">AVIVA A4. Pre-trained on trees.</p>
           <p class="hero__spec label" data-copy="s01.spec">210 × 297 mm · 80 g/m² · 0.1 mm</p>

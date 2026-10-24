@@ -209,6 +209,14 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     for (let i = 0; i < 4; i++) { const p = proj(local(A.object, pts[i][0], pts[i][1])); P[i].x = p.x; P[i].y = p.y; if (p.z >= 1) return false; }
     return true;
   }
+  /** the five letters' feet on screen (their front outlines at the floor): the fold labels hang under them (T6) */
+  function heroFeet(out) {
+    const h = W && W.hero;
+    if (!h || !W.choreo.ctx.heroLetters) return false;
+    const R = h.__rest || (h.__rest = h.restLayout());
+    for (let i = 0; i < 5; i++) { const p = proj(_v.set(R.front[i], 0, R.frontZ)); out[i].x = p.x; out[i].y = p.y; }
+    return true;
+  }
   function dotLabel() {
     const s = W.choreo.ctx;
     const on = s.heroOn && W.springs.get('A.dot') > 0.6 && W.springs.get('A.size') < 60 && dotLabel.until > performance.now();
@@ -225,7 +233,7 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     get paper() { return W.paper; },
     get kind() { return W.paper.kind; },
     heroOn: () => !!(W && W.choreo.ctx.heroOn),
-    pickHero, tearLine, heroCorners,
+    pickHero, tearLine, heroCorners, heroFeet,
     heroAnchor: (at) => anchorOf(W.A, at),
     sheetAnchor: (k, at) => anchorOf(k === 'B' ? W.B : W.A, at),
     dimsMode: () => (W.choreo.ctx.heroOn ? W.state.enum('D.mode') : 'none'),

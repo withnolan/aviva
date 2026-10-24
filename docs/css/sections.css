@@ -788,3 +788,18 @@
 /* s12: the tier text sits right of the sheet, clear of the tall Print dialog (desktop) */
 .s12__tier { top: 40%; right: calc(var(--gutter) + 56px); width: min(240px, 18vw); }
 .lb.board { width: min(300px, 22vw); }                 /* the flaps need the room: two rows of 1 · AVIVA A4 · 50.0% */
+
+/* s01: the fold labels under the letters at the rest frame (T6; brief 10.1 #13, 10.3 H3-H5) */
+.hero__folds { inset: 0; pointer-events: none; }
+.fold-l {
+  position: absolute; left: 0; top: 0; margin: 0; display: grid; justify-items: center; gap: 5px;
+  transform: translate3d(calc(var(--x, -999) * 1px - 50%), calc(var(--y, -999) * 1px + 14px), 0);
+  color: var(--text-muted); opacity: 0; transition: opacity var(--dur-base) var(--ease-out); white-space: nowrap;
+}
+.fold-l.is-in { opacity: 1; }
+.fold-l__ln { width: 28px; height: 2px; overflow: visible; }
+.fold-l__ln line { stroke: currentColor; stroke-width: 1; }
+.fold-l__ln--m line { stroke-dasharray: 6 2 1 2 1 2; }          /* mountain: dash-dot-dot (style guide) */
+.fold-l__ln--v line { stroke-dasharray: 4 3; }                  /* valley: dashes */
+/* s05: the result lines sit on a ground-coloured backing (they can pass over the torn pieces) */
+.s05__results { background: var(--ground); padding: 8px 12px; margin: -8px -12px; }

@@ -46,6 +46,24 @@ function deviceTier(gl) {
   return mobile ? (lowMem ? 0 : 1) : 2;
 }
 
+/* ------------------------------------------------------------------ the registration-mark cursor (s00, T6) */
+// While the loader drawing is up the pointer is a registration mark (a crosshair through a circle), drawn in the
+// drawing's blueprint ink. Mouse only; it simply follows (no easing), so it is calm in reduced motion too.
+const regCursor = (() => {
+  const el = document.getElementById('reg-cursor');
+  let on = !!el, raf = 0, x = 0, y = 0;
+  if (!el) return { off() {} };
+  root.classList.add('is-reg');
+  const draw = () => { raf = 0; el.style.setProperty('--cx', x + 'px'); el.style.setProperty('--cy', y + 'px'); };
+  function move(e) {
+    if (!on || e.pointerType !== 'mouse') return;
+    x = e.clientX; y = e.clientY; el.classList.add('is-on');
+    if (!raf) raf = requestAnimationFrame(draw);
+  }
+  addEventListener('pointermove', move, { passive: true });
+  return { off() { if (!on) return; on = false; root.classList.remove('is-reg'); el.classList.remove('is-on'); removeEventListener('pointermove', move); } };
+})();
+
 /* ------------------------------------------------------------------ the loader (s00) */
 function createLoader() {
   const el = $('#s00-loader'), frame = $('#loader-frame'), mm = $('#loader-mm'), label = $('#loader-label'), sr = $('#loader-sr');
@@ -84,9 +102,9 @@ function createLoader() {
         if (sr) sr.textContent = copy('s00.sr.loaded');
         el.classList.add('is-clear');
       } else if (step === 'retract') el.classList.add('is-done');
-      else if (step === 'gone') el.classList.add('is-gone');
+      else if (step === 'gone') { el.classList.add('is-gone'); regCursor.off(); }
     },
-    kill() { cancelAnimationFrame(raf); if (!done) { done = true; resolveDone(); } el && el.classList.add('is-done', 'is-clear', 'is-gone'); E.loader.sheet = 1; },
+    kill() { cancelAnimationFrame(raf); if (!done) { done = true; resolveDone(); } el && el.classList.add('is-done', 'is-clear', 'is-gone'); E.loader.sheet = 1; regCursor.off(); },
   };
 }
 

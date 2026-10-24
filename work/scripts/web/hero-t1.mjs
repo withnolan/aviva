@@ -36,6 +36,15 @@ const shot = (page, n) => page.screenshot({ path: `${out}/${n}.jpg`, type: 'jpeg
   for (let i = 0; i < 120; i++) { if (await page.evaluate(() => window.__aviva.E.intro.done)) break; await page.waitForTimeout(100); }
   await page.waitForTimeout(1500);
   note('H4 rest (intro done)', await st(page)); await shot(page, '02-h4-rest');
+  // T6: the lean toward the cursor (<= 3 deg) and the I's glint
+  const yaws = () => page.evaluate(() => { const h = window.__aviva.world.debug().hero; return h ? h.items.map((it) => +(it.state.yaw * 57.3).toFixed(2)).concat([+(h.items[2].sheet.state.gain || 1).toFixed(2)]) : null; });
+  const y0 = await yaws();
+  await page.mouse.move(60, 450); await page.waitForTimeout(1600); const yl = await yaws();
+  await page.mouse.move(1380, 450); await page.waitForTimeout(1600); const yr = await yaws();
+  await page.mouse.move(720, 450); await page.waitForTimeout(1200); const yc = await yaws();
+  note('yaw deg A V I V A + I gain: rest', y0); note('  cursor far left', yl); note('  cursor far right', yr); note('  cursor on the I', yc);
+  await shot(page, '02b-h4-cursor-on-I');
+  await page.mouse.move(1400, 880);
   for (const p of [0.3, 0.9, 1.3, 1.6, 1.95]) { await go(page, 's01', p); note(`scroll s01 p ${p}`, await st(page)); await shot(page, `03-s01-p${String(p).replace('.', '_')}`); }
   await go(page, 's02', 0.4); note('s02 p 0.4 (pin released)', await st(page)); await shot(page, '04-s02-p0_4');
   await go(page, 's01', 0.0, 2000); note('back to the top (no replay)', await st(page));
