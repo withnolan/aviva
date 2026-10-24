@@ -59,6 +59,8 @@ const STATES = {
   herorest: 'hero=1&light=letters',
   herorestpre: 'hero=1&hpre=1&light=letters',
   herorestturn: 'hero=1&hyaw=16&light=letters',
+  // the H2 fold-in on the intro clock (ic = E.intro.clock, s; H2 runs 0.4 -> 2.0; brief 3.5 s = ic 1.3)
+  heroin: 'hero=1&ic=1.3&light=letters',
   // decision #31: the folded-letter hero (earlier lab version)
   letters: 'cam=0,12,1.32&target=0,0.07,0&pos=0,0.5,0&letters=AVIVA&lt=1&lsp=0.19&light=letters&aim=0,0.06,0',
   lettershalf: 'cam=0,20,1.32&target=0,0.05,0&pos=0,0.5,0&letters=AVIVA&lt=0.5&lsp=0.19&lslide=0.25&light=letters&aim=0,0.04,0',
@@ -212,12 +214,17 @@ async function apply(search) {
   if (num('hero', 0) > 0) {
     if (!heroObj) { heroObj = paper.createLetters(); scene.add(heroObj.object); }
     // haim=deg overrides LETTER_LAYOUT.aimDeg (the rest turn toward the key); hyaw=deg adds a mirrored turn (experiments)
-    heroObj.object.visible = true; heroObj.rest({ aimDeg: P.has('haim') ? num('haim', 12) : undefined });
-    const hy = rad(num('hyaw', 0));
-    heroObj.items.forEach((it, i) => heroObj.set(i, { fold: num('hfold', 1), yaw: it.state.yaw + (it.char === 'I' ? 0 : (i < 2 ? hy : -hy)) }));
+    heroObj.object.visible = true;
+    const ic = P.has('ic') ? num('ic', 0) : null;               // ic = the intro clock (s): hero.intro(ic)
+    if (ic !== null) heroObj.intro(ic);
+    else {
+      heroObj.rest({ aimDeg: P.has('haim') ? num('haim', 12) : undefined });
+      const hy = rad(num('hyaw', 0));
+      heroObj.items.forEach((it, i) => heroObj.set(i, { fold: num('hfold', 1), yaw: it.state.yaw + (it.char === 'I' ? 0 : (i < 2 ? hy : -hy)) }));
+    }
     sheet.set({ visible: false });
     if (num('herocam', 1) > 0) {
-      const C = heroObj.restCamera(innerWidth / innerHeight, num('hpre', 0) > 0 ? { distK: 1.06, pitchDeg: -9 } : {});
+      const C = ic !== null ? heroObj.introCamera(ic, innerWidth / innerHeight) : heroObj.restCamera(innerWidth / innerHeight, num('hpre', 0) > 0 ? { distK: 1.06, pitchDeg: -9 } : {});
       camera.fov = C.fov; camera.position.copy(C.position); camera.lookAt(C.target); camera.updateProjectionMatrix();
     }
     heroStage = heroObj.restStage();

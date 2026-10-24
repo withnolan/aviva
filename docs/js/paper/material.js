@@ -67,7 +67,7 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uShow: { value: v4(0, 0, 0.006, 1.9) },
     uCrease: { value: arr4(MAX_CREASES) },
     uTear0: { value: v4() }, uTear1: { value: v4() }, uTearFx0: { value: v4(1, 0, 0.0016, 55) }, uTearFx1: { value: v4(1, 0, 0.0016, 55) },
-    uGain: { value: 1 }, uShadowK: { value: 1 }, uFacet: { value: 0.5 }, uShift: { value: new THREE.Vector3() }, uRest: { value: v4() },
+    uGain: { value: 1 }, uShadowK: { value: 1 }, uContactK: { value: 1 }, uFacet: { value: 0.5 }, uShift: { value: new THREE.Vector3() }, uRest: { value: v4() },
   };
 }
 
@@ -378,6 +378,7 @@ vec4 casterClip(vec3 wp) {
 const CASTER_FRAG = /* glsl */`
 precision highp float;
 uniform vec4 uCSShear; uniform vec4 uCSRange; varying float vH; varying vec2 vRest;
+uniform float uContactK;   // per sheet: the contact and mid lobes (the hero letters' landing bloom); the soft lobe stays
 ${TEAR_PARS}
 void main() {
   float pxm_ = max(length(fwidth(vRest)) * 0.7071, 1e-7); float band_ = 0.0;
@@ -386,7 +387,7 @@ void main() {
   float c = exp(-vH / uCSShear.z);                                         // contact: only within a few mm
   float m = exp(-vH / uCSShear.w) * (1.0 - exp(-vH / uCSRange.w));        // mid: a sheet a few mm .. cm up
   float s = exp(-vH / uCSRange.y) * (1.0 - exp(-vH / uCSRange.z)) * fade; // soft: a sheet in the air
-  gl_FragColor = vec4(c, m, s, 1.0);
+  gl_FragColor = vec4(c * uContactK, m * uContactK, s, 1.0);
 }`;
 
 export function createCasterMaterial(uniforms, csUniforms, variant = 'slab', { instanced = false } = {}) {

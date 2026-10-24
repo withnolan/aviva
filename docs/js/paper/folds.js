@@ -179,26 +179,29 @@ const _qa = new THREE.Quaternion(), _m4 = new THREE.Matrix4(), _vb = new THREE.V
 /**
  * The hero letters (brief 10.3, decision #31): each A4 sheet folded once across its long side (two 210 x 148.5 mm
  * panels) and stood on the floor, seen end-on. Every letter is a MOUNTAIN fold, so the recto is always outside and every
- * sheet shows its recto once it unfolds (H7); only the stance differs:
+ * sheet shows its recto once it unfolds (H7); only the stance differs. The A and the I fold their top half back and down
+ * behind the bottom half; the V folds its bottom half back and up behind the top half, so a sheet hanging face-on
+ * (recto to the camera) folds into any letter without flipping over (H2):
  *   A  crease on top, panels 18 deg from vertical (apex 36 deg): cap height 141 mm, base 92 mm
  *   V  crease on the floor, the same 36 deg: 141 mm tall, 92 mm across the top
  *   I  closed flat (178 deg), crease on top: 148.5 mm tall, two layers; stand it on the camera's centre line (edge-on)
  * t = 0 is the flat sheet lying face up; every t in between stands on the floor (it never leaves it while folding).
  * The crease runs along `yaw` (default PI/2: toward the camera, the end-on view that spells the letter).
- * @returns {{ folds, quaternion: THREE.Quaternion, lift: number, height: number, width: number }}
+ * @returns {{ folds, quaternion: THREE.Quaternion, lift: number, height: number, width: number, centroid: THREE.Vector3 (sheet frame) }}
  *   apply: sheet.set({ folds }); sheet.object.quaternion.copy(quaternion); sheet.object.position.set(x, floorY + lift, z)
  */
-export function letterPose(letter = 'A', t = 1, { sheet = A4, apex = THREE.MathUtils.degToRad(36), yaw = Math.PI / 2, radius = 0.0006 } = {}) {
-  const L = String(letter).toUpperCase();
-  // the I closes to 179.6 deg on a tight 0.3 mm crease: two layers, < 2 mm apart at the feet (10.3: a hairline, never a smear)
-  const full = L === 'I' ? THREE.MathUtils.degToRad(179.6) : Math.PI - apex;
+export function letterPose(letter = 'A', t = 1, { sheet = A4, apex = THREE.MathUtils.degToRad(36), yaw = Math.PI / 2, radius = 0.0006, open = 0 } = {}) {
+  const L = String(letter).toUpperCase(), up = L === 'V';
+  // the I closes to 179.6 deg on a tight 0.3 mm crease: two layers, < 2 mm apart at the feet (10.3: a hairline, never a
+  // smear). `open` (rad) opens the fold that much (the landing splay; for A and V, widening `apex` does the same)
+  const full = (L === 'I' ? THREE.MathUtils.degToRad(179.6) : Math.PI - apex) - open;
   const th = full * ease(t);
-  const f = fold2D({ p: [0, 0], dir: [1, 0], side: [0, 1], toward: -1, angle: Math.PI, radius: L === 'I' ? Math.min(radius, 0.0003) : radius });
+  const f = fold2D({ p: [0, 0], dir: [1, 0], side: [0, up ? -1 : 1], toward: -1, angle: Math.PI, radius: L === 'I' ? Math.min(radius, 0.0003) : radius });
   f.a.w = -Math.PI; f.t = th / Math.PI;                                    // one mountain crease across the middle (y = 0)
   // the panels' directions from the crease (sheet frame) and their bisector: down for A and I, up for V
-  _vb.set(0, Math.cos(th) - 1, -Math.sin(th));
+  if (up) _vb.set(0, 1 - Math.cos(th), -Math.sin(th)); else _vb.set(0, Math.cos(th) - 1, -Math.sin(th));
   if (_vb.lengthSq() < 1e-10) _vb.set(0, 0, -1); else _vb.normalize();
-  const up = L === 'V';
+  const centroid = _vb.clone().multiplyScalar((sheet.h / 4) * Math.sin(th / 2));   // the folded sheet's centre of mass (sheet frame)
   // basis: crease axis = sheet +x -> world X (then yaw); bisector -> world -Y (A, I) or +Y (V)
   const ax = new THREE.Vector3(1, 0, 0), bw = new THREE.Vector3(0, up ? 1 : -1, 0);
   _vc.crossVectors(ax, _vb);
@@ -214,7 +217,7 @@ export function letterPose(letter = 'A', t = 1, { sheet = A4, apex = THREE.MathU
     minY = Math.min(minY, _vw.y); maxY = Math.max(maxY, _vw.y);
   }
   const lift = -minY + 0.00008;
-  return { folds, quaternion: q, lift, height: maxY - minY, width: L === 'I' ? 0.0002 : 2 * (sheet.h / 2) * Math.sin((Math.PI - th) / 2) };
+  return { folds, quaternion: q, lift, height: maxY - minY, width: L === 'I' ? 0.0002 : 2 * (sheet.h / 2) * Math.sin((Math.PI - th) / 2), centroid };
 }
 export const letterA = (t = 1, o) => letterPose('A', t, o);
 export const letterV = (t = 1, o) => letterPose('V', t, o);

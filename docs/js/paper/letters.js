@@ -58,6 +58,131 @@ function restX(chars = [...LETTER_LAYOUT.word], aimDeg = LETTER_LAYOUT.aimDeg) {
   const last = front[front.length - 1] + widths[widths.length - 1] / 2;
   return { xs, zs, yaws, front, frontZ: h, four: { x: last + L.fourGapMM / 1000 + (L.fourMM / 1000) / 2, z: h - 0.001 } };
 }
+/** the 10.3 rest layout for a word (Letters.restLayout without an instance) */
+export const letterRestLayout = (word = LETTER_LAYOUT.word, aimDeg) => restX([...word], aimDeg);
+
+/**
+ * 10.3 H2-H4 on the intro clock (events.js INTRO: 0 = H1 "loaded", nominal 2.2 s after the loader's first frame).
+ * H2: the sheets drop in reading order, `gap` apart, each falling `fall` s from `dropFrom` m (its centre of mass); the
+ * fold runs over the last 60 % of the fall and the turn to end-on over the last 55 %; on landing the letter rocks and its
+ * legs splay (zeta 0.7, <= 1.5 deg) and its contact shadow blooms over `bloom` s. H3: the "4" draws on over `four`.
+ * H4: the camera pushes in (x1.06 -> x1.00, pitch -9 -> -6) over `push`.
+ */
+export const LETTER_INTRO = {
+  start: 0.4, gap: 0.12, fall: 1.1, settle: 0.8, bloom: 0.12, four: [2.1, 2.5], push: [2.6, 4.8],
+  dropMargin: 0.012,    // at its drop each sheet's lower edge is this far above the pre-settle frame at its depth
+  foldAt: [0.35, 0.72], // the fold, face-on (its flap swings straight back, never sideways into a neighbour)
+  turnAt: [0.4, 0.92],  // the turn to end-on, overlapping the fold, so the fold is seen at an angle as it closes
+  // Five 210 mm sheets land 31 mm apart, 0.12 s after each other: in the air they keep out of each other's way in
+  // depth. Each falls above its mark in its letter's layer (the I in front, the A's on their marks' plane, the V's
+  // behind, spread a little so they clear each other), folds face-on, turns end-on, and only then, narrow, slides
+  // onto its mark (letters-sim.mjs checks that no two sheets ever cross).
+  layers: { A: 0, V: -0.25, I: 0.25 }, vSpread: 0.04,
+  slideAt: [0.7, 1.0],  // the slide from the layer onto the mark, as fractions of the fall
+  entryYawDeg: 0,       // the sheets fall face-on (recto to the camera)
+  rollDeg: 4, pitchDeg: 14, // the air's sway: a picture-plane roll and a falling-leaf pitch (toward / away
+                        // from the camera, so each face catches the key differently), dying as the sheet folds
+  bend: [2.6, 3.0],     // the air flexing the sheet (1/m): a steady bow and a breathing swing, gone before the turn
+  twist: 1.0,           // and a slow twist (rad/m)
+};
+const DEG = Math.PI / 180, clamp01 = (x) => Math.min(1, Math.max(0, x));
+const sstep = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const smoother = (x) => { x = clamp01(x); return x * x * x * (x * (x * 6 - 15) + 10); };
+// The drop: the sheet drops into the frame edge-first and fast, catches the air and floats while it starts to fold
+// (the flat sheet's drag), then drops again as it folds and turns edge-on (less drag) and lands with weight.
+// FALL_D(f): the fraction of the drop done at f of the fall, from that speed profile.
+const FALL_D = (() => {
+  const N = 256, v = (f) => 2.6 * (1 - sstep(0.05, 0.4, f)) + 0.5 + 1.6 * sstep(0.45, 0.97, f);
+  const D = new Float32Array(N + 1); let acc = 0;
+  for (let i = 1; i <= N; i++) { acc += (0.5 * (v((i - 1) / N) + v(i / N))) / N; D[i] = acc; }
+  for (let i = 0; i <= N; i++) D[i] /= acc;
+  return (f) => { const x = clamp01(f) * N, i = Math.min(N - 1, Math.floor(x)); return D[i] + (D[i + 1] - D[i]) * (x - i); };
+})();
+/** a damped impulse response (zeta 0.7) scaled to a unit first peak: the landing rock and splay */
+function settleK(s, hz, zeta = 0.7) {
+  if (s <= 0) return 0;
+  const w = 2 * Math.PI * hz, k = Math.sqrt(1 - zeta * zeta), wd = w * k, sp = Math.atan2(k, zeta) / wd;
+  return (Math.exp(-zeta * w * s) * Math.sin(wd * s)) / (Math.exp(-zeta * w * sp) * Math.sin(wd * sp));
+}
+// per letter: sway phases, the roll's sign, the landing rock (deg, signed) and splay (deg)
+// (pitch: each sheet's mean lean while it falls, deg: + top away from the camera, catching more of the key)
+const INTRO_VAR = [
+  { ph: 0.3, ph2: 1.9, roll: 1, pitch: 9, tilt: 1.2, splay: 2.4 }, { ph: 2.4, ph2: 0.7, roll: -1, pitch: -7, tilt: -0.9, splay: 2.0 },
+  { ph: 4.1, ph2: 2.8, roll: 1, pitch: 5, tilt: 0.6, splay: 1.4 }, { ph: 1.2, ph2: 4.4, roll: -1, pitch: -9, tilt: 1.0, splay: 2.0 },
+  { ph: 5.3, ph2: 3.6, roll: 1, pitch: 7, tilt: -1.3, splay: 2.4 },
+];
+const _X = new THREE.Vector3(1, 0, 0), _Y = new THREE.Vector3(0, 1, 0), _qa = new THREE.Quaternion(), _qb = new THREE.Quaternion(), _qc = new THREE.Quaternion();
+const _e = new THREE.Euler(), _vc = new THREE.Vector3(), _ax = new THREE.Vector3(), _vp = new THREE.Vector3();
+
+/** the top edge of the H0-H2 pre-settle frame (16:10; restCamera distK 1.06, pitch -9) at depth z, as a height (m) */
+function preFrameTop(z) {
+  const L = LETTER_LAYOUT, half = DEG * L.fov / 2, viewH = (L.capMM / 1000) / L.capVh, dist = (viewH / (2 * Math.tan(half))) * 1.06, p = -9 * DEG;
+  const cy = (L.baselineY - 0.5) * viewH - Math.sin(p) * dist, cz = L.depthMM / 2000 + Math.cos(p) * dist;
+  return cy + (cz - z) * Math.tan(half + p);
+}
+const _FIN = new Map();
+/** a letter's final frame split into the turn about the vertical (psi) and the stance about its crease (alpha) */
+function finalFrame(ch, yaw, apex) {
+  const k = ch + yaw.toFixed(5) + '|' + apex.toFixed(5);
+  let F = _FIN.get(k); if (F) return F;
+  const P = letterPose(ch, 1, { apex, yaw: Math.PI / 2 + yaw }), psi = Math.PI / 2 + yaw;
+  const qx = new THREE.Quaternion().setFromAxisAngle(_Y, -psi).multiply(P.quaternion);   // a rotation about x
+  F = { psi, alpha: 2 * Math.atan2(qx.x, qx.w), cy: P.lift + P.centroid.clone().applyQuaternion(P.quaternion).y };
+  _FIN.set(k, F); return F;
+}
+
+/**
+ * The state of letter i (char ch) at intro clock c, for Letters.set (pure: the choreography of H2, testable without a
+ * renderer). R = restLayout(); apex in rad. The air phase poses the sheet through airQuat with pose 0, so `lift` is
+ * the height of the sheet's origin (its crease) and x, z are the origin's; the centre of mass follows the drop.
+ */
+export function letterIntroState(ch, i, n, c, R, apex) {
+  const I = LETTER_INTRO, tau = c - (I.start + I.gap * i), V = INTRO_VAR[i % INTRO_VAR.length];
+  if (tau < 0) return { visible: false };
+  const yawR = R.yaws[i] ?? 0, xR = R.xs[i] ?? 0, zR = R.zs[i] ?? 0;
+  if (tau >= I.fall) {                                     // landed: the rock, the splay and the bloom, then the rest
+    const s = tau - I.fall, on = s < I.settle;
+    return { visible: true, fold: 1, pose: 1, x: xR, z: zR, lift: 0, yaw: yawR, flutter: 0, bend: 0, twist: 0,
+      tilt: on ? V.tilt * DEG * settleK(s, 2.4) : 0, splay: on ? V.splay * DEG * settleK(s, 3.0) : 0, contactK: sstep(0, I.bloom, s) };
+  }
+  const f = tau / I.fall, fin = finalFrame(ch, yawR, apex);
+  const u = clamp01((f - I.foldAt[0]) / (I.foldAt[1] - I.foldAt[0]));   // the fold (letterPose smoothsteps it)
+  const w = smoother((f - I.turnAt[0]) / (I.turnAt[1] - I.turnAt[0]));  // the turn to end-on and the letter's stance
+  const slide = smoother((f - I.slideAt[0]) / (I.slideAt[1] - I.slideAt[0]));   // from the layer onto the mark
+  const live = 1 - sstep(0.42, 0.9, f);                    // the air's sway dies as the sheet folds and turns
+  const ang = 2 * Math.PI * 0.75 * tau + V.ph;
+  const roll = V.roll * I.rollDeg * DEG * Math.cos(ang) * live;
+  const pitch = (V.pitch + I.pitchDeg * Math.sin(2 * Math.PI * 0.95 * tau + V.ph2)) * DEG * live;
+  // face-on and swaying -> the stance about the crease (alpha) -> the turn about the vertical (from the entry yaw to psi)
+  const psi0 = Math.sign(fin.psi) * I.entryYawDeg * DEG, psi = psi0 + (fin.psi - psi0) * w;
+  const q = new THREE.Quaternion().setFromAxisAngle(_Y, psi).multiply(_qb.setFromAxisAngle(_X, fin.alpha * w)).multiply(_qc.setFromEuler(_e.set(pitch, 0, roll)));
+  // the centre of mass: drops (FALL_D) above the mark's front outline in its layer, drifts with the roll, then slides
+  const P = letterPose(ch, u, { apex, yaw: Math.PI / 2 + yawR });
+  const cw = P.centroid.clone().applyQuaternion(q);
+  const xF = R.front[i] ?? xR, layer = I.layers[ch] ?? 0, xE = xF + (ch === 'V' ? Math.sign(xF) * I.vSpread : 0);
+  const y0 = preFrameTop(layer) + 0.1485 + I.dropMargin, D = FALL_D(f), ym = y0 + (fin.cy - y0) * D;
+  const xm = xE + (xR - xE) * slide + 0.010 * Math.sin(ang) * live, zm = layer + (zR - layer) * slide;
+  const air = 1 - sstep(0.42, 0.62, f);                   // the sheet's flex in the air, relaxed as it turns
+  return { visible: true, fold: u, pose: 0, airQuat: q, x: xm - cw.x, z: zm - cw.z, lift: ym - cw.y, yaw: yawR,
+    flutter: 0.004 * (1 - sstep(0.25, 0.55, f)), flutterTime: tau, tilt: 0, splay: 0, contactK: 0,
+    bend: air * (I.bend[0] + I.bend[1] * Math.sin(2 * Math.PI * 0.9 * tau + V.ph2)), twist: air * I.twist * Math.sin(2 * Math.PI * 0.7 * tau + V.ph) };
+}
+
+/** where a letter's sheet stands for state S (pure): { P (letterPose), quaternion, position } (Letters._applyItem) */
+export function letterTransform(ch, S, apex, q = new THREE.Quaternion(), pos = new THREE.Vector3()) {
+  const isI = ch === 'I', splay = S.splay || 0;
+  const P = letterPose(ch, S.fold, { apex: apex + (isI ? 0 : splay), open: isI ? splay : 0, yaw: Math.PI / 2 + S.yaw });
+  if (S.pose >= 1) q.copy(P.quaternion); else q.copy(S.airQuat).slerp(P.quaternion, Math.max(0, S.pose));
+  pos.set(S.x, P.lift * Math.min(1, Math.max(0, S.pose)) + S.lift, S.z);
+  if (S.tilt) {
+    // rock about the ridge (crease) direction through the base centre on the floor; an A lifts onto one foot
+    _ax.set(Math.sin(S.yaw), 0, Math.cos(S.yaw));
+    _qa.setFromAxisAngle(_ax, S.tilt); q.premultiply(_qa);
+    _vp.set(pos.x - S.x, pos.y, pos.z - S.z).applyQuaternion(_qa);
+    pos.set(S.x + _vp.x, _vp.y + (ch === 'A' ? (LETTER_LAYOUT.letterMM / 2000) * Math.abs(Math.sin(S.tilt)) : 0), S.z + _vp.z);
+  }
+  return { P, quaternion: q, position: pos };
+}
 
 // the "4": the glyph's coverage in G (white on opaque black, so G is exactly the coverage the alpha test cuts at), cropped
 // to its scanned ink box plus a pad (measureText's box is not the ink: the plane must be exactly the cap height)
@@ -116,7 +241,7 @@ export class Letters {
       // the I is a 2 px hairline: the left V's shadow would grey its lower half (10.3: "a crisp, bright hairline")
       if (ch.toUpperCase() === 'I') sheet.set({ shadowRecv: 0.3 });
       if (crossbar && ch.toUpperCase() === 'A') sheet.set({ creases: [{ n: [0, 1], d: 0.0624, strength: 0.6 }, { n: [0, 1], d: -0.0624, strength: 0.6 }] });
-      return { char: ch.toUpperCase(), sheet, state: { fold: 1, pose: 1, airQuat: new THREE.Quaternion(), x: R.xs[i] ?? 0, z: R.zs[i] ?? 0, lift: 0, yaw: R.yaws[i] ?? 0, flutter: 0, visible: true }, _key: '' };
+      return { char: ch.toUpperCase(), sheet, state: { fold: 1, pose: 1, airQuat: new THREE.Quaternion(), x: R.xs[i] ?? 0, z: R.zs[i] ?? 0, lift: 0, yaw: R.yaws[i] ?? 0, flutter: 0, flutterTime: 0, tilt: 0, splay: 0, contactK: 1, bend: 0, twist: 0, visible: true }, _key: '' };
     });
     // the "4"
     this.four = null;
@@ -149,7 +274,13 @@ export class Letters {
   }
 
   /** per-letter state (index or char position); see the header */
-  set(i, s = {}) { const it = this.items[i]; if (!it) return this; const { sheet: sheetState, ...rest } = s; Object.assign(it.state, rest); if (sheetState) it.sheet.set(sheetState); this._applyItem(it, i); return this; }
+  set(i, s = {}) {
+    const it = this.items[i]; if (!it) return this;
+    const { sheet: sheetState, airQuat, ...rest } = s;
+    Object.assign(it.state, rest); if (airQuat) it.state.airQuat.copy(airQuat);
+    if (sheetState) it.sheet.set(sheetState);
+    this._applyItem(it, i); return this;
+  }
   setAll(s = {}) { this.items.forEach((_, i) => this.set(i, s)); return this; }
   setFour(s = {}) { if (this.four) { Object.assign(this.four.state, s); this._applyFour(); } return this; }
   /**
@@ -160,7 +291,7 @@ export class Letters {
   /** back to the rest frame: every letter folded, standing, at its 10.3 mark and rest turn; the "4" visible */
   rest({ aimDeg } = {}) {
     const R = restX(this.chars, aimDeg);
-    this.items.forEach((it, i) => this.set(i, { fold: 1, pose: 1, x: R.xs[i] ?? 0, z: R.zs[i] ?? 0, lift: 0, yaw: R.yaws[i] ?? 0, flutter: 0, visible: true }));
+    this.items.forEach((it, i) => this.set(i, { fold: 1, pose: 1, x: R.xs[i] ?? 0, z: R.zs[i] ?? 0, lift: 0, yaw: R.yaws[i] ?? 0, flutter: 0, tilt: 0, splay: 0, contactK: 1, bend: 0, twist: 0, visible: true }));
     this.setFour({ x: R.four.x, z: R.four.z, opacity: 1, visible: true, lift: 0 });
     return this;
   }
@@ -191,8 +322,33 @@ export class Letters {
     const L = LETTER_LAYOUT, R = restX(this.chars);
     const left = R.front[0] - L.letterMM / 2000 - 0.045, right = R.four.x + L.fourMM / 2000 + 0.15;
     const half = (right - left) / 2 + 0.03;
-    return { aim: new THREE.Vector3((left + right) / 2, 0.06, 0), contactHalf: half, shadowExtent: 2 * half };
+    // the key's shadow window also covers the sheets falling in from above the frame (H2): +0.3 m
+    return { aim: new THREE.Vector3((left + right) / 2, 0.06, 0), contactHalf: half, shadowExtent: 2 * half + 0.3 };
   }
+
+  /**
+   * The H2-H3 intro on the intro clock c (seconds, E.intro.clock; LETTER_INTRO): every letter and the "4" posed for c.
+   * A pure function of c, so it scrubs and fast-forwards; from c >= landed(4) + settle it is exactly the rest frame.
+   * H2, per sheet: hidden until its drop; falls face-on and portrait (recto to the camera), swaying and fluttering
+   * (flutter 4 mm -> 0); folds over the last 60 % of the fall and turns to end-on over the last 55 %; lands on its mark,
+   * rocks and splays (zeta 0.7), and its contact shadow blooms in over 120 ms. H3: the "4" draws on.
+   * @returns {{ landed: number[] (s since each letter landed, < 0 before), done: boolean }}
+   */
+  intro(c) {
+    const I = LETTER_INTRO, R = this._rest || (this._rest = restX(this.chars)), n = this.items.length;
+    this.items.forEach((it, i) => this.set(i, letterIntroState(it.char, i, n, c, R, this.apex)));
+    // H3: the "4" draws on (opacity until the stroke reveal lands)
+    if (this.four) { const d = sstep(I.four[0], I.four[1], c); this.setFour({ x: R.four.x, z: R.four.z, lift: 0, visible: d > 0, opacity: d, draw: d }); }
+    const landed = this.items.map((_, i) => c - this.landsAt(i));
+    return { landed, done: landed.every((s) => s >= I.settle) && c >= I.four[1] };
+  }
+  /** the H0-H4 camera for intro clock c: the pre-settle pose (x1.06, pitch -9) until H4, then the push-in (ease-out) */
+  introCamera(c, aspect = 1.6) {
+    const I = LETTER_INTRO, k = 1 - (1 - clamp01((c - I.push[0]) / (I.push[1] - I.push[0]))) ** 3;
+    return this.restCamera(aspect, { distK: 1.06 + (1 - 1.06) * k, pitchDeg: -9 + (LETTER_LAYOUT.pitchDeg + 9) * k });
+  }
+  /** the clock time at which letter i lands (H2; its outline in the drawing fades over the next 200 ms) */
+  landsAt(i) { return LETTER_INTRO.start + LETTER_INTRO.gap * i + LETTER_INTRO.fall; }
 
   /* ------------------------------------------------------------------ internals */
   // The "4" is a vertical plane, which the top-down contact map sees edge-on (the plane's own caster gives its sheared
@@ -233,16 +389,17 @@ export class Letters {
   }
   _applyItem(it, i) {
     const S = it.state, sh = it.sheet;
-    if (!S.visible) { sh.set({ visible: false }); return; }
-    // the fold and its standing pose; the I stays exactly edge-on (yaw only if asked)
-    const P = letterPose(it.char, S.fold, { apex: this.apex, yaw: Math.PI / 2 + S.yaw });
-    const key = S.fold.toFixed(4);
-    if (key !== it._key) { sh.set({ folds: P.folds }); it._key = key; }
-    if (!sh.state.visible) sh.set({ visible: true });
-    if (S.flutter !== sh.state.flutter) sh.set({ flutter: S.flutter });
-    const q = sh.object.quaternion;
-    if (S.pose >= 1) q.copy(P.quaternion); else q.copy(S.airQuat).slerp(P.quaternion, Math.max(0, S.pose));
-    sh.object.position.set(S.x, P.lift * Math.min(1, Math.max(0, S.pose)) + S.lift, S.z);
+    if (!S.visible) { if (sh.state.visible) sh.set({ visible: false }); return; }
+    const { P } = letterTransform(it.char, S, this.apex, sh.object.quaternion, sh.object.position);
+    const key = S.fold.toFixed(4) + '|' + (S.splay || 0).toFixed(5), up = {};
+    if (key !== it._key) { up.folds = P.folds; it._key = key; }
+    if (!sh.state.visible) up.visible = true;
+    if (S.flutter !== sh.state.flutter) up.flutter = S.flutter;
+    if (S.flutter && S.flutterTime !== sh.state.flutterTime) up.flutterTime = S.flutterTime;
+    if ((S.contactK ?? 1) !== sh.state.contactK) up.contactK = S.contactK ?? 1;
+    if ((S.bend || 0) !== sh.state.bend) up.bend = S.bend || 0;
+    if ((S.twist || 0) !== sh.state.twist) up.twist = S.twist || 0;
+    for (const k in up) { sh.set(up); break; }
   }
   _applyFour() {
     const F = this.four; if (!F) return;
