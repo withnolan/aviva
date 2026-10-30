@@ -43,24 +43,23 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const CONTACT0 = paper.contact ? paper.contact.uniforms.uCS.value.z : 0, EXTENT0 = paper.lights.raw ? paper.lights.raw.shadowExtent : 0.6;
   ctx.heroL = [0, 1, 2, 3, 4].map(() => ({ visible: false, fold: 1, pose: 1, x: 0, z: 0, lift: 0, yaw: 0, flutter: 0 }));
   ctx.heroFour = { opacity: 0, visible: false };
-  ctx.heroCam = null; ctx.heroLetters = false; ctx.heroP = 0;
+  ctx.heroCam = null; ctx.heroLetters = false; ctx.heroP = 0; ctx.heroIntro = 0; ctx.heroDone = false;
+  const _hcT = new THREE.Vector3();
   ctx.heroPose = { pos: new THREE.Vector3(REST ? REST.xs[2] : 0, A4.h / 2, REST ? REST.zs[2] : 0), quat: new THREE.Quaternion() };
   function heroClaim(c, p) {
     const R = ctx.reduce;
     ctx.heroLetters = true; ctx.heroP = p;
     for (let i = 0; i < 5; i++) {
-      const o = ctx.heroL[i], t0 = HERO.start + HERO.gap * i, f = R ? 1 : clamp((c - t0) / HERO.fall);
-      const land = smooth(clamp((f - 0.4) / 0.6));                       // H2: folds over the last 60 % of its fall
+      const o = ctx.heroL[i];
       const open = R ? (p > 0.1 ? 1 : 0) : seg(p, HERO.open[i][0], HERO.open[i][1]);     // H7
       const turn = R ? 0 : seg(p, HERO.turn[i][0], HERO.turn[i][1]);                     // H6
       const mw = HERO.merge[i], m = mw ? (R ? (p > 0.1 ? 1 : 0) : smooth(seg(p, mw[0], mw[1], ease.linear))) : 0;   // H8
-      const tl = c - t0 - HERO.fall, settle = !R && tl > 0 && tl < 0.8 ? 1.5 * DEG * Math.exp(-7 * tl) * Math.sin(14 * tl) : 0;
-      o.visible = f > 0 && m < 0.999 && !(i === 2 && p >= 1.1);         // the I hands over to A at H9
-      o.fold = land * (1 - open);
-      o.pose = land * (1 - open);                                        // pose 0 = upright, recto to the camera (airQuat)
-      o.lift = HERO.drop * (1 - f * f) + (A4.h / 2) * open;              // falling; unfolded, it stands on its edge
-      o.flutter = R ? 0 : 0.004 * (1 - f);
-      o.yaw = lerp(REST.yaws[i], i < 2 || i === 2 ? Math.PI / 2 : -Math.PI / 2, turn) + settle;
+      o.visible = m < 0.999 && !(i === 2 && p >= 1.1);                 // the I hands over to A at H9
+      o.fold = 1 - open;
+      o.pose = 1 - open;                                                 // pose 0 = upright, recto to the camera (airQuat)
+      o.lift = (A4.h / 2) * open;                                        // unfolded, it stands on its edge
+      o.flutter = 0;
+      o.yaw = lerp(REST.yaws[i], i < 2 || i === 2 ? Math.PI / 2 : -Math.PI / 2, turn);
       o.lean = 1 - turn;
       o.x = lerp(REST.xs[i], REST.xs[2], m); o.z = lerp(REST.zs[i], REST.zs[2] - HERO.back[i], m);
     }
@@ -78,8 +77,16 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       const h9 = R ? (p > 0.1 ? 1 : 0) : seg(p, 1.1, 1.5);                // H9: the product stands free, the camera levels
       S.set('cam.floor', 0); S.set('cam.pitch', 0); S.set('cam.push', 0); S.set('cam.panY', 0);
       if (hero) {
-        const settle = R ? 1 : ease.out(clamp((c - 2.6) / 2.2));        // H4: x1.06 -> x1.00, pitch -9 -> -6
-        ctx.heroCam = hero.restCamera(size.aspect, { distK: lerp(1.06, 1, settle), pitchDeg: lerp(-9, -6, settle) });
+        const C0 = hero.introCamera(c, size.aspect);
+        // H7-H8: an upright, unfolded sheet is 297 mm tall, twice a letter. The camera eases back while they open, so
+        // the baseline stays at 66 % and the top edge never rises above 25 % (under the h1)
+        const k7 = R ? 0 : ease.inOut(seg(p, 0.3, 0.9, ease.linear));
+        if (k7 > 0) {
+          const Fw = Math.max(C0.dist * 2 * Math.tan(C0.fov * DEG / 2), A4.h / (0.66 - 0.25)), dw = Fw / (2 * Math.tan(C0.fov * DEG / 2));
+          _hcT.set(C0.target.x, lerp(C0.target.y, (0.66 - 0.5) * Fw, k7), C0.target.z);
+          ctx.heroCam = { target: _hcT, dist: lerp(C0.dist, dw, k7), pitch: C0.pitch, fov: C0.fov };
+        } else ctx.heroCam = C0;
+        ctx.heroIntro = c;
         S.set('cam.hero', 1 - h9);
         heroClaim(c, p);
         // T6: the letters lean toward the cursor at rest (<= 3 deg, eased by the springs); the I glints as it passes
@@ -90,7 +97,10 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       S.many('A.', { on: hero ? (p >= 1.1 || (R && p > 0.1) ? 1 : 0) : 1, op: 1, world: 1 - h9, x: 50, y: 52, size: 46, rx: 0, ry: 0, rz: 0 });
       S.set('world.print', 0); S.set('world.shadow', 1);
       const k1 = R ? 1 : seg(c, 0, 0.4);                                   // H1: the studio fades up under the drawing
-      S.light('s00', 1 - k1); S.light('letters', k1);                     // the product keeps the letters' front key: white
+      // backs and inner faces turned away from the key read as grey card: while the sheets fall and turn (H2, H6-H8) a
+      // soft, even fill (card5) joins the letters' key; at rest and for the product (H9) it is the letters' key alone
+      const fillB = R ? 0 : 0.4 * Math.max(seg(c, 0.3, 0.6) * (1 - seg(c, 2.2, 2.9)), seg(p, 0.05, 0.3) * (1 - seg(p, 1.25, 1.5)));
+      S.light('s00', 1 - k1); S.light('letters', k1 * (1 - fillB)); S.light('card5', k1 * fillB);
       S.setEnum('A.gen', 'h' + (E.regen.gen || 0));
     },
     s02(S, p) {
@@ -518,13 +528,16 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       hero.object.visible = ctx.heroLetters;
       if (ctx.heroLetters) {
         const lx = g('hero.lx'), lon = g('hero.lon'), glint = g('hero.glint');
-        for (let i = 0; i < 5; i++) {
+        // H2-H4 (T3): letters.js poses every letter and the "4" from the intro clock (a pure function, so the input
+        // fast-forward scrubs it); once it reports the rest frame, the scroll beats and the lean take over
+        if (!ctx.heroDone) { const r = hero.intro(ctx.heroIntro); if (r.done) ctx.heroDone = true; }
+        if (ctx.heroDone) for (let i = 0; i < 5; i++) {
           const o = ctx.heroL[i];
           const lean = HERO.leanDeg * DEG * lon * o.lean * clamp((lx - HERO.xn[i]) * 1.6, -1, 1);
           hero.set(i, { visible: o.visible, fold: o.fold, pose: o.pose, x: o.x, z: o.z, lift: o.lift, flutter: o.flutter, yaw: o.yaw + (i === 2 ? 0.5 * lean : lean),
             sheet: i === 2 ? { gain: 1 + 0.32 * glint } : undefined });
         }
-        hero.setFour(ctx.heroFour);
+        if (ctx.heroDone) hero.setFour(ctx.heroFour);
       }
     }
 

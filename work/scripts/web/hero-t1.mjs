@@ -45,7 +45,7 @@ const shot = (page, n) => page.screenshot({ path: `${out}/${n}.jpg`, type: 'jpeg
   note('yaw deg A V I V A + I gain: rest', y0); note('  cursor far left', yl); note('  cursor far right', yr); note('  cursor on the I', yc);
   await shot(page, '02b-h4-cursor-on-I');
   await page.mouse.move(1400, 880);
-  for (const p of [0.3, 0.9, 1.3, 1.6, 1.95]) { await go(page, 's01', p); note(`scroll s01 p ${p}`, await st(page)); await shot(page, `03-s01-p${String(p).replace('.', '_')}`); }
+  for (const p of [0.3, 0.9, 1.3, 1.5, 1.6, 1.95]) { await go(page, 's01', p); note(`scroll s01 p ${p}`, await st(page)); await shot(page, `03-s01-p${String(p).replace('.', '_')}`); }
   await go(page, 's02', 0.4); note('s02 p 0.4 (pin released)', await st(page)); await shot(page, '04-s02-p0_4');
   await go(page, 's01', 0.0, 2000); note('back to the top (no replay)', await st(page));
   note('errors (intro run)', errors.length ? errors.slice(0, 8) : 'none');
