@@ -254,9 +254,11 @@ const PAGE = () => {
       d[i * 4 + 3] = 255 - al[i * 4];
     }
     ox.putImageData(img, 0, 0);
+    window.__last = o;
     return o.toDataURL('image/png');
   }
   window.__print = print;
+  window.__webp = (q) => window.__last.toDataURL('image/webp', q);
 };
 
 const b = await launch();
@@ -273,8 +275,9 @@ for (const [i, n] of names.entries()) {
   const url = await p.evaluate(([n, s]) => window.__print(n, s), [n, 11 + i * 7]);
   const png = path.join(TMP, n + '.png'); fs.writeFileSync(png, Buffer.from(url.split(',')[1], 'base64'));
   const out = path.join(OUT, n + '.webp');
-  for (const q of [80, 72, 64, 56, 48, 42, 36]) {
-    execFileSync('convert', [png, '-quality', String(q), '-define', 'webp:alpha-quality=100', '-define', 'webp:method=6', out]);
+  for (const q of [0.82, 0.74, 0.66, 0.58, 0.5, 0.42, 0.34, 0.26]) {      // Chromium's encoder: lossy colour, lossless alpha
+    const w = await p.evaluate((q) => window.__webp(q), q);
+    fs.writeFileSync(out, Buffer.from(w.split(',')[1], 'base64'));
     if (fs.statSync(out).size <= 120 * 1024) break;
   }
   console.log(n, (fs.statSync(out).size / 1024).toFixed(1), 'KB');
