@@ -20,6 +20,7 @@ import { Sheet } from './sheet.js';
 import { Stack } from './stack.js';
 import { createBleed } from './bleed.js';
 import { Letters, LETTER_LAYOUT } from './letters.js';
+import { Bench } from './bench.js';
 import { sheetSegments } from './geometry.js';
 import * as folds from './folds.js';
 
@@ -27,6 +28,7 @@ export { LIGHT_PRESETS, blendPresets, folds, Sheet, Stack };
 export { createPencil } from './pencil.js';
 export { createBleed } from './bleed.js';
 export { Letters, LETTER_LAYOUT } from './letters.js';
+export { Bench, BENCH, BENCH_TOP_Y } from './bench.js';
 
 // Colours (sRGB hex). paper / studio / graphite / ink / inkDeep match docs/css/tokens.css. The decision #24 families
 // (charcoal, the cool greys, HB-pencil yellow, blueprint blue) are provisional here until tokens.css carries them:
@@ -144,6 +146,8 @@ export async function createPaperSystem(renderer, opts = {}) {
     createStack(o = {}) { return new Stack(sys, o); },
     /** the hero: AVIVA in five folded sheets + the graphite "4" (letters.js; brief 10.3) */
     createLetters(o = {}) { return new Letters(sys, o); },
+    /** the s02 metrology bench (bench.js; brief 5.12, T7): granite plate, micrometer, 10-sheet stack */
+    createBench(o = {}) { return new Bench(sys, o); },
     /** The Bleed's full-screen carry (bleed.js): a drop-in for the site's props.createBleed(), in the module's ink colours */
     createBleed(o = {}) { return createBleed({ ink: colors.ink, inkDeep: colors.inkDeep, ...o }); },
     stacks: new Set(),

@@ -215,13 +215,13 @@ const GRANITE_FRAG = /* glsl */`
   vec3 an = abs(vGN);
   vec2 gp = (an.y > 0.5 ? vGObj.xz : (an.x > 0.5 ? vGObj.zy : vGObj.xy)) * 1000.0;      // mm
   float px = max(length(fwidth(gp)), 1e-4);                                                 // mm per pixel
-  vec3 c1 = gCell(gp / 0.95), c2 = gCell(gp / 0.38 + 31.0);
+  vec3 c1 = gCell(gp / 1.6), c2 = gCell(gp / 0.7 + 31.0);
   float fel = step(0.93, c1.y), qtz = step(0.80, c1.y) * (1.0 - fel), mica = step(0.75, c2.y) * step(c2.y, 0.79);
   vec3 alb = vec3(0.022, 0.023, 0.025) * (0.75 + 0.5 * c2.y);                             // black pyroxene / biotite
-  alb = mix(alb, vec3(0.30, 0.31, 0.32) * (0.75 + 0.45 * gH(vec2(c1.y * 91.0))), fel);    // feldspar flecks
+  alb = mix(alb, vec3(0.36, 0.37, 0.38) * (0.75 + 0.45 * gH(vec2(c1.y * 91.0))), fel);    // feldspar flecks
   alb = mix(alb, vec3(0.085, 0.088, 0.092), qtz);                                          // glassy grey quartz
   // grains finer than ~2 px average out (no shimmer): fade to the stone's mean colour
-  float band = smoothstep(0.35, 1.2, px / 0.95);
+  float band = smoothstep(0.45, 1.4, px / 1.6);
   alb = mix(alb, vec3(0.042, 0.043, 0.046), band);
   diffuseColor.rgb = alb;
   float gRough = mix(mix(0.2, 0.14, qtz), 0.07, mica * (1.0 - band));
@@ -258,7 +258,7 @@ function buildGranite(env) {
   const rect = new THREE.Vector4(-0.5, P.front - P.d, 1.0, P.d * (640 / 1024) / (P.d / 1.0) * P.d / P.d);
   rect.set(-0.5, -0.32, 1.0, 0.625);                     // the AO canvas covers x -0.5..0.5, z -0.32..0.305 (1024 x 640)
   const ao = aoCanvas(rect);
-  const mat = new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.2, metalness: 0, clearcoat: 0.65, clearcoatRoughness: 0.09, envMap: env, envMapIntensity: 1, specularIntensity: 0.7 });
+  const mat = new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.2, metalness: 0, clearcoat: 0.5, clearcoatRoughness: 0.06, envMap: env, envMapIntensity: 0.32, specularIntensity: 0.45 });
   const U = { uGAO: { value: ao }, uGAORect: { value: rect }, uGMicOff: { value: new THREE.Vector2(0, 0) } };
   mat.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, U);

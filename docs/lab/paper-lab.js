@@ -61,6 +61,8 @@ const STATES = {
   herorestturn: 'hero=1&hyaw=16&light=letters',
   // the H2 fold-in on the intro clock (ic = E.intro.clock, s; H2 runs 0.4 -> 2.0; brief 3.5 s = ic 1.3)
   heroin: 'hero=1&ic=1.3&light=letters',
+  // s02 metrology bench (T7) at ~2 vh: the sheet edge-on, the micrometer closing (bopen = gap mm, bread = LCD)
+  bench: 'bench=1&cam=0,0,1.0682&target=0,0.5,0&pos=0,0.5,0&rot=0,90,0&light=bench&ground=charcoal&floor=none&bopen=4.2&bread=4.200',
   // decision #31: the folded-letter hero (earlier lab version)
   letters: 'cam=0,12,1.32&target=0,0.07,0&pos=0,0.5,0&letters=AVIVA&lt=1&lsp=0.19&light=letters&aim=0,0.06,0',
   lettershalf: 'cam=0,20,1.32&target=0,0.05,0&pos=0,0.5,0&letters=AVIVA&lt=0.5&lsp=0.19&lslide=0.25&light=letters&aim=0,0.04,0',
@@ -123,7 +125,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null; const letterSheets = [];
+let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -230,6 +232,13 @@ async function apply(search) {
     heroStage = heroObj.restStage();
     paper.contact.uniforms.uCS.value.z = heroStage.contactHalf; paper.lights.shadowExtent = heroStage.shadowExtent;
   } else { heroStage = null; if (heroObj) heroObj.object.visible = false; }
+  // the s02 bench (T7): the sheet's bottom-edge centre at the bench origin
+  if (num('bench', 0) > 0) {
+    if (!benchObj) { benchObj = paper.createBench(); scene.add(benchObj.object); }
+    benchObj.object.visible = true; benchObj.object.position.set(0, 0.5 - 0.1485, 0);
+    benchObj.micrometer.set({ open: num('bopen', 4.2) / 1000, slide: num('bslide', 1) }); benchObj.micrometer.setReadout(str('bread', '4.200'));
+    paper.lights.shadowExtent = 1.2;
+  } else if (benchObj) benchObj.object.visible = false;
   // the HB pencil prop: pencil=x,y,z,rx,ry,rz (the graphite point, world metres; degrees)
   const pz = str('pencil', '');
   if (pz) {

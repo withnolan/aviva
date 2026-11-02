@@ -97,6 +97,11 @@ export const LIGHT_PRESETS = {
   letters: P({ key: { dir: D(-0.6, 0.55, 0.58), dist: 1.6, color: '#fff7ef', intensity: 1.5, angle: 0.75, softness: 9 }, fill: { dir: D(0.9, 0.25, 0.35), color: '#eaf0ff', intensity: 0.3 },
     rim: { dir: D(0.3, 0.5, -0.8), intensity: 0.2, color: '#ffffff' }, env: 0.48, exposure: 1.0, backdrop: { pool: 0.06 }, contact: { contact: 0.45, mid: 0.36, soft: 0.26 } }),
 
+  // s02 metrology bench (brief 5.12): a cool overhead key (~5600 K), a left rim on the sheet's edge, charcoal ground
+  bench: P({ key: { dir: D(-0.2, 0.92, 0.33), dist: 1.4, color: '#f3f6ff', intensity: 1.35, angle: 0.8, softness: 6 }, rim: { dir: D(-0.95, 0.15, -0.25), intensity: 1.1, color: '#eef3ff' },
+    back: { intensity: 0 }, fill: { dir: D(0.9, 0.2, 0.4), intensity: 0.08, color: '#dfe7ff' }, env: 0.22, exposure: 0.95,
+    backdrop: { gain: 1, pool: 0, poolAdd: 0.012, poolColor: '#cfd6e6', poolOffset: [0, 0.4, -1.5], poolRadius: 1.2 }, contact: { contact: 0, mid: 0, soft: 0 } }),
+
   // look-dev utilities
   backlit: P({ key: { intensity: 0 }, back: { dir: D(0.05, 0.25, -1), intensity: 2.09 }, fill: { intensity: 0 }, env: 0.12, contact: { contact: 0, mid: 0, soft: 0 } }),
   raking: P({ key: { dir: D(-0.97, 0.12, 0.2), dist: 1.0, intensity: 1.8, softness: 3 }, fill: { intensity: 0.04 }, env: 0.18 }),
