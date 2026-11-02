@@ -50,6 +50,12 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
       const I = hero.items[2].sheet.uniforms, U = A.raw && A.raw.uniforms;
       if (U && I) { U.uFormP.value.copy(I.uFormP.value); U.uCockle.value.z = I.uCockle.value.z; }
     }
+    // s02 (T8): the metrology bench, and the point light the cursor slides along the 0.1 mm edge (always in the
+    // scene at intensity 0 elsewhere: the light count is part of every material's program, so it never recompiles)
+    let bench = null;
+    try { bench = paper.createBench({ stackCount: 10 }); } catch (e) { console.warn('[aviva] bench:', e && e.message); }
+    if (bench) { stage.scene.add(bench.object); bench.object.visible = false; }
+    const rim = new THREE.PointLight('#eef3ff', 0, 0.3, 2); rim.name = 's02.rim'; stage.scene.add(rim);
     const numerals = createTypePlane('4.99 g');
     const line = createDryingLine(8), drop = createDrop();
     const bleed = paper.raw && paper.raw.createBleed ? paper.raw.createBleed() : createBleed();   // the module's ink front at screen scale
@@ -65,9 +71,9 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     const springs = new Springs(state);
     springs.direct = reduced;
     const props = { numerals, line, drop, bleed };
-    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, hero } });
+    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, hero, bench, rim } });
     choreo.ctx.ground = new THREE.Color('#ECEBE7');
-    return { paper, A, B, F, O, hero, props, paint, state, springs, choreo };
+    return { paper, A, B, F, O, hero, bench, props, paint, state, springs, choreo };
   }
 
   async function rebuild() {
@@ -103,11 +109,53 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
   }
 
   /* ------------------------------------------------------------------ rendering */
+  /* the s02 rack focus (T8): one cheap depth-of-field pass, only while choreo asks for it (ctx.dof.k > 0) */
+  let dofRT = null, dof = null;
+  const _dsz = new THREE.Vector2(), _fv = new THREE.Vector3();
+  function dofPass(r, k, focusWorld) {
+    r.getDrawingBufferSize(_dsz);
+    if (!dofRT || dofRT.width !== _dsz.x || dofRT.height !== _dsz.y) {
+      if (dofRT) dofRT.dispose();
+      dofRT = new THREE.WebGLRenderTarget(_dsz.x, _dsz.y, { type: THREE.HalfFloatType, depthTexture: new THREE.DepthTexture(_dsz.x, _dsz.y) });
+    }
+    if (!dof) {
+      const mat = new THREE.ShaderMaterial({
+        uniforms: { tColor: { value: null }, tDepth: { value: null }, uNear: { value: 0.01 }, uFar: { value: 100 }, uFocus: { value: 1 }, uK: { value: 0 }, uTexel: { value: new THREE.Vector2() } },
+        vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+        fragmentShader: `varying vec2 vUv; uniform sampler2D tColor, tDepth; uniform float uNear, uFar, uFocus, uK; uniform vec2 uTexel;
+          float vz(vec2 uv){ float z = texture2D(tDepth, uv).x * 2.0 - 1.0; return 2.0 * uNear * uFar / (uFar + uNear - z * (uFar - uNear)); }
+          void main(){
+            float coc = clamp(abs(vz(vUv) - uFocus) / uFocus * 16.0, 0.0, 1.0) * uK;
+            vec4 acc = texture2D(tColor, vUv); float w = 1.0;
+            for (int i = 1; i < 18; i++) { float a = float(i) * 2.39996, rr = sqrt(float(i) / 17.0);
+              vec2 uv = vUv + vec2(cos(a), sin(a)) * rr * coc * 9.0 * uTexel;
+              float cs = clamp(abs(vz(uv) - uFocus) / uFocus * 16.0, 0.0, 1.0);        // a sharp neighbour doesn't bleed
+              float ww = 0.25 + cs; acc += texture2D(tColor, uv) * ww; w += ww; }
+            gl_FragColor = acc / w;
+            #include <tonemapping_fragment>
+            #include <colorspace_fragment>
+          }`,
+        depthTest: false, depthWrite: false, toneMapped: true,
+      });
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute([-1, -1, 0, 3, -1, 0, -1, 3, 0], 3));
+      g.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 2, 0, 0, 2], 2));
+      const mesh = new THREE.Mesh(g, mat); mesh.frustumCulled = false;
+      dof = { mat, scene: new THREE.Scene().add(mesh), cam: new THREE.Camera() };
+    }
+    r.setRenderTarget(dofRT); r.clear(); r.render(stage.scene, stage.camera); r.setRenderTarget(null);
+    const c = stage.camera, U = dof.mat.uniforms;
+    U.tColor.value = dofRT.texture; U.tDepth.value = dofRT.depthTexture; U.uNear.value = c.near; U.uFar.value = c.far;
+    U.uFocus.value = Math.max(0.02, _fv.copy(focusWorld).applyMatrix4(c.matrixWorldInverse).z * -1);
+    U.uK.value = k; U.uTexel.value.set(1 / _dsz.x, 1 / _dsz.y);
+    r.render(dof.scene, dof.cam);
+  }
   function render() {
     const r = stage.renderer;
     r.setRenderTarget(null);
     r.clear();
-    r.render(stage.scene, stage.camera);
+    const D = W.choreo.ctx.dof;
+    if (D && D.k > 0.01) dofPass(r, D.k, D.focus); else r.render(stage.scene, stage.camera);
     const bl = W.props.bleed;
     if (bl.active) { const ac = r.autoClear; r.autoClear = false; r.render(bl.scene, bl.camera); r.autoClear = ac; }   // over the scene
   }
@@ -217,6 +265,16 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     for (let i = 0; i < 5; i++) { const p = proj(_v.set(R.front[i], 0, R.frontZ)); out[i].x = p.x; out[i].y = p.y; }
     return true;
   }
+  /** s02 (T8): screen points for the readout caption (beside the LCD) and the stack label, plus the reading */
+  function benchOverlay(out) {
+    const B = W && W.bench, b = W && W.choreo.ctx.bench;
+    if (!B || !b || !b.on || !B.object.visible) return false;
+    B.object.updateMatrixWorld(true);
+    const r = proj(B.object.localToWorld(_v.copy(B.focus.readout))); out.rx = r.x; out.ry = r.y;
+    const s = proj(B.object.localToWorld(_v.copy(B.stack.object.position).setY(B.stack.object.position.y + 0.002))); out.sx = s.x; out.sy = s.y;
+    out.text = b.text; out.lcd = b.lcd; out.stackOn = b.stackOn;
+    return true;
+  }
   function dotLabel() {
     const s = W.choreo.ctx;
     const on = s.heroOn && W.springs.get('A.dot') > 0.6 && W.springs.get('A.size') < 60 && dotLabel.until > performance.now();
@@ -233,7 +291,7 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     get paper() { return W.paper; },
     get kind() { return W.paper.kind; },
     heroOn: () => !!(W && W.choreo.ctx.heroOn),
-    pickHero, tearLine, heroCorners, heroFeet,
+    pickHero, tearLine, heroCorners, heroFeet, benchOverlay,
     heroAnchor: (at) => anchorOf(W.A, at),
     sheetAnchor: (k, at) => anchorOf(k === 'B' ? W.B : W.A, at),
     dimsMode: () => (W.choreo.ctx.heroOn ? W.state.enum('D.mode') : 'none'),

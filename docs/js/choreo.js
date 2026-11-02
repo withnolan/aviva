@@ -17,7 +17,7 @@ export function outputSpacing(w) { return w <= 600 ? 74 : w <= 1024 ? 40 : 26; }
 
 export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const { camera, rig, size } = stage;
-  const { A, B, F, O, hero = null } = sheets;  // the product, second instance, falling output 1, outputs 2–8, the letters (letters.js)
+  const { A, B, F, O, hero = null, bench = null, rim = null } = sheets;  // the product, second instance, falling output 1, outputs 2–8, the letters (letters.js)
   const ctx = {
     M: false, reduce: false, time: 0, hero: null, loop: false,
     tear: { p1: 0, s1: 0, p2: 0, s2: 0, live: false, fall: 0 }, rel: { plane: 0, fly: 0, fade: 1 },
@@ -68,6 +68,13 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     ctx.heroFour.visible = ctx.heroFour.opacity > 0.002;
   }
 
+  /* ------------------------------------------------------------------ the s02 bench (T8; bench.js) */
+  ctx.bench = { on: false, rise: 0, slide: 0, open: 0.0125, lcd: '12.500', text: '', stackOn: false };
+  ctx.dof = { k: 0, focus: new THREE.Vector3() };
+  ctx.dofK = 0; ctx.dofT = 0; ctx.rimOn = 0;
+  const _bp = new THREE.Vector3(), _bf = new THREE.Vector3(), _be = new THREE.Vector3();
+  const EXTENT_BENCH = 1.2;
+
   /* ------------------------------------------------------------------ claims, one per section (brief 2B) */
   const C = {
     s01(S, p) {
@@ -112,7 +119,21 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       S.set('world.print', 0); S.set('world.shadow', 0);
       S.set('bg.dark', seg(p, 1.3, 1.6) * (1 - seg(p, 2.2, 2.5)));
       const k = seg(p, 0.6, 1.4);
-      S.light('letters', 1 - k); S.light('s02', k);
+      S.light('letters', 1 - k); S.light('bench', k);                     // T8: the bench's cool overhead key and left rim
+      // T8, the micrometer beat (11.1 row s02): parked until the sheet is edge-on (1.6 vh); slides in, closes to 0.1 mm
+      // while the readout counts down, holds 0.100, then opens and parks again before the second turn (2.2 vh)
+      const R = ctx.reduce, closeK = ease.inOut(seg(p, 1.75, 2.0, ease.linear)), reopen = seg(p, 2.04, 2.12);
+      const gap = lerp(0.0125, 0.0001, closeK);
+      const b = ctx.bench;
+      b.on = true; b.rise = R ? 1 : seg(p, 0.15, 0.85);
+      b.slide = seg(p, 1.6, 1.74) * (1 - seg(p, 2.1, 2.2));
+      b.open = lerp(gap, 0.0125, reopen);
+      b.lcd = p < 2.0 ? (gap * 1000).toFixed(3) : '0.100';
+      b.text = (p < 2.0 ? (gap * 1000).toFixed(2) : '0.10') + ' mm';
+      b.stackOn = p >= 1.6 && p < 2.2;
+      ctx.dofK = R ? 0 : seg(p, 1.5, 1.65) * (1 - seg(p, 2.2, 2.35));
+      ctx.dofT = seg(p, 1.8, 2.15);                                       // rack focus: the readout -> the 0.1 mm edge
+      ctx.rimOn = p > 1.3 && p < 2.4 ? 1 : 0;
       S.setEnum('A.gen', 'h' + (E.regen.gen || 0));
     },
     s03(S, p) {
@@ -306,7 +327,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   /* ------------------------------------------------------------------ per-frame: claim → resolve */
   function claim(secs, frame) {
     ctx.M = size.w <= 600 || size.aspect <= 0.8;      // the stacked layout: the same test as the CSS media query
-    ctx.heroLetters = false;
+    ctx.heroLetters = false; ctx.bench.on = false; ctx.dofK = 0; ctx.rimOn = 0;
     ctx.reduce = frame.reduce;
     ctx.time = E.time;
     ctx.loop = false;
@@ -587,6 +608,33 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
 
     /* lights */
     paper.lights.set(springs.lightList());
+    /* s02 (T8): the bench under the edge-on sheet's bottom edge (where the sheet is at 1.6-2.2 vh), turned with the
+       camera's yaw; the micrometer; the rack focus; the cursor's rim light on the 0.1 mm edge */
+    const bo = ctx.bench;
+    if (bench) {
+      bench.object.visible = bo.on;
+      ctx.dof.k = 0;
+      if (bo.on) {
+        stage.screenPlace(50, 50, 52, A4.h, 0, _bp);
+        bench.object.position.set(_bp.x, _bp.y - A4.h / 2 - 0.3 * (1 - smooth(bo.rise)), _bp.z);
+        bench.object.rotation.set(0, rig.yaw * DEG, 0);
+        bench.micrometer.set({ open: bo.open, slide: bo.slide }); bench.micrometer.setReadout(bo.lcd);
+        bench.object.updateMatrixWorld(true);
+        if (ctx.dofK > 0.01) {
+          _bf.copy(bench.focus.readout).lerp(_be.copy(bench.focus.edge), smooth(ctx.dofT));
+          ctx.dof.focus.copy(bench.object.localToWorld(_bf)); ctx.dof.k = ctx.dofK;
+        }
+        if (paper.lights.raw) paper.lights.raw.shadowExtent = EXTENT_BENCH;
+      }
+    }
+    if (rim) {
+      const on = ctx.rimOn * (E.pointer.on ? 1 : 0.35);
+      rim.intensity = 0.9 * on;
+      if (on > 0 && bench) {                                              // up the edge with the cursor's height
+        const h = clamp(0.5 - 0.5 * E.pointer.ny) * A4.h;
+        rim.position.copy(bench.object.localToWorld(_be.set(-0.035, h, 0.135)));
+      }
+    }
     if (hero && ctx.heroLetters) {                                     // the letters' light and contact window (restStage)
       paper.lights.aim(STAGE_H.aim);
       if (paper.contact) paper.contact.uniforms.uCS.value.z = STAGE_H.contactHalf;
@@ -594,7 +642,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     } else {
       paper.lights.aim(aOn ? A.object.position : _v.set(0, STAGE.anchor.y, 0));
       if (paper.contact) paper.contact.uniforms.uCS.value.z = CONTACT0;
-      if (paper.lights.raw) paper.lights.raw.shadowExtent = EXTENT0;
+      if (paper.lights.raw && !(bench && bo.on)) paper.lights.raw.shadowExtent = EXTENT0;
     }
   }
 

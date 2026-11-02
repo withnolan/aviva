@@ -82,6 +82,7 @@ The user stopped work until next week. All four agents are paused, everything is
 9. [ ] Build tasks (to be split): hero letters, copy + caps, tiers + stack, sets/props, renders for c1–c8/F1–F6/OG, annotation layer, extra moments.
 
 ## Running now
+- **2026-11-02: STOP EVERYTHING (user).** Pausing: WD T8 (bench in s02, micrometer, rack focus); paper VD T9 (drafting board). On resume: finish T8, T9, then T5, T10, T12+.
 - **2026-11-02:** done T7 (bench), T18 (six riso standees), 11.10 fact-check (4 wording fixes in `work/reviews/part11-factcheck.md`: s06b.call.2 fold angle; Europe recycling cite → EPRC 2025 76.4 % + label 'RECYCLING RATE, EUROPE'; s08.c1 'Usually five to seven times. Researchers are aiming for 25.'; s04.weights.sr drop 'brass'). Next: CD applies the 4 fixes; WD T8 (place the bench, micrometer close, readout, rack focus).
 - **2026-10-30: stop now (user low on tokens).** T4 done. **All agents stopped.** Paper VD T7 half done (bench.js draft, not imported; left: createBench export, 'bench' preset, still, landing). Design VD T18 planned only, nothing built (six standees via build-standees.mjs). The 11.10 fact-check was NOT started. On resume: finish T7, T18, then the fact-check, T5, T8+.
 - **2026-10-30, user: one task per role, then stop.** Wave 1 running: WD → T4 (wire hero.intro, H7 camera fix, grey backs, s02 hand-off); paper VD → T7 (s02 bench). Wave 2 after: design VD → T18 (six riso standees, #48); web-researcher (Sonnet) → 11.10 fact-check. Then stop.

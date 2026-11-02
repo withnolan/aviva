@@ -140,6 +140,10 @@
   <p class="sr-only" id="loader-sr" aria-live="polite"></p>
 
   <!-- Overlays registered to the projected sheet (dimension lines, readouts). Decorative: the values are in the DOM text. -->
+  <div class="bench-ov" id="bench-ov" aria-hidden="true">
+    <p class="bench-ov__read" id="bench-read">12.50 mm</p>
+    <p class="bench-ov__stack micro" id="bench-stack" data-copy="s02.stack">10 SHEETS: 1.0 mm</p>
+  </div>
   <div class="dims" id="dims" aria-hidden="true">
     <svg class="dims__svg" id="dims-svg" focusable="false"></svg>
     <span class="dims__lab" data-dim="w" data-copy="s05.dim.w">210 mm</span>
@@ -201,6 +205,7 @@
     <section class="sec sec--pin" id="s02-thin" data-sec="s02" data-ground="charcoal" style="--len:3" aria-labelledby="s02-h2">
       <div class="stage">
         <h2 class="s02__h2 display-s" id="s02-h2" data-copy="s02.h2" data-at="0.35" data-until="0.85" data-split>0.1&nbsp;mm.</h2>
+        <p class="sr-only" data-copy="s02.mic.sr">A micrometer closes on the edge of the sheet and reads 0.10 millimetres.</p>
         <p class="s02__verso micro" data-copy="s02.verso" data-at="2.25" data-until="3.2">VERSO: ALSO BLANK.</p>
         <p class="s02__body lead" data-copy="s02.body" data-at="0.35" data-until="0.85" data-split>From the side, it is barely here. That was the hard part.</p>
         <p class="s02__note small" data-copy="s02.note" data-at="1.6" data-until="2.2">Caliper of 80 g/m² copy paper: about 95–110 µm, depending on how tightly its fibres are packed.</p>

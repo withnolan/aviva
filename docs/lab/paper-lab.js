@@ -61,6 +61,8 @@ const STATES = {
   herorestturn: 'hero=1&hyaw=16&light=letters',
   // the H2 fold-in on the intro clock (ic = E.intro.clock, s; H2 runs 0.4 -> 2.0; brief 3.5 s = ic 1.3)
   heroin: 'hero=1&ic=1.3&light=letters',
+  // s03 drafting board (T9): the sheet on the 35 deg slope, taped, the pencil drawing
+  board: 'board=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
   // s02 metrology bench (T7) at ~2 vh: the sheet edge-on, the micrometer closing (bopen = gap mm, bread = LCD)
   bench: 'bench=1&cam=0,0,1.0682&target=0,0.5,0&pos=0,0.5,0&rot=0,90,0&light=bench&ground=charcoal&floor=none&bopen=4.2&bread=4.200',
   // decision #31: the folded-letter hero (earlier lab version)
@@ -125,7 +127,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null; const letterSheets = [];
+let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -232,6 +234,10 @@ async function apply(search) {
     heroStage = heroObj.restStage();
     paper.contact.uniforms.uCS.value.z = heroStage.contactHalf; paper.lights.shadowExtent = heroStage.shadowExtent;
   } else { heroStage = null; if (heroObj) heroObj.object.visible = false; }
+  if (num('board', 0) > 0) {
+    if (!boardObj) { boardObj = paper.createDraftingBoard(); scene.add(boardObj.object); }
+    boardObj.object.visible = true; boardObj.object.position.copy(sheet.object.position); boardObj.object.quaternion.copy(sheet.object.quaternion);
+  } else if (boardObj) boardObj.object.visible = false;
   // the s02 bench (T7): the sheet's bottom-edge centre at the bench origin
   if (num('bench', 0) > 0) {
     if (!benchObj) { benchObj = paper.createBench(); scene.add(benchObj.object); }
