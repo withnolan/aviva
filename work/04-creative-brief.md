@@ -335,7 +335,7 @@ Reduced motion: no corner curl; Regenerate swaps the sheet with a 300 ms fade in
 | `s04.call.2` | × 0.06237 m² | leader callout to the ".99" (R§13.1: A4 = 62,370 mm²) |
 | `s04.call.3` | = 4.99 g. Calculated, strictly speaking. | leader callout to the "g" (R§13.1: calculated, not weighed; real sheets vary by a few per cent, R§13.10 #10) |
 | `s04.weights` | CALIBRATION SET: 4.99 g IN 8 WEIGHTS | small label on the open case: 2 + 2 + 0.5 + 0.2 + 0.2 + 0.05 + 0.02 + 0.02 g (derived) |
-| `s04.weights.sr` | An open case of eight brass calibration weights that add up to 4.99 grams. | visually hidden |
+| `s04.weights.sr` | An open case of eight calibration weights that add up to 4.99 grams. | visually hidden |
 | `s04.g.h3` | Selected outputs. | the gallery title, top-left above the drying line |
 | `s04.g.sub` | Unretouched. Each one exactly as AVIVA produced it. | |
 | `s04.label.prompt` | PROMPT | the label above each prompt |
@@ -446,7 +446,7 @@ Reduced motion: the tear advances only with drag, hold or scroll. The halves cro
 | `s06b.hint` | POINT AT A FOLD TO PREVIEW IT | beside the sheet |
 | `s06b.fold.n` | FOLD {n} OF 7 | the label of each fold number (buttons 1–7: Tab, then Enter previews) |
 | `s06b.call.1` | CENTRE LINE: 105 mm | leader callout (derived: 210 ÷ 2, R§1.1 high) |
-| `s06b.call.2` | FOLDS 1–2: CORNERS TO THE CENTRE LINE, 45° | leader callout (geometry, derived) |
+| `s06b.call.2` | FOLD 1: CORNERS TO THE CENTRE LINE, 45° | leader callout (geometry, derived) |
 | `s06b.call.3` | NO GLUE · NO CUTS · NO TAPE | leader callout (our method) |
 | `s06b.sr` | The sheet is marked with the seven folds of a paper dart, in standard origami notation. | visually hidden |
 | `s06b.fallback` | In 3D, the seven folds of a paper plane would draw themselves onto the sheet here. | no-WebGL page |
@@ -489,10 +489,10 @@ Reduced motion: no dolly. Three cross-dissolves (surface still → absorption st
 
 | id | Value | Label | Body | Source |
 |---|---|---|---|---|
-| `s08.c1` | 5–7 | LIVES | Five to seven times. Researchers are aiming for 25. | R§3.5 · R§13.10 #9. Over the row of generations |
-| `s08.c2` | ≈ ¾ | RECYCLED IN EUROPE | About three-quarters of Europe's paper and board comes back. | R§13.3 high (75.1 % in 2024, European Paper Recycling Council; the figure goes in the cite line) |
+| `s08.c1` | 5–7 | LIVES | Usually five to seven times. Researchers are aiming for 25. | R§3.5 · R§13.10 #9. Over the row of generations |
+| `s08.c2` | ≈ ¾ | RECYCLING RATE, EUROPE | About three-quarters of Europe's paper and board comes back. | R§13.3 · part11-factcheck #11 (76.4 %, European Paper Recycling Council, 2025; the rate includes paper exported for recycling) |
 | `s08.c3` | 4.64 g | CO₂e PER SHEET (ISO METHOD) | Its footprint is about its own weight. | R§13.4 · R§13.10 #16 high (4.64 g under ISO 14040/44). It is the label on the jar on the balance; the sheet's pan reads 4.99 g |
-| `s08.c3.cite` | | | Dias & Arroja, *Journal of Cleaner Production*, 2012 · European Paper Recycling Council, 2024. | R§13.4 · R§13.3 |
+| `s08.c3.cite` | | | Dias & Arroja, *Journal of Cleaner Production*, 2012 · European Paper Recycling Council, 2025. | R§13.4 · R§13.3 · part11-factcheck #11 |
 
 | id | Copy | Notes |
 |---|---|---|
@@ -2038,3 +2038,5 @@ Every task ends with a 1440 × 900 screenshot of its section. The hero comes fir
 | 15 | "Sheets used: {n} of 500." | `s13b.h3` | R§1.2 high | a ream is 500 |
 
 Not listed, because they state no fact: "Dark mode.", "Blacklight not included.", "v6.0, planned: flight.", "Seven folds. No new features.", "NO GLUE · NO CUTS · NO TAPE", "YOUR CURSOR IS A LAMP NOW", "The bin has seen them before.", "Just the one. Thank you for your restraint.", "Now generally available."
+
+**Fact-check result** (`work/reviews/part11-factcheck.md`, applied 2026-11-02): four must-fixes. `s06b.call.2` now reads "FOLD 1: CORNERS TO THE CENTRE LINE, 45°" (fold 2 is at 22.5°). `s08.c2` is now labelled "RECYCLING RATE, EUROPE", and the cite is EPRC 2025, 76.4 %. `s08.c1` reads "Usually five to seven times. Researchers are aiming for 25." `s04.weights.sr` drops "brass" (the leaf weights are nickel silver).
