@@ -338,11 +338,17 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
     if (heroFoot && (heroSteps.foot || heroSteps.all)) { const on = p < 0.12; if (on !== heroFoot.__on) { heroFoot.__on = on; heroFoot.classList.toggle('is-in', on); } }
     // T6: the fold labels under the letters, each from its landing (H2) until H5
     if (folds.length && world && world.heroFeet) {
-      const ok = world.heroFeet(FEET), c = E.intro.clock;
+      const ok = world.heroFeet(FEET), c = E.intro.clock, hd = world.debug && world.debug().hero;
       for (let i = 0; i < folds.length; i++) {
-        const on = ok && E.intro.started && c >= 1.72 + 0.12 * i && p < 0.15;   // after the drawing's label has faded (200 ms)
+        // T5 hand-over: the loader drawing's label fades out over landsAt(i) .. +0.2 s of intro clock; this one fades in
+        // over the next 0.2 s on the same clock, so the grey and blue VALLEY never show at once (no overlap, ff-safe)
+        const t = (hd && hd.landsAt ? hd.landsAt(i) : 1.52 + 0.12 * i) + 0.2;
+        const on = ok && E.intro.started && c >= t && p < 0.15;
         if (on) { setVar(folds[i], '--x', FEET[i].x.toFixed(1)); setVar(folds[i], '--y', FEET[i].y.toFixed(1)); }
         if (on !== folds[i].__on) { folds[i].__on = on; folds[i].classList.toggle('is-in', on); }
+        const k = on && !E.intro.done ? Math.min(1, (c - t) / 0.2) : -1;   // clock-driven fade during the intro only
+        const st = k >= 0 && k < 1 ? k.toFixed(3) : '';
+        if (st !== (folds[i].__op || '')) { folds[i].__op = st; folds[i].style.opacity = st; folds[i].style.transition = st ? 'none' : ''; }
       }
     }
     if (heroL2) {

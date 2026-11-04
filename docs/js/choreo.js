@@ -149,7 +149,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
         flutter: ctx.reduce ? 0 : 0.006 * (R.drop < 1 ? 1 : 0), paint: 1, curl: ctx.reduce ? 0 : E.think.curl });
       S.setEnum('A.paintFace', -1); S.setEnum('A.curlCorner', 'tr');
       S.set('bg.warm', inn * (1 - seg(p, 5, 5.4)));
-      ctx.boardOn = true; ctx.boardRise = 1 - seg(p, 6.6, 7);
+      ctx.boardOn = true; ctx.boardRise = ease.inOut(inn) * (1 - out);            // rises in with the slope, leaves with the section
       S.light('s03', 1);
       S.setEnum('A.gen', 'h' + (R.gen || 0));
     },

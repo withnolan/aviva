@@ -17,6 +17,7 @@ const root = document.documentElement;
 const $ = (s) => document.querySelector(s);
 const reduceMQ = matchMedia('(prefers-reduced-motion: reduce)');
 let reduce = reduceMQ.matches || FLAGS.reduce;
+const loaderStep = { retract: false, gone: false };   // T5: hand-off steps already run from the clock
 if (reduce) root.classList.add('reduce-motion');
 const aviva = (window.__aviva = { ready: false, E });
 const t0 = performance.now();
@@ -224,6 +225,9 @@ async function boot() {
     if (loader.drawing && !E.intro.done) {        // T5: the outlines fade as their sheets land; the "4" draws on
       const h = world && world.debug && world.debug().hero;
       loader.drawing.clock(E.intro.started ? E.intro.clock : 0, h ? (i) => h.landsAt(i) : null);
+      // the hand-off steps also follow the clock itself, so a sought or frozen clock leaves the same frame as a played one
+      if (E.intro.started && E.intro.clock >= INTRO.retract && !loaderStep.retract) { loaderStep.retract = true; loader.handOff('retract'); }
+      if (E.intro.started && E.intro.clock >= INTRO.gone && !loaderStep.gone) { loaderStep.gone = true; loader.handOff('gone'); }
     }
     if (world) {
       const s07 = scroll.byKey('s07');

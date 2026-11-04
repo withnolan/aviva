@@ -65,7 +65,7 @@ const STATES = {
   board: 'board=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
   boarduv: 'board=1&uv=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
   // s10 arena (T15): ink ground, the two lecterns in their spots, the board housing
-  arena: 'arena=1&cam=0,6,3.0&target=0,0.55,0&pos=0,0.5,-3&light=s10&ground=ink&floor=none',
+  arena: 'arena=1&cam=0,7,3.1&target=0,0.6,0&pos=0,0.5,-3&light=s10&ground=ink&floor=none',
   // s04 drying line (T13): lt = seconds after a gust at x 0.42 (the cursor's breeze), lw = its strength
   line: 'line=1&lt=0.3&lw=1.6&cam=0,4,1.5&target=0,0.55,0&pos=0,0.5,-3&light=grey&ground=grey',
   // s04 weights case (T12)

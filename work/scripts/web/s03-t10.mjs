@@ -11,8 +11,9 @@ const page = await ctx.newPage();
 const errors = [];
 page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errors.push(m.text().slice(0, 200)); });
 page.on('pageerror', (e) => errors.push(String(e).slice(0, 200)));
-await page.goto(base, { waitUntil: 'load', timeout: 120000 });
+console.log('goto', Date.now()); await page.goto(base, { waitUntil: 'load', timeout: 120000 });
 for (let i = 0; i < 400; i++) { if (await page.evaluate(() => !!(window.__aviva && window.__aviva.ready)).catch(() => false)) break; await page.waitForTimeout(100); }
+console.log('ready', Date.now());
 // T5 rest frame: let the intro run out (or force the clock to its end), then shoot the loader layer.
 await page.evaluate(() => { const A = window.__aviva; if (!A.E.intro.done) { A.gsap.globalTimeline.pause(); A.E.intro.clock = 4.8; } });
 await page.waitForTimeout(2500);
