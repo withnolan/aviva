@@ -25,6 +25,7 @@ import { DraftingBoard } from './board.js';
 import { WeightsCase } from './weights.js';
 import { DryingLine } from './line.js';
 import { Arena } from './arena.js';
+import { CraneCrowd } from './crowd.js';
 import { sheetSegments } from './geometry.js';
 import * as folds from './folds.js';
 
@@ -37,6 +38,7 @@ export { DraftingBoard, BOARD } from './board.js';
 export { WeightsCase, WEIGHTS } from './weights.js';
 export { DryingLine } from './line.js';
 export { Arena, ARENA } from './arena.js';
+export { CraneCrowd } from './crowd.js';
 
 // Colours (sRGB hex). paper / studio / graphite / ink / inkDeep match docs/css/tokens.css. The decision #24 families
 // (charcoal, the cool greys, HB-pencil yellow, blueprint blue) are provisional here until tokens.css carries them:
@@ -162,6 +164,8 @@ export async function createPaperSystem(renderer, opts = {}) {
     /** the s04 calibration-weights case (weights.js; T12): eight weights = 4.99 g, walnut case, tweezers */
     /** the s04 drying line (line.js; T13): clips, swinging outputs, the cursor's breeze */
     /** the s10 arena (arena.js; T15): stage, lecterns A / B with easels, spotlight cones, the board housing */
+    /** the s10 audience (crowd.js; T16): 300 instanced cranes, applaud(), lookAt(), update(dt) */
+    createCraneCrowd(crowd, o = {}) { return new CraneCrowd(sys, crowd, o); },
     createArena(o = {}) { return new Arena(sys, o); },
     createLine(o = {}) { return new DryingLine(sys, o); },
     createWeightsCase(o = {}) { return new WeightsCase(sys, o); },

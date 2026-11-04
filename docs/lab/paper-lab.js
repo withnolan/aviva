@@ -134,7 +134,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null, weightsObj = null, lineObj = null, arenaObj = null; const letterSheets = [];
+let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null, weightsObj = null, lineObj = null, arenaObj = null, crowdObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -247,6 +247,11 @@ async function apply(search) {
   } else if (boardObj) boardObj.object.visible = false;
   if (num('arena', 0) > 0) {
     if (!arenaObj) { arenaObj = paper.createArena({ demoSheets: true }); scene.add(arenaObj.object); }
+    if (num('crowd', 1) > 0 && !crowdObj) { crowdObj = paper.createCraneCrowd(arenaObj.crowd); arenaObj.object.add(crowdObj.object); }
+    if (crowdObj) {   // clap = seconds since applaud(); look = x,y of the heads' target
+      crowdObj.uniforms.uTime.value = 10; crowdObj.uniforms.uClap.value = P.has('clap') ? 10 - num('clap', 0) : -100;
+      const lk = vec('look', [0, 0.3, 0.6]); crowdObj.uniforms.uLook.value.set(...lk); crowdObj.uniforms.uLookLag.value.set(...lk);
+    }
     arenaObj.object.visible = true; arenaObj.setSpot('A', num('spotA', 1)); arenaObj.setSpot('B', num('spotB', 1)); sheet.set({ visible: false });
   } else if (arenaObj) arenaObj.object.visible = false;
   if (num('line', 0) > 0) {
