@@ -125,12 +125,12 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
         fragmentShader: `varying vec2 vUv; uniform sampler2D tColor, tDepth; uniform float uNear, uFar, uFocus, uK; uniform vec2 uTexel;
           float vz(vec2 uv){ float z = texture2D(tDepth, uv).x * 2.0 - 1.0; return 2.0 * uNear * uFar / (uFar + uNear - z * (uFar - uNear)); }
           void main(){
-            float coc = clamp(abs(vz(vUv) - uFocus) / uFocus * 16.0, 0.0, 1.0) * uK;
+            float coc = smoothstep(0.04, 0.5, abs(vz(vUv) - uFocus) / uFocus) * uK;
             vec4 acc = texture2D(tColor, vUv); float w = 1.0;
             for (int i = 1; i < 18; i++) { float a = float(i) * 2.39996, rr = sqrt(float(i) / 17.0);
-              vec2 uv = vUv + vec2(cos(a), sin(a)) * rr * coc * 9.0 * uTexel;
-              float cs = clamp(abs(vz(uv) - uFocus) / uFocus * 16.0, 0.0, 1.0);        // a sharp neighbour doesn't bleed
-              float ww = 0.25 + cs; acc += texture2D(tColor, uv) * ww; w += ww; }
+              vec2 uv = vUv + vec2(cos(a), sin(a)) * rr * coc * 6.0 * uTexel;
+              float cs = smoothstep(0.04, 0.5, abs(vz(uv) - uFocus) / uFocus);         // an in-focus neighbour never bleeds in
+              float ww = cs * cs; acc += texture2D(tColor, uv) * ww; w += ww; }
             gl_FragColor = acc / w;
             #include <tonemapping_fragment>
             #include <colorspace_fragment>

@@ -212,9 +212,9 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
   function benchOv() {
     if (!benchRead || !world || !world.benchOverlay) return;
     const ok = world.benchOverlay(BO), p = s02sec ? s02sec.p : 0, w = s02sec ? s02sec.w : 0;
-    const onR = ok && w > 0.5 && p >= 1.62 && p < 2.2, onS = ok && w > 0.5 && BO.stackOn;
+    const onR = false, onS = ok && w > 0.5 && BO.stackOn;
     if (onR) { setVar(benchRead, '--x', (BO.rx + 30).toFixed(1)); setVar(benchRead, '--y', BO.ry.toFixed(1)); if (benchRead.__t !== BO.text) { benchRead.__t = BO.text; benchRead.textContent = BO.text; } }
-    if (onS) { setVar(benchStack, '--x', BO.sx.toFixed(1)); setVar(benchStack, '--y', (BO.sy - 10).toFixed(1)); }
+    if (onS) { setVar(benchStack, '--x', BO.sx.toFixed(1)); setVar(benchStack, '--y', (BO.sy - 70).toFixed(1)); }
     if (onR !== benchRead.__on) { benchRead.__on = onR; benchRead.classList.toggle('is-in', onR); }
     if (onS !== benchStack.__on) { benchStack.__on = onS; benchStack.classList.toggle('is-in', onS); }
   }

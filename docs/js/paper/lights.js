@@ -172,7 +172,7 @@ export class LightRig {
       const dist = s.dist ?? dflt;
       L.position.copy(this.focus).addScaledVector(toWorld(s.dir), dist);
       L.color.copy(s.color.isColor ? s.color : C(s.color));
-      L.intensity = (s.intensity || 0) * Math.PI * dist * dist;
+      L.intensity = (s.intensity || 0) * Math.PI * dist * dist * (1 - 0.94 * (this.uv || 0));
       L.angle = s.angle ?? 0.6; L.penumbra = s.penumbra ?? 1; L.decay = 2; L.distance = 0;
       L.visible = L.intensity > 0;
     };
@@ -192,10 +192,10 @@ export class LightRig {
     }
     const dir = (L, s) => {
       L.position.copy(this.focus).addScaledVector(toWorld(s.dir), 3);
-      L.color.copy(s.color.isColor ? s.color : C(s.color)); L.intensity = (s.intensity || 0) * Math.PI; L.visible = L.intensity > 0;
+      L.color.copy(s.color.isColor ? s.color : C(s.color)); L.intensity = (s.intensity || 0) * Math.PI * (1 - 0.94 * (this.uv || 0)); L.visible = L.intensity > 0;
     };
     dir(this.fill, S.fill); dir(this.rim, S.rim);
-    if (scene) scene.environmentIntensity = S.env;
+    if (scene) scene.environmentIntensity = S.env * (1 - 0.85 * (this.uv || 0));
     if (renderer) renderer.toneMappingExposure = S.exposure;
     if (backdrop) {
       const U = backdrop.userData.uniforms, b = S.backdrop || {};

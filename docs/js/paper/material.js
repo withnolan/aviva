@@ -258,6 +258,16 @@ const FRAG_AO = /* glsl */`
 #endif
 `;
 
+// s03 dark mode (T10): under UV the sheet's optical brighteners glow one cool blue-white, scaled by its albedo, so
+// graphite (and ink) stay dark; a fine dither grain (#48), never a colour ramp
+const FRAG_UV = /* glsl */`
+if (uUV.x > 0.0) {
+  float uvA = clamp(dot(diffuseColor.rgb, vec3(0.3333)), 0.0, 1.0);
+  float uvG = fract(sin(dot(floor(gl_FragCoord.xy), vec2(12.9898, 78.233))) * 43758.5453);
+  vec3 uvGlow = uUV.yzw * uvA * uvA * (0.93 + 0.14 * uvG);
+  outgoingLight = mix(outgoingLight, uvGlow, uUV.x);
+}
+`;
 /* ------------------------------------------------------------------------------------------------ vertex snippets */
 const VERT_SLAB = /* glsl */`
 ${DEFORM_VERTEX}
@@ -298,7 +308,7 @@ function patchFragment(shader) {
     .replace('#include <lights_physical_fragment>', '#include <lights_physical_fragment>\n' + FRAG_PHYS)
     .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\n' + FRAG_TRANS + FRAG_MACRO_FILL)
     .replace('#include <aomap_fragment>', '#include <aomap_fragment>\n' + FRAG_AO)
-    .replace('#include <opaque_fragment>', 'outgoingLight *= uGain;\n#include <opaque_fragment>');
+    .replace('#include <opaque_fragment>', 'outgoingLight *= uGain;\n' + FRAG_UV + '#include <opaque_fragment>');
 }
 
 /**

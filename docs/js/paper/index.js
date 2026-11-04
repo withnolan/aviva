@@ -42,6 +42,7 @@ export const TOKENS = {
   pencil: '#F2B820', pencilDeep: '#C98A0B', blueprint: '#2F6DB5',
 };
 /** Named grounds for setGround(): the page ground under each section (decision #24). */
+const UV_ROOM = new THREE.Color('#0b0814');   // near-black violet (linear-converted by Color)
 export const GROUNDS = { white: TOKENS.studio, studio: TOKENS.studio, paper: TOKENS.paper, grey: TOKENS.grey, greyLight: TOKENS.greyLight, charcoal: TOKENS.charcoal, ink: TOKENS.ink };
 
 export const PAPER_TONEMAP_GLSL = /* glsl */`
@@ -116,6 +117,7 @@ export async function createPaperSystem(renderer, opts = {}) {
     uFloorPrint: { value: tex.floorPrint }, uFloorRect: { value: new THREE.Vector4(-0.5, 0.2, 1, -0.4) },
     uShowTint: { value: lin(colors.graphite).lerp(new THREE.Color(0.55, 0.57, 0.6), 0.55) },
     uFibreGeo: { value: blank }, uFibreGeoP: { value: new THREE.Vector4(6, 1, 1, 0) },
+    uUV: { value: new THREE.Vector4(0, 0.55, 0.72, 1.0) },
   };
 
   /* ---------- environment, backdrop, lights, contact shadows */
@@ -151,7 +153,7 @@ export async function createPaperSystem(renderer, opts = {}) {
     /** the s02 metrology bench (bench.js; brief 5.12, T7): granite plate, micrometer, 10-sheet stack */
     createBench(o = {}) { return new Bench(sys, o); },
     /** the s03 drafting board (board.js; brief 5.12, T9): board, parallel rule, tape, lamp; its frame = the sheet's mount */
-    createDraftingBoard(o = {}) { return new DraftingBoard(sys, o); },
+    createDraftingBoard(o = {}) { const b = new DraftingBoard(sys, o); this.boards.add(b); if (this.uv) b.setUV(this.uv); return b; },
     /** The Bleed's full-screen carry (bleed.js): a drop-in for the site's props.createBleed(), in the module's ink colours */
     createBleed(o = {}) { return createBleed({ ink: colors.ink, inkDeep: colors.inkDeep, ...o }); },
     stacks: new Set(),
@@ -177,9 +179,24 @@ export async function createPaperSystem(renderer, opts = {}) {
       backdrop.userData.uniforms.uStudio.value.copy(c);
       if (this.scene && this.scene.background && this.scene.background.isColor) this.scene.background.copy(c);
       this.groundLuminance = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;   // linear
+      this._ground = (this._ground || new THREE.Color()).copy(c); if (this.uv > 0) this.setUV(this.uv);
       return this;
     },
     groundLuminance: 0.83,
+    uv: 0, boards: new Set(),
+    /**
+     * s03 dark mode (T10): 0 = the room as lit, 1 = blacklight. The ground and background go violet-black, the rig's
+     * lights and the environment dim, every sheet fluoresces one cool blue-white (graphite stays dark), and every
+     * drafting board's materials go dim violet. Crossfade it with the switch; call it after setGround / lights.set.
+     */
+    setUV(k = 0) {
+      k = Math.min(1, Math.max(0, k)); this.uv = k; shared.uUV.value.x = k; lights.uv = k;
+      const g = _gc.copy(this._ground || backdrop.userData.uniforms.uStudio.value).lerp(UV_ROOM, k);
+      backdrop.userData.uniforms.uStudio.value.copy(g);
+      if (this.scene && this.scene.background && this.scene.background.isColor) this.scene.background.copy(g);
+      for (const b of this.boards) b.setUV(k);
+      return this;
+    },
     /** the floor print (the giant wordmark): texture (alpha = ink) placed on the floor, centre (x, z) and width in metres */
     setFloorPrint({ texture = null, center = [0, 0], width = 1.0, opacity = 1, visible = true } = {}) {
       if (texture) shared.uFloorPrint.value = texture;

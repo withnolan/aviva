@@ -122,16 +122,16 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       S.light('letters', 1 - k); S.light('bench', k);                     // T8: the bench's cool overhead key and left rim
       // T8, the micrometer beat (11.1 row s02): parked until the sheet is edge-on (1.6 vh); slides in, closes to 0.1 mm
       // while the readout counts down, holds 0.100, then opens and parks again before the second turn (2.2 vh)
-      const R = ctx.reduce, closeK = ease.inOut(seg(p, 1.75, 2.0, ease.linear)), reopen = seg(p, 2.04, 2.12);
+      const R = ctx.reduce, closeK = ease.inOut(seg(p, 1.75, 1.98, ease.linear)), reopen = seg(p, 2.08, 2.17);
       const gap = lerp(0.0125, 0.0001, closeK);
       const b = ctx.bench;
       b.on = true; b.rise = R ? 1 : seg(p, 0.15, 0.85);
-      b.slide = seg(p, 1.6, 1.74) * (1 - seg(p, 2.1, 2.2));
+      b.slide = seg(p, 1.6, 1.74) * (1 - seg(p, 2.15, 2.22));
       b.open = lerp(gap, 0.0125, reopen);
-      b.lcd = p < 2.0 ? (gap * 1000).toFixed(3) : '0.100';
-      b.text = (p < 2.0 ? (gap * 1000).toFixed(2) : '0.10') + ' mm';
+      b.lcd = (b.open * 1000).toFixed(3);                                 // the LCD reads the real gap: down to 0.100, back up
+      b.text = '';
       b.stackOn = p >= 1.6 && p < 2.2;
-      ctx.dofK = R ? 0 : seg(p, 1.5, 1.65) * (1 - seg(p, 2.2, 2.35));
+      ctx.dofK = R ? 0 : 0.5 * seg(p, 1.5, 1.65) * (1 - seg(p, 2.2, 2.35));   // subtle: the subject stays crisp
       ctx.dofT = seg(p, 1.8, 2.15);                                       // rack focus: the readout -> the 0.1 mm edge
       ctx.rimOn = p > 1.3 && p < 2.4 ? 1 : 0;
       S.setEnum('A.gen', 'h' + (E.regen.gen || 0));

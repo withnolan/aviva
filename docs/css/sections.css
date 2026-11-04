@@ -803,3 +803,6 @@
 .fold-l__ln--v line { stroke-dasharray: 4 3; }                  /* valley: dashes */
 /* s05: the result lines sit on a ground-coloured backing (they can pass over the torn pieces) */
 .s05__results { background: var(--ground); padding: 8px 12px; margin: -8px -12px; }
+
+/* s02 (T8): during the micrometer beat the spec line sits top-left, clear of the bench */
+.s02__note { top: calc(var(--nav-h) + 9%); left: var(--gutter); width: min(340px, 30vw); transform: none; text-align: left; }

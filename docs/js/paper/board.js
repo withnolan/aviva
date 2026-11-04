@@ -72,6 +72,13 @@ export class DraftingBoard {
     this.tape.castShadow = false; this.lamp.castShadow = false;   // the lamp is the light: its head never shadows the sheet
     this.setRule(B.ruleY);
   }
+  /** s03 dark mode (system.setUV calls it): the board and props go dim violet; the tape keeps a faint glow (paper) */
+  setUV(k = 0) {
+    const V = new THREE.Color('#1a1230');
+    if (!this._base) this._base = Object.fromEntries(Object.entries(this.materials).map(([n, m]) => [n, m.color.clone()]));
+    for (const [n, m] of Object.entries(this.materials)) m.color.copy(this._base[n]).lerp(V, k * (n === 'tape' ? 0.6 : 0.85));
+    return this;
+  }
   /** the parallel rule's height on the board (board space, m; below the sheet's bottom edge at -0.1485 by default) */
   setRule(y) { this.rule.position.set(0, y, 0); return this; }
   dispose() { this.object.traverse((o) => { if (o.isMesh) o.geometry.dispose(); }); for (const m of Object.values(this.materials)) m.dispose(); this.object.removeFromParent(); }

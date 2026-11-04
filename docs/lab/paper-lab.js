@@ -63,6 +63,7 @@ const STATES = {
   heroin: 'hero=1&ic=1.3&light=letters',
   // s03 drafting board (T9): the sheet on the 35 deg slope, taped, the pencil drawing
   board: 'board=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
+  boarduv: 'board=1&uv=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
   // s02 metrology bench (T7) at ~2 vh: the sheet edge-on, the micrometer closing (bopen = gap mm, bread = LCD)
   bench: 'bench=1&cam=0,0,1.0682&target=0,0.5,0&pos=0,0.5,0&rot=0,90,0&light=bench&ground=charcoal&floor=none&bopen=4.2&bread=4.200',
   // decision #31: the folded-letter hero (earlier lab version)
@@ -261,6 +262,7 @@ async function apply(search) {
   // lights
   const lp = str('light', 'studio').split(',');
   paper.lights.set(lp.length >= 3 ? [[lp[0], 1 - +lp[2]], [lp[1], +lp[2]]] : lp[0]);
+  paper.setUV(num('uv', 0));                     // s03 dark mode (T10)
   const L = paper.lights.state = JSON.parse(JSON.stringify(paper.lights.state, (k, v) => (v && v.isVector3 ? { __v: [v.x, v.y, v.z] } : v && v.isColor ? '#' + v.getHexString() : v)), (k, v) => (v && v.__v ? new THREE.Vector3(...v.__v) : v));
   if (P.has('key')) L.key.intensity = num('key');
   if (P.has('keydir')) L.key.dir = new THREE.Vector3(...vec('keydir')).normalize();
