@@ -264,7 +264,7 @@ const FRAG_UV = /* glsl */`
 if (uUV.x > 0.0) {
   float uvA = clamp(dot(diffuseColor.rgb, vec3(0.3333)), 0.0, 1.0);
   float uvG = fract(sin(dot(floor(gl_FragCoord.xy), vec2(12.9898, 78.233))) * 43758.5453);
-  vec3 uvGlow = uUV.yzw * uvA * uvA * (0.93 + 0.14 * uvG);
+  vec3 uvGlow = uUV.yzw * uvA * uvA * uvA * (0.93 + 0.14 * uvG);
   outgoingLight = mix(outgoingLight, uvGlow, uUV.x);
 }
 `;

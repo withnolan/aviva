@@ -118,24 +118,11 @@
     </div>
   </div>
 
-  <!-- s00: the loader. A print-shop drawing registered to the sheet's first pose. -->
+  <!-- s00: the loader. A construction drawing of the five letters (loader-drawing.js), registered to where they land. -->
   <div class="loader" id="s00-loader" aria-hidden="true">
-    <div class="loader__frame" id="loader-frame">
-      <svg class="loader__svg" viewBox="0 0 210 297" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-        <g class="loader__crops">
-          <path d="M-6 0H-18M0 -6V-18"/><path d="M216 0H228M210 -6V-18"/>
-          <path d="M216 297H228M210 303V315"/><path d="M-6 297H-18M0 303V315"/>
-        </g>
-        <g class="loader__dims">
-          <path class="loader__dimw" d="M0 -30H210M0 -36V-24M210 -36V-24"/>
-          <path class="loader__dimh" d="M240 0V297M234 0H246M234 297H246"/>
-        </g>
-      </svg>
-      <span class="loader__lab loader__lab--w" data-copy="s00.dim.w">210 mm</span>
-      <span class="loader__lab loader__lab--h" data-copy="s00.dim.h">297 mm</span>
-      <span class="loader__counter" id="loader-counter" data-copy="s00.counter"><span id="loader-mm">000</span> mm</span>
-    </div>
-    <p class="loader__label" id="loader-label" data-copy="s00.label">LOADING NOTHING</p>
+    <div class="loader__frame" id="loader-frame"></div>
+    <span class="loader__counter" id="loader-counter" data-copy="s00.counter"><span id="loader-mm">000</span> mm</span>
+    <p class="loader__label" id="loader-label" data-copy="s00.label">LOADING WEIGHTS</p>
   </div>
   <p class="sr-only" id="loader-sr" aria-live="polite"></p>
 
@@ -972,7 +959,10 @@
 
   <!-- Copy bank: every runtime string lives here so the copy stays in one file (read by js/copy.js). -->
   <template id="copy-bank">
-    <span data-copy="s00.done">NOTHING LOADED</span>
+    <span data-copy="s00.done">24.95 g LOADED</span>
+    <span data-copy="s00.dim.h">141 mm</span>
+    <span data-copy="s00.dim.angle">36°</span>
+    <span data-copy="s00.four">ISO 216</span>
     <span data-copy="s00.sr.loading">Loading.</span>
     <span data-copy="s00.sr.loaded">Loaded.</span>
     <span data-copy="ruler.readout">{n} mm</span>

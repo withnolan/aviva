@@ -71,12 +71,35 @@ export class DraftingBoard {
     this.object.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     this.tape.castShadow = false; this.lamp.castShadow = false;   // the lamp is the light: its head never shadows the sheet
     this.setRule(B.ruleY);
+    // dark mode (T10): the UV tube across the top, its violet light, and the sheet's fluorescent halo on the board
+    const soft = (w, h, inner) => {   // a soft-edged rectangle mask (white centre, transparent rim)
+      const c = document.createElement('canvas'); c.width = 256; c.height = 256; const x = c.getContext('2d');
+      x.filter = 'blur(' + Math.round(inner * 256 * 0.7) + 'px)'; x.fillStyle = '#fff';
+      const m = inner * 256 * 2.2; x.fillRect(m, m, 256 - 2 * m, 256 - 2 * m);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.NoColorSpace; return t;
+    };
+    const add = (tex, col) => new THREE.MeshBasicMaterial({ map: tex, color: col, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, opacity: 0 });
+    this.halo = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.5), add(soft(1, 1, 0.12), new THREE.Color(0.35, 0.55, 1.4)));
+    this.halo.position.set(0, 0, -0.0002); this.halo.renderOrder = 2;
+    this.tube = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.62, 16).rotateZ(Math.PI / 2), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.62, 0.34, 1.0), toneMapped: false }));
+    this.tube.position.set(0, 0.3, 0.07);
+    const caps = new THREE.Mesh(mergeGeometries([-1, 1].map((s) => clean(new THREE.CylinderGeometry(0.008, 0.008, 0.03, 16).rotateZ(Math.PI / 2).translate(s * 0.325, 0, 0)))), M.enamel);
+    this.tube.add(caps);
+    this.tubeGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.12), add(soft(1, 1, 0.22), new THREE.Color(0.45, 0.2, 1.1)));
+    this.tubeGlow.position.set(0, 0.3, 0.078); this.tubeGlow.renderOrder = 3;
+    this.uvLight = new THREE.SpotLight(new THREE.Color('#8a5cff'), 0, 0, 1.3, 1, 2);
+    this.uvLight.position.set(0, 0.3, 0.12); this.uvLight.target.position.set(0, -0.05, 0);
+    this.object.add(this.halo, this.tube, this.tubeGlow, this.uvLight, this.uvLight.target);
+    this.tube.visible = this.tubeGlow.visible = this.halo.visible = false;
   }
   /** s03 dark mode (system.setUV calls it): the board and props go dim violet; the tape keeps a faint glow (paper) */
   setUV(k = 0) {
-    const V = new THREE.Color('#1a1230');
+    const V = new THREE.Color('#4a2c8a');
     if (!this._base) this._base = Object.fromEntries(Object.entries(this.materials).map(([n, m]) => [n, m.color.clone()]));
     for (const [n, m] of Object.entries(this.materials)) m.color.copy(this._base[n]).lerp(V, k * (n === 'tape' ? 0.6 : 0.85));
+    this.halo.material.opacity = k * 0.55; this.tubeGlow.material.opacity = k * 0.8;
+    this.halo.visible = this.tube.visible = this.tubeGlow.visible = k > 0.002;
+    this.uvLight.intensity = k * 0.5;   // the tube's violet light on the board, the rule and the tape
     return this;
   }
   /** the parallel rule's height on the board (board space, m; below the sheet's bottom edge at -0.1485 by default) */

@@ -386,3 +386,21 @@ html.is-reg, html.is-reg * { cursor: none !important; }
 .bench-ov__stack { transform: translate3d(calc(var(--x, -999) * 1px - 50%), calc(var(--y, -999) * 1px - 100%), 0); color: var(--text-muted); text-align: center; }
 .bench-ov__stack::after { content: ""; display: block; width: 1px; height: 56px; margin: 6px auto 0; background: currentColor; opacity: 0.55; }
 .reduce-motion .bench-ov > p { transition-duration: 160ms; }
+
+/* ---------- s00 (T5): the construction drawing of the five letters (loader-drawing.js), blueprint on the studio */
+.ld { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; color: var(--dims, #1D4590); }
+.ld path { fill: none; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.ld__o, .ld__s, .ld__chain, .ld__dims path[pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.ld__o { animation: ld-draw 900ms var(--ease-out) calc(200ms + var(--i) * 140ms) forwards; }
+.ld__chain, .ld__dims path[pathLength] { animation: ld-draw 1100ms var(--ease-in-out) 500ms forwards; opacity: 0.75; }
+.ld__s { stroke: var(--color-graphite); stroke-width: 1.5; }
+.ld__f--m { stroke-dasharray: 6 2 1 2 1 2; } .ld__f--v { stroke-dasharray: 4 3; }
+.ld__l { transition: opacity 200ms linear; }
+.ld__t { fill: currentColor; font-size: var(--fs-micro); letter-spacing: var(--tracking-micro); font-weight: var(--fw-medium); text-anchor: middle; dominant-baseline: middle; }
+.ld__crops path { stroke: var(--color-graphite); }
+.ld__dims, .ld__crops { transition: opacity 300ms var(--ease-out); }
+.loader.is-done .ld__dims, .loader.is-done .ld__crops { opacity: 0; }
+@keyframes ld-draw { to { stroke-dashoffset: 0; } }
+.reduce-motion .ld__o, .reduce-motion .ld__chain, .reduce-motion .ld__dims path { animation: none; stroke-dashoffset: 0; }
+.loader > .loader__counter { left: 0; top: 0; padding: 0; background: none; transform: translate3d(-200px, -200px, 0); font-variant-numeric: tabular-nums; }
+.loader > .loader__label { top: 80%; }

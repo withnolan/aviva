@@ -11,6 +11,7 @@ import { createGrounds } from './grounds.js';
 import { createUI, applyCredit } from './ui.js';
 import { createInteractions } from './interactions.js';
 import { setupImages, enterFallback, contextLine } from './fallback.js';
+import { createLoaderDrawing } from './loader-drawing.js';
 
 const root = document.documentElement;
 const $ = (s) => document.querySelector(s);
@@ -68,6 +69,7 @@ const regCursor = (() => {
 function createLoader() {
   const el = $('#s00-loader'), frame = $('#loader-frame'), mm = $('#loader-mm'), label = $('#loader-label'), sr = $('#loader-sr');
   const minMs = FLAGS.nointro ? 300 : reduce ? 900 : 2200;
+  const drawing = el ? createLoaderDrawing(el, { copy: (id, f) => copy(id) || f, reduce }) : null;
   const start = performance.now();
   let target = 0.08, shown = 0, raf = 0, done = false, resolveDone, last = performance.now();
   const finished = new Promise((r) => { resolveDone = r; });
@@ -76,6 +78,7 @@ function createLoader() {
     const n = Math.round(f * 297);
     if (mm) mm.textContent = String(n).padStart(3, '0');
     if (frame) frame.style.setProperty('--climb', f.toFixed(4));
+    if (drawing) drawing.progress(f);
   };
   // time-based (never frame-based): the counter climbs at most 0.9 of the line per second toward what has loaded
   function tick() {
@@ -90,6 +93,7 @@ function createLoader() {
   }
   raf = requestAnimationFrame(tick);
   return {
+    drawing,
     progress(f) { target = Math.max(target, Math.min(1, f)); },
     finish() { target = 1; return finished; },
     /** the hand-off to the intro (brief 10.1 #74): 'loaded' (H1: the done label; the studio fades up under the
@@ -102,7 +106,7 @@ function createLoader() {
         if (sr) sr.textContent = copy('s00.sr.loaded');
         el.classList.add('is-clear');
       } else if (step === 'retract') el.classList.add('is-done');
-      else if (step === 'gone') { el.classList.add('is-gone'); regCursor.off(); }
+      else if (step === 'gone') { el.classList.add('is-gone'); regCursor.off(); if (drawing) drawing.destroy(); }
     },
     kill() { cancelAnimationFrame(raf); if (!done) { done = true; resolveDone(); } el && el.classList.add('is-done', 'is-clear', 'is-gone'); E.loader.sheet = 1; regCursor.off(); },
   };
@@ -215,6 +219,10 @@ async function boot() {
     ui.frame();
     const t3 = prof ? performance.now() : 0;
     if (intro && scroll.Y > 0.005) { intro.ff(); intro = null; }      // a scroll without wheel/key/touch (scrollbar)
+    if (loader.drawing && !E.intro.done) {        // T5: the outlines fade as their sheets land; the "4" draws on
+      const h = world && world.debug && world.debug().hero;
+      loader.drawing.clock(E.intro.started ? E.intro.clock : 0, h ? (i) => h.landsAt(i) : null);
+    }
     if (world) {
       const s07 = scroll.byKey('s07');
       if (s07 && s07.w > 0.5 && s07.p > 4.15 && !s07seen) { s07seen = true; world.showDotLabel(2600); }

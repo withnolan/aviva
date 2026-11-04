@@ -117,7 +117,7 @@ export async function createPaperSystem(renderer, opts = {}) {
     uFloorPrint: { value: tex.floorPrint }, uFloorRect: { value: new THREE.Vector4(-0.5, 0.2, 1, -0.4) },
     uShowTint: { value: lin(colors.graphite).lerp(new THREE.Color(0.55, 0.57, 0.6), 0.55) },
     uFibreGeo: { value: blank }, uFibreGeoP: { value: new THREE.Vector4(6, 1, 1, 0) },
-    uUV: { value: new THREE.Vector4(0, 0.55, 0.72, 1.0) },
+    uUV: { value: new THREE.Vector4(0, 0.95, 1.35, 2.6) },   // the glow: a saturated blue-white, brighter than lit paper
   };
 
   /* ---------- environment, backdrop, lights, contact shadows */
