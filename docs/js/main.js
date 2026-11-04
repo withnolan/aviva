@@ -11,7 +11,7 @@ import { createGrounds } from './grounds.js';
 import { createUI, applyCredit } from './ui.js';
 import { createInteractions } from './interactions.js';
 import { setupImages, enterFallback, contextLine } from './fallback.js';
-import { createLoaderDrawing } from './loader-drawing.js';
+import { createLoaderDrawing, useLetterLayout } from './loader-drawing.js';
 
 const root = document.documentElement;
 const $ = (s) => document.querySelector(s);
@@ -191,6 +191,8 @@ async function boot() {
         onRestored: (ok) => { ctxLine.restored(ok); if (!ok) enterFallback(); },
       }), 25000, 'building the 3D scene');
       log('world ready:', world.kind);
+      // T5: the drawing takes the letters' own layout numbers (letters.js), now that the module has loaded
+      import('./paper/letters.js').then((m) => { if (m.LETTER_LAYOUT && m.letterRestLayout && loader.drawing) { useLetterLayout(m.LETTER_LAYOUT, () => m.letterRestLayout()); loader.drawing.rebuild(); } }).catch(() => {});
     } catch (e) {
       console.warn('[aviva] 3D unavailable, showing the static page:', e && e.message);
       world = null;

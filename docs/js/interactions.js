@@ -34,7 +34,7 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
 
   function zoneNow() {
     if (!world || !world.heroOn()) return null;
-    if (s03 && s03.w > 0.5 && s03.p >= 0.8 && s03.p < 5 && !E.regen.busy) return 's03';
+    if (s03 && s03.w > 0.5 && ((s03.p >= 0.8 && s03.p < 5) || (s03.p >= 5.4 && s03.p < 6.6)) && !E.regen.busy) return 's03';   // the pencil draws in dark mode too
     if (s14 && s14.w > 0.5 && s14.p >= 0.6 && s14.p < 1.8 && !E.release.started) return 's14';
     return null;
   }
@@ -348,6 +348,26 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
     world && world.markDirty();
   });
 
+  /* s03 coda (T10): the DARK MODE switch. Scroll turns it on at 5.4 vh; the visitor can flip it either way; it goes off
+     as the coda ends (6.6 vh). The blacklight crossfades over 0.6 s (world: system.setUV) */
+  const dm = $('#s03-dm'), dmV = $('#s03-dm-v'), dmSr = $('#s03-dm-sr');
+  let dmTween = null;
+  function setDark(on, announce = true) {
+    if (on === E.uv.on) return;
+    E.uv.on = on;
+    if (dm) dm.setAttribute('aria-checked', String(on));
+    if (dmV) dmV.textContent = copy(on ? 's03.dm.on' : 's03.dm.off') || (on ? 'ON' : 'OFF');
+    if (announce && dmSr) dmSr.textContent = copy(on ? 's03.dm.sr' : 's03.dm.sr.off');
+    if (dmTween) dmTween.kill();
+    dmTween = tween(E.uv, { k: on ? 1 : 0, duration: reduce ? 0.2 : 0.6, ease: 'power2.inOut' });
+    world && world.markDirty();
+  }
+  if (dm) dm.addEventListener('click', () => { E.uv.user = !E.uv.on; setDark(E.uv.user); });
+  E.uvFrame = () => {                                    // called each frame (frame() below)
+    const inCoda = s03 && s03.w > 0.5 && s03.p >= 5.4 && s03.p < 6.6;
+    if (!inCoda) E.uv.user = null;
+    setDark(inCoda ? (E.uv.user ?? true) : false, inCoda);
+  };
   magnetize(document);                                    // [data-magnetic]: the s10 votes, the s12 options
   // the mouse anywhere (the hero letters lean toward it, T6)
   addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; const P = E.pointer; P.x = e.clientX; P.y = e.clientY; P.nx = (e.clientX / innerWidth) * 2 - 1; P.ny = (e.clientY / innerHeight) * 2 - 1; P.on = true; }, { passive: true });
@@ -400,6 +420,7 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
   /* ================================================================== per frame */
   let prevS03 = 0;
   function frame(dt) {
+    if (E.uvFrame) E.uvFrame();
     // s04 hover: damped lean
     E.hover.x = damp(E.hover.x, E.hover.tx || 0, 5, dt); E.hover.y = damp(E.hover.y, E.hover.ty || 0, 5, dt);
     if (!world) return;

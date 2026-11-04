@@ -64,6 +64,8 @@ const STATES = {
   // s03 drafting board (T9): the sheet on the 35 deg slope, taped, the pencil drawing
   board: 'board=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
   boarduv: 'board=1&uv=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
+  // s04 drying line (T13): lt = seconds after a gust at x 0.42 (the cursor's breeze), lw = its strength
+  line: 'line=1&lt=0.3&lw=1.6&cam=0,4,1.5&target=0,0.55,0&pos=0,0.5,-3&light=grey&ground=grey',
   // s04 weights case (T12)
   weights: 'weights=1&wlid=1.85&cam=-24,40,0.42&target=0,0.034,-0.01&pos=0,0.5,-3&light=weights&ground=greyLight&contact=1',
   // s02 metrology bench (T7) at ~2 vh: the sheet edge-on, the micrometer closing (bopen = gap mm, bread = LCD)
@@ -130,7 +132,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null, weightsObj = null; const letterSheets = [];
+let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null, weightsObj = null, lineObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -241,6 +243,15 @@ async function apply(search) {
     if (!boardObj) { boardObj = paper.createDraftingBoard(); scene.add(boardObj.object); }
     boardObj.object.visible = true; boardObj.object.position.copy(sheet.object.position); boardObj.object.quaternion.copy(sheet.object.quaternion);
   } else if (boardObj) boardObj.object.visible = false;
+  if (num('line', 0) > 0) {
+    if (!lineObj) {
+      lineObj = paper.createLine({ span: 1.3, sag: 0.03 }); lineObj.object.position.set(-0.65, 0.78, 0); scene.add(lineObj.object);
+      for (const [i, x] of [0.2, 0.5, 0.8, 1.1].entries()) { const sh = paper.createSheet({ name: 'out' + i, seed: 200 + i }); lineObj.add(sh.object, { x, hang: 0.152, sheet: sh }); }
+    }
+    lineObj.object.visible = true; lineObj.reset(); lineObj.wind(0.42, 0, num('lw', 1.6));
+    for (let t = 0; t < num('lt', 0.3); t += 1 / 60) lineObj.update(1 / 60);
+    sheet.set({ visible: false });
+  } else if (lineObj) lineObj.object.visible = false;
   if (num('weights', 0) > 0) {
     if (!weightsObj) { weightsObj = paper.createWeightsCase(); scene.add(weightsObj.object); }
     weightsObj.object.visible = true; weightsObj.setLid(num('wlid', 1.8));

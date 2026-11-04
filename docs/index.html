@@ -200,7 +200,7 @@
     </section>
 
     <!-- s03 · Intelligence not included. -->
-    <section class="sec sec--pin" id="s03-intelligence" data-sec="s03" data-ground="charcoal" style="--len:6" aria-labelledby="s03-h2">
+    <section class="sec sec--pin" id="s03-intelligence" data-sec="s03" data-ground="charcoal" style="--len:7" aria-labelledby="s03-h2">
       <div class="stage s03" id="s03-stage">
         <div class="s03__head" data-at="0.15" data-until="5.25">
           <p class="eyebrow" data-copy="s03.eyebrow">AVIVA INTELLIGENCE</p>
@@ -245,7 +245,20 @@
           <p class="s03__note micro" id="s03-note" data-copy="s03.note" hidden>Pencil mostly sits on the fibres, so it mostly erases. Ink soaks in, so it doesn’t.</p>
         </div>
         <p class="sr-only" id="s03-sr" aria-live="polite"></p>
+        <div class="s03__dm" data-at="5.4" data-until="6.6">
+          <p class="eyebrow" data-copy="s03.dm.eyebrow">ONE MORE THING</p>
+          <h3 class="h2 s03__dm-h" data-copy="s03.dm.h3">Dark mode.</h3>
+          <p class="body s03__dm-body" data-copy="s03.dm.body">Most white office paper contains optical brighteners. They turn ultraviolet into blue, so under a blacklight, AVIVA glows.</p>
+          <p class="small muted s03__dm-small" data-copy="s03.dm.note">Blacklight not included.</p>
+          <button class="dm-switch" type="button" role="switch" aria-checked="false" id="s03-dm" data-magnetic="4">
+            <span class="dm-switch__l" data-copy="s03.dm.switch">DARK MODE</span>
+            <span class="dm-switch__track" aria-hidden="true"><span class="dm-switch__knob"></span></span>
+            <span class="dm-switch__v" id="s03-dm-v" data-copy="s03.dm.off">OFF</span>
+          </button>
+          <p class="sr-only" id="s03-dm-sr" aria-live="polite"></p>
+        </div>
         <p class="fallback-line" data-copy="s03.fallback">In 3D, you would write on the sheet here, and AVIVA would learn it by heart.</p>
+        <p class="fallback-line" data-copy="s03.dm.fallback">In 3D, the lights would go out here and the sheet would glow under ultraviolet.</p>
       </div>
     </section>
 
@@ -974,6 +987,9 @@
     <span data-copy="s03.status.ready">AVIVA Intelligence is ready. It has been in development for about 2,200 years.</span>
     <span data-copy="s03.status.receiving">Learning from you.</span>
     <span data-copy="s03.status.memory">Memory updated.</span>
+    <span data-copy="s03.dm.on">ON</span>
+    <span data-copy="s03.dm.sr">Dark mode on. The sheet glows blue-white; your strokes stay dark.</span>
+    <span data-copy="s03.dm.sr.off">Dark mode off.</span>
     <span data-copy="s03.status.thinking">AVIVA is thinking.</span>
     <span data-copy="s03.status.thought">AVIVA has thought about it.</span>
     <span data-copy="s03.status.answer">Answer: see above.</span>

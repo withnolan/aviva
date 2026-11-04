@@ -19,7 +19,8 @@ export const E = {
   size: { choice: 'A4', model: 'base' },               // s12: the sheet is always A4; model 'base' | 'pro' | 'max'
   release: { plane: 0, fly: 0, fade: 1, started: false, done: false },
   hover: { x: 0, y: 0, on: 0 },
-  pointer: { nx: 0, ny: 0, x: 0, y: 0, on: false },     // the mouse anywhere on the page (interactions.js)                       // s04: pointer position (−1..1) for the outputs' sway
+  pointer: { nx: 0, ny: 0, x: 0, y: 0, on: false },
+  uv: { k: 0, on: false, user: null },               // s03 dark mode: k is the blacklight crossfade (0..1), user the switch     // the mouse anywhere on the page (interactions.js)                       // s04: pointer position (−1..1) for the outputs' sway
   cues: {},                                           // s06 / s09 scroll cues (written by ui.js)
   layout: { s10Top: 0 },                              // DOM edges the 3D layout keeps clear of (ui.js measures, % of the viewport)
   dissolve: { k: 0 },                                 // reduced motion: veil amount

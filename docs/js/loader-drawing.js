@@ -6,6 +6,7 @@
 //
 // The geometry mirrors docs/js/paper/letters.js (LETTER_LAYOUT, restX, restCamera) without importing it: the drawing
 // has to be on screen in the first frame, long before three.js has loaded. Keep the numbers in step with letters.js.
+// first-frame fallback only (three.js is not loaded yet); replaced by letters.js's LETTER_LAYOUT via useLetterLayout()
 const L = { capMM: 141, legMM: 148.5, gapK: 0.22, letterMM: 92, depthMM: 210, fourMM: 100, fourGapMM: 4, capVh: 0.30, baselineY: 0.66, fov: 30, aimDeg: 12, iAimDeg: 0.4, marginK: 0.955, pitchDeg: -6 };
 const PRE = { distK: 1.06, pitchDeg: -9 };                 // H0: the pre-settle camera (letters.js introCamera at c < 2.6)
 const INTRO = { start: 0.4, gap: 0.12, fall: 1.1 };        // letters.js LETTER_INTRO: when each letter lands
@@ -13,7 +14,11 @@ const CHARS = ['A', 'V', 'I', 'V', 'A'];
 const NS = 'http://www.w3.org/2000/svg';
 const DEG = Math.PI / 180;
 
+let RESTFN = null;
+/** once letters.js has loaded (with the 3D world), use its own numbers: L becomes LETTER_LAYOUT, the rest layout its restLayout */
+export function useLetterLayout(LL, restFn) { Object.assign(L, LL); RESTFN = restFn; }
 function layout() {
+  if (RESTFN) { const R = RESTFN(); return { front: R.front, yaws: R.yaws, frontZ: R.frontZ, four: R.four.x }; }
   const W = L.letterMM / 1000, g = (L.gapK * L.capMM) / 1000, h = L.depthMM / 2000;
   const widths = CHARS.map((c) => (c === 'I' ? 0 : W)), front = [0, 0, 0, 0, 0];
   for (let i = 3; i < 5; i++) front[i] = front[i - 1] + widths[i - 1] / 2 + g + widths[i] / 2;
@@ -128,6 +133,7 @@ export function createLoaderDrawing(root, { copy = (id, f) => f, landsAt = null,
         four.style.opacity = String(1 - Math.min(1, Math.max(0, (c - 2.5) / 0.2)));
       }
     },
+    rebuild() { if (built) build(); },
     destroy() { removeEventListener('resize', onResize); svg.remove(); },
   };
 }

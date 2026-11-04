@@ -14,7 +14,7 @@ export const CREDIT = {
 export const SECTIONS = [
   { id: 's01-hero', key: 's01', len: 2, pin: true },      // holds all 2 vh (sec--hold): the h1 stays to 2.0 vh
   { id: 's02-thin', key: 's02', len: 3, pin: true },
-  { id: 's03-intelligence', key: 's03', len: 6, pin: true },
+  { id: 's03-intelligence', key: 's03', len: 7, pin: true },
   { id: 's04-outputs', key: 's04', len: 8, pin: true },
   { id: 's05-architecture', key: 's05', len: 5, pin: true },
   { id: 's06-release-notes', key: 's06', len: 4, pin: false },

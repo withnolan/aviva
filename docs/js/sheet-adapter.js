@@ -97,7 +97,7 @@ function wrapPlaceholder(sys, renderer) {
   const lights = cachedLights(sys.lights);
   const wrapped = [];
   const paper = {
-    kind: 'placeholder', raw: sys, lights, folds: null, createLetters: () => null, createBench: () => null, contact: null,
+    kind: 'placeholder', raw: sys, lights, folds: null, createLetters: () => null, createBench: () => null, createDraftingBoard: () => null, setUV: () => {}, contact: null,
     install: (scene) => { sys.install(scene); paper.scene = scene; return paper; },
     createSheet({ name = 'sheet', hero = false, low = false } = {}) {
       const s = sys.createSheet({ name, surface: hero, segments: low ? [28, 40] : [42, 60] });
@@ -145,6 +145,9 @@ function wrapReal(sys, m, renderer) {
     createLetters: (o) => (sys.createLetters ? sys.createLetters(o) : null),
     /** the s02 metrology bench (bench.js, T7): granite, micrometer, 10-sheet stack */
     createBench: (o) => (sys.createBench ? sys.createBench(o) : null),
+    /** s03 (T9/T10): the drafting board, and the dark-mode blacklight crossfade (call after setGround and lights.set) */
+    createDraftingBoard: (o) => (sys.createDraftingBoard ? sys.createDraftingBoard(o) : null),
+    setUV: (k) => { if (sys.setUV && (k > 0 || sys.uv > 0)) sys.setUV(k); },
     contact: sys.contact || null,
     install: (scene) => { sys.install(scene); paper.scene = scene; return paper; },
     createSheet({ name = 'sheet', hero = false, low = false } = {}) {

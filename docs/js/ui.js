@@ -340,7 +340,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
     if (folds.length && world && world.heroFeet) {
       const ok = world.heroFeet(FEET), c = E.intro.clock;
       for (let i = 0; i < folds.length; i++) {
-        const on = ok && E.intro.started && c >= 1.5 + 0.12 * i && p < 0.15;
+        const on = ok && E.intro.started && c >= 1.72 + 0.12 * i && p < 0.15;   // after the drawing's label has faded (200 ms)
         if (on) { setVar(folds[i], '--x', FEET[i].x.toFixed(1)); setVar(folds[i], '--y', FEET[i].y.toFixed(1)); }
         if (on !== folds[i].__on) { folds[i].__on = on; folds[i].classList.toggle('is-in', on); }
       }

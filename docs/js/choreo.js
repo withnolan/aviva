@@ -17,7 +17,7 @@ export function outputSpacing(w) { return w <= 600 ? 74 : w <= 1024 ? 40 : 26; }
 
 export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const { camera, rig, size } = stage;
-  const { A, B, F, O, hero = null, bench = null, rim = null } = sheets;  // the product, second instance, falling output 1, outputs 2–8, the letters (letters.js)
+  const { A, B, F, O, hero = null, bench = null, rim = null, board = null } = sheets;  // the product, second instance, falling output 1, outputs 2–8, the letters (letters.js)
   const ctx = {
     M: false, reduce: false, time: 0, hero: null, loop: false,
     tear: { p1: 0, s1: 0, p2: 0, s2: 0, live: false, fall: 0 }, rel: { plane: 0, fly: 0, fade: 1 },
@@ -74,6 +74,8 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   ctx.dofK = 0; ctx.dofT = 0; ctx.rimOn = 0;
   const _bp = new THREE.Vector3(), _bf = new THREE.Vector3(), _be = new THREE.Vector3();
   const EXTENT_BENCH = 1.2;
+  ctx.boardOn = false; ctx.boardRise = 1;
+  const _bq = new THREE.Quaternion();
 
   /* ------------------------------------------------------------------ claims, one per section (brief 2B) */
   const C = {
@@ -137,16 +139,17 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       S.setEnum('A.gen', 'h' + (E.regen.gen || 0));
     },
     s03(S, p) {
-      const M = ctx.M, inn = seg(p, 0, 0.8), out = seg(p, 5, 6);
+      const M = ctx.M, inn = seg(p, 0, 0.8), out = seg(p, 6.6, 7);     // 7 vh: the dark-mode coda 5.4-6.6 (Part 11)
       S.set('cam.pitch', -12 * inn * (1 - out));
       const R = E.regen;
-      const y = M ? kf(p, [[0, 50], [0.8, 47], [5, 47], [5.6, 34], [6, -28]]) : kf(p, [[0, 50], [0.8, 57], [5, 57], [5.6, 38], [6, -25]]);
-      const sz = M ? kf(p, [[0, 52], [0.8, 32], [5, 32], [5.6, 24]]) : kf(p, [[0, 52], [0.8, 46], [5, 46], [5.6, 30]]);
+      const y = M ? kf(p, [[0, 50], [0.8, 47], [5, 47], [5.4, 44], [6.6, 44], [7, -28]]) : kf(p, [[0, 50], [0.8, 57], [5, 57], [5.4, 48], [6.6, 48], [7, -25]]);
+      const sz = M ? kf(p, [[0, 52], [0.8, 32], [5, 32], [5.4, 30], [6.6, 30], [7, 24]]) : kf(p, [[0, 52], [0.8, 46], [5, 46], [5.4, 40], [6.6, 40], [7, 30]]);
       S.many('A.', { on: R.hidden ? 0 : 1, op: R.fade, x: 50 - 60 * R.roll, y: y - 70 * (1 - R.drop) + 8 * R.roll, size: sz,
-        rx: kf(p, [[0, 0], [0.8, 35], [5, 35], [5.6, 0]]) + 60 * R.roll, ry: 180, rz: 160 * R.roll, crumple: R.crumple,
+        rx: kf(p, [[0, 0], [0.8, 35], [5, 35], [5.4, 0]]) + 60 * R.roll, ry: 180, rz: 160 * R.roll, crumple: R.crumple,
         flutter: ctx.reduce ? 0 : 0.006 * (R.drop < 1 ? 1 : 0), paint: 1, curl: ctx.reduce ? 0 : E.think.curl });
       S.setEnum('A.paintFace', -1); S.setEnum('A.curlCorner', 'tr');
-      S.set('bg.warm', inn * (1 - out));
+      S.set('bg.warm', inn * (1 - seg(p, 5, 5.4)));
+      ctx.boardOn = true; ctx.boardRise = 1 - seg(p, 6.6, 7);
       S.light('s03', 1);
       S.setEnum('A.gen', 'h' + (R.gen || 0));
     },
@@ -327,7 +330,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   /* ------------------------------------------------------------------ per-frame: claim → resolve */
   function claim(secs, frame) {
     ctx.M = size.w <= 600 || size.aspect <= 0.8;      // the stacked layout: the same test as the CSS media query
-    ctx.heroLetters = false; ctx.bench.on = false; ctx.dofK = 0; ctx.rimOn = 0;
+    ctx.heroLetters = false; ctx.bench.on = false; ctx.dofK = 0; ctx.rimOn = 0; ctx.boardOn = false;
     ctx.reduce = frame.reduce;
     ctx.time = E.time;
     ctx.loop = false;
@@ -627,6 +630,17 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
         if (paper.lights.raw) paper.lights.raw.shadowExtent = EXTENT_BENCH;
       }
     }
+    /* s03 (T9/T10): the drafting board is the writing slope's mount: the sheet's writing pose (rx 35, without its ry 180
+       turn); it stays put when the sheet rises for the coda, and leaves with the section */
+    if (board) {
+      board.object.visible = ctx.boardOn;
+      if (ctx.boardOn) {
+        const k = stage.screenPlace(50, ctx.M ? 47 : 57, ctx.M ? 32 : 46, A4.h, 0, _bp);
+        stage.screenQuat(35, 0, 0, _bq);
+        board.object.position.copy(_bp); board.object.position.y -= 0.6 * (1 - ctx.boardRise);
+        board.object.quaternion.copy(_bq); board.object.scale.setScalar(k);
+      }
+    }
     if (rim) {
       const on = ctx.rimOn * (E.pointer.on ? 1 : 0.35);
       rim.intensity = 0.9 * on;
@@ -644,6 +658,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       if (paper.contact) paper.contact.uniforms.uCS.value.z = CONTACT0;
       if (paper.lights.raw && !(bench && bo.on)) paper.lights.raw.shadowExtent = EXTENT0;
     }
+    paper.setUV(E.uv.k);                                             // s03 dark mode (T10): after setGround and lights.set
   }
 
   /** before the precompile: every output takes its form once, so a mesh the module builds on demand (the boat) exists

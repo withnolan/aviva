@@ -55,6 +55,9 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     let bench = null;
     try { bench = paper.createBench({ stackCount: 10 }); } catch (e) { console.warn('[aviva] bench:', e && e.message); }
     if (bench) { stage.scene.add(bench.object); bench.object.visible = false; }
+    let board = null;                                      // s03 (T9): the drafting board under the writing slope
+    try { board = paper.createDraftingBoard(); } catch (e) { console.warn('[aviva] board:', e && e.message); }
+    if (board) { stage.scene.add(board.object); board.object.visible = false; }
     const rim = new THREE.PointLight('#eef3ff', 0, 0.3, 2); rim.name = 's02.rim'; stage.scene.add(rim);
     const numerals = createTypePlane('4.99 g');
     const line = createDryingLine(8), drop = createDrop();
@@ -71,7 +74,7 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     const springs = new Springs(state);
     springs.direct = reduced;
     const props = { numerals, line, drop, bleed };
-    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, hero, bench, rim } });
+    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, hero, bench, rim, board } });
     choreo.ctx.ground = new THREE.Color('#ECEBE7');
     return { paper, A, B, F, O, hero, bench, props, paint, state, springs, choreo };
   }
