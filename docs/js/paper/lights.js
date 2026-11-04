@@ -102,6 +102,10 @@ export const LIGHT_PRESETS = {
     back: { intensity: 0 }, fill: { dir: D(0.9, 0.2, 0.4), intensity: 0.08, color: '#dfe7ff' }, env: 0.22, exposure: 0.95,
     backdrop: { gain: 1, pool: 0, poolAdd: 0.012, poolColor: '#cfd6e6', poolOffset: [0, 0.4, -1.5], poolRadius: 1.2 }, contact: { contact: 0, mid: 0, soft: 0 } }),
 
+  // s04 the weights case (5.12): a soft top light, a warm card for the brass highlights, pale warm grey ground
+  weights: P({ key: { dir: D(-0.25, 0.9, 0.35), dist: 0.7, color: '#fffaf2', intensity: 1.25, angle: 0.8, softness: 6 }, fill: { dir: D(0.8, 0.3, 0.5), intensity: 0.18, color: '#ffe8c8' },
+    rim: { dir: D(0.2, 0.5, -0.85), intensity: 0.35, color: '#fff2dc' }, env: 0.75, exposure: 0.95 }),
+
   // look-dev utilities
   backlit: P({ key: { intensity: 0 }, back: { dir: D(0.05, 0.25, -1), intensity: 2.09 }, fill: { intensity: 0 }, env: 0.12, contact: { contact: 0, mid: 0, soft: 0 } }),
   raking: P({ key: { dir: D(-0.97, 0.12, 0.2), dist: 1.0, intensity: 1.8, softness: 3 }, fill: { intensity: 0.04 }, env: 0.18 }),

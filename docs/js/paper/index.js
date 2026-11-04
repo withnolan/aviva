@@ -22,6 +22,7 @@ import { createBleed } from './bleed.js';
 import { Letters, LETTER_LAYOUT } from './letters.js';
 import { Bench } from './bench.js';
 import { DraftingBoard } from './board.js';
+import { WeightsCase } from './weights.js';
 import { sheetSegments } from './geometry.js';
 import * as folds from './folds.js';
 
@@ -31,6 +32,7 @@ export { createBleed } from './bleed.js';
 export { Letters, LETTER_LAYOUT } from './letters.js';
 export { Bench, BENCH, BENCH_TOP_Y } from './bench.js';
 export { DraftingBoard, BOARD } from './board.js';
+export { WeightsCase, WEIGHTS } from './weights.js';
 
 // Colours (sRGB hex). paper / studio / graphite / ink / inkDeep match docs/css/tokens.css. The decision #24 families
 // (charcoal, the cool greys, HB-pencil yellow, blueprint blue) are provisional here until tokens.css carries them:
@@ -153,6 +155,8 @@ export async function createPaperSystem(renderer, opts = {}) {
     /** the s02 metrology bench (bench.js; brief 5.12, T7): granite plate, micrometer, 10-sheet stack */
     createBench(o = {}) { return new Bench(sys, o); },
     /** the s03 drafting board (board.js; brief 5.12, T9): board, parallel rule, tape, lamp; its frame = the sheet's mount */
+    /** the s04 calibration-weights case (weights.js; T12): eight weights = 4.99 g, walnut case, tweezers */
+    createWeightsCase(o = {}) { return new WeightsCase(sys, o); },
     createDraftingBoard(o = {}) { const b = new DraftingBoard(sys, o); this.boards.add(b); if (this.uv) b.setUV(this.uv); return b; },
     /** The Bleed's full-screen carry (bleed.js): a drop-in for the site's props.createBleed(), in the module's ink colours */
     createBleed(o = {}) { return createBleed({ ink: colors.ink, inkDeep: colors.inkDeep, ...o }); },

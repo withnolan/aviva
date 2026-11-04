@@ -64,6 +64,8 @@ const STATES = {
   // s03 drafting board (T9): the sheet on the 35 deg slope, taped, the pencil drawing
   board: 'board=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
   boarduv: 'board=1&uv=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
+  // s04 weights case (T12)
+  weights: 'weights=1&wlid=1.95&cam=-14,34,0.36&target=0,0.02,0.01&pos=0,0.5,-3&light=weights&ground=greyLight&contact=1',
   // s02 metrology bench (T7) at ~2 vh: the sheet edge-on, the micrometer closing (bopen = gap mm, bread = LCD)
   bench: 'bench=1&cam=0,0,1.0682&target=0,0.5,0&pos=0,0.5,0&rot=0,90,0&light=bench&ground=charcoal&floor=none&bopen=4.2&bread=4.200',
   // decision #31: the folded-letter hero (earlier lab version)
@@ -128,7 +130,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
-let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null; const letterSheets = [];
+let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null, weightsObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
 /* ------------------------------------------------------------------ apply */
@@ -239,6 +241,11 @@ async function apply(search) {
     if (!boardObj) { boardObj = paper.createDraftingBoard(); scene.add(boardObj.object); }
     boardObj.object.visible = true; boardObj.object.position.copy(sheet.object.position); boardObj.object.quaternion.copy(sheet.object.quaternion);
   } else if (boardObj) boardObj.object.visible = false;
+  if (num('weights', 0) > 0) {
+    if (!weightsObj) { weightsObj = paper.createWeightsCase(); scene.add(weightsObj.object); }
+    weightsObj.object.visible = true; weightsObj.setLid(num('wlid', 1.8));
+    if (sheet.object.position.z < -1) sheet.set({ visible: false });
+  } else if (weightsObj) weightsObj.object.visible = false;
   // the s02 bench (T7): the sheet's bottom-edge centre at the bench origin
   if (num('bench', 0) > 0) {
     if (!benchObj) { benchObj = paper.createBench(); scene.add(benchObj.object); }
