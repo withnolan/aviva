@@ -142,10 +142,16 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       const M = ctx.M, inn = seg(p, 0, 0.8), out = seg(p, 6.6, 7);     // 7 vh: the dark-mode coda 5.4-6.6 (Part 11)
       S.set('cam.pitch', -12 * inn * (1 - out));
       const R = E.regen;
-      const y = M ? kf(p, [[0, 50], [0.8, 47], [5, 47], [5.4, 44], [6.6, 44], [7, -28]]) : kf(p, [[0, 50], [0.8, 57], [5, 57], [5.4, 48], [6.6, 48], [7, -25]]);
-      const sz = M ? kf(p, [[0, 52], [0.8, 32], [5, 32], [5.4, 30], [6.6, 30], [7, 24]]) : kf(p, [[0, 52], [0.8, 46], [5, 46], [5.4, 40], [6.6, 40], [7, 30]]);
-      S.many('A.', { on: R.hidden ? 0 : 1, op: R.fade, x: 50 - 60 * R.roll, y: y - 70 * (1 - R.drop) + 8 * R.roll, size: sz,
-        rx: kf(p, [[0, 0], [0.8, 35], [5, 35], [5.4, 0]]) + 60 * R.roll, ry: 180, rz: 160 * R.roll, crumple: R.crumple,
+      // The sheet stays taped to the board's 35° slope through the coda (it glows there, the tape and board dark).
+      // 5-5.4 vh the set reframes right of the coda's text column with a slight push-in; 6.6-7 vh the sheet lifts off
+      // and exits upwards while the board drops away. Bd.* is the board's copy of the slope pose (no entry/exit moves).
+      const bx = M ? 50 : kf(p, [[5, 50], [5.4, 58]]), by = M ? 47 : kf(p, [[5, 59], [5.4, 58]]), bs = M ? 32 : kf(p, [[5, 40], [5.4, 41]]);
+      S.set('Bd.x', bx); S.set('Bd.y', by); S.set('Bd.size', bs);
+      const x = kf(p, [[6.6, bx], [7, 50]]);
+      const y = kf(p, [[0, 50], [0.8, by], [6.6, by], [7, M ? -28 : -25]]);
+      const sz = kf(p, [[0, 52], [0.8, bs], [6.6, bs], [7, M ? 24 : 30]]);
+      S.many('A.', { on: R.hidden ? 0 : 1, op: R.fade, x: x - 60 * R.roll, y: y - 70 * (1 - R.drop) + 8 * R.roll, size: sz,
+        rx: kf(p, [[0, 0], [0.8, 35], [6.6, 35], [7, 0]]) + 60 * R.roll, ry: 180, rz: 160 * R.roll, crumple: R.crumple,
         flutter: ctx.reduce ? 0 : 0.006 * (R.drop < 1 ? 1 : 0), paint: 1, curl: ctx.reduce ? 0 : E.think.curl });
       S.setEnum('A.paintFace', -1); S.setEnum('A.curlCorner', 'tr');
       S.set('bg.warm', inn * (1 - seg(p, 5, 5.4)));
@@ -631,11 +637,12 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       }
     }
     /* s03 (T9/T10): the drafting board is the writing slope's mount: the sheet's writing pose (rx 35, without its ry 180
-       turn); it stays put when the sheet rises for the coda, and leaves with the section */
+       turn), on the Bd.* springs, which track the same targets as the sheet's (s03 above); it rises in with the slope,
+       carries the taped sheet through the coda, and drops away as the sheet exits */
     if (board) {
       board.object.visible = ctx.boardOn;
       if (ctx.boardOn) {
-        const k = stage.screenPlace(50, ctx.M ? 47 : 57, ctx.M ? 32 : 46, A4.h, 0, _bp);
+        const k = stage.screenPlace(g('Bd.x'), g('Bd.y'), g('Bd.size'), A4.h, 0, _bp);
         stage.screenQuat(35, 0, 0, _bq);
         board.object.position.copy(_bp); board.object.position.y -= 0.6 * (1 - ctx.boardRise);
         board.object.quaternion.copy(_bq); board.object.scale.setScalar(k);

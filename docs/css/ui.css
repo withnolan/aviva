@@ -395,7 +395,9 @@ html.is-reg, html.is-reg * { cursor: none !important; }
 .ld__chain, .ld__dims path[pathLength] { animation: ld-draw 1100ms var(--ease-in-out) 500ms forwards; opacity: 0.75; }
 .ld__s { stroke: var(--color-graphite); stroke-width: 1.5; }
 .ld__f--m { stroke-dasharray: 6 2 1 2 1 2; } .ld__f--v { stroke-dasharray: 4 3; }
-.ld__l { transition: opacity 200ms linear; }
+/* .ld__l: no CSS transition: the intro clock already fades each letter over 0.2 s (loader-drawing.js clock()); a
+   transition on top lagged it into the DOM fold label's fade-in (a doubled VALLEY for a few frames, T5) */
+.reduce-motion .loader.is-done .ld__l, .reduce-motion .loader.is-done .ld__four { opacity: 0; transition: opacity 300ms var(--ease-out); }
 .ld__t { fill: currentColor; font-size: var(--fs-micro); letter-spacing: var(--tracking-micro); font-weight: var(--fw-medium); text-anchor: middle; dominant-baseline: middle; }
 .ld__crops path { stroke: var(--color-graphite); }
 .ld__dims, .ld__crops { transition: opacity 300ms var(--ease-out); }

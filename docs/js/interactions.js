@@ -359,7 +359,9 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
     if (dmV) dmV.textContent = copy(on ? 's03.dm.on' : 's03.dm.off') || (on ? 'ON' : 'OFF');
     if (announce && dmSr) dmSr.textContent = copy(on ? 's03.dm.sr' : 's03.dm.sr.off');
     if (dmTween) dmTween.kill();
-    dmTween = tween(E.uv, { k: on ? 1 : 0, duration: reduce ? 0.2 : 0.6, ease: 'power2.inOut' });
+    // on-demand rendering: mark every step dirty, so the last value (k = 0: the tube off) is drawn too
+    const redraw = () => { if (world) world.markDirty(); };
+    dmTween = tween(E.uv, { k: on ? 1 : 0, duration: reduce ? 0.2 : 0.6, ease: 'power2.inOut', onUpdate: redraw, onComplete: redraw });
     world && world.markDirty();
   }
   if (dm) dm.addEventListener('click', () => { E.uv.user = !E.uv.on; setDark(E.uv.user); });

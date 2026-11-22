@@ -28,6 +28,9 @@ const CHANNELS = [
   ['A.halving', 0, 10], ['A.plane', 0, 0], ['A.crumple', 0, 0], ['A.show', 0, 10], ['A.trans', 0.24, 6], ['A.wm', 0, 6],
   ['A.map', 0, 6], ['A.dot', 0, 6], ['A.paint', 0, 0], ['A.macro', 0, 6], ['A.thick', 0.0001, 8], ['A.gain', 1, 6],
   ['A.creaseMid', 0, 0], ['A.creaseDog', 0, 0],
+  // s03: the drafting board, the sheet's mount (the writing slope's pose; the same springs as A.x/y/size, so the
+  // board and the taped sheet move as one when the set reframes for the dark-mode coda)
+  ['Bd.x', 50, 7], ['Bd.y', 59, 7], ['Bd.size', 40, 7],
   // the second instance B (Arena, the release-notes "known issue")
   ['B.on', 0, 0], ['B.op', 1, 10], ['B.x', 65, 7], ['B.y', 50, 7], ['B.size', 40, 7], ['B.rx', 0, 7], ['B.ry', 0, 7],
   ['B.rz', 0, 7], ['B.dz', 0, 7], ['B.crumple', 0, 0], ['B.bend', 0, 8],

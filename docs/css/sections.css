@@ -128,7 +128,7 @@
 .s03__dm {
   top: 50%;
   left: calc(var(--gutter) + 24px);
-  width: min(360px, calc(50% - var(--vh100) * 0.24 - var(--gutter) - 48px));
+  width: min(300px, calc(50% - var(--vh100) * 0.24 - var(--gutter) - 48px));   /* clear of the board, which reframes right (choreo s03) */
   transform: translateY(-50%);
   display: grid;
   gap: var(--space-3);

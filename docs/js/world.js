@@ -57,7 +57,7 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     if (bench) { stage.scene.add(bench.object); bench.object.visible = false; }
     let board = null;                                      // s03 (T9): the drafting board under the writing slope
     try { board = paper.createDraftingBoard(); } catch (e) { console.warn('[aviva] board:', e && e.message); }
-    if (board) { stage.scene.add(board.object); board.object.visible = false; }
+    if (board) { stage.scene.add(board.object); board.object.visible = false; if (board.setRule) board.setRule(-0.215); }   // the rule parks low, clear of the status line
     const rim = new THREE.PointLight('#eef3ff', 0, 0.3, 2); rim.name = 's02.rim'; stage.scene.add(rim);
     const numerals = createTypePlane('4.99 g');
     const line = createDryingLine(8), drop = createDrop();
