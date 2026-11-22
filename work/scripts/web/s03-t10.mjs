@@ -14,13 +14,23 @@ page.on('pageerror', (e) => errors.push(String(e).slice(0, 200)));
 console.log('goto', Date.now()); await page.goto(base, { waitUntil: 'load', timeout: 120000 });
 for (let i = 0; i < 400; i++) { if (await page.evaluate(() => !!(window.__aviva && window.__aviva.ready)).catch(() => false)) break; await page.waitForTimeout(100); }
 console.log('ready', Date.now());
-// T5 rest frame: let the intro run out (or force the clock to its end), then shoot the loader layer.
-await page.evaluate(() => { const A = window.__aviva; if (!A.E.intro.done) { A.gsap.globalTimeline.pause(); A.E.intro.clock = 4.8; } });
-await page.waitForTimeout(2500);
-console.log('loader drawing visible nodes:', await page.evaluate(() => { const r = document.querySelector('.loader, #loader'); if (!r) return 'no loader node'; const cs = getComputedStyle(r); return { display: cs.display, opacity: cs.opacity, vis: cs.visibility, cls: r.className }; }));
+// T5 hand-over: sample the loader drawing's VALLEY (letter 1) and the DOM fold label on the real, playing clock;
+// "both" counts frames where both are > 0.05 opaque (a doubled label). Then wait for the intro to finish and shoot.
+const hand = await page.evaluate(() => new Promise((res) => {
+  const A = window.__aviva, out = { both: 0, n: 0, maxBoth: 0 }, t0 = performance.now();
+  const tick = () => {
+    const g = document.querySelectorAll('.ld__l')[1], f = document.querySelectorAll('.fold-l')[1];
+    const og = g && g.isConnected ? +getComputedStyle(g).opacity : 0, of = f ? +getComputedStyle(f).opacity : 0;
+    out.n++; if (og > 0.05 && of > 0.05) { out.both++; out.maxBoth = Math.max(out.maxBoth, Math.min(og, of)); }
+    if (A.E.intro.done || performance.now() - t0 > 240000) { out.done = A.E.intro.done; out.clock = A.E.intro.clock; res(out); } else requestAnimationFrame(tick);
+  };
+  tick();
+}));
+console.log('T5 hand-over samples:', JSON.stringify(hand));
+await page.waitForTimeout(1500);
+console.log('T5 rest:', JSON.stringify(await page.evaluate(() => { const r = document.querySelector('.loader'); return { loader: r ? r.className : 'none', svg: !!document.querySelector('.ld__l'), foldsIn: document.querySelectorAll('.fold-l.is-in').length }; })));
 await page.screenshot({ path: `${out}/t5-rest.jpg`, quality: 80 });
-await page.evaluate(() => window.__aviva.gsap.globalTimeline.resume());
-const go = async (p, wait = 3500) => { await page.evaluate((p) => { const S = window.__aviva.scroll; S.scrollTo(S.yOf(S.byKey('s03'), p), { immediate: true }); }, p); await page.waitForTimeout(wait); };
+const go = async (p, wait = 3500) => { await page.evaluate((p) => { const S = window.__aviva.scroll; S.scrollTo(S.yOf(S.byKey('s03'), p), { immediate: true }); }, p); await page.waitForTimeout(wait); console.log('at p', p); };
 const stroke = async () => {
   const P = await page.evaluate(() => { const P = [{}, {}, {}, {}]; window.__aviva.world.heroCorners(P, false); return P; });
   const cx = (P[0].x + P[2].x) / 2, cy = (P[0].y + P[2].y) / 2;
