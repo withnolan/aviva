@@ -31,6 +31,8 @@ const CHANNELS = [
   // s03: the drafting board, the sheet's mount (the writing slope's pose; the same springs as A.x/y/size, so the
   // board and the taped sheet move as one when the set reframes for the dark-mode coda)
   ['Bd.x', 50, 7], ['Bd.y', 59, 7], ['Bd.size', 40, 7],
+  // the sheet's rest shape (bow, twist, lifting corner; paper/sheet.js `rest`): 0 = dead flat, e.g. taped to the board
+  ['A.rest', 1, 8],
   // the second instance B (Arena, the release-notes "known issue")
   ['B.on', 0, 0], ['B.op', 1, 10], ['B.x', 65, 7], ['B.y', 50, 7], ['B.size', 40, 7], ['B.rx', 0, 7], ['B.ry', 0, 7],
   ['B.rz', 0, 7], ['B.dz', 0, 7], ['B.crumple', 0, 0], ['B.bend', 0, 8],

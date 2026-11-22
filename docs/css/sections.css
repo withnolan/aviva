@@ -110,6 +110,15 @@
 .tools__pair { display: grid; gap: 6px; justify-items: start; }
 .tools__help { color: var(--text-muted); }
 .s03__tools { top: 50%; right: calc(var(--gutter) + 44px); transform: translateY(-50%); }
+/* the drafting board (T9) runs under the tools, the status line and the draw hint: a ground-coloured backing keeps
+   them legible over the lit laminate, and disappears on the plain ground (cf. .s05__results) */
+.s03__tools {
+  width: calc(min(300px, 24vw) + 40px); margin-right: -20px; padding: 18px 20px; border-radius: 14px;
+  background: color-mix(in srgb, var(--ground) 84%, transparent);
+}
+.s03__under .status:not(:empty), .s03__under .kb-echo:not([hidden]), .draw-hint[data-hint="s03"] {
+  justify-self: center; padding: 3px 12px; border-radius: 999px; background: color-mix(in srgb, var(--ground) 84%, transparent);
+}
 .s03__note { color: var(--text-muted); }
 .btn--touch { display: none; }
 .draw-hint {

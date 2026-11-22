@@ -147,6 +147,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       // and exits upwards while the board drops away. Bd.* is the board's copy of the slope pose (no entry/exit moves).
       const bx = M ? 50 : kf(p, [[5, 50], [5.4, 58]]), by = M ? 47 : kf(p, [[5, 59], [5.4, 58]]), bs = M ? 32 : kf(p, [[5, 40], [5.4, 41]]);
       S.set('Bd.x', bx); S.set('Bd.y', by); S.set('Bd.size', bs);
+      S.set('A.rest', 1 - inn * (1 - out));      // taped flat to the board: its rest bow would sink the long edges into it (ry 180)
       const x = kf(p, [[6.6, bx], [7, 50]]);
       const y = kf(p, [[0, 50], [0.8, by], [6.6, by], [7, M ? -28 : -25]]);
       const sz = kf(p, [[0, 52], [0.8, bs], [6.6, bs], [7, M ? 24 : 30]]);
@@ -548,7 +549,8 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
         map: g('A.map'), inkDot: g('A.dot'), macro: g('A.macro'), paint: g('A.paint') > 0.5, paintFace: state.enum('A.paintFace'),
         curl: g('A.curl') > 0.001 ? { corner: state.enum('A.curlCorner'), t: g('A.curl'), r: 0.015, deg: 25, size: 0.06 } : null,
         bleed: front > 0.0005 ? { t: front, at: [0, 0], radiusMM: 9, amount: 1, grade: g('ink.grade') } : null,
-        creases: creases.length ? creases : null,
+        creases: creases.length ? creases : null, rest: g('A.rest'),
+        cockle: 0.00045 * (0.3 + 0.7 * g('A.rest')),        // taped flat (s03): its waviness stays under the tape (0.18 mm)
       });
       applyTear();
     }
