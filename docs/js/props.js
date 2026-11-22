@@ -60,6 +60,63 @@ export function createDrop() {
   return mesh;
 }
 
+/**
+ * The s07 pipette (T14): a glass dropper at real size (m), its tip at the origin pointing down (−y), its axis up (+y):
+ * a 1 mm capillary tip, a taper to a 7 mm barrel, a graphite rubber bulb. The glass is a cheap fresnel shader (dark
+ * refracting edges, a soft key streak, almost clear across the middle: how glass reads over white paper); a column of
+ * ink stands in the capillary under a concave meniscus. Only the lower 40 mm or so is ever in the macro frame.
+ *   pipette.group (place it: tip position, camera's quaternion); pipette.setInk(level 0..1)
+ */
+export function createPipette() {
+  const group = new THREE.Group(); group.name = 'prop.pipette'; group.visible = false;
+  // outer profile (radius, height), from the tip up; the glass is ~0.25 mm thick
+  const OUT = [[0.00055, 0], [0.00068, 0.0006], [0.0008, 0.006], [0.00095, 0.014], [0.0016, 0.022], [0.0028, 0.03], [0.0035, 0.036], [0.0035, 0.085]];
+  const glassGeo = new THREE.LatheGeometry(OUT.map(([r, y]) => new THREE.Vector2(r, y)), 40);
+  const glass = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    uniforms: { uEdge: { value: new THREE.Color('#3c4350') }, uTint: { value: new THREE.Color('#e9eef2') } },
+    vertexShader: /* glsl */`varying vec3 vN; varying vec3 vV;
+      void main(){ vec4 mv = modelViewMatrix * vec4(position, 1.0); vV = -mv.xyz; vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: /* glsl */`uniform vec3 uEdge, uTint; varying vec3 vN; varying vec3 vV;
+      void main(){
+        vec3 n = normalize(vN), v = normalize(vV);
+        float f = 1.0 - abs(dot(n, v));                         // 0 facing the camera, 1 at the silhouette
+        float edge = smoothstep(0.62, 0.97, f);                 // refraction darkens the walls seen edge-on
+        float streak = smoothstep(0.55, 0.8, -n.x) * (1.0 - smoothstep(0.8, 0.98, -n.x)) * (1.0 - edge);   // the key's streak (left)
+        float lip = smoothstep(0.35, 0.6, n.x) * (1.0 - edge) * 0.35;                                       // a weaker one right
+        vec3 col = mix(uTint, uEdge, edge);
+        col = mix(col, vec3(1.0), max(streak, lip));
+        float a = 0.06 + 0.72 * edge + 0.55 * streak + 0.3 * lip;
+        gl_FragColor = vec4(col, clamp(a, 0.0, 0.92));
+      }`,
+  });
+  const tube = new THREE.Mesh(glassGeo, glass); tube.renderOrder = 3;
+  // the ink in the capillary: a column inside the glass, topped by a concave meniscus
+  const inkMat = new THREE.MeshPhysicalMaterial({ color: '#1F1B6E', roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.1 });
+  const IN = [[0.0003, 0.0004], [0.00042, 0.006], [0.0006, 0.014], [0.0011, 0.019]];
+  const ink = new THREE.Mesh(new THREE.LatheGeometry(IN.map(([r, y]) => new THREE.Vector2(r, y)), 24), inkMat);
+  const men = new THREE.Mesh(new THREE.CircleGeometry(1, 24).rotateX(-Math.PI / 2), inkMat);   // the meniscus (scaled to the bore)
+  const bead = new THREE.Mesh(new THREE.SphereGeometry(0.00048, 16, 10), inkMat);           // the ink at the very tip
+  bead.position.y = 0.0001;
+  // the rubber bulb: graphite, matte, a little sheen
+  const BULB = [[0.0038, 0.082], [0.0046, 0.084], [0.0062, 0.092], [0.0066, 0.104], [0.0058, 0.114], [0.0036, 0.119], [0.0001, 0.1205]];
+  const bulb = new THREE.Mesh(new THREE.LatheGeometry(BULB.map(([r, y]) => new THREE.Vector2(r, y)), 32),
+    new THREE.MeshPhysicalMaterial({ color: GRAPHITE, roughness: 0.55, sheen: 0.4, sheenColor: new THREE.Color('#6b6a66') }));
+  group.add(ink, men, bead, tube, bulb);
+  const api = {
+    group,
+    /** ink column height 0..1 (1: full to the taper; it drops a little when the drop leaves) */
+    setInk(level) {
+      const y = 0.003 + 0.016 * Math.max(0, Math.min(1, level));
+      ink.scale.set(1, y / 0.019, 1);
+      const r = 0.0003 + (y < 0.006 ? (y / 0.006) * 0.00012 : y < 0.014 ? 0.00012 + ((y - 0.006) / 0.008) * 0.00018 : 0.0003 + ((y - 0.014) / 0.005) * 0.0005);
+      men.position.y = y - 0.00012; men.scale.setScalar(r * 0.98);
+    },
+  };
+  api.setInk(1);
+  return api;
+}
+
 /** The Bleed: a screen-space ragged ink front (fibre-guided noise), drawn over the scene. coverage 0..1. */
 export function createBleed() {
   const material = new THREE.ShaderMaterial({

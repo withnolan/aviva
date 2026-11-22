@@ -354,6 +354,16 @@
 .s07__drop { top: 37%; left: calc(50% + 28px); color: var(--text); }
 .s07__abs { bottom: calc(var(--hint-h) + 6%); left: var(--gutter); width: min(380px, 30vw); }
 .s07__abs .h3 { margin-bottom: var(--space-3); }
+/* T14: the absorption view's instrument readouts (bottom right, mirroring the text block) and the ink hint (top) */
+.s07__inst { right: calc(var(--gutter) + 56px); bottom: calc(var(--hint-h) + 6%); display: grid; justify-items: end; gap: 8px; }
+.s07__scale { display: inline-flex; align-items: center; gap: 10px; }
+.s07__bar { position: relative; width: calc(var(--mm, 12.7) * 1px); height: 7px; border-left: 1px solid currentColor; border-right: 1px solid currentColor; }
+.s07__bar::after { content: ""; position: absolute; left: 0; right: 0; top: 3px; height: 1px; background: currentColor; }
+.s07__timer { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+.s07__hint { top: calc(var(--nav-h) + 4%); left: 50%; transform: translateX(-50%); white-space: nowrap; color: var(--text-muted); }
+/* each block inverts to paper white once the ink under it passes 50 % (s07-ink.js), whatever the page's roles say */
+.s07 .ink-flip { --text: var(--color-graphite); --text-muted: var(--color-graphite-muted); color: var(--text); }
+.s07 .ink-flip.is-inked { --text: var(--color-on-ink); --text-muted: var(--color-on-ink-muted); }
 
 /* ======================= s08 · It comes back. (ink) ======================= */
 .s08 { padding-top: calc(var(--vh100) * 0.5); padding-bottom: 24vh; }

@@ -7,6 +7,7 @@ import { CREDIT, NAV_GROUP, REAM_SIZE } from './config.js';
 import { copy } from './copy.js';
 import { E } from './events.js';
 import { clamp, seg, smoothstep, ease } from './util.js';
+import { createS07Ink } from './s07-ink.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -297,6 +298,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
   const groundOut = { dark: false };
   let introDone = false;
   const s01 = S.byKey('s01'), heroFoot = $('.hero__foot'), heroL2 = $('.hero__l2'), heroSteps = {};
+  const s07ink = createS07Ink({ scroll: S, world, reduce });   // T14: scale bar, timer, text that inverts under the ink
   const folds = $$('#hero-folds .fold-l'), FEET = [{}, {}, {}, {}, {}];
   function frame() {
     const Y = S.Y, cur = S.current;
@@ -327,6 +329,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
     sections();
     updateDims();
     benchOv();
+    s07ink.frame();
     return groundOut;
   }
 

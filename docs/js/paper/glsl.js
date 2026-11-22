@@ -40,6 +40,7 @@ uniform vec4  uFlutter;                    // x: amplitude (m), y: frequency (1/
 uniform vec4  uCockle;                     // x: amplitude (m), y: frequency (1/m), z: seed
 uniform vec3  uShift;                      // a rigid shift after everything (the crumple slides onto the ball's centre)
 uniform vec4  uRest;                       // a real sheet at rest: x edge lift across the width (m), y twist (m), z corner lift (m), w corner (0..3)
+uniform vec4  uTape;                       // taped at its corners: x lift (m) of the untaped middle of one edge, y axis (0 top/bottom, 1 left/right), z side (+-1)
 #ifdef PAPER_INSTANCED
 attribute vec4 aInst;                      // per instance (stack.js): x bend (1/m), y flutter amplitude (m), z flutter time, w -
 #define PP_BEND vec4(aInst.x, uBend.y, uBend.z, uBend.w)
@@ -73,6 +74,10 @@ vec3 paperDeform(vec2 rest) {
     vec2 cs = vec2(mod(uRest.w, 2.0) < 0.5 ? 1.0 : -1.0, uRest.w < 1.5 ? -1.0 : 1.0);   // 0 BR, 1 BL, 2 TR, 3 TL
     float cd = length(max(vec2(0.0), q * cs - vec2(0.55)) / 0.45);
     p.z += uRest.z * cd * cd;
+  }
+  if (uTape.x != 0.0) {                                // taped (s03): a curl can only lift the middle of its edge; the corners stay down
+    vec2 q = rest / (0.5 * uSheet), e = uTape.y < 0.5 ? q : q.yx;
+    p.z += uTape.x * (1.0 - smoothstep(0.35, 0.72, abs(e.x))) * smoothstep(0.3, 1.0, e.y * uTape.z);
   }
   if (uCockle.x > 0.0) {                               // a real sheet is never perfectly flat: sub-mm waviness
     vec2 q = rest * uCockle.y;

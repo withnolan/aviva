@@ -208,8 +208,9 @@ export class LightRig {
       const o = this._v.set(off[0], off[1], off[2]); if (S.space !== 'world' && camera) o.applyQuaternion(q);
       U.uPool.value[0].set(this.focus.x + o.x, this.focus.y + o.y, this.focus.z + o.z, b.poolRadius ?? 1.4);
       const pc = b.poolColor ? (b.poolColor.isColor ? b.poolColor : C(b.poolColor)) : C('#ffffff');
-      U.uPoolC.value[0].set(pc.r, pc.g, pc.b, b.pool ?? 0);
-      if (U.uPoolAdd) U.uPoolAdd.value.x = b.poolAdd ?? 0;
+      const lit = 1 - (this.uv || 0);                      // dark mode (s03): the lamp's warm pool goes out with the room
+      U.uPoolC.value[0].set(pc.r, pc.g, pc.b, (b.pool ?? 0) * lit);
+      if (U.uPoolAdd) U.uPoolAdd.value.x = (b.poolAdd ?? 0) * lit;
     }
     if (contact && S.contact) { contact.setStrength(S.contact.contact, S.contact.soft, S.contact.mid); contact.setReach(S.contact.reach ?? 0.35); }
     return this;

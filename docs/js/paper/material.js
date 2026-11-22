@@ -55,7 +55,7 @@ export function makeSheetUniforms(shared, size = { w: 0.21, h: 0.297 }) {
     uSheet: { value: new THREE.Vector2(size.w, size.h) },
     uHalfThick: { value: 0.00005 }, uDeformEps: { value: 0.0008 },
     uFoldCount: { value: 0 }, uFoldQ: { value: arr4(MAX_FOLDS) }, uFoldA: { value: arr4(MAX_FOLDS) }, uFoldM: { value: arr4(MAX_FOLDS) }, uFoldR: { value: arr4(MAX_FOLDS) },
-    uBend: { value: v4() }, uPleat: { value: v4(0.015, 0, 0, 0.05) }, uFlutter: { value: v4(0, 9, 0, 0) }, uCockle: { value: v4(0.00045, 16, 3.7, 0) },
+    uBend: { value: v4() }, uPleat: { value: v4(0.015, 0, 0, 0.05) }, uFlutter: { value: v4(0, 9, 0, 0) }, uCockle: { value: v4(0.00045, 16, 3.7, 0) }, uTape: { value: v4() },
     uFormP: { value: v4(0, 0, 0.12, 0.37) },
     uEdgeP: { value: v4(1.4, 0.18, 0.1, 0.85) },
     uTransP: { value: v4(0.22, 0.35, 0.3, 0) },

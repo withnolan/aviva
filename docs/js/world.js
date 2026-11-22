@@ -11,7 +11,7 @@ import { createStage, A4 } from './scene.js';
 import { createPaper } from './sheet-adapter.js';
 import { SceneState, Springs } from './state.js';
 import { createChoreo } from './choreo.js';
-import { createTypePlane, createDryingLine, createDrop, createBleed } from './props.js';
+import { createTypePlane, createDryingLine, createDrop, createBleed, createPipette } from './props.js';
 import { E, isAnimating } from './events.js';
 import { FEATURES, FLAGS } from './config.js';
 
@@ -60,9 +60,9 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     if (board) { stage.scene.add(board.object); board.object.visible = false; if (board.setRule) board.setRule(-0.215); }   // the rule parks low, clear of the status line
     const rim = new THREE.PointLight('#eef3ff', 0, 0.3, 2); rim.name = 's02.rim'; stage.scene.add(rim);
     const numerals = createTypePlane('4.99 g');
-    const line = createDryingLine(8), drop = createDrop();
+    const line = createDryingLine(8), drop = createDrop(), pipette = createPipette();   // s07 (T14): the glass dropper
     const bleed = paper.raw && paper.raw.createBleed ? paper.raw.createBleed() : createBleed();   // the module's ink front at screen scale
-    stage.scene.add(numerals.mesh, line.group, drop);
+    stage.scene.add(numerals.mesh, line.group, drop, pipette.group);
     const paint = await paper.createPaint();
     A.attachPaint(paint);
     if (FEATURES.floorPrint) await paper.loadFloorPrint('assets/logo/wordmark-floor.png');
@@ -73,7 +73,7 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     const state = new SceneState();
     const springs = new Springs(state);
     springs.direct = reduced;
-    const props = { numerals, line, drop, bleed };
+    const props = { numerals, line, drop, bleed, pipette };
     const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, hero, bench, rim, board } });
     choreo.ctx.ground = new THREE.Color('#ECEBE7');
     return { paper, A, B, F, O, hero, bench, props, paint, state, springs, choreo };

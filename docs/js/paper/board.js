@@ -9,11 +9,12 @@
 //   board.setRule(-0.19);                          // the parallel rule's height on the board (m, board space)
 //   board.materials                               // { laminate, aluminium, tape, enamel, cable }: T10's UV relight
 //
-// Cost: 5 draw calls (board, rule + clamps, tape, lamp enamel, cables), all with the key's shadow.
+// Cost: 7 draw calls (board, rule + clamps, tape, lamp enamel, the lamp's lit rim and its glow, cables), most with the key's shadow.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-export const BOARD = { w: 0.74, h: 0.54, t: 0.022, gap: 0.0004, ruleY: -0.19, lamp: [-0.36, 0.36, 0.3] };
+const _OFF = new THREE.Color('#0e0a1e');   // the lamp's lit parts in dark mode: off, violet-black
+export const BOARD = { w: 0.74, h: 0.54, t: 0.022, gap: 0.0004, ruleY: -0.19, lamp: [-0.4, 0.3, 0.22] };
 const clean = (g) => { const n = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(n.attributes)) if (!['position', 'normal', 'uv'].includes(k)) n.deleteAttribute(k); return n; };
 function box(w, h, d, x, y, z) { return clean(new THREE.BoxGeometry(w, h, d).translate(x, y, z)); }
 
@@ -40,7 +41,7 @@ export class DraftingBoard {
       edge: new THREE.MeshStandardMaterial({ color: '#8d9092', roughness: 0.55 }),
       aluminium: new THREE.MeshPhysicalMaterial({ color: '#c3c7cb', metalness: 1, roughness: 0.34, envMapIntensity: 1.4 }),
       tape: new THREE.MeshStandardMaterial({ color: '#e4d6b2', roughness: 0.78, transparent: true, opacity: 0.94 }),
-      enamel: new THREE.MeshPhysicalMaterial({ color: '#33363a', roughness: 0.36, metalness: 0.1, clearcoat: 0.6, clearcoatRoughness: 0.2 }),
+      enamel: new THREE.MeshPhysicalMaterial({ color: '#3b3f45', roughness: 0.36, metalness: 0.1, clearcoat: 0.6, clearcoatRoughness: 0.2 }),
       cable: new THREE.MeshStandardMaterial({ color: '#b9bdc1', metalness: 1, roughness: 0.3 }),
     };
     // the board: a laminate slab, its face just behind the sheet (z = -gap), with a darker edge band (2 materials, 1 mesh)
@@ -53,23 +54,37 @@ export class DraftingBoard {
     // the cables: two fine steel lines down the board's sides that guide the rule
     const cab = mergeGeometries([0, 1].map((s) => clean(new THREE.CylinderGeometry(0.0006, 0.0006, B.h - 0.03, 6).translate((s ? 1 : -1) * (B.w / 2 - 0.012), 0.02, 0.0015))));
     this.cables = new THREE.Mesh(cab, M.cable);
-    // drafting tape: four cream strips across the sheet's corners at 45 deg (0.15 mm proud of the sheet)
+    // drafting tape: four cream strips across the sheet's corners at 45 deg (0.7 mm proud of the sheet: its full cockle stays under)
     const tapes = [];
     for (const [sx, sy] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) {
-      const g = new THREE.BoxGeometry(0.05, 0.019, 0.00015).rotateZ(sx * sy * Math.PI / 4).translate(sx * 0.098, sy * 0.1395, 0.00025);
+      const g = new THREE.BoxGeometry(0.05, 0.019, 0.00015).rotateZ(sx * sy * Math.PI / 4).translate(sx * 0.098, sy * 0.1395, 0.0007);
       tapes.push(clean(g));
     }
     this.tape = new THREE.Mesh(mergeGeometries(tapes), M.tape); this.tape.name = 'board.tape'; this.tape.visible = tape;
-    // the architect's lamp: a graphite-enamel shade and its arm, entering at the top left, aimed at the sheet
-    const shade = new THREE.LatheGeometry([0.006, 0.03, 0.05, 0.072, 0.075].map((r, i) => new THREE.Vector2(r, -i * 0.024)), 32);
-    const head = mergeGeometries([clean(shade), clean(new THREE.CylinderGeometry(0.014, 0.014, 0.03, 16).translate(0, 0.02, 0)),
-      clean(new THREE.CylinderGeometry(0.005, 0.005, 0.32, 8).rotateZ(0.9).translate(-0.12, 0.13, 0))]);
+    // the architect's lamp, entering at the top left, aimed at the sheet: a small graphite-enamel shade (11 cm) on a
+    // knuckle and twin arm rods; its rolled lip and inside lit warm by the bulb, and a soft glow at its mouth, so it reads
+    // as a lamp that is on (seen from behind), never as a dark blob. The mouth faces -y (local).
+    const prof = [[0.008, 0], [0.018, -0.004], [0.024, -0.012], [0.03, -0.024], [0.04, -0.042], [0.05, -0.06], [0.056, -0.072]];
+    const shade = new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(r, y)), 40);
+    const head = mergeGeometries([clean(shade), clean(new THREE.CylinderGeometry(0.011, 0.011, 0.022, 16).translate(0, 0.01, 0)),
+      clean(new THREE.CylinderGeometry(0.008, 0.008, 0.026, 12).rotateZ(Math.PI / 2).translate(0, 0.028, 0)),
+      ...[-0.007, 0.007].map((z) => clean(new THREE.CylinderGeometry(0.0028, 0.0028, 0.36, 8).rotateZ(0.9).translate(-0.14, 0.14, z)))]);
     M.enamel.side = THREE.DoubleSide;
     this.lamp = new THREE.Mesh(head, M.enamel); this.lamp.name = 'board.lamp'; this.lamp.visible = lamp;
     this.lamp.position.set(...B.lamp); this.lamp.lookAt(new THREE.Vector3(0, 0, 0)); this.lamp.rotateX(-Math.PI / 2);
+    const tone = (g, k) => { g.setAttribute('color', new THREE.Float32BufferAttribute(new Array(g.attributes.position.count * 3).fill(k), 3)); return g; };
+    const lit = mergeGeometries([tone(clean(new THREE.TorusGeometry(0.056, 0.0022, 8, 64).rotateX(Math.PI / 2).translate(0, -0.072, 0)), 1.35),   // the lip
+      tone(clean(new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(r * 0.93, y)), 40)), 0.72), tone(clean(new THREE.SphereGeometry(0.012, 16, 12).translate(0, -0.02, 0)), 1.6)]);
+    this.lampLit = new THREE.Mesh(lit, new THREE.MeshBasicMaterial({ color: '#ffd7a3', vertexColors: true, side: THREE.DoubleSide, toneMapped: false }));
+    const gc = document.createElement('canvas'); gc.width = gc.height = 128; const gx = gc.getContext('2d'), gg = gx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gg.addColorStop(0, 'rgba(255,236,205,0.9)'); gg.addColorStop(0.25, 'rgba(255,214,160,0.45)'); gg.addColorStop(0.6, 'rgba(255,200,140,0.1)'); gg.addColorStop(1, 'rgba(255,190,130,0)');
+    gx.fillStyle = gg; gx.fillRect(0, 0, 128, 128);
+    this.lampGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(gc), blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, opacity: 0.8 }));
+    this.lampGlow.scale.set(0.2, 0.2, 1); this.lampGlow.position.set(0, -0.085, 0);
+    this.lampLit.name = 'board.lampLit'; this.lampGlow.name = 'board.lampGlow'; this.lamp.add(this.lampLit, this.lampGlow);
     this.object.add(this.board, this.rule, this.cables, this.tape, this.lamp);
     this.object.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-    this.tape.castShadow = false; this.lamp.castShadow = false;   // the lamp is the light: its head never shadows the sheet
+    this.tape.castShadow = false; this.lamp.castShadow = this.lampLit.castShadow = false;   // the lamp is the light: its head never shadows the sheet
     this.setRule(B.ruleY);
     // dark mode (T10): the UV tube across the top, its violet light, and the sheet's fluorescent halo on the board
     const soft = (w, h, inner) => {   // a soft-edged rectangle mask (white centre, transparent rim)
@@ -100,9 +115,15 @@ export class DraftingBoard {
     this.halo.material.opacity = k * 0.55; this.tubeGlow.material.opacity = k * 0.8;
     this.halo.visible = this.tube.visible = this.tubeGlow.visible = k > 0.002;
     this.uvLight.intensity = k * 0.5;   // the tube's violet light on the board, the rule and the tape
+    if (!this._lit) this._lit = this.lampLit.material.color.clone();
+    this.lampLit.material.color.copy(this._lit).lerp(_OFF, k); this.lampGlow.material.opacity = 0.8 * (1 - k);   // the lamp goes out
+    this.lampGlow.visible = k < 0.998;
     return this;
   }
   /** the parallel rule's height on the board (board space, m; below the sheet's bottom edge at -0.1485 by default) */
   setRule(y) { this.rule.position.set(0, y, 0); return this; }
-  dispose() { this.object.traverse((o) => { if (o.isMesh) o.geometry.dispose(); }); for (const m of Object.values(this.materials)) m.dispose(); this.object.removeFromParent(); }
+  dispose() {
+    this.object.traverse((o) => { if (o.isMesh) o.geometry.dispose(); }); for (const m of Object.values(this.materials)) m.dispose();
+    this.lampLit.material.dispose(); this.lampGlow.material.map.dispose(); this.lampGlow.material.dispose(); this.object.removeFromParent();
+  }
 }

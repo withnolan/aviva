@@ -75,6 +75,11 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const _bp = new THREE.Vector3(), _bf = new THREE.Vector3(), _be = new THREE.Vector3();
   const EXTENT_BENCH = 1.2;
   ctx.boardOn = false; ctx.boardRise = 1;
+  ctx.pip = { on: false, y: -32, form: 0, ink: 1 }; ctx.inkTime = 0;
+  // s07 (T14): the ink front's centre (sheet rest m) drifting toward the pointer; t and Rmax after the compensation;
+  // what the DOM needs (ui: scale bar, timer, the text that inverts as the ink passes under it)
+  ctx.ink = { x: 0, y: 0, tx: 0, ty: 0, t: 0, rmax: 34.5 };
+  ctx.inkDom = { on: false, pxPerMm: 1, sx: 0, sy: 0, sr: 0, cov: 0, cx: 0.5, cy: 0.5, seed: 3.1, scale: 1, aspect: 1.6 };
   const _bq = new THREE.Quaternion();
 
   /* ------------------------------------------------------------------ claims, one per section (brief 2B) */
@@ -233,8 +238,15 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
         macro: seg(p, 0.6, 1.2) * (1 - seg(p, 4.0, 4.2)), dot: seg(p, 4.1, 4.3), trans: lerp(0.24, 0.36, back) });
       S.set('cam.fov', R ? (p < 0.6 || p > 3.9 ? 30 : 22) : kf(p, [[0, 30], [1.2, 22], [2.8, 22], [3.4, 26], [4.0, 26], [4.5, 30]]));
       const front = R ? (p > 2.4 ? 1 : 0) : seg(p, 2.4, 3.4, ease.linear);
-      S.set('ink.dropOn', p > 2.12 && p < 2.62 && !R ? 1 : 0);
-      S.set('ink.drop', seg(p, 2.15, 2.4, ease.in));
+      // T14: a glass pipette comes down from the top (2.0-2.15 vh), a drop swells at its tip (2.15-2.2) and falls to the
+      // sheet (2.2-2.4), and the pipette lifts away (2.3-2.55); the ink column in it drops a little as the drop leaves
+      const P = ctx.pip;
+      P.on = !R && p > 1.98 && p < 2.56;
+      P.y = kf(p, [[2.0, -32], [2.15, 31, ease.out], [2.3, 31], [2.56, -48, ease.in]]);
+      P.form = seg(p, 2.15, 2.2); P.ink = 1 - 0.18 * seg(p, 2.17, 2.23);
+      S.set('ink.dropOn', p > 2.15 && p < 2.62 && !R ? 1 : 0);
+      S.set('ink.drop', seg(p, 2.2, 2.4, ease.in));
+      ctx.inkTime = p < 2.4 ? 0 : 12 * seg(p, 2.4, 3.4, ease.linear) + 8 * seg(p, 3.4, 3.95, ease.linear);   // the timer (s)
       S.set('ink.front', p < 4.0 ? front : 1 - seg(p, 4.1, 4.4));
       S.set('ink.grade', seg(p, 2.4, 2.55) * (1 - seg(p, 4.0, 4.1)));
       const bleed = p < 3.4 || p >= 3.97 ? 0 : (R ? 0 : 0.4 + 0.55 * seg(p, 3.4, 3.9, ease.linear));
@@ -506,7 +518,30 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const bg = new THREE.Color(), _sc = {};
   const MID_CREASE = [{ n: [0, 1], d: 0, strength: 1 }];
   const DOG_CREASE = { n: [0.7071, 0.7071], d: 0.7071 * (A4.w / 2 + A4.h / 2 - 0.03), strength: 0.8 };
-  function apply() {
+  /* s07 (T14): the ink follows the pointer (capillary pull, brief 11.1): the front's centre drifts toward the cursor, up
+     to 40 % of its radius, and the front grows by the same amount, so the side away from the cursor never recedes. The
+     radius at t = 1 matches the screen-space front's at the hand-over (bleed.js, uCov 0.4: 0.49 screen heights, which is
+     34.5 mm at the macro's 420 vh%), so the blot does not jump at 3.4 vh. */
+  const INK_R = 34.5, _iray = new THREE.Raycaster(), _indc = new THREE.Vector2(), _ipl = new THREE.Plane(), _ihit = new THREE.Vector3(), _inrm = new THREE.Vector3();
+  function inkFollow(dt, front) {
+    const I = ctx.ink;
+    if (front <= 0.0005) { I.x = I.y = I.tx = I.ty = 0; I.t = 0; I.rmax = INK_R; return; }
+    const R = INK_R * (0.04 + 0.96 * Math.sqrt(Math.min(1, front))) / 1000;          // m
+    const P = E.pointer, o = A.object;
+    if (P.on && !ctx.reduce) {                                                     // the cursor on the sheet (rest m)
+      _indc.set((P.x / size.w) * 2 - 1, -(P.y / size.h) * 2 + 1);
+      _iray.setFromCamera(_indc, camera);
+      _ipl.setFromNormalAndCoplanarPoint(_inrm.set(0, 0, 1).applyQuaternion(o.quaternion), o.position);
+      if (_iray.ray.intersectPlane(_ipl, _ihit)) { o.worldToLocal(_ihit); I.tx = _ihit.x; I.ty = _ihit.y; }
+    }
+    const m = 0.4 * R, lt = Math.hypot(I.tx, I.ty), kt = lt > m ? m / lt : 1;
+    const k = 1 - Math.exp(-2.2 * Math.min(dt, 0.1));                              // ~0.5 s to follow
+    I.x += (I.tx * kt - I.x) * k; I.y += (I.ty * kt - I.y) * k;
+    const l = Math.hypot(I.x, I.y); if (l > m) { I.x *= m / l; I.y *= m / l; }     // scrolling back shrinks the room
+    const Rw = (R + Math.min(l, m)) * 1000, st = (Rw / INK_R - 0.04) / 0.96;        // the grown radius (mm) -> t, then Rmax
+    if (st <= 1) { I.t = st * st; I.rmax = INK_R; } else { I.t = 1; I.rmax = Rw; }
+  }
+  function apply(dt = 1 / 60) {
     const M = ctx.M;
     /* camera */
     const fl = clamp(g('cam.floor'));
@@ -540,6 +575,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     if (aOn) {
       placeHero();
       const front = g('ink.front');
+      inkFollow(dt, front);
       const creases = [];
       if (g('A.creaseMid') > 0.5) creases.push(MID_CREASE[0]);
       if (g('A.creaseDog') > 0.5) creases.push(DOG_CREASE);
@@ -548,7 +584,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
         plane: g('A.plane'), crumple: g('A.crumple'), showThrough: g('A.show'), translucency: g('A.trans'), watermark: g('A.wm'),
         map: g('A.map'), inkDot: g('A.dot'), macro: g('A.macro'), paint: g('A.paint') > 0.5, paintFace: state.enum('A.paintFace'),
         curl: g('A.curl') > 0.001 ? { corner: state.enum('A.curlCorner'), t: g('A.curl'), r: 0.015, deg: 25, size: 0.06 } : null,
-        bleed: front > 0.0005 ? { t: front, at: [0, 0], radiusMM: 9, amount: 1, grade: g('ink.grade') } : null,
+        bleed: front > 0.0005 ? { t: ctx.ink.t, at: [ctx.ink.x, ctx.ink.y], radiusMM: ctx.ink.rmax, amount: 1, grade: g('ink.grade') } : null,
         creases: creases.length ? creases : null, rest: g('A.rest'),
         cockle: 0.00045 * (0.3 + 0.7 * g('A.rest')),        // taped flat (s03): its waviness stays under the tape (0.18 mm)
       });
@@ -592,22 +628,43 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     }
 
     /* the ink drop */
-    const drop = props.drop;
+    const drop = props.drop, pip = props.pipette, P = ctx.pip;
+    if (drop.visible || P.on || g('ink.dropOn') > 0.5) stage.toScreen(A.object.position, _sc);   // the sheet's centre (px)
+    const cxPct = (_sc.x / size.w) * 100, cyPct = (_sc.y / size.h) * 100, mmPct = g('A.size') / 297;   // % of the height per mm
     drop.visible = g('ink.dropOn') > 0.5;
     if (drop.visible) {
-      const k = g('ink.drop');
-      stage.screenPlace(50, lerp(-8, 50, k), g('A.size'), A4.h, 0.002, _pos);
+      // T14: it swells at the pipette's tip, then falls to the sheet's centre (where the front starts); no splash
+      const k = g('ink.drop'), f = P.form, hang = P.y + (0.8 + 2.2 * f) * mmPct;
+      stage.screenPlace(cxPct, lerp(hang, cyPct, k), g('A.size'), A4.h, 0.002, _pos);
       drop.position.copy(_pos);
-      drop.scale.set(1 + 0.6 * smoothstep(0.9, 1, k), k > 0.97 ? 0.35 : 1.35, 1 + 0.6 * smoothstep(0.9, 1, k));
+      const sw = 0.35 + 0.65 * f;
+      drop.scale.set(sw * (1 + 0.6 * smoothstep(0.9, 1, k)), k > 0.97 ? 0.35 : sw * 1.35, sw * (1 + 0.6 * smoothstep(0.9, 1, k)));
       drop.quaternion.copy(camera.quaternion);
+    }
+    if (pip) {
+      pip.group.visible = P.on;
+      if (P.on) {
+        const kk = stage.screenPlace(cxPct, P.y, g('A.size'), A4.h, 0.004, _pos);
+        pip.group.position.copy(_pos); pip.group.quaternion.copy(camera.quaternion); pip.group.rotateZ(-0.04);
+        pip.group.scale.setScalar(kk); pip.setInk(P.ink);
+      }
     }
 
     /* the Bleed (screen space) */
     const bl = props.bleed.material.uniforms;
     bl.uCov.value = g('ink.bleed'); bl.uAspect.value = size.aspect; bl.uFlat.value = ctx.reduce ? 1 : 0;
-    if (bl.uCenter && bl.uCov.value > 0.0005 && aOn) {          // the front grows from where the drop landed: the sheet's centre
-      stage.toScreen(A.object.position, _sc); bl.uCenter.value.set(_sc.x / size.w, 1 - _sc.y / size.h);
+    const I = ctx.ink, D = ctx.inkDom;
+    D.on = aOn && g('ink.front') > 0.0005;
+    if (D.on || (bl.uCenter && bl.uCov.value > 0.0005 && aOn)) {   // the front grows from where the drop landed, drifted toward the cursor
+      stage.toScreen(A.object.localToWorld(_v.set(I.x, I.y, 0)), _sc);
+      if (bl.uCenter) bl.uCenter.value.set(_sc.x / size.w, 1 - _sc.y / size.h);
+      D.pxPerMm = (g('A.size') / 100) * size.h / 297; D.sx = _sc.x; D.sy = _sc.y;
+      D.sr = I.rmax * (0.04 + 0.96 * Math.sqrt(I.t)) * D.pxPerMm;
     }
+    D.cov = bl.uCov.value; D.aspect = size.aspect;
+    if (bl.uCenter) { D.cx = bl.uCenter.value.x; D.cy = bl.uCenter.value.y; }
+    if (bl.uSeed) D.seed = bl.uSeed.value;
+    if (bl.uScale) D.scale = bl.uScale.value;
 
     /* floor print and contact blob (the placeholder's; the module draws its own contact shadows) */
     const pr = g('world.print');

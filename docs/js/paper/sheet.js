@@ -10,6 +10,8 @@
 //   flutter (m) flutterFreq (1/m) flutterTime (s; auto-advances when flutterAuto)       cockle (m)
 //   folds [fold2D...]   plane 0..7   halving 0..2   sixfold 0..6   dogEar 0..1 (+dogEarCorner)   peel 0..1
 //   curl { corner:'tr'|..., or edge:'bottom'|..., t|at, r, angle, size, taper, toward }
+//   rest 0..1 (1 free; 0 = taped at its corners to a mount on its +z side, s03: no rest shape, and a curl keeps the
+//   taped corners down: it becomes a gentle lift, off the mount, of the untaped middle of its edge)
 //   fan 0..1 | { period, gamma, open, pivot }        crumple 0..1 (baked; swaps in the crumple mesh)
 //   thickness (m, 0.0001 real)   translucency 0..1   watermark 0..1   showThrough 0..1
 //   inkDot 0..1 (+ inkDotAt [x,y] m, inkDotRadius m)   bleed { t, at:[x,y], radiusMM, amount, grade }
@@ -97,7 +99,7 @@ export class Sheet {
       if (k === 'bend' && typeof s.bend === 'object' && s.bend) { S.bend = s.bend.k ?? 0; if (s.bend.axis !== undefined) S.bendAxis = s.bend.axis; if (s.bend.twist !== undefined) S.twist = s.bend.twist; continue; }
       S[k] = s[k];
     }
-    if (['folds', 'plane', 'halving', 'sixfold', 'dogEar', 'dogEarCorner', 'peel', 'curl', 'crumple', 'boat'].some((k) => k in s)) this._dirtyFolds = true;
+    if (['folds', 'plane', 'halving', 'sixfold', 'dogEar', 'dogEarCorner', 'peel', 'curl', 'crumple', 'boat', 'rest'].some((k) => k in s)) this._dirtyFolds = true;
     this._apply(s);
     return this;
   }
@@ -206,10 +208,11 @@ export class Sheet {
     if (S.sixfold > 0) out.push(...F.sixfold(S.sixfold, { size }).folds);
     if (S.folds) out.push(...S.folds);
     if (S.dogEar > 0) out.push(...F.dogEar(S.dogEar, { corner: S.dogEarCorner, sheet: size }));
-    if (S.curl) {
+    const free = Math.min(1, Math.max(0, S.rest ?? 1));        // taped (rest 0): the curl moves to the edge's middle (update)
+    if (S.curl && free > 0) {
       const c = S.curl;
-      if (c.edge) out.push(...F.edgeCurl({ edge: c.edge, at: c.at ?? c.t ?? 0.2, r: c.r ?? 0.02, angle: c.angle ?? Math.PI * 0.6, toward: c.toward ?? 1, sheet: size }));
-      else out.push(...F.cornerCurl(c.t ?? 1, { corner: c.corner || 'tr', size: c.size ?? 0.06, r: c.r ?? 0.015, angle: c.angle ?? 0.44, taper: c.taper ?? 0, toward: c.toward ?? 1, sheet: size }));
+      if (c.edge) out.push(...F.edgeCurl({ edge: c.edge, at: (c.at ?? c.t ?? 0.2) * free, r: c.r ?? 0.02, angle: c.angle ?? Math.PI * 0.6, toward: c.toward ?? 1, sheet: size }));
+      else out.push(...F.cornerCurl((c.t ?? 1) * free, { corner: c.corner || 'tr', size: c.size ?? 0.06, r: c.r ?? 0.015, angle: c.angle ?? 0.44, taper: c.taper ?? 0, toward: c.toward ?? 1, sheet: size }));
     }
     if (S.peel > 0) out.push(...F.peel(S.peel, { sheet: size }));
     if (S.boat > 0 && S.boat < 0.5) out.push(...F.boatHat(S.boat * 2, { sheet: size }));
@@ -261,6 +264,12 @@ export class Sheet {
     }
     const r = (S.rest ?? 1) * (1 - foldT) * (S.crumple > 0 ? 0 : 1) * (S.boat > 0 ? 0 : 1) * edgeOn;
     U.uRest.value.set(0.0045 * r, 0.0008 * r * (this.restTwist > 0 ? 1 : 0), 0.0055 * r, S.restCorner ?? 0);
+    // taped at its corners: the curl's lift goes to the untaped middle of its edge (a corner curl: its short edge), off the mount
+    const taped = 1 - Math.min(1, Math.max(0, S.rest ?? 1)), c = S.curl;
+    if (c && taped > 0) {
+      const edge = c.edge || ((c.corner || 'tr')[0] === 'b' ? 'bottom' : 'top'), ct = Math.min(1, Math.abs(c.edge ? (c.at ?? c.t ?? 0.2) / 0.2 : c.t ?? 1));
+      U.uTape.value.set(-0.005 * ct * taped, edge === 'left' || edge === 'right' ? 1 : 0, edge === 'bottom' || edge === 'left' ? -1 : 1, 0);
+    } else if (U.uTape.value.x !== 0) U.uTape.value.x = 0;
   }
 
   /** slope-scaled offset of this sheet's shadow-map depth (set by the system from the key's PCF radius) */
