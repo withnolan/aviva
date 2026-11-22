@@ -69,8 +69,8 @@ export function createDrop() {
  */
 export function createPipette() {
   const group = new THREE.Group(); group.name = 'prop.pipette'; group.visible = false;
-  // outer profile (radius, height), from the tip up; the glass is ~0.25 mm thick
-  const OUT = [[0.00055, 0], [0.00068, 0.0006], [0.0008, 0.006], [0.00095, 0.014], [0.0016, 0.022], [0.0028, 0.03], [0.0035, 0.036], [0.0035, 0.085]];
+  // outer profile (radius, height), from the tip up: a short capillary, the taper, the 7 mm barrel (in frame above it)
+  const OUT = [[0.0007, 0], [0.0008, 0.0006], [0.0009, 0.004], [0.0012, 0.007], [0.0022, 0.011], [0.0032, 0.015], [0.0036, 0.019], [0.0036, 0.085]];
   const glassGeo = new THREE.LatheGeometry(OUT.map(([r, y]) => new THREE.Vector2(r, y)), 40);
   const glass = new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, side: THREE.DoubleSide,
@@ -81,19 +81,19 @@ export function createPipette() {
       void main(){
         vec3 n = normalize(vN), v = normalize(vV);
         float f = 1.0 - abs(dot(n, v));                         // 0 facing the camera, 1 at the silhouette
-        float edge = smoothstep(0.62, 0.97, f);                 // refraction darkens the walls seen edge-on
-        float streak = smoothstep(0.55, 0.8, -n.x) * (1.0 - smoothstep(0.8, 0.98, -n.x)) * (1.0 - edge);   // the key's streak (left)
-        float lip = smoothstep(0.35, 0.6, n.x) * (1.0 - edge) * 0.35;                                       // a weaker one right
-        vec3 col = mix(uTint, uEdge, edge);
+        float edge = smoothstep(0.42, 0.96, f);                 // refraction darkens the walls seen edge-on (a few px wide)
+        float streak = smoothstep(0.45, 0.7, -n.x) * (1.0 - smoothstep(0.78, 0.95, -n.x)) * (1.0 - edge);  // the key's streak (left)
+        float lip = smoothstep(0.3, 0.55, n.x) * (1.0 - smoothstep(0.7, 0.9, n.x)) * 0.4;                 // a weaker one right
+        vec3 col = mix(uTint, uEdge, edge * edge);
         col = mix(col, vec3(1.0), max(streak, lip));
-        float a = 0.06 + 0.72 * edge + 0.55 * streak + 0.3 * lip;
-        gl_FragColor = vec4(col, clamp(a, 0.0, 0.92));
+        float a = 0.1 + 0.62 * edge + 0.6 * streak + 0.3 * lip;
+        gl_FragColor = vec4(col, clamp(a, 0.0, 0.85));
       }`,
   });
   const tube = new THREE.Mesh(glassGeo, glass); tube.renderOrder = 3;
   // the ink in the capillary: a column inside the glass, topped by a concave meniscus
   const inkMat = new THREE.MeshPhysicalMaterial({ color: '#1F1B6E', roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.1 });
-  const IN = [[0.0003, 0.0004], [0.00042, 0.006], [0.0006, 0.014], [0.0011, 0.019]];
+  const IN = [[0.0004, 0.0004], [0.00055, 0.004], [0.0008, 0.007], [0.0017, 0.0108]];   // the bore, up to the meniscus
   const ink = new THREE.Mesh(new THREE.LatheGeometry(IN.map(([r, y]) => new THREE.Vector2(r, y)), 24), inkMat);
   const men = new THREE.Mesh(new THREE.CircleGeometry(1, 24).rotateX(-Math.PI / 2), inkMat);   // the meniscus (scaled to the bore)
   const bead = new THREE.Mesh(new THREE.SphereGeometry(0.00048, 16, 10), inkMat);           // the ink at the very tip
@@ -107,10 +107,11 @@ export function createPipette() {
     group,
     /** ink column height 0..1 (1: full to the taper; it drops a little when the drop leaves) */
     setInk(level) {
-      const y = 0.003 + 0.016 * Math.max(0, Math.min(1, level));
-      ink.scale.set(1, y / 0.019, 1);
-      const r = 0.0003 + (y < 0.006 ? (y / 0.006) * 0.00012 : y < 0.014 ? 0.00012 + ((y - 0.006) / 0.008) * 0.00018 : 0.0003 + ((y - 0.014) / 0.005) * 0.0005);
-      men.position.y = y - 0.00012; men.scale.setScalar(r * 0.98);
+      const y = 0.003 + 0.0078 * Math.max(0, Math.min(1, level));
+      ink.scale.set(1, y / 0.0108, 1);
+      let r = IN[IN.length - 1][0];                            // the bore's radius at the meniscus
+      for (let i = 1; i < IN.length; i++) if (y <= IN[i][1]) { const [r0, y0] = IN[i - 1], [r1, y1] = IN[i]; r = r0 + ((r1 - r0) * (y - y0)) / (y1 - y0); break; }
+      men.position.y = y - 0.00008; men.scale.setScalar(r * 0.97);
     },
   };
   api.setInk(1);

@@ -7,16 +7,18 @@
 // Params (all optional; `state=` loads a bundle first, explicit params override it):
 //   camera   cam=az,el,dist (deg, deg, m)  target=x,y,z  fov=30  dpr=1
 //   sheet    pos=x,y,z  rot=rx,ry,rz (deg)  seg=w,h  tier=0|1|2
-//   shape    bend=k axis=deg twist=rad/m flutter=m ffreq ftime cockle=m  plane=0..7 halving=0..2 sixfold=0..6
+//   shape    bend=k axis=deg twist=rad/m flutter=m ffreq ftime cockle=m rest=0..1  plane=0..7 halving=0..2 sixfold=0..6
 //            dogear=0..1 peel=0..1 curl=corner,t,r,deg  ecurl=edge,at,r,deg  fan=0..1  crumple=0..1  thick=mm
-//            tear=p1,p2top,p2bottom  sep=0..1 (moves torn pieces apart)  crease=1 (remembered midline crease)
+//            tear=p1,p2top,p2bottom  tgap=m  sep=0..1 (moves torn pieces apart)  crease=1 (remembered midline crease)
 //   look     trans=0..1 wm=0..1 show=0..1 dot=0..1 bleed=0..1 grade=0..1 macro=0..1 gain=1 tooth=strength
-//   paint    draw=demo|line|scribble  erase=1 (erase half, leaving the 12 % ghost)
-//   light    light=name[,name2,w2]  key=lux env exp back=lux keydir=x,y,z keydist=m soft=pcf
+//   paint    draw=demo|line|lines|scribble  erase=1 (erase half, leaving the 12 % ghost) | 2 (erase all)  ghost=0.12 (its strength)
+//   sets     set=c1 (claim-sets.js: the s11 claim-card sets; states claim1..3, rendered by work/scripts/paper-proto/claims.mjs)
+//   light    light=name[,name2,w2]  key=lux keycol=hex env exp back=lux keydir=x,y,z keydist=m soft=pcf
 //   studio   bg=#hex  floor=y|none  print=1 printw=m printz=m  contact=0|1  cop=contact,soft  ground=ink
 //   misc     hud=1 (print params)  boat=1 moon=1 cord=1
 import * as THREE from 'three';
 import { createPaperSystem, TOKENS, GROUNDS, createPencil, folds as FOLDS } from '../js/paper/index.js';
+import { buildClaimSet } from './claim-sets.js';
 
 const STATES = {
   flat: 'cam=-14,6,1.22&pos=0,0.5,0&rot=0,-14,0&bend=0.7&light=studio',
@@ -68,6 +70,11 @@ const STATES = {
   arena: 'arena=1&cam=0,7,3.1&target=0,0.6,0&pos=0,0.5,-3&light=s10&ground=ink&floor=none',
   // s04 drying line (T13): lt = seconds after a gust at x 0.42 (the cursor's breeze), lw = its strength
   line: 'line=1&lt=0.3&lw=1.6&cam=0,4,1.5&target=0,0.55,0&pos=0,0.5,-3&light=grey&ground=grey',
+  // s11 claim cards (T20): c1 the sheet as the pane of a sash window, daylight through it; c2 four modalities on a yellow
+  // sweep, warm side light; c3 slate, raking light, the dot and an erased impression
+  claim1: 'set=c1&cam=-12,4,0.9&target=0.005,0.475,0&pos=0,0.5,0&rest=0&cockle=0.00015&light=card1&key=1.35&keycol=fff0de&keydir=-0.55,0.5,0.68&back=1.5&trans=0.5&floor=none&bg=#e8e1d5&contact=0&soft=5',
+  claim2: 'cam=-14,48,0.66&target=0.005,0,0.01&pos=0,0.0006,0&rot=-90,0,-10&bg=#f1d98a&light=card2&keydir=0.78,0.55,0.3&key=2.7&keycol=fff3e4&exp=1.04&soft=5&draw=scribble&dot=1&crease=1&tear=0.38,0,0&tgap=0.003&pencil=-0.035,0.0046,0.03,0,-28,0',
+  claim3: 'cam=14,54,0.6&target=0,0,0.008&pos=0,0.0006,0&rot=-90,0,9&bg=#3c434b&light=raking&keydir=-0.97,0.2,0.1&key=4.4&env=0.1&soft=4&draw=lines&erase=2&ghost=0.22&dot=1',
   // s04 weights case (T12)
   weights: 'weights=1&wlid=1.85&cam=-24,40,0.42&target=0,0.034,-0.01&pos=0,0.5,-3&light=weights&ground=greyLight&contact=1',
   // s02 metrology bench (T7) at ~2 vh: the sheet edge-on, the micrometer closing (bopen = gap mm, bread = LCD)
@@ -134,6 +141,7 @@ scene.add(sheet.object);
 await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
 const genMs = performance.now() - t0;
 
+const claimSets = {};
 let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null, weightsObj = null, lineObj = null, arenaObj = null, crowdObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
@@ -163,7 +171,7 @@ async function apply(search) {
   const r = vec('rot', [0, 0, 0]); sheet.object.rotation.set(rad(r[0]), rad(r[1]), rad(r[2]));
   const curl = P.has('curl') ? (() => { const [c, t, rr, a] = str('curl').split(','); return { corner: c, t: +t, r: +rr, angle: rad(+a) }; })()
     : P.has('ecurl') ? (() => { const [e, at, rr, a] = str('ecurl').split(','); return { edge: e, at: +at, r: +rr, angle: rad(+a) }; })() : null;
-  const tear = P.has('tear') ? (() => { const [p1, a, b] = vec('tear'); return { p1, p2: [a || 0, b || 0] }; })() : null;
+  const tear = P.has('tear') ? (() => { const [p1, a, b] = vec('tear'); return { p1, p2: [a || 0, b || 0], gap: num('tgap', 0.0012) }; })() : null;
   const bleedT = num('bleed', 0);
   if (num('macro', 0) > 0 || bleedT > 0) paper.ensureMacro();
   if (bleedT > 0) paper.ensureFibreGeo();
@@ -182,7 +190,7 @@ async function apply(search) {
   sheet.reset();
   sheet.set({
     bend: num('bend', 0), bendAxis: rad(num('axis', 90)), twist: num('twist', 0),
-    flutter: num('flutter', 0), flutterFreq: num('ffreq', 9), flutterTime: num('ftime', 0), cockle: num('cockle', 0.00045),
+    flutter: num('flutter', 0), flutterFreq: num('ffreq', 9), flutterTime: num('ftime', 0), cockle: num('cockle', 0.00045), rest: num('rest', 1),
     plane: num('plane', 0), halving: num('halving', 0), sixfold: num('sixfold', 0), dogEar: num('dogear', 0), peel: num('peel', 0), curl,
     fan: num('fan', 0), crumple: num('crumple', 0), boat: num('boat', 0), thickness: num('thick', 0.1) / 1000,
     translucency: num('trans', 0.24), watermark: num('wm', 0), showThrough: num('show', 0), inkDot: num('dot', 0),
@@ -285,8 +293,14 @@ async function apply(search) {
   } else if (pencilProp) pencilProp.object.visible = false;
   // paint
   const draw = str('draw', '');
-  if (draw) { const pl = await ensurePaint(); pl.clear(); demoStroke(pl, draw); if (num('erase', 0) > 0) demoErase(pl); pl.flush(); sheet.set({ paint: true }); }
+  // (flush() runs the eraser queue before the pencil's: write, flush, then erase)
+  if (draw) { const pl = await ensurePaint(); pl.clear(); demoStroke(pl, draw); const er = num('erase', 0); if (er > 0) { pl.flush(); demoErase(pl, er > 1.5); } pl.flush(); sheet.set({ paint: true }); }
   else if (paint) sheet.set({ paint: false });
+  sheet.uniforms.uPaintP.value.z = num('ghost', 0.12);
+  // the s11 claim sets (claim-sets.js)
+  const setName = str('set', '');
+  if (setName && !claimSets[setName]) { claimSets[setName] = await buildClaimSet(setName, { sheet }); scene.add(claimSets[setName]); }
+  for (const [k, o] of Object.entries(claimSets)) o.visible = k === setName;
 
   // lights
   const lp = str('light', 'studio').split(',');
@@ -294,6 +308,7 @@ async function apply(search) {
   paper.setUV(num('uv', 0));                     // s03 dark mode (T10)
   const L = paper.lights.state = JSON.parse(JSON.stringify(paper.lights.state, (k, v) => (v && v.isVector3 ? { __v: [v.x, v.y, v.z] } : v && v.isColor ? '#' + v.getHexString() : v)), (k, v) => (v && v.__v ? new THREE.Vector3(...v.__v) : v));
   if (P.has('key')) L.key.intensity = num('key');
+  if (P.has('keycol')) L.key.color = '#' + str('keycol');
   if (P.has('keydir')) L.key.dir = new THREE.Vector3(...vec('keydir')).normalize();
   if (P.has('keydist')) L.key.dist = num('keydist');
   if (P.has('soft')) L.key.softness = num('soft');
@@ -348,12 +363,23 @@ function frame() {
 /* ------------------------------------------------------------------ demo strokes */
 function demoStroke(pl, kind) {
   if (kind === 'line') { pl.strokeFromPath(pl.constructor.handwritingPath({ seed: 3 }), { x: 0.16, y: 0.62, width: 0.68 }); return; }
+  if (kind === 'lines') { [[3, 0.7, 0.68], [7, 0.62, 0.6], [11, 0.54, 0.44]].forEach(([seed, y, width]) => pl.strokeFromPath(pl.constructor.handwritingPath({ seed }), { x: 0.16, y, width })); return; }
+  if (kind === 'scribble') {   // a quick test scribble, loops running right (testing the pencil)
+    const sc = []; for (let i = 0; i < 150; i++) sc.push([0.2 + i * 0.0026 + 0.022 * Math.cos(i * 0.42), 0.77 + 0.026 * Math.sin(i * 0.42) - i * 0.0002]);
+    pl.begin(sc[0][0], sc[0][1], 0); sc.slice(1).forEach((q, i) => pl.move(q[0], q[1], (i + 1) * 7)); pl.end(); return;
+  }
   let t = 0; const S = (pts, dt) => { pl.begin(pts[0][0], pts[0][1], t); for (let i = 1; i < pts.length; i++) { t += dt; pl.move(pts[i][0], pts[i][1], t); } pl.end(); t += 300; };
   const sp = []; for (let i = 0; i < 170; i++) { const a = i * 0.17, rr = 0.008 + i * 0.0015; sp.push([0.5 + rr * Math.cos(a), 0.7 + rr * Math.sin(a) * 0.72]); } S(sp, 9);
   const wv = []; for (let i = 0; i < 130; i++) wv.push([0.16 + i * 0.0053, 0.42 + Math.sin(i * 0.23) * 0.012]); S(wv, 15);
   const sc = []; for (let i = 0; i < 90; i++) sc.push([0.3 + (i % 2) * 0.24 + Math.sin(i) * 0.012, 0.27 - i * 0.0016]); S(sc, 4);
 }
-function demoErase(pl) { pl.setTool('eraser'); let t = 1e5; const pts = []; for (let i = 0; i < 60; i++) pts.push([0.22 + (i % 2) * 0.62, 0.5 + 0.35 * (i / 60) - 0.05]); pl.begin(pts[0][0], pts[0][1], t); for (const p of pts.slice(1)) { t += 30; pl.move(p[0], p[1], t); } pl.end(); pl.setTool('pencil'); }
+function demoErase(pl, all = false) {
+  if (all) {   // erase everything: slow horizontal passes past both ends of the lines, one stroke each
+    pl.setTool('eraser'); let t = 1e5;
+    for (let y = 0.47; y <= 0.79; y += 0.005) { pl.begin(0.02, y, t); for (let x = 0.04; x <= 0.98; x += 0.02) { t += 40; pl.move(x, y, t); } pl.end(); t += 200; }
+    pl.setTool('pencil'); return;
+  }
+  pl.setTool('eraser'); let t = 1e5; const pts = []; for (let i = 0; i < 60; i++) pts.push([0.22 + (i % 2) * 0.62, 0.5 + 0.35 * (i / 60) - 0.05]); pl.begin(pts[0][0], pts[0][1], t); for (const p of pts.slice(1)) { t += 30; pl.move(p[0], p[1], t); } pl.end(); pl.setTool('pencil'); }
 
 /* ------------------------------------------------------------------ keys (interactive use) */
 const help = document.getElementById('help');

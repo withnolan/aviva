@@ -75,7 +75,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const _bp = new THREE.Vector3(), _bf = new THREE.Vector3(), _be = new THREE.Vector3();
   const EXTENT_BENCH = 1.2;
   ctx.boardOn = false; ctx.boardRise = 1;
-  ctx.pip = { on: false, y: -32, form: 0, ink: 1 }; ctx.inkTime = 0;
+  ctx.pip = { on: false, y: -32, form: 0, ink: 1 }; ctx.inkTime = 0; ctx.bleedFlat = false; ctx.bleedTone = 1; ctx.inkTok = null;
   // s07 (T14): the ink front's centre (sheet rest m) drifting toward the pointer; t and Rmax after the compensation;
   // what the DOM needs (ui: scale bar, timer, the text that inverts as the ink passes under it)
   ctx.ink = { x: 0, y: 0, tx: 0, ty: 0, t: 0, rmax: 34.5 };
@@ -247,10 +247,16 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       S.set('ink.dropOn', p > 2.15 && p < 2.62 && !R ? 1 : 0);
       S.set('ink.drop', seg(p, 2.2, 2.4, ease.in));
       ctx.inkTime = p < 2.4 ? 0 : 12 * seg(p, 2.4, 3.4, ease.linear) + 8 * seg(p, 3.4, 3.95, ease.linear);   // the timer (s)
-      S.set('ink.front', p < 4.0 ? front : 1 - seg(p, 4.1, 4.4));
-      S.set('ink.grade', seg(p, 2.4, 2.55) * (1 - seg(p, 4.0, 4.1)));
-      const bleed = p < 3.4 || p >= 3.97 ? 0 : (R ? 0 : 0.4 + 0.55 * seg(p, 3.4, 3.9, ease.linear));
+      // the sheet's own front ends under the full-screen ink (3.95): the sheet that surfaces at the pull-back is white
+      S.set('ink.front', R ? (p < 4.0 ? front : 1 - seg(p, 4.1, 4.4)) : p < 3.95 ? front : 0);
+      S.set('ink.grade', seg(p, 2.4, 2.55) * (1 - (R ? seg(p, 4.0, 4.1) : seg(p, 3.94, 3.95))));
+      // the screen-space front: 0.4 at the hand-over (3.4) to every pixel by 3.93; then, as the camera pulls back, the
+      // ink lifts off evenly (a flat fade over 4.1-4.32, once the shrinking sheet no longer fills the frame), so the white
+      // sheet surfaces in the ink world without a flash
+      ctx.bleedFlat = !R && p >= 3.94;
+      const bleed = R || p < 3.4 ? 0 : p < 3.94 ? 0.4 + 0.6 * seg(p, 3.4, 3.93, ease.linear) : 1 - seg(p, 4.1, 4.32, ease.inOut);
       S.set('ink.bleed', bleed);
+      ctx.bleedTone = seg(p, 3.4, 3.7);                 // its colour: from the sheet's lit ink at the hand-over to the token
       S.set('bg.ink', p >= 3.95 || (R && p >= 3.4) ? 1 : 0);
       S.setEnum('ground', p >= 3.9 || (R && p >= 3.4) ? 'ink' : 'paper');
       const toInk = seg(p, 3.9, 4.2);
@@ -652,7 +658,12 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
 
     /* the Bleed (screen space) */
     const bl = props.bleed.material.uniforms;
-    bl.uCov.value = g('ink.bleed'); bl.uAspect.value = size.aspect; bl.uFlat.value = ctx.reduce ? 1 : 0;
+    bl.uCov.value = g('ink.bleed'); bl.uAspect.value = size.aspect; bl.uFlat.value = ctx.reduce || ctx.bleedFlat ? 1 : 0;
+    if (bl.uColor && bl.uDeep) {                     // T14: the hand-over starts in the sheet's lit ink, then deepens to the token
+      const T = ctx.inkTok || (ctx.inkTok = { c: bl.uColor.value.clone(), d: bl.uDeep.value.clone() }), k = ctx.bleedTone;
+      bl.uColor.value.set(lerp(0.196, T.c.x, k), lerp(0.18, T.c.y, k), lerp(0.412, T.c.z, k));
+      bl.uDeep.value.set(lerp(0.18, T.d.x, k), lerp(0.18, T.d.y, k), lerp(0.322, T.d.z, k));
+    }
     const I = ctx.ink, D = ctx.inkDom;
     D.on = aOn && g('ink.front') > 0.0005;
     if (D.on || (bl.uCenter && bl.uCov.value > 0.0005 && aOn)) {   // the front grows from where the drop landed, drifted toward the cursor

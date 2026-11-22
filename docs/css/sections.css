@@ -362,7 +362,8 @@
 .s07__timer { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
 .s07__hint { top: calc(var(--nav-h) + 4%); left: 50%; transform: translateX(-50%); white-space: nowrap; color: var(--text-muted); }
 /* each block inverts to paper white once the ink under it passes 50 % (s07-ink.js), whatever the page's roles say */
-.s07 .ink-flip { --text: var(--color-graphite); --text-muted: var(--color-graphite-muted); color: var(--text); }
+.s07 .ink-flip { --text: var(--color-graphite); --text-muted: var(--color-graphite-muted); color: var(--text); transition: color 0.28s var(--ease-out); }
+.s07 .eyebrow.ink-flip { color: var(--text-muted); }
 .s07 .ink-flip.is-inked { --text: var(--color-on-ink); --text-muted: var(--color-on-ink-muted); }
 
 /* ======================= s08 · It comes back. (ink) ======================= */

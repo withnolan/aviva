@@ -70,7 +70,7 @@ export function createS07Ink({ scroll, world = null, reduce = false }) {
       for (const el of flips) {
         const was = el.classList.contains('is-inked');
         const k = ground ? 1 : D.on || D.cov > 0.0005 ? inkUnder(el, D, W, H) : 0;
-        const on = ground || (was ? k > 0.42 : k > 0.5);
+        const on = ground || (was ? k > 0.68 : k > 0.76);   // 'half inked' by contrast: white text wins once the ink alpha is ~0.76
         if (on !== was) el.classList.toggle('is-inked', on);
       }
     },
