@@ -614,19 +614,20 @@
   transform: translate3d(-50%, calc(var(--cmpY, 0) * 1px), 0);
 }
 .cmp__scroll { overflow-x: auto; }
-/* T24: the family portrait's callouts: a hairline leader from each stack's top front corner, then its thickness */
+/* T24: the family portrait's thickness, a caption hanging from each plinth (a hairline tick, then the figure); the
+   chosen model's reads in full graphite; the riffle hint sits above the ream */
 .s12__dims { inset: 0; pointer-events: none; }
 .pdim {
-  position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px; white-space: nowrap;
-  transform: translate3d(calc(var(--x, -999) * 1px + 6px), calc(var(--y, -999) * 1px - 50%), 0);
+  position: absolute; left: 0; top: 0; display: grid; justify-items: center; gap: 6px; white-space: nowrap;
+  transform: translate3d(calc(var(--x, -999) * 1px - 50%), calc(var(--y, -999) * 1px + 4px), 0);
   color: var(--text-muted); opacity: 0; transition: opacity var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
 }
-.pdim::before { content: ""; width: 28px; height: 1px; background: currentColor; opacity: 0.7; }
+.pdim::before { content: ""; width: 1px; height: 10px; background: currentColor; opacity: 0.6; }
 .pdim.is-in { opacity: 1; }
 .pdim.is-sel { color: var(--text); }
 .s12__riffle {
   left: 0; top: 0; color: var(--text-muted); white-space: nowrap; pointer-events: none;
-  transform: translate3d(calc(var(--x, -999) * 1px + 42px), calc(var(--y, -999) * 1px + 16px), 0);
+  transform: translate3d(calc(var(--x, -999) * 1px - 50%), calc(var(--y, -999) * 1px - 100% - 18px), 0);
   opacity: 0; transition: opacity var(--dur-base) var(--ease-out);
 }
 .s12__riffle.is-in { opacity: 1; }

@@ -72,28 +72,33 @@ export function createPortrait({ sys, names = ['AVIVA', 'AVIVA Notebook Pro', 'A
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(PORTRAIT.span + 0.5, (PORTRAIT.span + 0.5) * 320 / 1024),
     new THREE.MeshBasicMaterial({ color: '#000000', alphaMap: shadowTexture(), transparent: true, opacity: 0.32, depthWrite: false }));
   shadow.rotation.x = -Math.PI / 2; shadow.position.y = -PL.h - 0.0006; shadow.renderOrder = -1;
-  const spot = new THREE.SpotLight('#fff4e6', 0, 3.2, 0.3, 0.7, 1.4);
+  const spot = new THREE.SpotLight('#fff4e6', 0, 0, 0.19, 0.9, 0);   // a soft pool round the chosen stack; no falloff (the group scales)
   spot.position.set(0, 1.05, 0.55); spot.target.position.set(0, 0, 0);
-  object.add(shadow, spot, spot.target);
+  // an even overhead fill, so every stack reads as white paper; the spot only lifts the chosen one a little
+  const fill = new THREE.DirectionalLight('#ffffff', 0); fill.position.set(-0.5, 1.6, 1.1); fill.target.position.set(0, 0, 0);
+  object.add(shadow, spot, spot.target, fill, fill.target);
 
   const _v = new THREE.Vector3();
   let sel = 1, lastRiffle = -1;
   return {
-    object, stacks, riffle, spot, plates,
+    object, stacks, riffle, spot, fill, plates,
     /** sel: the chosen model as a float 0..2 (damped by the caller); light: 0..1; riffle: 0..1; time (s) */
     set({ sel: s = sel, light = 1, riffle: k = 0, time = 0 } = {}) {
       sel = s;
       const x = X(0) + (PL.w + PL.gap) * s;
-      spot.position.x = x; spot.target.position.x = x; spot.intensity = 2.4 * light;
+      spot.position.x = x; spot.target.position.x = x; spot.intensity = 2.4 * light; fill.intensity = 1.25 * light;
       if (k > 0.002 || lastRiffle > 0.002) {
         riffle.forEach((sh, j) => {
-          const a = k * (0.34 - 0.1 * j) + 0.03 * k * Math.sin(time * 9 + j * 1.7);
-          sh.set({ curl: a > 0.003 ? { edge: 'bottom', at: 0.07 + 0.025 * j, r: 0.01, angle: a, toward: 1 } : null });
+          const a = k * (0.95 - 0.27 * j) + 0.05 * k * Math.sin(time * 9 + j * 1.7);   // the top sheet lifts most
+          sh.set({ curl: a > 0.003 ? { edge: 'bottom', at: 0.13 + 0.03 * j, r: 0.012, angle: a, toward: 1 } : null });
         });
       }
       lastRiffle = k;
     },
-    /** world positions: stack i's top front right corner (for its callout) */
+    /** world positions: plinth i's bottom front centre (its caption hangs below it), stack i's top back centre */
+    foot(i, out = new THREE.Vector3()) { return object.localToWorld(out.set(X(i), -PL.h, PL.d / 2)); },
+    crown(i, out = new THREE.Vector3()) { return object.localToWorld(out.set(X(i), stacks[i].height, -SHEET.h / 2)); },
+    /** stack i's top front right corner */
     corner(i, out = new THREE.Vector3()) { return object.localToWorld(out.set(X(i) + SHEET.w / 2, stacks[i].height + 0.0001, SHEET.h / 2)); },
     /** the ream's front face, as world points: top left, top right, bottom right, bottom left */
     reamFront(P) {

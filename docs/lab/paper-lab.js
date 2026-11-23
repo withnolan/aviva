@@ -86,6 +86,8 @@ const STATES = {
   reviews: 'reviews=1&rfocus=3&rlook=0.45,0.3,1.1&cam=0,6,1.9&target=0,0.28,-0.15&pos=0,0.36,0.08&rot=0,-14,0&light=s09&key=0.55&env=0.22&bg=#120F45&contact=0',
   // s06 machine room (T27): the dot-matrix printer; pfeed = feed 0..1 (demo lines: the brief's entry titles, two stand-in doodles)
   printer: 'printer=1&pfeed=0.55&cam=-30,16,1.35&target=0.02,0.2,-0.1&light=s06&ground=grey&contact=1',
+  // s14 flock (T38): ft = seconds flown since launch; favoid = the cursor's keep-out sphere x,y,z,r
+  flock: 'flock=1&ft=1.9&favoid=0.25,1.2,-1.25,0.42&cam=-14,36,3.2&target=0.1,1.15,-1.2&aim=0.1,1.15,-1.2&light=s14&keydir=0.7,0.62,0.35&keycol=ffd9a6&key=1.8&ground=studio&contact=0',
   // s04 weights case (T12)
   weights: 'weights=1&wlid=1.85&cam=-24,40,0.42&target=0,0.034,-0.01&pos=0,0.5,-3&light=weights&ground=greyLight&contact=1',
   // s02 metrology bench (T7) at ~2 vh: the sheet edge-on, the micrometer closing (bopen = gap mm, bread = LCD)
@@ -153,7 +155,7 @@ await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok 
 const genMs = performance.now() - t0;
 
 const claimSets = {};
-let reviewsObj = null, printerObj = null;
+let reviewsObj = null, printerObj = null, flockObj = null;
 let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null, weightsObj = null, lineObj = null, arenaObj = null, crowdObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
@@ -265,6 +267,13 @@ async function apply(search) {
     if (!boardObj) { boardObj = paper.createDraftingBoard(); scene.add(boardObj.object); }
     boardObj.object.visible = true; boardObj.object.position.copy(sheet.object.position); boardObj.object.quaternion.copy(sheet.object.quaternion);
   } else if (boardObj) boardObj.object.visible = false;
+  if (num('flock', 0) > 0) {
+    if (!flockObj) { flockObj = paper.createFlock(); scene.add(flockObj.object); }
+    flockObj.object.visible = true; flockObj.launch();
+    if (P.has('favoid')) { const [x, y, z, r] = vec('favoid'); flockObj.avoid(x, y, z, r); } else flockObj.avoid(0, 0, 0, 0);
+    for (let t = 0; t < num('ft', 2); t += 1 / 60) flockObj.update(1 / 60);
+    sheet.set({ visible: false });
+  } else if (flockObj) flockObj.object.visible = false;
   if (num('printer', 0) > 0) {
     if (!printerObj) {
       printerObj = paper.createPrinter(); scene.add(printerObj.object);

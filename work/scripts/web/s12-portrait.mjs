@@ -24,11 +24,12 @@ await go(P); await page.waitForTimeout(3500);
 console.log('model', await page.evaluate(() => window.__aviva.E.size.model));
 await page.screenshot({ path: `${out}/s12-p${P}-pro.jpg`, quality: 82 });
 // the riffle: the cursor along the ream's front edge
-const d = await page.evaluate(() => window.__aviva.world.ctx.port.dom[2]);
-await page.mouse.move(d.x - 150, d.y + 40);
-for (let i = 0; i <= 10; i++) await page.mouse.move(d.x - 150 + i * 13, d.y + 6, { steps: 2 });
-await page.waitForTimeout(700);
+const d = await page.evaluate(() => window.__aviva.world.ctx.port.ream);
+await page.mouse.move(d.x - 140, d.y + 60);
+for (let i = 0; i <= 10; i++) await page.mouse.move(d.x - 60 + i * 9, d.y, { steps: 2 });
+await page.mouse.move(d.x, d.y, { steps: 2 });
+await page.waitForTimeout(900);
 console.log('riffle', await page.evaluate(() => window.__aviva.world.ctx.port.rk.toFixed(2)));
-await page.screenshot({ path: `${out}/s12-p${P}-riffle.jpg`, quality: 85, clip: { x: Math.max(0, d.x - 380), y: Math.max(0, d.y - 170), width: 560, height: 300 } });
+await page.screenshot({ path: `${out}/s12-p${P}-riffle.jpg`, quality: 85, clip: { x: Math.max(0, d.x - 280), y: Math.max(0, d.y - 150), width: 560, height: 300 } });
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

@@ -422,7 +422,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
       });
       if (riffleHint) {
         const hon = on && !reduce && E.pointer.on && !E.cues.riffled;
-        if (hon) { setVar(riffleHint, '--x', P.dom[2].x.toFixed(1)); setVar(riffleHint, '--y', P.dom[2].y.toFixed(1)); }
+        if (hon) { setVar(riffleHint, '--x', P.hint.x.toFixed(1)); setVar(riffleHint, '--y', P.hint.y.toFixed(1)); }
         if (hon !== riffleHint.__on) { riffleHint.__on = hon; riffleHint.classList.toggle('is-in', hon); }
         if (P && P.rk > 0.6) E.cues.riffled = true;          // once riffled, the hint has done its job
       }

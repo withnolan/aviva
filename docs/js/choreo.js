@@ -78,7 +78,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   ctx.boardOn = false; ctx.boardRise = 1;
   // s12 (T24): the family portrait: on, its screen y (%), the chosen model (damped 0..2), the riffle (damped 0..1),
   // the callouts' screen points, and whether it still needs frames (the spot sliding, the riffle settling)
-  ctx.port = { on: false, y: 107, sel: 0, rk: 0, t: 0, busy: false, px: 0, py: 0, dom: [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }] };
+  ctx.port = { on: false, y: 107, sel: 0, rk: 0, t: 0, busy: false, px: 0, py: 0, dom: [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }], hint: { x: 0, y: 0 }, ream: { x: 0, y: 0 } };
   const _pp = new THREE.Vector3(), _pq = new THREE.Quaternion(), _pv = new THREE.Vector3(), _psc = {};
   const _pf = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
   ctx.pip = { on: false, y: -32, form: 0, ink: 1 }; ctx.inkTime = 0; ctx.bleedFlat = false; ctx.bleedTone = 1; ctx.inkTok = null;
@@ -743,9 +743,9 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       const P = ctx.port, o = portrait.object;
       o.visible = P.on;
       if (P.on) {
-        stage.screenPlace(50, P.y, 106, PORTRAIT.span, 0, _pp);
-        stage.screenQuat(30, 0, 0, _pq);
-        o.position.copy(_pp); o.quaternion.copy(_pq); o.updateMatrixWorld(true);
+        const pk = stage.screenPlace(50, P.y, 100, PORTRAIT.span, 0, _pp);  // pk < 1: the distance was clamped, so it scales
+        stage.screenQuat(-28, 0, 0, _pq);                                   // the tops turned toward the camera: seen from 28 deg above
+        o.position.copy(_pp); o.quaternion.copy(_pq); o.scale.setScalar(pk); o.updateMatrixWorld(true);
         const want = { base: 0, pro: 1, max: 2 }[E.size.model] ?? 0;
         P.sel = ctx.reduce ? want : P.sel + (want - P.sel) * (1 - Math.exp(-5 * Math.min(dt, 0.1)));
         // the cursor on the ream's front face, or within a few px of its top edge
@@ -764,8 +764,11 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
         P.t += dt;
         portrait.set({ sel: P.sel, light: 1, riffle: P.rk, time: P.t });
         P.busy = Math.abs(want - P.sel) > 0.002 || P.rk > 0.003 || target > 0;
-        for (let i = 0; i < 3; i++) { stage.toScreen(portrait.corner(i, _pv), _psc); P.dom[i].x = _psc.x; P.dom[i].y = _psc.y; }
-      } else { P.busy = false; portrait.spot.intensity = 0; }
+        for (let i = 0; i < 3; i++) { stage.toScreen(portrait.foot(i, _pv), _psc); P.dom[i].x = _psc.x; P.dom[i].y = _psc.y; }
+        stage.toScreen(portrait.crown(2, _pv), _psc); P.hint.x = _psc.x; P.hint.y = _psc.y;
+        portrait.reamFront(_pf); _pv.copy(_pf[0]).add(_pf[1]).add(_pf[2]).add(_pf[3]).multiplyScalar(0.25);
+        stage.toScreen(_pv, _psc); P.ream.x = _psc.x; P.ream.y = _psc.y;          // the ream's front face (tests, hints)
+      } else { P.busy = false; portrait.spot.intensity = 0; if (portrait.fill) portrait.fill.intensity = 0; }
     }
     if (rim) {
       const on = ctx.rimOn * (E.pointer.on ? 1 : 0.35);
