@@ -9,6 +9,7 @@ import { E } from './events.js';
 import { clamp, seg, smoothstep, ease } from './util.js';
 import { createS07Ink } from './s07-ink.js';
 import { createClaims } from './claims.js';
+import { createDeckle } from './deckle.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -204,6 +205,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
   const outputs = $$('#outputs .output');
   const claims = $('#claims'), plate = $('.s11__plate');
   const claimsCtl = createClaims({ scroll: S, reduce });     // T23: the darkroom develop, 2.5D, captions, focus
+  createDeckle(document.getElementById('s15-footer'), { reduce });   // T39: the page ends on a paper edge
   const s12col = $('#s12-col'), s12cmp = $('#s12-cmp'), pdims = [...document.querySelectorAll('#s12-dims .pdim')], riffleHint = $('#s12-riffle');
   const cues = $$('#changelog [data-cue]').map((el) => ({ el, cue: el.dataset.cue, y: 0 }));
   const dogCue = $('.review[data-cue="dogear"]');
