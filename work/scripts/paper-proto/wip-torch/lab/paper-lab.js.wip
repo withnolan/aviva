@@ -1,0 +1,489 @@
+// paper-lab.js: look-dev sandbox for the aviva sheet. Every control is a URL parameter, so every state can be
+// screenshotted headlessly:
+//   node work/scripts/lab-shot.mjs --out work/screenshots/lab/x.png "http://localhost:8080/lab/paper.html?state=hero"
+// or with tools/shoot.mjs --steps 0 --first-wait 6000. window.lab.apply('a=1&b=2') re-renders without a reload
+// (used by work/scripts/paper-contact.mjs). window.__ready === true once the frame is final.
+//
+// Params (all optional; `state=` loads a bundle first, explicit params override it):
+//   camera   cam=az,el,dist (deg, deg, m)  target=x,y,z  fov=30  dpr=1
+//   sheet    pos=x,y,z  rot=rx,ry,rz (deg)  seg=w,h  tier=0|1|2
+//   shape    bend=k axis=deg twist=rad/m flutter=m ffreq ftime cockle=m rest=0..1  plane=0..7 halving=0..2 sixfold=0..6
+//            dogear=0..1 peel=0..1 curl=corner,t,r,deg  ecurl=edge,at,r,deg  fan=0..1  crumple=0..1  thick=mm
+//            tear=p1,p2top,p2bottom  tgap=m  sep=0..1 (moves torn pieces apart)  crease=1 (remembered midline crease)
+//   look     trans=0..1 wm=0..1 show=0..1 dot=0..1 bleed=0..1 grade=0..1 macro=0..1 gain=1 tooth=strength
+//   paint    draw=demo|line|lines|list|scribble  erase=1 (erase half, leaving the 12 % ghost) | 2 (erase all)  ghost=0.12 (its strength)
+//   bar=n    the sheet folded the same way n times (the c9 bar: 6 -> 210 x 4.6 mm, 64 layers)   ovl=align (c7's text blocks)
+//   sets     set=c1 (claim-sets.js: the s11 claim-card sets; states claim1..3, rendered by work/scripts/paper-proto/claims.mjs)
+//   light    light=name[,name2,w2]  key=lux keycol=hex env exp back=lux keydir=x,y,z keydist=m soft=pcf sext=m (shadow extent)
+//   studio   bg=#hex  floor=y|none  print=1 printw=m printz=m  contact=0|1  cop=contact,soft  ground=ink
+//   misc     hud=1 (print params)  boat=1 moon=1 cord=1
+import * as THREE from 'three';
+import { createPaperSystem, TOKENS, GROUNDS, createPencil, folds as FOLDS } from '../js/paper/index.js';
+import { buildClaimSet, alignmentTexture } from './claim-sets.js';
+
+const STATES = {
+  flat: 'cam=-14,6,1.22&pos=0,0.5,0&rot=0,-14,0&bend=0.7&light=studio',
+  front: 'cam=0,0,1.22&pos=0,0.5,0&light=studio',
+  hero: 'cam=0,68,1.18&target=0,0,0.02&pos=0,0.0004,0&rot=-90,0,0&light=s01&print=1&printw=0.9&printz=0&show=0.16&cockle=0.0002',
+  heroair: 'cam=0,68,1.18&target=0,0,0.02&pos=0,0.04,0&rot=-90,0,-8&light=s01&print=1&printw=0.9&printz=0&show=0.16&flutter=0.006&ftime=2',
+  slope: 'cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03',
+  bend: 'cam=-18,10,1.25&pos=0,0.5,0&rot=0,-18,0&bend=1.6&light=s06',
+  edge: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,84,0&light=s02',
+  edgeon: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,90,0&light=s02',
+  curl: 'cam=-10,20,1.25&pos=0,0.5,0&rot=-12,0,0&curl=br,1,0.02,60&light=card3',
+  think: 'cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&curl=tr,1,0.015,25&light=s03',
+  dogear: 'cam=0,0,1.22&pos=0,0.5,0&rot=0,-12,0&dogear=1&light=s09',
+  peel: 'cam=0,40,1.25&target=0,0.05,0&pos=0,0.0004,0&rot=-90,0,0&peel=0.45&light=s01&print=1&printw=0.9',
+  plane: 'cam=35,22,0.95&pos=0,0.5,0&rot=-90,0,30&plane=7&light=card2',
+  planestep: 'cam=0,30,1.1&pos=0,0.5,0&rot=-60,0,0&plane=3.5&light=studio',
+  halving: 'cam=0,25,1.05&pos=0,0.45,0&rot=-30,0,0&halving=1.5&light=s05',
+  halved: 'cam=0,25,0.9&pos=0,0.45,0&rot=-30,0,0&halving=2&light=s05',
+  fan: 'cam=0,8,0.9&pos=0,0.5,0&rot=0,0,180&fan=1&light=card6',
+  pleat: 'cam=20,25,1.1&pos=0,0.5,0&rot=-30,0,0&fan=0.5&light=card6',
+  crumple: 'cam=25,24,0.42&target=0,0.04,0&pos=0,0.037,0&crumple=1&light=studio',
+  crumpling: 'cam=25,24,0.7&target=0,0.12,0&pos=0,0.12,0&crumple=0.55&light=studio',
+  tear: 'cam=0,0,1.22&pos=0,0.5,0&tear=0.6,0,0&light=s05',
+  torn: 'cam=0,0,1.22&pos=0,0.5,0&tear=1,0,0&sep=1&light=s05',
+  quarters: 'cam=0,0,1.22&pos=0,0.5,0&tear=1,1,1&sep=1&light=s05',
+  tearback: 'cam=0,0,1.22&pos=0,0.5,0&tear=1,0,0&sep=0.3&light=backlit&trans=0.3',
+  backlit: 'cam=0,0,1.22&pos=0,0.5,0&rot=0,-10,0&bend=1.2&light=card1',
+  watermark: 'cam=0,0,1.22&pos=0,0.5,0&light=s06v2&wm=1',
+  // s06 torch (T28): the cursor lamp behind the sheet at x, y (rest m), radius, amount
+  torch: 'cam=-8,4,0.78&target=0,0.47,0&pos=0,0.5,0&light=s06&ground=grey&torch=0.006,-0.03,0.075,1',
+  dot: 'cam=0,0,0.32&target=0.06,0.38,0&pos=0,0.5,0&dot=1&light=studio',
+  inkglow: 'cam=0,0,1.25&pos=0,0.5,0&dot=1&light=s08&ground=ink',
+  macro: 'cam=0,8,0.022&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1',
+  macro3: 'cam=0,8,0.03&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1',
+  bleed: 'cam=0,0,0.03&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1&bleed=0.45&grade=1',
+  pencil: 'cam=0,12,0.6&target=0,0.5,0&pos=0,0.5,0&rot=-35,0,0&light=s03&draw=demo',
+  pencilmacro: 'cam=0,10,0.09&target=0,0.535,0&pos=0,0.5,0&light=raking&draw=demo',
+  eraser: 'cam=0,12,0.6&target=0,0.5,0&pos=0,0.5,0&rot=-35,0,0&light=s03&draw=demo&erase=1',
+  line: 'cam=0,12,0.75&target=0,0.5,0&pos=0,0.5,0&rot=-35,0,0&light=s03&draw=line',
+  sixfold: 'cam=30,35,0.25&target=-0.09,0.43,0&pos=0,0.5,0&rot=-90,0,0&sixfold=6&thick=0.1&light=studio',
+  // the hero rest frame (brief 10.3) through system.createLetters()
+  herorest: 'hero=1&light=letters',
+  herorestpre: 'hero=1&hpre=1&light=letters',
+  herorestturn: 'hero=1&hyaw=16&light=letters',
+  // the H2 fold-in on the intro clock (ic = E.intro.clock, s; H2 runs 0.4 -> 2.0; brief 3.5 s = ic 1.3)
+  heroin: 'hero=1&ic=1.3&light=letters',
+  // s03 drafting board (T9): the sheet on the 35 deg slope, taped, the pencil drawing
+  board: 'board=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
+  boarduv: 'board=1&uv=1&cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&floor=none&draw=line&pencil=0.02,0.5,0.03,-35,20,10',
+  // s10 arena (T15): ink ground, the two lecterns in their spots, the board housing
+  arena: 'arena=1&cam=0,7,3.1&target=0,0.6,0&pos=0,0.5,-3&light=s10&ground=ink&floor=none',
+  // s04 drying line (T13): lt = seconds after a gust at x 0.42 (the cursor's breeze), lw = its strength
+  line: 'line=1&lt=0.3&lw=1.6&cam=0,4,1.5&target=0,0.55,0&pos=0,0.5,-3&light=grey&ground=grey',
+  // s11 claim cards (T20): c1 the sheet as the pane of a sash window, daylight through it; c2 four modalities on a yellow
+  // sweep, warm side light; c3 slate, raking light, the dot and an erased impression
+  claim1: 'set=c1&cam=-12,4,0.9&target=0.005,0.475,0&pos=0,0.5,0&rest=0&cockle=0.00015&light=card1&key=1.35&keycol=fff0de&keydir=-0.55,0.5,0.68&back=1.5&trans=0.5&floor=none&bg=#e8e1d5&contact=0&soft=5',
+  claim2: 'cam=-14,48,0.66&target=0.005,0,0.01&pos=0,0.0006,0&rot=-90,0,-10&bg=#f1d98a&light=card2&keydir=0.78,0.55,0.3&key=2.7&keycol=fff3e4&exp=1.04&soft=5&draw=scribble&dot=1&crease=1&tear=0.38,0,0&tgap=0.003&pencil=-0.035,0.0046,0.03,0,-28,0',
+  claim4: 'cam=-6,14,0.03&target=0.0005,0.4996,0&pos=0,0.5,0&fov=22&macro=1&light=raking&keydir=-0.92,0.2,0.34&key=4&keycol=fff6ea&env=0.3&sext=0.03&soft=2&pencil=0.0004,0.4997,0.002,0,-52.6,46.1',
+  claim5: 'set=c5&cam=12,8,2.1&target=0.02,1.18,-0.6&pos=0,1.25,0&rot=-90,22,-14&plane=7&light=card6&keycol=f2f6ff&keydir=0.2,1,0.35&key=1.5&env=0.55&back=0.6&shadow=0&floor=none&bg=#dfe3e7&contact=0',
+  claim6: 'set=c6&cam=10,4,1.05&target=0.01,0.522,0&pos=0,0.5,0.004&rot=2,0,2.5&rest=0&cockle=0.0002&light=card6&keycol=ffead6&keydir=0.6,0.55,0.6&key=2.2&env=0.25&soft=4&floor=none&bg=#9ba1a7&contact=0&draw=list',
+  claim7: 'set=c7&ovl=align&cam=-6,52,0.8&target=0.01,0.08,0.012&pos=0,0.0806,0&rot=-90,0,-4&rest=0&cockle=0.00025&trans=0.5&light=card1&key=0.45&keycol=fff4e8&keydir=-0.6,0.5,0.62&back=2.2&env=0.12&floor=0&bg=#2a2724&contact=0',
+  claim8: 'set=c8&cam=-40,32,0.034&target=0.1045,0.0006,0.002&pos=0,0.0006,0&rot=-90,0,0&rest=0&cockle=0&macro=1&fov=22&light=raking&keydir=-0.9,0.28,0.3&key=3.6&keycol=ffeedd&env=0.12&soft=2&sext=0.03&bg=#15171c&contact=0',
+  claim9: 'set=c9&bar=6&thick=0.1&cockle=0&pos=0.05,0.0006,-0.137&rot=-90,0,-20&cam=55,8,0.24&target=0.02,0.006,0&light=card1&key=1.6&keycol=ffd9b0&keydir=0.55,0.4,0.7&back=0.45&env=0.12&floor=none&bg=#0c0e15&contact=0&sext=0.3',
+  claim3: 'cam=14,54,0.6&target=0,0,0.008&pos=0,0.0006,0&rot=-90,0,9&bg=#3c434b&light=raking&keydir=-0.97,0.2,0.1&key=4.4&env=0.1&soft=4&draw=lines&erase=2&ghost=0.22&dot=1',
+  // s09 office after hours (T19): rfocus = the spotlit standee (-1 all), rlook = the point the standees turn to
+  reviews: 'reviews=1&rfocus=3&rlook=0.45,0.3,1.1&cam=0,6,1.9&target=0,0.28,-0.15&pos=0,0.36,0.08&rot=0,-14,0&light=s09&key=0.55&env=0.22&bg=#120F45&contact=0',
+  // s06 machine room (T27): the dot-matrix printer; pfeed = feed 0..1 (demo lines: the brief's entry titles, two stand-in doodles)
+  printer: 'printer=1&pfeed=0.55&cam=-30,16,1.35&target=0.02,0.2,-0.1&light=s06&ground=grey&contact=1',
+  // s14 flock (T38): ft = seconds flown since launch; favoid = the cursor's keep-out sphere x,y,z,r
+  flock: 'flock=1&ft=1.9&favoid=0.25,1.2,-1.25,0.42&cam=-14,36,3.2&target=0.1,1.15,-1.2&aim=0.1,1.15,-1.2&light=s14&keydir=0.7,0.62,0.35&keycol=ffd9a6&key=1.8&ground=studio&contact=0',
+  // s08 generations stage (T33): btilt = the balance (-1 the sheet's pan dips .. +1 the jar's), glit = a lit generation (1..7)
+  generations: 'gens=1&btilt=0&cam=-6,8,2.75&target=0.16,0.17,0.05&aim=-0.12,0.16,0&light=s08&backang=1.2&bg=#120F45&contact=0',
+  // s13b cleanup (T37): eight items dropped into / beside the bin, ct = seconds simulated
+  cleanup: 'cleanup=1&ct=5&cam=-18,20,1.15&target=0.12,0.1,0&aim=0.15,0.08,0&light=card6&ground=studio&contact=1',
+  // s13 printout (T36): phover = the cursor on the floor (x, z); objv = the .obj viewer at objpos
+  printout: 'printout=1&phover=-0.03,-0.07&objv=1&objpos=0.33,0.17,0.3&cam=0,35,1.3&target=0,0,0.03&aim=0,0,0&light=studio&ground=studio&contact=1',
+  // s04 weights case (T12)
+  weights: 'weights=1&wlid=1.85&cam=-24,40,0.42&target=0,0.034,-0.01&pos=0,0.5,-3&light=weights&ground=greyLight&contact=1',
+  // s02 metrology bench (T7) at ~2 vh: the sheet edge-on, the micrometer closing (bopen = gap mm, bread = LCD)
+  bench: 'bench=1&cam=0,0,1.0682&target=0,0.5,0&pos=0,0.5,0&rot=0,90,0&light=bench&ground=charcoal&floor=none&bopen=4.2&bread=4.200',
+  // decision #31: the folded-letter hero (earlier lab version)
+  letters: 'cam=0,12,1.32&target=0,0.07,0&pos=0,0.5,0&letters=AVIVA&lt=1&lsp=0.19&light=letters&aim=0,0.06,0',
+  lettershalf: 'cam=0,20,1.32&target=0,0.05,0&pos=0,0.5,0&letters=AVIVA&lt=0.5&lsp=0.19&lslide=0.25&light=letters&aim=0,0.04,0',
+  lettersflat: 'cam=0,40,1.32&target=0,0.0,0&pos=0,0.5,0&letters=AVIVA&lt=0.04&lsp=0.19&lslide=0.85&light=letters&aim=0,0,0',
+  lettersA: 'cam=12,10,0.62&target=0,0.07,0&pos=0,0.5,0&letters=A&lt=1&lyaw=0&light=letters&aim=0,0.06,0',
+  // the drying-line outputs on the s04 grey ground (brief 5.4): the boat (card 4), the dart plane (card 2), the fan (card 6)
+  boat: 'cam=-22,8,0.55&target=0,0.6,0&pos=0,0.5,0&rot=0,0,0&boat=1&light=card4&ground=grey',
+  boatnear: 'cam=-35,22,0.32&target=0,0.6,0&pos=0,0.5,0&rot=0,0,0&boat=1&light=studio&ground=grey',
+  boathat: 'cam=-20,12,0.9&target=0,0.5,0&pos=0,0.5,0&rot=0,0,0&boat=0.4&light=card4&ground=grey',
+  // s07 The Bleed (brief 5.3): the ink front on the sheet, then the screen-space carry; s07-s09 the persistent 3 mm dot
+  bleedmacro: 'cam=0,0,0.03&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1&bleed=0.35&grade=1',
+  bleed40: 'cam=0,0,0.03&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1&bleed=0.85&grade=1&bleedov=0.42',
+  bleed70: 'cam=0,0,0.03&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1&bleed=1&grade=1&bleedov=0.7',
+  bleed90: 'cam=0,0,0.03&target=0,0.5,0&pos=0,0.5,0&fov=22&light=s07&macro=1&bleed=1&grade=1&bleedov=0.9',
+  dotkept: 'cam=0,0,1.3&target=0,0.5,0&pos=0,0.5,0&rot=0,-12,0&dot=1&light=s08&ground=ink',
+  // decision #28: the stack that grows (s12 tiers)
+  ream: 'cam=-32,26,0.72&target=0,0.03,0&pos=0,0.5,0&stack=500,500&light=grey&ground=grey&aim=0,0.03,0',
+  notebook: 'cam=-32,26,0.72&target=0,0.01,0&pos=0,0.5,0&stack=80,80&light=grey&ground=grey&aim=0,0.01,0',
+  stackfan: 'cam=-32,26,0.8&target=0,0.06,0&pos=0,0.5,0&stack=80,500&sfan=0.55&light=grey&ground=grey&aim=0,0.04,0',
+  reamedge: 'cam=-8,6,0.16&target=0.0,0.025,0.1485&pos=0,0.5,0&stack=500,500&light=grey&ground=grey&aim=0,0.025,0.1',
+  // decision #24 grounds
+  edgecharcoal: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,88,0&light=s02&ground=charcoal',
+  turncharcoal: 'cam=0,0,1.1&pos=0,0.5,0&rot=0,-28,0&light=s02&ground=charcoal',
+  slopecharcoal: 'cam=0,12,1.25&pos=0,0.5,0&rot=-35,0,0&light=s03&ground=charcoal&draw=line',
+  cardgrey: 'cam=0,0,1.3&pos=0,0.5,0&rot=0,-8,180&plane=7&light=card2&ground=grey',
+  sizesgrey: 'cam=0,4,1.3&pos=0,0.5,0&rot=-8,-14,0&light=grey&ground=grey',
+  c4pencil: 'cam=0,58,0.62&target=0,0,0.0&pos=0,0.0004,0&rot=-90,0,0&light=studio&pencil=-0.07,0.0040,0.06,0,38,0',
+  pencil: 'cam=25,22,0.32&target=0,0.5,0&pos=0,0.5,0&rot=0,0,0&light=studio&pencil=-0.06,0.5,0.03,0,20,8&floor=none',
+};
+
+/* ------------------------------------------------------------------ params */
+let P = new URLSearchParams(location.search);
+function resolve(search) {
+  const q = new URLSearchParams(search);
+  const st = q.get('state');
+  const out = new URLSearchParams(st && STATES[st] ? STATES[st] : STATES.flat);
+  for (const [k, v] of q) out.set(k, v);
+  return out;
+}
+const num = (k, d) => (P.has(k) && P.get(k) !== '' ? parseFloat(P.get(k)) : d);
+const vec = (k, d) => (P.has(k) ? P.get(k).split(',').map(Number) : d);
+const str = (k, d) => (P.has(k) ? P.get(k) : d);
+const rad = THREE.MathUtils.degToRad;
+
+/* ------------------------------------------------------------------ renderer + system */
+const canvas = document.getElementById('c');
+P = resolve(location.search);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, num('dpr', 2)));
+renderer.setSize(innerWidth, innerHeight, false);
+if (document.fonts && document.fonts.ready) { try { await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1500))]); } catch {} }
+
+const t0 = performance.now();
+const paper = await createPaperSystem(renderer, { tier: num('tier', 2) });
+const scene = new THREE.Scene();
+paper.install(scene);
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.005, 60);
+const sheet = paper.createSheet({ segments: P.has('seg') ? vec('seg') : null, name: 'hero' });
+scene.add(sheet.object);
+await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok && console.log('[lab] using wordmark-floor.png'));
+const genMs = performance.now() - t0;
+
+const claimSets = {};
+let reviewsObj = null, printerObj = null, flockObj = null, gensObj = null, cleanupObj = null, printObj = null, objObj = null;
+let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null, weightsObj = null, lineObj = null, arenaObj = null, crowdObj = null; const letterSheets = [];
+async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
+
+/* ------------------------------------------------------------------ apply */
+async function apply(search) {
+  if (search !== undefined) P = resolve(search);
+  window.__ready = false;
+  const T = new THREE.Vector3(...vec('target', [0, 0.5, 0]));
+  const [az, el, dist] = vec('cam', [0, 0, 1.22]);
+  camera.fov = num('fov', 30); camera.aspect = innerWidth / innerHeight; camera.near = Math.max(0.002, dist * 0.05); camera.far = 60; camera.updateProjectionMatrix();
+  camera.position.set(T.x + dist * Math.sin(rad(az)) * Math.cos(rad(el)), T.y + dist * Math.sin(rad(el)), T.z + dist * Math.cos(rad(az)) * Math.cos(rad(el)));
+  camera.lookAt(T);
+
+  // studio
+  // the ground (decision #24): studio | grey | greyLight | charcoal | ink, or any colour with bg=#hex
+  const ground = str('ground', 'studio');
+  const gcol = P.has('bg') ? str('bg') : (GROUNDS[ground] || TOKENS.studio);
+  paper.setGround(gcol);
+  document.documentElement.style.setProperty('--studio', gcol);
+  const floor = str('floor', '0');
+  paper.backdrop.visible = floor !== 'none';
+  paper.contact.enabled = num('contact', 1) > 0 && floor !== 'none';
+  paper.setFloorPrint({ center: [num('printx', 0), num('printz', 0)], width: num('printw', 0.96), visible: num('print', 0) > 0 });
+
+  // sheet transform + state
+  sheet.object.position.set(...vec('pos', [0, 0.5, 0]));
+  const r = vec('rot', [0, 0, 0]); sheet.object.rotation.set(rad(r[0]), rad(r[1]), rad(r[2]));
+  const curl = P.has('curl') ? (() => { const [c, t, rr, a] = str('curl').split(','); return { corner: c, t: +t, r: +rr, angle: rad(+a) }; })()
+    : P.has('ecurl') ? (() => { const [e, at, rr, a] = str('ecurl').split(','); return { edge: e, at: +at, r: +rr, angle: rad(+a) }; })() : null;
+  const tear = P.has('tear') ? (() => { const [p1, a, b] = vec('tear'); return { p1, p2: [a || 0, b || 0], gap: num('tgap', 0.0012) }; })() : null;
+  const bleedT = num('bleed', 0);
+  if (num('macro', 0) > 0 || bleedT > 0) paper.ensureMacro();
+  if (bleedT > 0) paper.ensureFibreGeo();
+  paper.shared.uToothP.value.y = num('tooth', 0.65);
+  // look-dev: regenerate the tiles (tgen=low,felt,fibre,strength  fgen=flocMM,contrast)
+  const tgen = str('tgen', ''), fgen = str('fgen', '');
+  if (tgen !== (apply._tgen || '') || fgen !== (apply._fgen || '')) {
+    const t = tgen ? tgen.split(',').map(Number) : null, f = fgen ? fgen.split(',').map(Number) : null;
+    paper.regenTextures({ tooth: t ? { low: t[0], felt: t[1], fibre: t[2], strength: t[3] ?? 14 } : (apply._tgen ? {} : null),
+      formation: f ? { flocMM: f[0], contrast: f[1] } : (apply._fgen ? {} : null) });
+    apply._tgen = tgen; apply._fgen = fgen;
+  }
+  if (P.has('mottle')) sheet.uniforms.uFormP.value.z = num('mottle'); else sheet.uniforms.uFormP.value.z = 0.12;
+  sheet.uniforms.uFacet.value = num('facet', 0.5);
+  if (P.has('edge')) { const [bw, bs, wb] = vec('edge'); sheet.uniforms.uEdgeP.value.set(bw, bs, wb, 0.85); } else sheet.uniforms.uEdgeP.value.set(1.4, 0.18, 0.1, 0.85);
+  sheet.reset();
+  sheet.set({
+    bend: num('bend', 0), bendAxis: rad(num('axis', 90)), twist: num('twist', 0),
+    flutter: num('flutter', 0), flutterFreq: num('ffreq', 9), flutterTime: num('ftime', 0), cockle: num('cockle', 0.00045), rest: num('rest', 1),
+    plane: num('plane', 0), halving: num('halving', 0), sixfold: num('sixfold', 0), dogEar: num('dogear', 0), peel: num('peel', 0), curl,
+    fan: num('fan', 0), crumple: num('crumple', 0), boat: num('boat', 0), thickness: num('thick', 0.1) / 1000,
+    translucency: num('trans', 0.24), watermark: num('wm', 0), showThrough: num('show', 0), inkDot: num('dot', 0),
+    bleed: bleedT > 0 || num('grade', 0) > 0 ? { t: bleedT, at: [0, 0], radiusMM: num('bleedr', 6), amount: bleedT > 0 ? 1 : 0, grade: num('grade', 0) } : null,
+    macro: num('macro', 0), gain: num('gain', 1), tear, torch: P.has('torch') ? (() => { const [x, y, r, k] = vec('torch'); return { at: [x, y], r: r || 0.07, k: k ?? 1 }; })() : null, folds: num('bar', 0) > 0 ? barFolds(num('bar')) : null,
+    creases: num('crease', 0) > 0 ? [{ n: [0, 1], d: 0, strength: num('crease', 1) }] : null,
+  });
+  // torn pieces apart
+  const sep = num('sep', 0);
+  if (tear && sep > 0) {
+    for (const p of sheet.pieces) {
+      const [cx, cy] = p.center, len = Math.hypot(cx, cy) || 1;
+      p.object.position.set(cx + (cx / len) * 0.03 * sep, cy + (cy / len) * 0.03 * sep, 0);
+      p.object.rotation.z = (p.key.includes('L') ? 1 : p.key.includes('R') ? -1 : (p.key === 'T' ? -1 : 1)) * 0.06 * sep;
+    }
+  }
+  // the folded-letter hero (decision #31): letters=AVIVA lt=0..1 (0 flat, 1 letter) lsp=spacing (m) lyaw=deg (A/V turn)
+  const lw = str('letters', '');
+  while (letterSheets.length < lw.length) { const s = paper.createSheet({ name: 'L' + letterSheets.length }); scene.add(s.object); letterSheets.push(s); }
+  letterSheets.forEach((s, i) => {
+    if (i >= lw.length) { s.set({ visible: false }); return; }
+    const ch = lw[i], t = num('lt', 1), sp = num('lsp', 0.21), side = i < (lw.length - 1) / 2 ? 1 : -1;
+    const yaw = Math.PI / 2 + (ch === 'I' ? 0 : rad(num('lyaw', 26)) * side);
+    const P = FOLDS.letterPose(ch, t, { yaw });
+    s.reset(); s.set({ folds: P.folds, visible: true, translucency: num('trans', 0.24), cockle: num('cockle', 0.0003) });
+    s.object.quaternion.copy(P.quaternion);
+    s.object.position.set((i - (lw.length - 1) / 2) * sp * (1 - num('lslide', 0)), P.lift, num('lz', 0));
+  });
+  if (lw) sheet.set({ visible: false });
+  // the stack (s12 tiers, decision #28): stack=from,to  sfan=0..1  sspread=1  sflutter=1
+  if (P.has('stack')) {
+    if (!stackObj) { stackObj = paper.createStack({ max: 500, fly: 24 }); scene.add(stackObj.object); }
+    const [from, to] = vec('stack'); stackObj.object.visible = true; stackObj.object.position.set(...vec('spos', [0, 0, 0]));
+    stackObj.set({ from, to: to ?? from, fan: num('sfan', 1), spread: num('sspread', 1), flutter: num('sflutter', 1) });
+    sheet.set({ visible: false });
+  } else if (stackObj) stackObj.object.visible = false;
+  paper.contact.uniforms.uCS.value.z = lw ? 0.8 : 0.45;
+  paper.lights.shadowExtent = lw ? 1.25 : 0.6;
+  // the hero rest frame through the API (brief 10.3): hero=1 [hfold=0..1 for every letter, hyaw=deg turn of A/V]
+  if (num('hero', 0) > 0) {
+    if (!heroObj) { heroObj = paper.createLetters(); scene.add(heroObj.object); }
+    // haim=deg overrides LETTER_LAYOUT.aimDeg (the rest turn toward the key); hyaw=deg adds a mirrored turn (experiments)
+    heroObj.object.visible = true;
+    const ic = P.has('ic') ? num('ic', 0) : null;               // ic = the intro clock (s): hero.intro(ic)
+    if (ic !== null) heroObj.intro(ic);
+    else {
+      heroObj.rest({ aimDeg: P.has('haim') ? num('haim', 12) : undefined });
+      const hy = rad(num('hyaw', 0));
+      heroObj.items.forEach((it, i) => heroObj.set(i, { fold: num('hfold', 1), yaw: it.state.yaw + (it.char === 'I' ? 0 : (i < 2 ? hy : -hy)) }));
+    }
+    sheet.set({ visible: false });
+    if (num('herocam', 1) > 0) {
+      const C = ic !== null ? heroObj.introCamera(ic, innerWidth / innerHeight) : heroObj.restCamera(innerWidth / innerHeight, num('hpre', 0) > 0 ? { distK: 1.06, pitchDeg: -9 } : {});
+      camera.fov = C.fov; camera.position.copy(C.position); camera.lookAt(C.target); camera.updateProjectionMatrix();
+    }
+    heroStage = heroObj.restStage();
+    paper.contact.uniforms.uCS.value.z = heroStage.contactHalf; paper.lights.shadowExtent = heroStage.shadowExtent;
+  } else { heroStage = null; if (heroObj) heroObj.object.visible = false; }
+  if (num('board', 0) > 0) {
+    if (!boardObj) { boardObj = paper.createDraftingBoard(); scene.add(boardObj.object); }
+    boardObj.object.visible = true; boardObj.object.position.copy(sheet.object.position); boardObj.object.quaternion.copy(sheet.object.quaternion);
+  } else if (boardObj) boardObj.object.visible = false;
+  if (num('printout', 0) > 0) {
+    if (!printObj) { printObj = paper.createPrintout(); scene.add(printObj.object); await printObj.ready; }
+    printObj.object.visible = true; if (P.has('phover')) printObj.hover(...vec('phover')); else printObj.hover(null);
+    for (let i = 0; i < 90; i++) printObj.update(1 / 60);
+    if (num('objv', 0) > 0) {
+      if (!objObj) { objObj = paper.createObjViewer({ size: 0.14 }); scene.add(objObj.object); await objObj.ready; }
+      objObj.object.visible = true; objObj.object.position.set(...vec('objpos', [0.45, 0.16, 0.3])); for (let i = 0; i < 60; i++) objObj.update(1 / 60);
+    } else if (objObj) objObj.object.visible = false;
+    sheet.set({ visible: false });
+  } else { if (printObj) printObj.object.visible = false; if (objObj) objObj.object.visible = false; }
+  if (num('cleanup', 0) > 0) {
+    if (!cleanupObj) {
+      cleanupObj = paper.createCleanup(); scene.add(cleanupObj.object); await cleanupObj.ready;
+      for (const [k, into] of [['crumple', true], ['quarter', false], ['crumple', true], ['boat', false], ['quarter', true], ['plane', false], ['crumple', false], ['quarter', true]]) cleanupObj.drop(k, { into });
+      for (let t = 0; t < num('ct', 5); t += 1 / 60) cleanupObj.update(1 / 60);
+    }
+    cleanupObj.object.visible = true; sheet.set({ visible: false });
+  } else if (cleanupObj) cleanupObj.object.visible = false;
+  if (num('gens', 0) > 0) {
+    if (!gensObj) { gensObj = paper.createGenerations(); scene.add(gensObj.object); }
+    gensObj.object.visible = true; gensObj.balance.tilt(num('btilt', 0));
+    gensObj.gens.forEach((g) => g.setLit(g.n === num('glit', 0) ? 1 : 0));
+    for (let i = 0; i < 180; i++) gensObj.update(1 / 60);
+    sheet.set({ visible: false });
+  } else if (gensObj) gensObj.object.visible = false;
+  if (num('flock', 0) > 0) {
+    if (!flockObj) { flockObj = paper.createFlock(); scene.add(flockObj.object); }
+    flockObj.object.visible = true; flockObj.launch();
+    if (P.has('favoid')) { const [x, y, z, r] = vec('favoid'); flockObj.avoid(x, y, z, r); } else flockObj.avoid(0, 0, 0, 0);
+    for (let t = 0; t < num('ft', 2); t += 1 / 60) flockObj.update(1 / 60);
+    sheet.set({ visible: false });
+  } else if (flockObj) flockObj.object.visible = false;
+  if (num('printer', 0) > 0) {
+    if (!printerObj) {
+      printerObj = paper.createPrinter(); scene.add(printerObj.object);
+      const img = (n) => new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = '../assets/illustrations/' + n + '.svg'; });
+      const [lamp, pen] = await Promise.all([img('lamp'), img('pencil')]);
+      const T = ['v0.1  179-141 BCE  Initial release. Ships with a map.', 'v1.0  105 CE  Reported to the emperor.', 'v1.1  by 751  Expands to Samarkand.',
+        'v1.4  868  Oldest surviving dated printed book.', 'v2.0  c. 1282  Watermarks.', 'v2.1  c. 1455  Gutenberg Bible.', 'v2.2  1719  Wasps propose wood.',
+        'v2.3  1786  Aspect ratio documented.', 'v3.0  1799  Continuous production.'];
+      try { await document.fonts.load('bold 9px "DM Mono"'); } catch { /* fallback mono */ }
+      printerObj.setContent({ entries: T.map((text, i) => ({ text, image: i === 3 ? lamp : i === 5 ? pen : null })), spacing: 0.07 });
+    }
+    printerObj.object.visible = true; printerObj.feed(num('pfeed', 0.5)); sheet.set({ visible: false });
+  } else if (printerObj) printerObj.object.visible = false;
+  if (num('reviews', 0) > 0) {
+    if (!reviewsObj) { reviewsObj = paper.createReviewSet(); scene.add(reviewsObj.object); await reviewsObj.ready; }
+    reviewsObj.object.visible = true; reviewsObj.focus(P.has('rfocus') ? num('rfocus') : -1);
+    if (P.has('rlook')) reviewsObj.lookAt(...vec('rlook')); else reviewsObj.lookAt(null);
+    for (let i = 0; i < 120; i++) reviewsObj.update(1 / 60);   // settle the springs and the lights for a still
+  } else if (reviewsObj) reviewsObj.object.visible = false;
+  if (num('arena', 0) > 0) {
+    if (!arenaObj) { arenaObj = paper.createArena({ demoSheets: true }); scene.add(arenaObj.object); }
+    if (num('crowd', 1) > 0 && !crowdObj) { crowdObj = paper.createCraneCrowd(arenaObj.crowd); arenaObj.object.add(crowdObj.object); }
+    if (crowdObj) {   // clap = seconds since applaud(); look = x,y of the heads' target
+      crowdObj.uniforms.uTime.value = 10; crowdObj.uniforms.uClap.value = P.has('clap') ? 10 - num('clap', 0) : -100;
+      const lk = vec('look', [0, 0.3, 0.6]); crowdObj.uniforms.uLook.value.set(...lk); crowdObj.uniforms.uLookLag.value.set(...lk);
+    }
+    arenaObj.object.visible = true; arenaObj.setSpot('A', num('spotA', 1)); arenaObj.setSpot('B', num('spotB', 1)); sheet.set({ visible: false });
+  } else if (arenaObj) arenaObj.object.visible = false;
+  if (num('line', 0) > 0) {
+    if (!lineObj) {
+      lineObj = paper.createLine({ span: 1.3, sag: 0.03 }); lineObj.object.position.set(-0.65, 0.78, 0); scene.add(lineObj.object);
+      for (const [i, x] of [0.2, 0.5, 0.8, 1.1].entries()) { const sh = paper.createSheet({ name: 'out' + i, seed: 200 + i }); lineObj.add(sh.object, { x, hang: 0.152, sheet: sh }); }
+    }
+    lineObj.object.visible = true; lineObj.reset(); lineObj.wind(0.42, 0, num('lw', 1.6));
+    for (let t = 0; t < num('lt', 0.3); t += 1 / 60) lineObj.update(1 / 60);
+    sheet.set({ visible: false });
+  } else if (lineObj) lineObj.object.visible = false;
+  if (num('weights', 0) > 0) {
+    if (!weightsObj) { weightsObj = paper.createWeightsCase(); scene.add(weightsObj.object); }
+    weightsObj.object.visible = true; weightsObj.setLid(num('wlid', 1.8));
+    if (sheet.object.position.z < -1) sheet.set({ visible: false });
+  } else if (weightsObj) weightsObj.object.visible = false;
+  // the s02 bench (T7): the sheet's bottom-edge centre at the bench origin
+  if (num('bench', 0) > 0) {
+    if (!benchObj) { benchObj = paper.createBench(); scene.add(benchObj.object); }
+    benchObj.object.visible = true; benchObj.object.position.set(0, 0.5 - 0.1485, 0);
+    benchObj.micrometer.set({ open: num('bopen', 4.2) / 1000, slide: num('bslide', 1) }); benchObj.micrometer.setReadout(str('bread', '4.200'));
+    paper.lights.shadowExtent = 1.2;
+  } else if (benchObj) benchObj.object.visible = false;
+  // the HB pencil prop: pencil=x,y,z,rx,ry,rz (the graphite point, world metres; degrees)
+  const pz = str('pencil', '');
+  if (pz) {
+    if (!pencilProp) { pencilProp = createPencil({ color: TOKENS.pencil }); scene.add(pencilProp.object); }
+    const v = pz.split(',').map(Number);
+    pencilProp.object.position.set(v[0] || 0, v[1] || 0, v[2] || 0); pencilProp.object.rotation.set(rad(v[3] || 0), rad(v[4] || 0), rad(v[5] || 0), 'YXZ');
+    pencilProp.object.visible = true;
+  } else if (pencilProp) pencilProp.object.visible = false;
+  // paint
+  const draw = str('draw', '');
+  // (flush() runs the eraser queue before the pencil's: write, flush, then erase)
+  if (draw) { const pl = await ensurePaint(); pl.clear(); demoStroke(pl, draw); const er = num('erase', 0); if (er > 0) { pl.flush(); demoErase(pl, er > 1.5); } pl.flush(); sheet.set({ paint: true }); }
+  else if (paint) sheet.set({ paint: false });
+  sheet.uniforms.uPaintP.value.z = num('ghost', 0.12);
+  if (str('ovl', '') === 'align') { apply._ovl = apply._ovl || await alignmentTexture(); sheet.set({ overlay: { texture: apply._ovl, opacity: 1, face: 1 } }); }
+  // the s11 claim sets (claim-sets.js)
+  const setName = str('set', '');
+  if (setName && !claimSets[setName]) { claimSets[setName] = await buildClaimSet(setName, { sheet }); scene.add(claimSets[setName]); }
+  for (const [k, o] of Object.entries(claimSets)) o.visible = k === setName;
+  scene.fog = (setName && claimSets[setName].userData.fog) || null;
+
+  // lights
+  const lp = str('light', 'studio').split(',');
+  paper.lights.set(lp.length >= 3 ? [[lp[0], 1 - +lp[2]], [lp[1], +lp[2]]] : lp[0]);
+  paper.setUV(num('uv', 0));                     // s03 dark mode (T10)
+  const L = paper.lights.state = JSON.parse(JSON.stringify(paper.lights.state, (k, v) => (v && v.isVector3 ? { __v: [v.x, v.y, v.z] } : v && v.isColor ? '#' + v.getHexString() : v)), (k, v) => (v && v.__v ? new THREE.Vector3(...v.__v) : v));
+  if (P.has('sext')) paper.lights.shadowExtent = num('sext');
+  if (P.has('backang')) L.back.angle = num('backang');
+  if (P.has('key')) L.key.intensity = num('key');
+  if (P.has('keycol')) L.key.color = '#' + str('keycol');
+  if (P.has('keydir')) L.key.dir = new THREE.Vector3(...vec('keydir')).normalize();
+  if (P.has('keydist')) L.key.dist = num('keydist');
+  if (P.has('soft')) L.key.softness = num('soft');
+  if (P.has('shadow')) L.key.shadow = num('shadow');
+  if (P.has('back')) L.back.intensity = num('back');
+  if (P.has('env')) L.env = num('env');
+  if (P.has('exp')) L.exposure = num('exp');
+  if (P.has('cop')) { const [a, b, c] = vec('cop'); L.contact = c === undefined ? { contact: a, soft: b } : { contact: a, mid: b, soft: c }; }
+  paper.lights.aim(heroStage && !P.has('aim') ? heroStage.aim : new THREE.Vector3(...vec('aim', vec('pos', [0, 0.5, 0]))));
+
+  // render: a couple of frames (contact shadow, async crumple / textures)
+  if (num('crumple', 0) > 0) { await paper.loadCrumple(P.has('cfile') ? new URL(str('cfile'), location.href).href : undefined); sheet.set({ crumple: num('crumple', 0) }); }
+  for (let i = 0; i < 3; i++) { frame(); await new Promise((r) => requestAnimationFrame(r)); }
+  const info = renderer.info;
+  window.__info = { calls: info.render.calls, tris: info.render.triangles, geometries: info.memory.geometries, textures: info.memory.textures, programs: info.programs ? info.programs.length : 0, genMs: Math.round(genMs), sysMs: Math.round(paper.genMs), seg: sheet.segments, px: +(sheet.pixelSize * 1000).toFixed(3) };
+  document.getElementById('hud').textContent = num('hud', 0) ? decodeURIComponent(P.toString()).replace(/&/g, '  ') : '';
+  window.__ready = true;
+}
+
+const dbgScene = new THREE.Scene(), dbgCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+const dbgMat = new THREE.ShaderMaterial({ uniforms: { t: { value: null }, mode: { value: 0 }, rep: { value: 1 } }, depthTest: false,
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+  fragmentShader: `precision highp float; varying vec2 vUv; uniform sampler2D t; uniform int mode; uniform float rep;
+  void main(){ vec4 c = texture2D(t, vUv * rep); vec3 o;
+    if (mode == 0) { vec3 n = normalize(vec3(c.rg * 2.0 - 1.0, 0.35)); o = vec3(0.5 + 0.5 * dot(n, normalize(vec3(-0.7, 0.5, 0.5)))); }   // normal, lit
+    else if (mode == 1) o = vec3(c.b); else if (mode == 2) o = vec3(c.a); else if (mode == 3) o = vec3(c.r); else o = c.rgb;
+    gl_FragColor = vec4(o, 1.0); }` });
+dbgScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), dbgMat));
+function frame() {
+  const dbg = str('debug', '');
+  if (dbg) {
+    const [name, mode, rep] = dbg.split(',');
+    if (name === 'macro' || name === 'geo') paper.ensureMacro();
+    if (name === 'geo') paper.ensureFibreGeo();
+    if (name.startsWith('contact')) paper.update(scene, camera, 1 / 60);   // the contact maps are rendered by update()
+    dbgMat.uniforms.t.value = { tooth: paper.textures.tooth, macro: paper.textures.macro, formation: paper.textures.formation, geo: paper.textures.fibreGeo, watermark: paper.textures.watermark, print: paper.shared.uFloorPrint.value, contactA: paper.contact.textureA, contactM: paper.contact.textureM, contactB: paper.contact.textureB }[name];
+    dbgMat.uniforms.mode.value = +(mode || 0); dbgMat.uniforms.rep.value = +(rep || 1);
+    const tm = renderer.toneMapping; renderer.toneMapping = THREE.NoToneMapping; renderer.render(dbgScene, dbgCam); renderer.toneMapping = tm; return;
+  }
+  paper.update(scene, camera, 1 / 60);
+  renderer.info.reset();
+  renderer.render(scene, camera);
+  // The Bleed's screen-space carry over the scene: bleedov=coverage (0..1)
+  const ov = num('bleedov', 0);
+  if (ov > 0) {
+    if (!bleedOv) bleedOv = paper.createBleed();
+    const U = bleedOv.material.uniforms; U.uCov.value = ov; U.uAspect.value = innerWidth / innerHeight;
+    const ac = renderer.autoClear; renderer.autoClear = false; renderer.render(bleedOv.scene, bleedOv.camera); renderer.autoClear = ac;
+  }
+}
+
+/* the same-direction bar (c9): halve the height n times, each fold's radius sized to the stack it wraps (2^i x 0.05 mm) */
+function barFolds(n) { const f = []; let y0 = -0.1485, y1 = 0.1485; for (let i = 0; i < n; i++) { const ym = (y0 + y1) / 2; f.push(FOLDS.fold2D({ p: [0, ym], dir: [1, 0], side: [0, 1], toward: 1, radius: 0.00005 * 2 ** i + 0.00002 })); y1 = ym; } return f; }
+
+/* ------------------------------------------------------------------ demo strokes */
+function demoStroke(pl, kind) {
+  if (kind === 'line') { pl.strokeFromPath(pl.constructor.handwritingPath({ seed: 3 }), { x: 0.16, y: 0.62, width: 0.68 }); return; }
+  if (kind === 'lines') { [[3, 0.7, 0.68], [7, 0.62, 0.6], [11, 0.54, 0.44]].forEach(([seed, y, width]) => pl.strokeFromPath(pl.constructor.handwritingPath({ seed }), { x: 0.16, y, width })); return; }
+  if (kind === 'list') {   // a short handwritten list: a dash and a few words per line
+    [[3, 0.84, 0.42], [5, 0.775, 0.3], [7, 0.71, 0.52], [9, 0.645, 0.36], [11, 0.58, 0.46], [13, 0.515, 0.28]].forEach(([seed, y, width]) => {
+      let t = 0; pl.begin(0.15, y, t); for (let i = 1; i <= 6; i++) pl.move(0.15 + i * 0.006, y + 0.001 * Math.sin(i), (t += 12)); pl.end();
+      pl.strokeFromPath(pl.constructor.handwritingPath({ seed }), { x: 0.22, y, width });
+    });
+    return;
+  }
+  if (kind === 'scribble') {   // a quick test scribble, loops running right (testing the pencil)
+    const sc = []; for (let i = 0; i < 150; i++) sc.push([0.2 + i * 0.0026 + 0.022 * Math.cos(i * 0.42), 0.77 + 0.026 * Math.sin(i * 0.42) - i * 0.0002]);
+    pl.begin(sc[0][0], sc[0][1], 0); sc.slice(1).forEach((q, i) => pl.move(q[0], q[1], (i + 1) * 7)); pl.end(); return;
+  }
+  let t = 0; const S = (pts, dt) => { pl.begin(pts[0][0], pts[0][1], t); for (let i = 1; i < pts.length; i++) { t += dt; pl.move(pts[i][0], pts[i][1], t); } pl.end(); t += 300; };
+  const sp = []; for (let i = 0; i < 170; i++) { const a = i * 0.17, rr = 0.008 + i * 0.0015; sp.push([0.5 + rr * Math.cos(a), 0.7 + rr * Math.sin(a) * 0.72]); } S(sp, 9);
+  const wv = []; for (let i = 0; i < 130; i++) wv.push([0.16 + i * 0.0053, 0.42 + Math.sin(i * 0.23) * 0.012]); S(wv, 15);
+  const sc = []; for (let i = 0; i < 90; i++) sc.push([0.3 + (i % 2) * 0.24 + Math.sin(i) * 0.012, 0.27 - i * 0.0016]); S(sc, 4);
+}
+function demoErase(pl, all = false) {
+  if (all) {   // erase everything: slow horizontal passes past both ends of the lines, one stroke each
+    pl.setTool('eraser'); let t = 1e5;
+    for (let y = 0.47; y <= 0.79; y += 0.005) { pl.begin(0.02, y, t); for (let x = 0.04; x <= 0.98; x += 0.02) { t += 40; pl.move(x, y, t); } pl.end(); t += 200; }
+    pl.setTool('pencil'); return;
+  }
+  pl.setTool('eraser'); let t = 1e5; const pts = []; for (let i = 0; i < 60; i++) pts.push([0.22 + (i % 2) * 0.62, 0.5 + 0.35 * (i / 60) - 0.05]); pl.begin(pts[0][0], pts[0][1], t); for (const p of pts.slice(1)) { t += 30; pl.move(p[0], p[1], t); } pl.end(); pl.setTool('pencil'); }
+
+/* ------------------------------------------------------------------ keys (interactive use) */
+const help = document.getElementById('help');
+help.textContent = 'paper lab  ·  [ ] state  ·  arrows orbit  ·  - = zoom  ·  l light  ·  h hud';
+const names = Object.keys(STATES); let si = Math.max(0, names.indexOf(P.get('state') || 'flat'));
+const lightNames = ['studio', 's01', 's02', 's03', 's05', 's06', 's06v2', 's07', 's08', 's09', 's10', 's12', 's14', 'card1', 'card2', 'card3', 'card4', 'card5', 'card6', 'card7', 'card8', 'backlit', 'raking'];
+addEventListener('keydown', (e) => {
+  const q = new URLSearchParams(P); let [az, el, d] = vec('cam', [0, 0, 1.22]);
+  if (e.key === ']' || e.key === '[') { si = (si + (e.key === ']' ? 1 : names.length - 1)) % names.length; history.replaceState(null, '', '?state=' + names[si]); apply('?state=' + names[si]); return; }
+  if (e.key === 'ArrowLeft') az -= 5; else if (e.key === 'ArrowRight') az += 5; else if (e.key === 'ArrowUp') el += 5; else if (e.key === 'ArrowDown') el -= 5;
+  else if (e.key === '-') d *= 1.1; else if (e.key === '=') d /= 1.1;
+  else if (e.key === 'l') { const i = (lightNames.indexOf(q.get('light') || 'studio') + 1) % lightNames.length; q.set('light', lightNames[i]); }
+  else if (e.key === 'h') q.set('hud', num('hud', 0) ? '0' : '1');
+  else return;
+  q.set('cam', [az, el, d.toFixed(4)].join(',')); history.replaceState(null, '', '?' + q.toString()); apply('?' + q.toString());
+});
+addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight, false); apply(); });
+
+window.lab = { apply, paper, sheet, scene, camera, renderer, STATES };
+await apply();
