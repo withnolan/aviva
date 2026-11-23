@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { kf, seg, clamp, lerp, smooth, smoothstep, ease } from './util.js';
 import { E, INTRO } from './events.js';
 import { DEG, A4, STAGE, heroFraming } from './scene.js';
+import { PORTRAIT } from './portrait.js';
 
 const FLOOR_ANCHOR = new THREE.Vector3(0, 0, 0);
 export const SIZE_SCALE = { A5: Math.SQRT1_2, A4: 1, A3: Math.SQRT2 };
@@ -17,7 +18,7 @@ export function outputSpacing(w) { return w <= 600 ? 74 : w <= 1024 ? 40 : 26; }
 
 export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const { camera, rig, size } = stage;
-  const { A, B, F, O, hero = null, bench = null, rim = null, board = null } = sheets;  // the product, second instance, falling output 1, outputs 2–8, the letters (letters.js)
+  const { A, B, F, O, hero = null, bench = null, rim = null, board = null, portrait = null } = sheets;  // the product, second instance, falling output 1, outputs 2–8, the letters (letters.js)
   const ctx = {
     M: false, reduce: false, time: 0, hero: null, loop: false,
     tear: { p1: 0, s1: 0, p2: 0, s2: 0, live: false, fall: 0 }, rel: { plane: 0, fly: 0, fade: 1 },
@@ -75,6 +76,11 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const _bp = new THREE.Vector3(), _bf = new THREE.Vector3(), _be = new THREE.Vector3();
   const EXTENT_BENCH = 1.2;
   ctx.boardOn = false; ctx.boardRise = 1;
+  // s12 (T24): the family portrait: on, its screen y (%), the chosen model (damped 0..2), the riffle (damped 0..1),
+  // the callouts' screen points, and whether it still needs frames (the spot sliding, the riffle settling)
+  ctx.port = { on: false, y: 107, sel: 0, rk: 0, t: 0, busy: false, px: 0, py: 0, dom: [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }] };
+  const _pp = new THREE.Vector3(), _pq = new THREE.Quaternion(), _pv = new THREE.Vector3(), _psc = {};
+  const _pf = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
   ctx.pip = { on: false, y: -32, form: 0, ink: 1 }; ctx.inkTime = 0; ctx.bleedFlat = false; ctx.bleedTone = 1; ctx.inkTok = null;
   // s07 (T14): the ink front's centre (sheet rest m) drifting toward the pointer; t and Rmax after the compensation;
   // what the DOM needs (ui: scale bar, timer, the text that inverts as the ink passes under it)
@@ -324,11 +330,18 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       // the lineup is all A4 (3.13): the dimension lines always read 210 x 297 (fresh-eyes #6); the models add
       // sheets, not size (the stacks and the passive preview at 0.8 / 1.4 / 2.0 vh are T24)
       const choice = 'A4';
-      const rise = seg(p, 2.4, 3.3), exit = seg(p, 3.4, 4);
-      S.many('A.', { on: 1, op: 1, x: lerp(M ? 50 : 62, 50, rise), y: lerp(lerp(M ? 64 : 52, 20, rise), -32, exit), size: lerp(M ? 26 : 44, 26, rise),
-        rx: -8 * (1 - rise), ry: 0, rz: 0, scale: lerp(SIZE_SCALE[choice], 1, rise), dot: 1, creaseDog: E.cues.dogEarSeen ? 1 : 0 });
+      // T24: the lineup's sheet leaves upwards (2.3-2.8 vh) as the family portrait rises in with the comparison table
+      // (2.3-3.0, the same ease as the table); from 3.0 the stage scrolls away and the portrait goes with it
+      const away = seg(p, 2.3, 2.8);
+      S.many('A.', { on: away < 0.995 ? 1 : 0, op: 1, x: M ? 50 : 62, y: lerp(M ? 64 : 52, -36, ease.in(away)), size: lerp(M ? 26 : 44, 36, away),
+        rx: -8, ry: 0, rz: 0, scale: SIZE_SCALE[choice], dot: 1, creaseDog: E.cues.dogEarSeen ? 1 : 0 });
       ctx.sizeChoice = choice;
-      S.setEnum('D.mode', rise < 0.2 ? 'size' : 'none');
+      S.setEnum('D.mode', away < 0.1 ? 'size' : 'none');
+      const P = ctx.port, Pq = E.pointer;
+      P.on = !M && p > 2.28 && p < 3.75;
+      P.y = p <= 3 ? 27 + 80 * (1 - seg(p, 2.3, 3.0)) : 27 - 100 * (p - 3);
+      if (P.on && (P.busy || Pq.x !== P.px || Pq.y !== P.py)) ctx.loop = true;   // the riffle and the spot need frames
+      P.px = Pq.x; P.py = Pq.y;
       S.setEnum('A.gen', 'f' + (E.arena.genA || 0));
       S.light('s12', 1);
     },
@@ -723,6 +736,36 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
         board.object.position.copy(_bp); board.object.position.y -= 0.6 * (1 - ctx.boardRise);
         board.object.quaternion.copy(_bq); board.object.scale.setScalar(k);
       }
+    }
+    /* s12 (T24): the family portrait, camera-relative like the board: seen from 30 deg above, its 1.44 m span at about
+       two thirds of the width; the spot slides to the chosen model; the ream riffles under the cursor */
+    if (portrait) {
+      const P = ctx.port, o = portrait.object;
+      o.visible = P.on;
+      if (P.on) {
+        stage.screenPlace(50, P.y, 106, PORTRAIT.span, 0, _pp);
+        stage.screenQuat(30, 0, 0, _pq);
+        o.position.copy(_pp); o.quaternion.copy(_pq); o.updateMatrixWorld(true);
+        const want = { base: 0, pro: 1, max: 2 }[E.size.model] ?? 0;
+        P.sel = ctx.reduce ? want : P.sel + (want - P.sel) * (1 - Math.exp(-5 * Math.min(dt, 0.1)));
+        // the cursor on the ream's front face, or within a few px of its top edge
+        let target = 0;
+        if (E.pointer.on && !ctx.reduce) {
+          portrait.reamFront(_pf);
+          const q = _pf.map((w) => { stage.toScreen(w, _psc); return [_psc.x, _psc.y]; });
+          const mx = E.pointer.x, my = E.pointer.y;
+          const inX = mx > Math.min(q[0][0], q[3][0]) - 6 && mx < Math.max(q[1][0], q[2][0]) + 6;
+          const yTop = q[0][1] + ((q[1][1] - q[0][1]) * (mx - q[0][0])) / Math.max(1, q[1][0] - q[0][0]);
+          const yBot = q[3][1] + ((q[2][1] - q[3][1]) * (mx - q[3][0])) / Math.max(1, q[2][0] - q[3][0]);
+          if (inX && my > yTop - 16 && my < yBot + 6) target = 1;
+        }
+        const lam = target > P.rk ? 9 : 3;
+        P.rk += (target - P.rk) * (1 - Math.exp(-lam * Math.min(dt, 0.1)));
+        P.t += dt;
+        portrait.set({ sel: P.sel, light: 1, riffle: P.rk, time: P.t });
+        P.busy = Math.abs(want - P.sel) > 0.002 || P.rk > 0.003 || target > 0;
+        for (let i = 0; i < 3; i++) { stage.toScreen(portrait.corner(i, _pv), _psc); P.dom[i].x = _psc.x; P.dom[i].y = _psc.y; }
+      } else { P.busy = false; portrait.spot.intensity = 0; }
     }
     if (rim) {
       const on = ctx.rimOn * (E.pointer.on ? 1 : 0.35);

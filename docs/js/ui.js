@@ -204,7 +204,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
   const outputs = $$('#outputs .output');
   const claims = $('#claims'), plate = $('.s11__plate');
   const claimsCtl = createClaims({ scroll: S, reduce });     // T23: the darkroom develop, 2.5D, captions, focus
-  const s12col = $('#s12-col'), s12cmp = $('#s12-cmp');
+  const s12col = $('#s12-col'), s12cmp = $('#s12-cmp'), pdims = [...document.querySelectorAll('#s12-dims .pdim')], riffleHint = $('#s12-riffle');
   const cues = $$('#changelog [data-cue]').map((el) => ({ el, cue: el.dataset.cue, y: 0 }));
   const dogCue = $('.review[data-cue="dogear"]');
   const issue = $('#s06-issue');
@@ -411,7 +411,21 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
       const p = s12.p;
       setVar(s12col, '--colY', (-seg(p, 2.3, 2.9) * vh * 0.22).toFixed(1));
       setVar(s12col, '--colO', (1 - seg(p, 2.3, 2.75)).toFixed(3));
-      setVar(s12cmp, '--cmpY', (-seg(p, 2.3, 3.0) * vh * 0.8).toFixed(1));
+      setVar(s12cmp, '--cmpY', (-seg(p, 2.3, 3.0) * vh * 0.52).toFixed(1));   // T24: it stops below the family portrait
+      // T24: the thickness callouts follow their stacks; the chosen model's reads darker; the riffle hint by the ream
+      const P = world && world.ctx && world.ctx.port, on = !!(P && P.on && p > 2.62 && p < 3.5);
+      const selI = { base: 0, pro: 1, max: 2 }[E.size.model] ?? 0;
+      pdims.forEach((el, i) => {
+        if (on) { setVar(el, '--x', P.dom[i].x.toFixed(1)); setVar(el, '--y', P.dom[i].y.toFixed(1)); }
+        if (on !== el.__on) { el.__on = on; el.classList.toggle('is-in', on); }
+        const sel = i === selI; if (sel !== el.__sel) { el.__sel = sel; el.classList.toggle('is-sel', sel); }
+      });
+      if (riffleHint) {
+        const hon = on && !reduce && E.pointer.on && !E.cues.riffled;
+        if (hon) { setVar(riffleHint, '--x', P.dom[2].x.toFixed(1)); setVar(riffleHint, '--y', P.dom[2].y.toFixed(1)); }
+        if (hon !== riffleHint.__on) { riffleHint.__on = hon; riffleHint.classList.toggle('is-in', hon); }
+        if (P && P.rk > 0.6) E.cues.riffled = true;          // once riffled, the hint has done its job
+      }
     }
   }
 

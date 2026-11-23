@@ -84,6 +84,8 @@ const STATES = {
   claim3: 'cam=14,54,0.6&target=0,0,0.008&pos=0,0.0006,0&rot=-90,0,9&bg=#3c434b&light=raking&keydir=-0.97,0.2,0.1&key=4.4&env=0.1&soft=4&draw=lines&erase=2&ghost=0.22&dot=1',
   // s09 office after hours (T19): rfocus = the spotlit standee (-1 all), rlook = the point the standees turn to
   reviews: 'reviews=1&rfocus=3&rlook=0.45,0.3,1.1&cam=0,6,1.9&target=0,0.28,-0.15&pos=0,0.36,0.08&rot=0,-14,0&light=s09&key=0.55&env=0.22&bg=#120F45&contact=0',
+  // s06 machine room (T27): the dot-matrix printer; pfeed = feed 0..1 (demo lines: the brief's entry titles, two stand-in doodles)
+  printer: 'printer=1&pfeed=0.55&cam=-30,16,1.35&target=0.02,0.2,-0.1&light=s06&ground=grey&contact=1',
   // s04 weights case (T12)
   weights: 'weights=1&wlid=1.85&cam=-24,40,0.42&target=0,0.034,-0.01&pos=0,0.5,-3&light=weights&ground=greyLight&contact=1',
   // s02 metrology bench (T7) at ~2 vh: the sheet edge-on, the micrometer closing (bopen = gap mm, bread = LCD)
@@ -151,7 +153,7 @@ await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok 
 const genMs = performance.now() - t0;
 
 const claimSets = {};
-let reviewsObj = null;
+let reviewsObj = null, printerObj = null;
 let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null, weightsObj = null, lineObj = null, arenaObj = null, crowdObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
@@ -263,6 +265,19 @@ async function apply(search) {
     if (!boardObj) { boardObj = paper.createDraftingBoard(); scene.add(boardObj.object); }
     boardObj.object.visible = true; boardObj.object.position.copy(sheet.object.position); boardObj.object.quaternion.copy(sheet.object.quaternion);
   } else if (boardObj) boardObj.object.visible = false;
+  if (num('printer', 0) > 0) {
+    if (!printerObj) {
+      printerObj = paper.createPrinter(); scene.add(printerObj.object);
+      const img = (n) => new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = '../assets/illustrations/' + n + '.svg'; });
+      const [lamp, pen] = await Promise.all([img('lamp'), img('pencil')]);
+      const T = ['v0.1  179-141 BCE  Initial release. Ships with a map.', 'v1.0  105 CE  Reported to the emperor.', 'v1.1  by 751  Expands to Samarkand.',
+        'v1.4  868  Oldest surviving dated printed book.', 'v2.0  c. 1282  Watermarks.', 'v2.1  c. 1455  Gutenberg Bible.', 'v2.2  1719  Wasps propose wood.',
+        'v2.3  1786  Aspect ratio documented.', 'v3.0  1799  Continuous production.'];
+      try { await document.fonts.load('bold 9px "DM Mono"'); } catch { /* fallback mono */ }
+      printerObj.setContent({ entries: T.map((text, i) => ({ text, image: i === 3 ? lamp : i === 5 ? pen : null })), spacing: 0.07 });
+    }
+    printerObj.object.visible = true; printerObj.feed(num('pfeed', 0.5)); sheet.set({ visible: false });
+  } else if (printerObj) printerObj.object.visible = false;
   if (num('reviews', 0) > 0) {
     if (!reviewsObj) { reviewsObj = paper.createReviewSet(); scene.add(reviewsObj.object); await reviewsObj.ready; }
     reviewsObj.object.visible = true; reviewsObj.focus(P.has('rfocus') ? num('rfocus') : -1);
