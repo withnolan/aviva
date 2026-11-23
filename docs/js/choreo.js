@@ -849,7 +849,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       if (G.on) {
         const Pt = E.pointer, kd = Math.min(dt, 0.1), k3 = 1 - Math.exp(-3 * kd);
         G.px += ((Pt.on && !ctx.reduce ? Pt.nx : 0) - G.px) * k3; G.py += ((Pt.on && !ctx.reduce ? Pt.ny : 0) - G.py) * k3;
-        const gk = stage.screenPlace(44.5, G.y, 136, 2.1, 0, _gp);          // left of centre: the balance stands at the row's right
+        const gk = stage.screenPlace(43, G.y, 130, 2.1, 0, _gp);            // left of centre: the balance stands at the right of the row
         stage.screenQuat(-9 + 2 * G.py, 5 * G.px, 0, _gq);
         o.position.copy(_gp); o.quaternion.copy(_gq); o.scale.setScalar(gk); o.updateMatrixWorld(true);
         let hov = E.genHover ?? -1, tilt = 0;
