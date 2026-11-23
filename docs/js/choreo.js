@@ -18,7 +18,7 @@ export function outputSpacing(w) { return w <= 600 ? 74 : w <= 1024 ? 40 : 26; }
 
 export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const { camera, rig, size } = stage;
-  const { A, B, F, O, hero = null, bench = null, rim = null, board = null, portrait = null } = sheets;  // the product, second instance, falling output 1, outputs 2–8, the letters (letters.js)
+  const { A, B, F, O, hero = null, bench = null, rim = null, board = null, portrait = null, lineup = null } = sheets;  // the product, second instance, falling output 1, outputs 2–8, the letters (letters.js)
   const ctx = {
     M: false, reduce: false, time: 0, hero: null, loop: false,
     tear: { p1: 0, s1: 0, p2: 0, s2: 0, live: false, fall: 0 }, rel: { plane: 0, fly: 0, fade: 1 },
@@ -78,6 +78,10 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   ctx.boardOn = false; ctx.boardRise = 1;
   // s12 (T24): the family portrait: on, its screen y (%), the chosen model (damped 0..2), the riffle (damped 0..1),
   // the callouts' screen points, and whether it still needs frames (the spot sliding, the riffle settling)
+  // s12: the lineup's stack: the model it shows, its displayed count, the deal in progress (from -> to over t 0..1), the
+  // Notebook Pro's binding (0..1), and whether it still needs frames
+  ctx.lineup = { on: false, model: 'base', count: 1, from: 1, to: 1, t: 1, dur: 0.9, bind: 0, busy: false };
+  const _lq = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2), _lv = new THREE.Vector3();
   ctx.port = { on: false, y: 107, sel: 0, rk: 0, t: 0, busy: false, px: 0, py: 0, dom: [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }], hint: { x: 0, y: 0 }, ream: { x: 0, y: 0 } };
   const _pp = new THREE.Vector3(), _pq = new THREE.Quaternion(), _pv = new THREE.Vector3(), _psc = {};
   const _pf = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
@@ -333,8 +337,13 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       // T24: the lineup's sheet leaves upwards (2.3-2.8 vh) as the family portrait rises in with the comparison table
       // (2.3-3.0, the same ease as the table); from 3.0 the stage scrolls away and the portrait goes with it
       const away = seg(p, 2.3, 2.8);
-      S.many('A.', { on: away < 0.995 ? 1 : 0, op: 1, x: M ? 50 : 62, y: lerp(M ? 64 : 52, -36, ease.in(away)), size: lerp(M ? 26 : 44, 36, away),
-        rx: -8, ry: 0, rz: 0, scale: SIZE_SCALE[choice], dot: 1, creaseDog: E.cues.dogEarSeen ? 1 : 0 });
+      // the lineup's stack grows behind the sheet (apply): as it does, the sheet turns 12 deg so its bound side reads, and
+      // for the ream the camera eases back 8 % and tilts down 6 deg so the top and the side of the 5 cm block both read
+      const Lu = ctx.lineup, grow = clamp((Lu.count - 1) / 79), ream = clamp((Lu.count - 80) / 420);
+      Lu.on = !M && away < 0.995;
+      if (Lu.busy) ctx.loop = true;
+      S.many('A.', { on: away < 0.995 ? 1 : 0, op: 1, x: M ? 50 : 62, y: lerp(M ? 64 : 52, -36, ease.in(away)), size: lerp(lerp(M ? 26 : 44, 40.5, ream), 36, away),
+        rx: -8 - 6 * ream, ry: 12 * grow, rz: 0, scale: SIZE_SCALE[choice], dot: 1, creaseDog: E.cues.dogEarSeen ? 1 : 0 });
       ctx.sizeChoice = choice;
       S.setEnum('D.mode', away < 0.1 ? 'size' : 'none');
       const P = ctx.port, Pq = E.pointer;
@@ -372,7 +381,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   /* ------------------------------------------------------------------ per-frame: claim → resolve */
   function claim(secs, frame) {
     ctx.M = size.w <= 600 || size.aspect <= 0.8;      // the stacked layout: the same test as the CSS media query
-    ctx.heroLetters = false; ctx.bench.on = false; ctx.dofK = 0; ctx.rimOn = 0; ctx.boardOn = false;
+    ctx.heroLetters = false; ctx.bench.on = false; ctx.dofK = 0; ctx.rimOn = 0; ctx.boardOn = false; ctx.port.on = false; ctx.lineup.on = false;
     ctx.reduce = frame.reduce;
     ctx.time = E.time;
     ctx.loop = false;
@@ -769,6 +778,30 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
         portrait.reamFront(_pf); _pv.copy(_pf[0]).add(_pf[1]).add(_pf[2]).add(_pf[3]).multiplyScalar(0.25);
         stage.toScreen(_pv, _psc); P.ream.x = _psc.x; P.ream.y = _psc.y;          // the ream's front face (tests, hints)
       } else { P.busy = false; portrait.spot.intensity = 0; if (portrait.fill) portrait.fill.intensity = 0; }
+    }
+    /* s12: the lineup's deal. A new model (a click, or the passive preview) deals sheets in under the hero sheet, or plays
+       the deal backwards; the stack sits behind the sheet, its +y running back, its long side along the sheet's */
+    if (lineup) {
+      const Lu = ctx.lineup, show = Lu.on && aOn;
+      const N = { base: 1, pro: 80, max: 500 }, want = N[E.size.model] ? E.size.model : 'base';
+      if (want !== Lu.model) {
+        Lu.from = Math.round(Lu.count); Lu.to = N[want]; Lu.model = want; Lu.t = 0;
+        Lu.dur = Lu.to > Lu.from ? (Lu.to - Lu.from > 100 ? 1.25 : 0.9) : 0.8;
+      }
+      if (!show || ctx.reduce) Lu.t = 1;                                // off screen or reduced motion: just the count
+      if (Lu.t < 1) Lu.t = Math.min(1, Lu.t + Math.min(dt, 0.1) / Lu.dur);
+      Lu.count = Lu.from + (Lu.to - Lu.from) * smooth(clamp((Lu.t - 0.03) / 0.92));
+      const bt = Lu.model === 'pro' && Lu.t >= 1 ? 1 : 0;             // the binding draws on once the notebook has settled
+      Lu.bind = ctx.reduce ? bt : Lu.bind + (bt - Lu.bind) * (1 - Math.exp(-(bt ? 2.6 : 6) * Math.min(dt, 0.1)));
+      Lu.busy = show && (Lu.t < 1 || Math.abs(bt - Lu.bind) > 0.003);
+      const vis = show && (Lu.count > 1.02 || Lu.t < 1);
+      lineup.object.visible = vis;
+      if (vis) {
+        lineup.set({ from: Lu.from, to: Lu.to, t: Lu.t, bind: Lu.bind });
+        const o = lineup.object, q = A.object.quaternion, sc = A.object.scale.x;
+        o.quaternion.copy(q).multiply(_lq); o.scale.setScalar(sc);
+        o.position.copy(A.object.position).add(_lv.set(0, 0, -0.00008 * sc).applyQuaternion(q));
+      }
     }
     if (rim) {
       const on = ctx.rimOn * (E.pointer.on ? 1 : 0.35);

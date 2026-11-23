@@ -12,7 +12,7 @@ import { createPaper } from './sheet-adapter.js';
 import { SceneState, Springs } from './state.js';
 import { createChoreo } from './choreo.js';
 import { createTypePlane, createDryingLine, createDrop, createBleed, createPipette } from './props.js';
-import { createPortrait } from './portrait.js';
+import { createPortrait, createLineup } from './portrait.js';
 import { E, isAnimating } from './events.js';
 import { FEATURES, FLAGS } from './config.js';
 
@@ -62,6 +62,9 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     let portrait = null;                                   // s12 (T24): the family portrait, three plinths and stacks
     try { portrait = createPortrait({ sys: paper.raw }); } catch (e) { console.warn('[aviva] portrait:', e && e.message); }
     if (portrait) stage.scene.add(portrait.object);
+    let lineup = null;                                     // s12: the lineup's growing stack behind the hero sheet
+    try { lineup = createLineup({ sys: paper.raw }); } catch (e) { console.warn('[aviva] lineup:', e && e.message); }
+    if (lineup) stage.scene.add(lineup.object);
     const rim = new THREE.PointLight('#eef3ff', 0, 0.3, 2); rim.name = 's02.rim'; stage.scene.add(rim);
     const numerals = createTypePlane('4.99 g');
     const line = createDryingLine(8), drop = createDrop(), pipette = createPipette();   // s07 (T14): the glass dropper
@@ -78,7 +81,7 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     const springs = new Springs(state);
     springs.direct = reduced;
     const props = { numerals, line, drop, bleed, pipette };
-    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, hero, bench, rim, board, portrait } });
+    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, hero, bench, rim, board, portrait, lineup } });
     choreo.ctx.ground = new THREE.Color('#ECEBE7');
     return { paper, A, B, F, O, hero, bench, props, paint, state, springs, choreo };
   }

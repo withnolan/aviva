@@ -336,17 +336,27 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
   /* ================================================================== s12: the lineup (Model) */
   const sr12 = $('#s12-sr'), copies12 = $('#s12-copies'), pages12 = $('#s12-pages');
   const MODELS = { base: { n: 1, name: 'AVIVA' }, pro: { n: 80, name: 'AVIVA Notebook Pro' }, max: { n: 500, name: 'AVIVA Ream Pro Max' } };
-  for (const r of $$('#s12-model input[type="radio"]')) r.addEventListener('change', () => {
-    if (!r.checked) return;
-    const m = MODELS[r.value];
-    E.size.model = r.value; E.size.choice = 'A4';        // the sheet stays A4: the Pro models only add sheets (T24 stacks)
-    for (const t of $$('#s12-tier [data-tier]')) t.hidden = t.dataset.tier !== r.value;
-    for (const th of $$('#s12-cmp thead th[data-tier]')) th.classList.toggle('is-sel', th.dataset.tier === r.value);
+  const radios12 = $$('#s12-model input[type="radio"]'), s12 = S.byKey('s12');
+  /** show a model everywhere (dialog, tier text, table, the 3D stack via E.size.model); announce only a visitor's choice */
+  function showModel(value, announce) {
+    const m = MODELS[value]; if (!m || value === E.size.model) return;
+    E.size.model = value; E.size.choice = 'A4';          // the sheet stays A4: the Pro models only add sheets (the stack)
+    for (const r of radios12) r.checked = r.value === value;
+    for (const t of $$('#s12-tier [data-tier]')) t.hidden = t.dataset.tier !== value;
+    for (const th of $$('#s12-cmp thead th[data-tier]')) th.classList.toggle('is-sel', th.dataset.tier === value);
     if (copies12) copies12.textContent = String(m.n);
     if (pages12) pages12.textContent = `${m.n} of ${m.n} (blank)`;
-    if (sr12) sr12.textContent = m.n === 1 ? copy('s12.sr.change.one') : copy('s12.sr.change', { model: m.name, n: m.n });
+    if (announce && sr12) sr12.textContent = m.n === 1 ? copy('s12.sr.change.one') : copy('s12.sr.change', { model: m.name, n: m.n });
     world && world.markDirty();
-  });
+  }
+  for (const r of radios12) r.addEventListener('change', () => { if (r.checked) { E.size.user = true; showModel(r.value, true); } });
+  // the passive preview (brief 2B s12): until the visitor picks one, scroll shows Notebook Pro at 0.8 vh, Ream Pro Max
+  // at 1.4 vh and AVIVA again at 2.0 vh; once they click, scroll never overrides their choice
+  E.size.preview = () => {
+    if (E.size.user || !s12 || s12.w < 0.5) return;
+    const p = s12.p;
+    if (p < 2.3) showModel(p < 0.8 ? 'base' : p < 1.4 ? 'pro' : p < 2.0 ? 'max' : 'base', false);
+  };
 
   /* s03 coda (T10): the DARK MODE switch. Scroll turns it on at 5.4 vh; the visitor can flip it either way; it goes off
      as the coda ends (6.6 vh). The blacklight crossfades over 0.6 s (world: system.setUV) */
@@ -423,6 +433,7 @@ export function createInteractions({ scroll, ui, world = null, reduce = false })
   let prevS03 = 0;
   function frame(dt) {
     if (E.uvFrame) E.uvFrame();
+    if (E.size.preview) E.size.preview();
     // s04 hover: damped lean
     E.hover.x = damp(E.hover.x, E.hover.tx || 0, 5, dt); E.hover.y = damp(E.hover.y, E.hover.ty || 0, 5, dt);
     if (!world) return;

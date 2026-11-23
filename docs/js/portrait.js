@@ -111,3 +111,30 @@ export function createPortrait({ sys, names = ['AVIVA', 'AVIVA Notebook Pro', 'A
     },
   };
 }
+
+/**
+ * The lineup's growing stack (brief 2B s12, 0-2.4 vh; decision #28): behind the hero sheet, which stays its live top
+ * sheet. Choosing Notebook Pro deals 79 sheets in (≈ 0.9 s) and a hairline graphite binding draws on along the left
+ * edge; Ream Pro Max deals 420 more (≈ 1.25 s, faster) and the binding fades; AVIVA plays the deal backwards, so the
+ * sheets fly back out the way they came. choreo places it each frame (its +y runs back from the hero sheet).
+ */
+export function createLineup({ sys }) {
+  if (!sys || !sys.createStack) return null;
+  const stack = sys.createStack({ max: 500, fly: 24, seed: 5, name: 'lineup' });
+  stack.topSheet.set({ visible: false });                  // the hero sheet is the top of this stack
+  const bind = new THREE.Mesh(new THREE.BoxGeometry(0.0014, 1, SHEET.h), new THREE.MeshStandardMaterial({ color: '#2f2e2b', roughness: 0.7, transparent: true, opacity: 0 }));
+  bind.position.x = -SHEET.w / 2 - 0.0002;
+  stack.object.add(bind); stack.object.visible = false;
+  return {
+    stack, object: stack.object,
+    /** fan progress from `from` to `to` sheets (a deal down plays the deal up backwards); bind 0..1 draws the binding on */
+    set({ from, to, t, bind: b = 0 }) {
+      if (to >= from) stack.set({ fan: t, from, to }); else stack.set({ fan: 1 - t, from: to, to: from });
+      const h = Math.max(0, stack.height - SHEET.t);         // the block under the (hidden) top sheet
+      bind.visible = b > 0.002 && h > 0.0005;
+      bind.scale.set(1, Math.max(h, 1e-5), Math.max(0.001, b)); bind.position.set(-SHEET.w / 2 - 0.0002, h / 2, (SHEET.h / 2) * (1 - b));
+      bind.material.opacity = Math.min(1, b * 1.4);
+      return stack.height;
+    },
+  };
+}
