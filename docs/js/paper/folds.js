@@ -44,14 +44,15 @@ export function dartPlane(t = 7, { size = A4, wing = 0.045, dihedral = 0.0, r = 
   return f;
 }
 /**
- * Where the finished dart plane sits in the sheet frame, so it can be flown as a rigid object:
- * returns { forward, up, origin } (sheet-local) for t = 7: the nose points +y, the keel hangs toward -x/+z.
+ * Where the finished dart plane sits in the sheet frame, so it can be flown as a rigid object: returns { forward, up,
+ * origin } (sheet-local) for t = 7. Measured with foldPoint: the nose points +y (y -0.157 .. +0.1485), the wings span z
+ * (+-0.063) and the keel hangs toward -x (x -0.047 .. +0.003), so "up" (away from the keel) is +x.
  */
 export function dartPlaneFrame({ size = A4, wing = 0.045 } = {}) {
   const hh = size.h / 2;
-  // after fold 5 the plane lies in the x <= 0 half, keel along x = 0; the wing hinge runs nose -> (-wing, -hh)
+  // the wing hinge runs nose -> (-wing, -hh); folded, the spine lies along x ~ 0 with the keel below it (-x)
   const forward = new THREE.Vector3(0, 1, 0);
-  const up = new THREE.Vector3(0, 0, 1);            // wings open toward +z; keel below
+  const up = new THREE.Vector3(1, 0, 0);            // away from the keel; the wings open across z
   return { forward, up, origin: new THREE.Vector3(-wing * 0.5, hh * 0.15, 0) };
 }
 

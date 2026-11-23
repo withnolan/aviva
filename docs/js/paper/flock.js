@@ -1,8 +1,8 @@
 // flock.js: the s14 finale's flock (brief 11.1 row s14, T38): 24 paper dart planes crossing the sky after the release,
 // flying as boids (separation, alignment, cohesion) toward a target, banking into their turns with a slight flutter,
-// and steering around the cursor. The plane is the real dartPlane(7) fold of an A4 sheet, baked once on the CPU with
-// folds.foldPoint (the shader's fold maths) into ONE instanced mesh; the flock is simulated on the CPU (24 x 24 checks)
-// and written into the instance matrices. 1 draw call.
+// and steering around the cursor. The plane is a crisp low-poly dart with the measured proportions of the dartPlane(7)
+// fold of an A4 sheet, in ONE instanced mesh; the flock is simulated on the CPU (24 x 24 checks) and written into the
+// instance matrices. 1 draw call.
 //
 //   const flock = system.createFlock({ count: 24 });   // { object, launch(from, to), target(), avoid(), update(dt), done }
 //   scene.add(flock.object);                           // world space
@@ -12,21 +12,29 @@
 //   flock.done                                         // true once every plane is past `to` (hide it then)
 //
 // Options: { count: 24, speed: 1.3 (m/s), size: 1 (x a real A4 plane, 297 mm nose to tail), seed }
-// Cost: 1 draw call, 5 k triangles a plane (121 k for 24; flat-shaded creases), CPU ~0.05 ms a frame.
+// Cost: 1 draw call, 16 triangles a plane (384 for 24; flat-shaded, a tone per facet), CPU ~0.05 ms a frame.
 import * as THREE from 'three';
-import * as F from './folds.js';
 
-function bakeDart(nx = 42, ny = 60) {
-  // fold radii ~ half a bake cell (the live sheet's 1.1 mm assume a ~1 mm mesh): smooth creases, no sawtooth
-  const folds = F.dartPlane(7, { r: 0.004 }), W = F.A4.w;
-  for (const f of folds) f.q.w = Math.max(f.q.w, 0.0035);
-  const H = F.A4.h, pos = [], idx = [], p = [0, 0, 0];
-  for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) { F.foldPoint([-W / 2 + (W * i) / nx, -H / 2 + (H * j) / ny], folds, p); pos.push(p[0], p[1], p[2]); }
-  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const a = j * (nx + 1) + i, b = a + 1, c = a + nx + 1, d = c + 1; idx.push(a, b, d, a, d, c); }
-  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx);
-  // to the flight frame (measured with foldPoint: span along the sheet's z, keel toward -x, nose +y): nose -> +z,
-  // up (+x, away from the keel) -> +y, span -> x; a proper rotation
-  g.applyMatrix4(new THREE.Matrix4().set(0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1));
+// a hand-built dart with the folded A4 dart's measured proportions (foldPoint on dartPlane(7): 306 mm nose to tail,
+// 127 mm span, 47 mm keel). Each wing is a top and an underside layer, split along the folded flap's edge, with a turned
+// leading edge (a bright sliver); the keel is two layers. ~8 deg dihedral, a tone per facet. Flight frame: nose +z,
+// up +y, span x. 16 triangles.
+function buildDart() {
+  const L = 0.306, S = 0.127, K = 0.047, dh = 0.009, t = 0.0007;   // dh: the wingtips' lift; t: the wing's thickness
+  const N = [0, 0, L / 2], T = [0, 0, -L / 2], pos = [], col = [];
+  const tri = (a, b, c, k) => { pos.push(...a, ...b, ...c); for (let i = 0; i < 3; i++) col.push(k, k, k * 0.985); };
+  const under = (v) => [v[0], v[1] - t, v[2]];
+  for (const sx of [1, -1]) {
+    const P = [sx * 0.21 * S, 0.42 * dh + 0.0015, -L / 2];           // the flap's edge meets the trailing edge
+    const Wi = [sx * (S / 2 - 0.007), dh * 0.89, -L / 2], W = [sx * S / 2, dh + 0.002, -L / 2];
+    tri(N, T, P, sx > 0 ? 1.0 : 0.95); tri(N, P, Wi, sx > 0 ? 0.92 : 0.88); tri(N, Wi, W, 1.0);              // top
+    tri(under(N), under(P), under(T), 0.78); tri(under(N), under(Wi), under(P), 0.82); tri(under(N), under(W), under(Wi), 0.86);   // underside
+  }
+  const Kl = [-0.0018, -K, -L / 2], Kr = [0.0018, -K, -L / 2];
+  tri(N, Kl, T, 0.9); tri(N, T, Kr, 0.84);                                           // the keel's two layers
+  tri(under(N), [-0.0009, -K + 0.002, -L / 2], T, 0.74); tri(under(N), T, [0.0009, -K + 0.002, -L / 2], 0.7);   // their inner faces
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
   g.computeBoundingBox(); const c = g.boundingBox.getCenter(new THREE.Vector3()); g.translate(-c.x, -c.y, -c.z);
   g.computeVertexNormals();
   return g;
@@ -35,8 +43,8 @@ function bakeDart(nx = 42, ny = 60) {
 export class Flock {
   constructor(sys, { count = 24, speed = 1.3, size = 1, seed = 3, from = [-2.4, 1.0, -1.2], to = [2.6, 1.4, -1.4] } = {}) {
     this.sys = sys; this.count = count; this.speed = speed; this.object = new THREE.Group(); this.object.name = 'paper.flock';
-    const geo = bakeDart(); if (size !== 1) geo.scale(size, size, size);
-    const mat = new THREE.MeshStandardMaterial({ color: '#f4f2ed', roughness: 0.8, side: THREE.DoubleSide, flatShading: true });
+    const geo = buildDart(); if (size !== 1) geo.scale(size, size, size);
+    const mat = new THREE.MeshStandardMaterial({ color: '#f4f2ed', vertexColors: true, roughness: 0.8, side: THREE.DoubleSide, flatShading: true });
     this.mesh = new THREE.InstancedMesh(geo, mat, count); this.mesh.frustumCulled = false; this.mesh.castShadow = false; this.mesh.name = 'flock.planes';
     this.object.add(this.mesh);
     let a = seed; this._rnd = () => { a = (a * 16807) % 2147483647; return (a - 1) / 2147483646; };

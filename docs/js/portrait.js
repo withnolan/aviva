@@ -90,7 +90,9 @@ export function createPortrait({ sys, names = ['AVIVA', 'AVIVA Notebook Pro', 'A
       if (k > 0.002 || lastRiffle > 0.002) {
         riffle.forEach((sh, j) => {
           const a = k * (0.95 - 0.27 * j) + 0.05 * k * Math.sin(time * 9 + j * 1.7);   // the top sheet lifts most
-          sh.set({ curl: a > 0.003 ? { edge: 'bottom', at: 0.13 + 0.03 * j, r: 0.012, angle: a, toward: 1 } : null });
+          // a lying sheet (rest 0.18) only lifts its edge's middle a few mm: riffled, the top sheets are free (rest 1)
+          const free = 0.18 + 0.82 * Math.min(1, k * 4);
+          sh.set({ rest: free, curl: a > 0.003 ? { edge: 'bottom', at: 0.13 + 0.03 * j, r: 0.012, angle: a, toward: 1 } : null });
         });
       }
       lastRiffle = k;
