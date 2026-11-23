@@ -365,6 +365,8 @@
 .s07 .ink-flip { --text: var(--color-graphite); --text-muted: var(--color-graphite-muted); color: var(--text); transition: color 0.28s var(--ease-out); }
 .s07 .eyebrow.ink-flip { color: var(--text-muted); }
 .s07 .ink-flip.is-inked { --text: var(--color-on-ink); --text-muted: var(--color-on-ink-muted); }
+/* white text keeps a soft ink halo while the ground under it is still a ragged mix of ink and paper (invisible on ink) */
+.s07 .ink-flip.is-inked { text-shadow: 0 0 3px rgb(31 27 110 / 0.55), 0 0 16px rgb(31 27 110 / 0.6); }
 
 /* ======================= s08 · It comes back. (ink) ======================= */
 .s08 { padding-top: calc(var(--vh100) * 0.5); padding-bottom: 24vh; }

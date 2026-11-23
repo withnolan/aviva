@@ -78,7 +78,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   ctx.pip = { on: false, y: -32, form: 0, ink: 1 }; ctx.inkTime = 0; ctx.bleedFlat = false; ctx.bleedTone = 1; ctx.inkTok = null;
   // s07 (T14): the ink front's centre (sheet rest m) drifting toward the pointer; t and Rmax after the compensation;
   // what the DOM needs (ui: scale bar, timer, the text that inverts as the ink passes under it)
-  ctx.ink = { x: 0, y: 0, tx: 0, ty: 0, t: 0, rmax: 34.5 };
+  ctx.ink = { x: 0, y: 0, tx: 0, ty: 0, t: 0, rmax: 34.5, moving: false, px: 0, py: 0 };
   ctx.inkDom = { on: false, pxPerMm: 1, sx: 0, sy: 0, sr: 0, cov: 0, cx: 0.5, cy: 0.5, seed: 3.1, scale: 1, aspect: 1.6 };
   const _bq = new THREE.Quaternion();
 
@@ -247,6 +247,10 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       S.set('ink.dropOn', p > 2.15 && p < 2.62 && !R ? 1 : 0);
       S.set('ink.drop', seg(p, 2.2, 2.4, ease.in));
       ctx.inkTime = p < 2.4 ? 0 : 12 * seg(p, 2.4, 3.4, ease.linear) + 8 * seg(p, 3.4, 3.95, ease.linear);   // the timer (s)
+      // on-demand rendering: keep drawing while the ink is still following a pointer that moved (inkFollow, apply)
+      const Ik = ctx.ink, Pq = E.pointer;
+      if (!R && front > 0 && p < 3.95 && (Ik.moving || Pq.x !== Ik.px || Pq.y !== Ik.py)) ctx.loop = true;
+      Ik.px = Pq.x; Ik.py = Pq.y;
       // the sheet's own front ends under the full-screen ink (3.95): the sheet that surfaces at the pull-back is white
       S.set('ink.front', R ? (p < 4.0 ? front : 1 - seg(p, 4.1, 4.4)) : p < 3.95 ? front : 0);
       S.set('ink.grade', seg(p, 2.4, 2.55) * (1 - (R ? seg(p, 4.0, 4.1) : seg(p, 3.94, 3.95))));
@@ -542,7 +546,9 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     }
     const m = 0.4 * R, lt = Math.hypot(I.tx, I.ty), kt = lt > m ? m / lt : 1;
     const k = 1 - Math.exp(-2.2 * Math.min(dt, 0.1));                              // ~0.5 s to follow
-    I.x += (I.tx * kt - I.x) * k; I.y += (I.ty * kt - I.y) * k;
+    const ex = I.tx * kt - I.x, ey = I.ty * kt - I.y;
+    I.moving = Math.abs(ex) + Math.abs(ey) > 0.00002;                               // still on its way (keeps frames coming)
+    I.x += ex * k; I.y += ey * k;
     const l = Math.hypot(I.x, I.y); if (l > m) { I.x *= m / l; I.y *= m / l; }     // scrolling back shrinks the room
     const Rw = (R + Math.min(l, m)) * 1000, st = (Rw / INK_R - 0.04) / 0.96;        // the grown radius (mm) -> t, then Rmax
     if (st <= 1) { I.t = st * st; I.rmax = INK_R; } else { I.t = 1; I.rmax = Rw; }
