@@ -18,10 +18,12 @@ function drawnSlot(fig, img, cls) {
 export function setupImages({ gl }) {
   // the six testimonial drawings exist: load them lazily
   for (const img of $$('img.review__art[data-src]')) { img.loading = 'lazy'; img.decoding = 'async'; img.src = img.dataset.src; }
-  // claim-card renders (both modes)
+  // claim-card renders (both modes): the ones that have landed load lazily; a card whose render has not (T22) stays a
+  // blank print with a faint latent image, rather than requesting a missing file
   for (const img of $$('img.claim__img[data-src]')) {
-    if (FEATURES.claimRenders) { img.loading = 'lazy'; img.decoding = 'async'; img.src = img.dataset.src; }
-    else drawnSlot(img.closest('.claim__fig'), img, 'is-drawn');
+    const n = Number(img.dataset.n || 99);
+    if (n <= Number(FEATURES.claimRenders)) { img.loading = 'lazy'; img.decoding = 'async'; img.src = img.dataset.src; }
+    else drawnSlot(img.closest('.claim__fig'), img, 'is-pending');
   }
   // the fallback stills: only on the static page (brief 5.10: they load only when WebGL is unavailable)
   if (!gl) {

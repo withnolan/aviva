@@ -12,13 +12,14 @@
 //            tear=p1,p2top,p2bottom  tgap=m  sep=0..1 (moves torn pieces apart)  crease=1 (remembered midline crease)
 //   look     trans=0..1 wm=0..1 show=0..1 dot=0..1 bleed=0..1 grade=0..1 macro=0..1 gain=1 tooth=strength
 //   paint    draw=demo|line|lines|list|scribble  erase=1 (erase half, leaving the 12 % ghost) | 2 (erase all)  ghost=0.12 (its strength)
+//   bar=n    the sheet folded the same way n times (the c9 bar: 6 -> 210 x 4.6 mm, 64 layers)   ovl=align (c7's text blocks)
 //   sets     set=c1 (claim-sets.js: the s11 claim-card sets; states claim1..3, rendered by work/scripts/paper-proto/claims.mjs)
 //   light    light=name[,name2,w2]  key=lux keycol=hex env exp back=lux keydir=x,y,z keydist=m soft=pcf sext=m (shadow extent)
 //   studio   bg=#hex  floor=y|none  print=1 printw=m printz=m  contact=0|1  cop=contact,soft  ground=ink
 //   misc     hud=1 (print params)  boat=1 moon=1 cord=1
 import * as THREE from 'three';
 import { createPaperSystem, TOKENS, GROUNDS, createPencil, folds as FOLDS } from '../js/paper/index.js';
-import { buildClaimSet } from './claim-sets.js';
+import { buildClaimSet, alignmentTexture } from './claim-sets.js';
 
 const STATES = {
   flat: 'cam=-14,6,1.22&pos=0,0.5,0&rot=0,-14,0&bend=0.7&light=studio',
@@ -77,6 +78,9 @@ const STATES = {
   claim4: 'cam=-6,14,0.03&target=0.0005,0.4996,0&pos=0,0.5,0&fov=22&macro=1&light=raking&keydir=-0.92,0.2,0.34&key=4&keycol=fff6ea&env=0.3&sext=0.03&soft=2&pencil=0.0004,0.4997,0.002,0,-52.6,46.1',
   claim5: 'set=c5&cam=12,8,2.1&target=0.02,1.18,-0.6&pos=0,1.25,0&rot=-90,22,-14&plane=7&light=card6&keycol=f2f6ff&keydir=0.2,1,0.35&key=1.5&env=0.55&back=0.6&shadow=0&floor=none&bg=#dfe3e7&contact=0',
   claim6: 'set=c6&cam=10,4,1.05&target=0.01,0.522,0&pos=0,0.5,0.004&rot=2,0,2.5&rest=0&cockle=0.0002&light=card6&keycol=ffead6&keydir=0.6,0.55,0.6&key=2.2&env=0.25&soft=4&floor=none&bg=#9ba1a7&contact=0&draw=list',
+  claim7: 'set=c7&ovl=align&cam=-6,52,0.8&target=0.01,0.08,0.012&pos=0,0.0806,0&rot=-90,0,-4&rest=0&cockle=0.00025&trans=0.5&light=card1&key=0.45&keycol=fff4e8&keydir=-0.6,0.5,0.62&back=2.2&env=0.12&floor=0&bg=#2a2724&contact=0',
+  claim8: 'set=c8&cam=-40,32,0.034&target=0.1045,0.0006,0.002&pos=0,0.0006,0&rot=-90,0,0&rest=0&cockle=0&macro=1&fov=22&light=raking&keydir=-0.9,0.28,0.3&key=3.6&keycol=ffeedd&env=0.12&soft=2&sext=0.03&bg=#15171c&contact=0',
+  claim9: 'set=c9&bar=6&thick=0.1&cockle=0&pos=0.05,0.0006,-0.137&rot=-90,0,-20&cam=55,8,0.24&target=0.02,0.006,0&light=card1&key=1.6&keycol=ffd9b0&keydir=0.55,0.4,0.7&back=0.45&env=0.12&floor=none&bg=#0c0e15&contact=0&sext=0.3',
   claim3: 'cam=14,54,0.6&target=0,0,0.008&pos=0,0.0006,0&rot=-90,0,9&bg=#3c434b&light=raking&keydir=-0.97,0.2,0.1&key=4.4&env=0.1&soft=4&draw=lines&erase=2&ghost=0.22&dot=1',
   // s04 weights case (T12)
   weights: 'weights=1&wlid=1.85&cam=-24,40,0.42&target=0,0.034,-0.01&pos=0,0.5,-3&light=weights&ground=greyLight&contact=1',
@@ -198,7 +202,7 @@ async function apply(search) {
     fan: num('fan', 0), crumple: num('crumple', 0), boat: num('boat', 0), thickness: num('thick', 0.1) / 1000,
     translucency: num('trans', 0.24), watermark: num('wm', 0), showThrough: num('show', 0), inkDot: num('dot', 0),
     bleed: bleedT > 0 || num('grade', 0) > 0 ? { t: bleedT, at: [0, 0], radiusMM: num('bleedr', 6), amount: bleedT > 0 ? 1 : 0, grade: num('grade', 0) } : null,
-    macro: num('macro', 0), gain: num('gain', 1), tear,
+    macro: num('macro', 0), gain: num('gain', 1), tear, folds: num('bar', 0) > 0 ? barFolds(num('bar')) : null,
     creases: num('crease', 0) > 0 ? [{ n: [0, 1], d: 0, strength: num('crease', 1) }] : null,
   });
   // torn pieces apart
@@ -300,6 +304,7 @@ async function apply(search) {
   if (draw) { const pl = await ensurePaint(); pl.clear(); demoStroke(pl, draw); const er = num('erase', 0); if (er > 0) { pl.flush(); demoErase(pl, er > 1.5); } pl.flush(); sheet.set({ paint: true }); }
   else if (paint) sheet.set({ paint: false });
   sheet.uniforms.uPaintP.value.z = num('ghost', 0.12);
+  if (str('ovl', '') === 'align') { apply._ovl = apply._ovl || await alignmentTexture(); sheet.set({ overlay: { texture: apply._ovl, opacity: 1, face: 1 } }); }
   // the s11 claim sets (claim-sets.js)
   const setName = str('set', '');
   if (setName && !claimSets[setName]) { claimSets[setName] = await buildClaimSet(setName, { sheet }); scene.add(claimSets[setName]); }
@@ -364,6 +369,9 @@ function frame() {
     const ac = renderer.autoClear; renderer.autoClear = false; renderer.render(bleedOv.scene, bleedOv.camera); renderer.autoClear = ac;
   }
 }
+
+/* the same-direction bar (c9): halve the height n times, each fold's radius sized to the stack it wraps (2^i x 0.05 mm) */
+function barFolds(n) { const f = []; let y0 = -0.1485, y1 = 0.1485; for (let i = 0; i < n; i++) { const ym = (y0 + y1) / 2; f.push(FOLDS.fold2D({ p: [0, ym], dir: [1, 0], side: [0, 1], toward: 1, radius: 0.00005 * 2 ** i + 0.00002 })); y1 = ym; } return f; }
 
 /* ------------------------------------------------------------------ demo strokes */
 function demoStroke(pl, kind) {

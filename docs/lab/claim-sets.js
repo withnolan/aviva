@@ -6,6 +6,11 @@
 //   c5 "Agentic": a cool office corridor (ceiling panels, doors, a daylight doorway at the far end) for the dart plane in
 //      flight, with its soft shadow on the floor far below.
 //   c6 "Refusal rate": a hardboard clipboard on a nail against a grey wall, the sheet in its clip (it follows the sheet's pose).
+//   c7 "Alignment": a light table glowing from below in a dark warm room, a blueprint-blue set square; the four text blocks
+//      are alignmentTexture() on the sheet (lab: ovl=align).
+//   c8 "Known side effect": the edge macro on a near-black ground: a fringe of loose fibres along the cut edge, and a
+//      sticking plaster waiting beside it.
+//   c9 "Roadmap": a night floor running to the horizon and a small, soft grey Moon low in the sky (lab: bar=6 for the bar).
 import * as THREE from 'three';
 
 export async function buildClaimSet(name, { sheet }) {
@@ -13,6 +18,9 @@ export async function buildClaimSet(name, { sheet }) {
   if (name === 'c1') await windowSet(g, sheet.object.position.clone());
   if (name === 'c5') corridorSet(g, sheet.object.position.clone());
   if (name === 'c6') clipboardSet(g, sheet.object);
+  if (name === 'c7') lightTableSet(g);
+  if (name === 'c8') edgeSet(g);
+  if (name === 'c9') moonSet(g);
   g.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   return g;
 }
@@ -102,6 +110,96 @@ function clipboardSet(g, sheetObj) {
   const wall = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.MeshStandardMaterial({ color: '#9ba1a7', roughness: 0.95, bumpMap: noiseTexture(), bumpScale: 0.5 }));
   wall.position.set(sheetObj.position.x, sheetObj.position.y, sheetObj.position.z - 0.0105);
   g.add(cb, wall);
+}
+
+function lightTableSet(g) {
+  // the table top at y 0.08: a glowing opal acrylic panel in a brushed aluminium frame on a dark body
+  const Y = 0.08, W = 0.62, D = 0.46, fr = 0.022;
+  const panel = new THREE.Mesh(new THREE.PlaneGeometry(W, D).rotateX(-Math.PI / 2).translate(0, Y - 0.0004, 0), new THREE.MeshBasicMaterial({ color: new THREE.Color('#f3f6ff').multiplyScalar(1.08), toneMapped: false }));
+  const alu = new THREE.MeshStandardMaterial({ color: '#b9bdc2', metalness: 1, roughness: 0.35 });
+  const box = (w, h, d, x, y, z) => new THREE.BoxGeometry(w, h, d).translate(x, y, z);
+  const frame = new THREE.Mesh(mergeBoxes([box(W + 2 * fr, 0.012, fr, 0, Y - 0.004, D / 2 + fr / 2), box(W + 2 * fr, 0.012, fr, 0, Y - 0.004, -D / 2 - fr / 2),
+    box(fr, 0.012, D, W / 2 + fr / 2, Y - 0.004, 0), box(fr, 0.012, D, -W / 2 - fr / 2, Y - 0.004, 0)]), alu);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(W + 2 * fr, Y - 0.01, D + 2 * fr).translate(0, (Y - 0.01) / 2, 0), new THREE.MeshStandardMaterial({ color: '#2b2d31', roughness: 0.6 }));
+  // a blueprint-blue acrylic set square lying on the glow, beside the sheet
+  const t = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(0.17, 0), new THREE.Vector2(0, 0.17)]);
+  t.holes.push(new THREE.Path([new THREE.Vector2(0.03, 0.03), new THREE.Vector2(0.03, 0.1), new THREE.Vector2(0.1, 0.03)]));
+  const square = new THREE.Mesh(new THREE.ExtrudeGeometry(t, { depth: 0.003, bevelEnabled: false }).rotateX(-Math.PI / 2),
+    new THREE.MeshPhysicalMaterial({ color: '#2a6fd6', transparent: true, opacity: 0.74, roughness: 0.12, clearcoat: 1, depthWrite: false }));
+  square.position.set(0.155, Y + 0.0002, 0.175); square.rotation.y = 0.42;
+  g.add(panel, frame, body, square);
+}
+
+function edgeSet(g) {
+  // loose fibres along the sheet's right edge (x = 0.105, flat sheet at y 0.0006): short, a few long, a little curl
+  const pts = []; let a = 11; const rnd = () => { a = (a * 16807) % 2147483647; return (a - 1) / 2147483646; };
+  for (let i = 0; i < 2600; i++) {
+    const z = (rnd() - 0.5) * 0.034, L = 0.00004 + Math.pow(rnd(), 2.2) * 0.0009, th = (rnd() - 0.5) * 2.2, curl = (rnd() - 0.5) * 2.5, lift = (rnd() - 0.3) * 0.00012;
+    let x = 0.105 - rnd() * 0.0001, y = 0.0006 + (rnd() - 0.5) * 0.00008, zz = z, ang = th;
+    for (let k = 0; k < 4; k++) { const st = L / 4, nx = x + Math.cos(ang) * st, nz = zz + Math.sin(ang) * st, ny = y + lift / 4; pts.push(x, y, zz, nx, ny, nz); x = nx; y = ny; zz = nz; ang += curl * 0.25; }
+  }
+  const fg = new THREE.BufferGeometry(); fg.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+  const fibres = new THREE.LineSegments(fg, new THREE.LineBasicMaterial({ color: '#efe8dc', transparent: true, opacity: 0.85 }));
+  // the plaster: a stadium-shaped fabric strip (perforated), its gauze pad, lying on the ground beside the edge
+  const st = new THREE.Shape(), Lp = 0.072, Wp = 0.019, r = Wp / 2;
+  st.moveTo(-Lp / 2 + r, -r); st.lineTo(Lp / 2 - r, -r); st.absarc(Lp / 2 - r, 0, r, -Math.PI / 2, Math.PI / 2, false); st.lineTo(-Lp / 2 + r, r); st.absarc(-Lp / 2 + r, 0, r, Math.PI / 2, Math.PI * 1.5, false);
+  const pc = document.createElement('canvas'); pc.width = pc.height = 32; const px = pc.getContext('2d');
+  px.fillStyle = '#d6b597'; px.fillRect(0, 0, 32, 32); px.fillStyle = '#b08c6c'; px.beginPath(); px.arc(16, 16, 3.2, 0, Math.PI * 2); px.fill();
+  const holes = new THREE.CanvasTexture(pc); holes.wrapS = holes.wrapT = THREE.RepeatWrapping; holes.repeat.set(1 / 0.0016, 1 / 0.0016); holes.colorSpace = THREE.SRGBColorSpace;
+  const strip = new THREE.Mesh(new THREE.ExtrudeGeometry(st, { depth: 0.00045, bevelEnabled: false, curveSegments: 72 }).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: holes, roughness: 0.85 }));
+  const pad = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.0005, 0.0125).translate(0, 0.0007, 0), new THREE.MeshStandardMaterial({ color: '#efe2dc', roughness: 0.95 }));
+  const plaster = new THREE.Group(); plaster.add(strip, pad); plaster.position.set(0.1442, 0.0001, -0.0246); plaster.rotation.y = 0.6;
+  g.add(fibres, plaster);
+}
+
+function moonSet(g) {
+  // the night floor to the horizon, and a small soft grey Moon low over it (its own glow; untouched by the fog)
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#141722', roughness: 0.8, envMapIntensity: 0.04 }));
+  const mc = document.createElement('canvas'); mc.width = mc.height = 256; const x = mc.getContext('2d');
+  const gr = x.createRadialGradient(118, 112, 10, 128, 128, 124); gr.addColorStop(0, '#d9dade'); gr.addColorStop(0.75, '#b9bbc1'); gr.addColorStop(1, '#8e9097');
+  x.fillStyle = gr; x.beginPath(); x.arc(128, 128, 124, 0, Math.PI * 2); x.fill();
+  x.fillStyle = 'rgba(110,112,120,0.3)';
+  for (const [cx, cy, rr] of [[96, 92, 34], [150, 80, 24], [168, 140, 30], [110, 160, 20], [80, 130, 16], [140, 190, 14]]) { x.beginPath(); x.ellipse(cx, cy, rr, rr * 0.8, 0.4, 0, Math.PI * 2); x.fill(); }
+  const soft = document.createElement('canvas'); soft.width = soft.height = 256; const sx = soft.getContext('2d'); sx.filter = 'blur(8px)'; sx.drawImage(mc, 0, 0);   // out of focus
+  const moon = new THREE.Mesh(new THREE.CircleGeometry(0.056, 64), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(soft), transparent: true, color: new THREE.Color(0.6, 0.61, 0.64), toneMapped: false, fog: false, depthWrite: false }));
+  moon.material.map.colorSpace = THREE.SRGBColorSpace;
+  const hc = document.createElement('canvas'); hc.width = hc.height = 128; const hx = hc.getContext('2d'), hg = hx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  hg.addColorStop(0, 'rgba(200,210,235,0.18)'); hg.addColorStop(0.35, 'rgba(170,185,220,0.06)'); hg.addColorStop(1, 'rgba(150,165,210,0)'); hx.fillStyle = hg; hx.fillRect(0, 0, 128, 128);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(hc), blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, fog: false }));
+  halo.scale.set(0.34, 0.34, 1);
+  const sky = new THREE.Group(); sky.add(moon, halo); sky.position.set(-2.05, 0.2, -1.75); sky.lookAt(0.29, 0.06, 0.19); moon.renderOrder = halo.renderOrder = -1;
+  // the bar's soft contact shadow (the bar lies at the origin, along 20 deg)
+  const cc = document.createElement('canvas'); cc.width = 256; cc.height = 32; const cx2 = cc.getContext('2d'); cx2.filter = 'blur(6px)'; cx2.fillStyle = '#000'; cx2.fillRect(14, 11, 228, 10);
+  const contact = new THREE.Mesh(new THREE.PlaneGeometry(0.235, 0.02).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cc), color: '#000', transparent: true, opacity: 0.55, depthWrite: false }));
+  contact.position.set(0, 0.0003, 0); contact.rotation.y = -0.349;
+  g.add(floor, sky, contact);
+  g.userData.fog = new THREE.Fog('#0c0e15', 1.2, 6.5);
+}
+
+/** c7's sheet: four grey text blocks, "We have solved alignment.", set left, centred, right and justified (A4 canvas) */
+export async function alignmentTexture() {
+  try {
+    const url = new URL('../assets/fonts/hanken-grotesk-var-latin.woff2', import.meta.url).href;
+    const f = await new FontFace('Hanken Grotesk', `url(${url})`, { weight: '300 500' }).load(); document.fonts.add(f);
+  } catch { /* the fallback face */ }
+  const W = 1240, H = 1754, mm = W / 210, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  const size = Math.round(4.2 * mm), lead = size * 1.42, left = 32 * mm, width = W - 64 * mm;
+  x.font = `400 ${size}px "Hanken Grotesk", Arial, sans-serif`; x.fillStyle = 'rgba(78,79,84,0.92)'; x.textBaseline = 'alphabetic';
+  const words = Array(4).fill('We have solved alignment.').join(' ').split(' '), lines = [];
+  let cur = [];
+  for (const w of words) { const t = [...cur, w].join(' '); if (x.measureText(t).width > width && cur.length) { lines.push(cur); cur = [w]; } else cur.push(w); }
+  if (cur.length) lines.push(cur);
+  ['left', 'center', 'right', 'justify'].forEach((al, b) => {
+    const top = 40 * mm + b * 58 * mm;
+    lines.forEach((ln, i) => {
+      const y = top + i * lead, txt = ln.join(' '), tw = x.measureText(txt).width;
+      if (al === 'justify' && i < lines.length - 1) {
+        const gaps = ln.length - 1, ws = ln.reduce((s, w) => s + x.measureText(w).width, 0), sp = (width - ws) / gaps; let xx = left;
+        ln.forEach((w) => { x.fillText(w, xx, y); xx += x.measureText(w).width + sp; });
+      } else x.fillText(txt, al === 'left' || al === 'justify' ? left : al === 'center' ? left + (width - tw) / 2 : left + width - tw, y);
+    });
+  });
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
 }
 
 function roundedSlab(w, h, d, r) {

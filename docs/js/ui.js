@@ -8,6 +8,7 @@ import { copy } from './copy.js';
 import { E } from './events.js';
 import { clamp, seg, smoothstep, ease } from './util.js';
 import { createS07Ink } from './s07-ink.js';
+import { createClaims } from './claims.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -202,6 +203,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
   /* ---------------------------------------------------------------- geometry measured on refresh */
   const outputs = $$('#outputs .output');
   const claims = $('#claims'), plate = $('.s11__plate');
+  const claimsCtl = createClaims({ scroll: S, reduce });     // T23: the darkroom develop, 2.5D, captions, focus
   const s12col = $('#s12-col'), s12cmp = $('#s12-cmp');
   const cues = $$('#changelog [data-cue]').map((el) => ({ el, cue: el.dataset.cue, y: 0 }));
   const dogCue = $('.review[data-cue="dogear"]');
@@ -221,7 +223,7 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
   }
   function measure() {
     rulerH = ruler ? ruler.clientHeight : 0;
-    claimsMax = claims ? Math.max(0, claims.scrollWidth - innerWidth) : 0;
+    claimsMax = claims ? claimsCtl.measure() || Math.max(0, claims.scrollWidth - innerWidth) : 0;   // T23: last print centred
     const sy = window.scrollY;
     for (const c of cues) { const r = c.el.getBoundingClientRect(); c.y = r.top + sy + r.height / 2; }
     if (dogCue) { const r = dogCue.getBoundingClientRect(); dogY = r.top + sy + r.height / 2; }
@@ -400,7 +402,9 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
       if (v > 0.9) E.cues.dogEarSeen = true;
     }
     if (near(s11) && claims) {
-      setVar(claims, '--track', (seg(s11.p, 0.8, 6.4, ease.linear) * claimsMax).toFixed(1));
+      const track = seg(s11.p, 0.8, 6.4, ease.linear) * claimsMax;
+      setVar(claims, '--track', track.toFixed(1));
+      claimsCtl.frame(track);
       setVar(plate, '--plate', (1 - seg(s11.p, 0.06, 0.45)).toFixed(3));
     }
     if (near(s12)) {

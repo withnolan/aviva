@@ -504,7 +504,8 @@
   height: 72%;
   display: flex;
   gap: 44px;                           /* ≥ 40 px: room for the crop marks outside every card */
-  padding-inline: var(--gutter);
+  /* T23: the first and the last card (both portrait) start and end centred, so every print passes the centre */
+  padding-inline: max(var(--gutter), calc(50vw - var(--vh100) * 0.72 * 0.70711 / 2));
   transform: translate3d(calc(var(--track, 0) * -1px), calc(var(--lift, 0) * 1px), 0);
   will-change: transform;
 }
@@ -517,7 +518,11 @@
   background: var(--color-paper);
   border: var(--hairline) solid var(--color-rule-strong);
   box-shadow: 0 18px 40px -26px rgba(32, 30, 25, 0.35);
+  transform: perspective(1400px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));   /* the 2 deg tilt (claims.js) */
+  transition: transform 0.7s var(--ease-out);
 }
+.claim.is-tilt { transition-duration: 0.2s; }
+.claim:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 10px; }
 .claim--p { aspect-ratio: 210 / 297; }
 .claim--l { aspect-ratio: 297 / 210; }
 .claim::before {   /* crop marks at all four corners, outside the trim (design system 9.11) */
@@ -530,13 +535,27 @@
     var(--c) left 0 bottom var(--e) / var(--crop-mark) 1px no-repeat, var(--c) left var(--e) bottom 0 / 1px var(--crop-mark) no-repeat,
     var(--c) right 0 bottom var(--e) / var(--crop-mark) 1px no-repeat, var(--c) right var(--e) bottom 0 / 1px var(--crop-mark) no-repeat;
 }
-.claim__fig { flex: 0 0 60%; min-height: 0; background: var(--color-studio); overflow: hidden; }
-.claim--dark .claim__fig { background: #2B2A27; }
-.claim__img { width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ease-out); }
+/* the darkroom (T23): the image window is a blank print; the render develops on it as the card nears the centre
+   (--dev from claims.js): paper white -> warm and low in contrast -> the full image. Subjects sit in the central safe
+   area, so one 16:10 render crops to both the portrait and the landscape window (--fx / --fy nudge the crop). */
+.claim__fig { position: relative; flex: 0 0 60%; min-height: 0; margin: 0; overflow: hidden; background: var(--color-paper); box-shadow: inset 0 0 0 1px rgb(42 41 38 / 0.05); }
+.claim__img {
+  display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--fx, 50%) var(--fy, 50%);
+  transform: translate3d(calc(var(--px, 0px) + var(--ix, 0px)), var(--iy, 0px), 0) scale(1.1);   /* 2.5D: deeper than the card */
+  transition: transform 0.6s var(--ease-out);
+  opacity: clamp(0, calc(var(--dev, 0) * 2.4), 1);
+  filter: brightness(calc(1 + 0.5 * (1 - var(--dev, 0)))) contrast(calc(0.3 + 0.7 * var(--dev, 0))) sepia(calc(0.5 * (1 - var(--dev, 0)))) saturate(calc(0.55 + 0.45 * var(--dev, 0)));
+}
+.claim.is-done .claim__img { opacity: 1; filter: none; }
 .claim__img.is-missing { visibility: hidden; }
+/* a render still to come (config claimRenders): the print stays blank, a faint latent image warming as it "develops" */
+.claim__fig.is-pending { background: radial-gradient(58% 52% at 50% 56%, rgb(122 110 94 / calc(0.04 + 0.08 * var(--dev, 0))), transparent 72%), var(--color-paper); }
 .claim__txt { flex: 1; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4) var(--space-5) var(--space-5); min-height: 0; }
 .claim__h { font-size: clamp(1.25rem, 0.85rem + 1.2vw, 2.125rem); line-height: 1.08; letter-spacing: -0.02em; font-weight: var(--fw-light); text-wrap: balance; }
-.claim__cap { color: var(--color-graphite-muted); }
+/* the caption shows on the card nearest the centre only (or the focused one) */
+.claim__cap { color: var(--color-graphite-muted); opacity: 0; transform: translateY(4px); transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out); }
+.claim.is-centre .claim__cap, .claim:focus-visible .claim__cap { opacity: 1; transform: none; }
+.reduce-motion .claim__cap { transform: none; }
 .claim__meta { margin-top: auto; color: var(--color-graphite); }
 .claim--p .claim__h { font-size: clamp(1.125rem, 0.8rem + 0.9vw, 1.75rem); }
 
