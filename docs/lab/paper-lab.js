@@ -11,9 +11,9 @@
 //            dogear=0..1 peel=0..1 curl=corner,t,r,deg  ecurl=edge,at,r,deg  fan=0..1  crumple=0..1  thick=mm
 //            tear=p1,p2top,p2bottom  tgap=m  sep=0..1 (moves torn pieces apart)  crease=1 (remembered midline crease)
 //   look     trans=0..1 wm=0..1 show=0..1 dot=0..1 bleed=0..1 grade=0..1 macro=0..1 gain=1 tooth=strength
-//   paint    draw=demo|line|lines|scribble  erase=1 (erase half, leaving the 12 % ghost) | 2 (erase all)  ghost=0.12 (its strength)
+//   paint    draw=demo|line|lines|list|scribble  erase=1 (erase half, leaving the 12 % ghost) | 2 (erase all)  ghost=0.12 (its strength)
 //   sets     set=c1 (claim-sets.js: the s11 claim-card sets; states claim1..3, rendered by work/scripts/paper-proto/claims.mjs)
-//   light    light=name[,name2,w2]  key=lux keycol=hex env exp back=lux keydir=x,y,z keydist=m soft=pcf
+//   light    light=name[,name2,w2]  key=lux keycol=hex env exp back=lux keydir=x,y,z keydist=m soft=pcf sext=m (shadow extent)
 //   studio   bg=#hex  floor=y|none  print=1 printw=m printz=m  contact=0|1  cop=contact,soft  ground=ink
 //   misc     hud=1 (print params)  boat=1 moon=1 cord=1
 import * as THREE from 'three';
@@ -74,6 +74,9 @@ const STATES = {
   // sweep, warm side light; c3 slate, raking light, the dot and an erased impression
   claim1: 'set=c1&cam=-12,4,0.9&target=0.005,0.475,0&pos=0,0.5,0&rest=0&cockle=0.00015&light=card1&key=1.35&keycol=fff0de&keydir=-0.55,0.5,0.68&back=1.5&trans=0.5&floor=none&bg=#e8e1d5&contact=0&soft=5',
   claim2: 'cam=-14,48,0.66&target=0.005,0,0.01&pos=0,0.0006,0&rot=-90,0,-10&bg=#f1d98a&light=card2&keydir=0.78,0.55,0.3&key=2.7&keycol=fff3e4&exp=1.04&soft=5&draw=scribble&dot=1&crease=1&tear=0.38,0,0&tgap=0.003&pencil=-0.035,0.0046,0.03,0,-28,0',
+  claim4: 'cam=-6,14,0.03&target=0.0005,0.4996,0&pos=0,0.5,0&fov=22&macro=1&light=raking&keydir=-0.92,0.2,0.34&key=4&keycol=fff6ea&env=0.3&sext=0.03&soft=2&pencil=0.0004,0.4997,0.002,0,-52.6,46.1',
+  claim5: 'set=c5&cam=12,8,2.1&target=0.02,1.18,-0.6&pos=0,1.25,0&rot=-90,22,-14&plane=7&light=card6&keycol=f2f6ff&keydir=0.2,1,0.35&key=1.5&env=0.55&back=0.6&shadow=0&floor=none&bg=#dfe3e7&contact=0',
+  claim6: 'set=c6&cam=10,4,1.05&target=0.01,0.522,0&pos=0,0.5,0.004&rot=2,0,2.5&rest=0&cockle=0.0002&light=card6&keycol=ffead6&keydir=0.6,0.55,0.6&key=2.2&env=0.25&soft=4&floor=none&bg=#9ba1a7&contact=0&draw=list',
   claim3: 'cam=14,54,0.6&target=0,0,0.008&pos=0,0.0006,0&rot=-90,0,9&bg=#3c434b&light=raking&keydir=-0.97,0.2,0.1&key=4.4&env=0.1&soft=4&draw=lines&erase=2&ghost=0.22&dot=1',
   // s04 weights case (T12)
   weights: 'weights=1&wlid=1.85&cam=-24,40,0.42&target=0,0.034,-0.01&pos=0,0.5,-3&light=weights&ground=greyLight&contact=1',
@@ -301,12 +304,14 @@ async function apply(search) {
   const setName = str('set', '');
   if (setName && !claimSets[setName]) { claimSets[setName] = await buildClaimSet(setName, { sheet }); scene.add(claimSets[setName]); }
   for (const [k, o] of Object.entries(claimSets)) o.visible = k === setName;
+  scene.fog = (setName && claimSets[setName].userData.fog) || null;
 
   // lights
   const lp = str('light', 'studio').split(',');
   paper.lights.set(lp.length >= 3 ? [[lp[0], 1 - +lp[2]], [lp[1], +lp[2]]] : lp[0]);
   paper.setUV(num('uv', 0));                     // s03 dark mode (T10)
   const L = paper.lights.state = JSON.parse(JSON.stringify(paper.lights.state, (k, v) => (v && v.isVector3 ? { __v: [v.x, v.y, v.z] } : v && v.isColor ? '#' + v.getHexString() : v)), (k, v) => (v && v.__v ? new THREE.Vector3(...v.__v) : v));
+  if (P.has('sext')) paper.lights.shadowExtent = num('sext');
   if (P.has('key')) L.key.intensity = num('key');
   if (P.has('keycol')) L.key.color = '#' + str('keycol');
   if (P.has('keydir')) L.key.dir = new THREE.Vector3(...vec('keydir')).normalize();
@@ -364,6 +369,13 @@ function frame() {
 function demoStroke(pl, kind) {
   if (kind === 'line') { pl.strokeFromPath(pl.constructor.handwritingPath({ seed: 3 }), { x: 0.16, y: 0.62, width: 0.68 }); return; }
   if (kind === 'lines') { [[3, 0.7, 0.68], [7, 0.62, 0.6], [11, 0.54, 0.44]].forEach(([seed, y, width]) => pl.strokeFromPath(pl.constructor.handwritingPath({ seed }), { x: 0.16, y, width })); return; }
+  if (kind === 'list') {   // a short handwritten list: a dash and a few words per line
+    [[3, 0.84, 0.42], [5, 0.775, 0.3], [7, 0.71, 0.52], [9, 0.645, 0.36], [11, 0.58, 0.46], [13, 0.515, 0.28]].forEach(([seed, y, width]) => {
+      let t = 0; pl.begin(0.15, y, t); for (let i = 1; i <= 6; i++) pl.move(0.15 + i * 0.006, y + 0.001 * Math.sin(i), (t += 12)); pl.end();
+      pl.strokeFromPath(pl.constructor.handwritingPath({ seed }), { x: 0.22, y, width });
+    });
+    return;
+  }
   if (kind === 'scribble') {   // a quick test scribble, loops running right (testing the pencil)
     const sc = []; for (let i = 0; i < 150; i++) sc.push([0.2 + i * 0.0026 + 0.022 * Math.cos(i * 0.42), 0.77 + 0.026 * Math.sin(i * 0.42) - i * 0.0002]);
     pl.begin(sc[0][0], sc[0][1], 0); sc.slice(1).forEach((q, i) => pl.move(q[0], q[1], (i + 1) * 7)); pl.end(); return;

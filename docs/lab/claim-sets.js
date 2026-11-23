@@ -2,12 +2,17 @@
 // `set=c1` (see the claim1..3 states in paper-lab.js); work/scripts/paper-proto/claims.mjs renders the stills.
 //   c1 "Context window": the sheet IS the pane of a small white sash window in a pale plaster wall, daylight glowing
 //      through it, with graphite dimension lines (210 / 297 mm) drawn on the wall.
-//   c2 / c3 need no extra pieces (the sweep is the studio in bg=, the props are the lab's pencil, paint, dot and tear).
+//   c2 / c3 / c4 need no extra pieces (the sweep is the studio in bg=; the props are the lab's pencil, paint, dot, tear, macro).
+//   c5 "Agentic": a cool office corridor (ceiling panels, doors, a daylight doorway at the far end) for the dart plane in
+//      flight, with its soft shadow on the floor far below.
+//   c6 "Refusal rate": a hardboard clipboard on a nail against a grey wall, the sheet in its clip (it follows the sheet's pose).
 import * as THREE from 'three';
 
 export async function buildClaimSet(name, { sheet }) {
   const g = new THREE.Group(); g.name = 'claimset.' + name;
   if (name === 'c1') await windowSet(g, sheet.object.position.clone());
+  if (name === 'c5') corridorSet(g, sheet.object.position.clone());
+  if (name === 'c6') clipboardSet(g, sheet.object);
   g.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   return g;
 }
@@ -46,6 +51,64 @@ async function windowSet(g, c) {
   const dims = new THREE.Mesh(new THREE.PlaneGeometry(S, S), new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 0.9, depthWrite: false }));
   dims.position.set(c.x, c.y, c.z + zw + 0.0004); dims.castShadow = false;
   g.add(wall, wood, fittings, dims);
+}
+
+function corridorSet(g, c) {
+  const z0 = 3, z1 = -16, W = 1.8, H = 2.7, len = z0 - z1, zc = (z0 + z1) / 2;
+  const M = (color, roughness, o = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...o });
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, len).rotateX(-Math.PI / 2).translate(0, 0, zc), M('#cdd1d5', 0.3, { envMapIntensity: 1 }));
+  const shell = new THREE.Mesh(mergeBoxes([new THREE.PlaneGeometry(len, H).rotateY(Math.PI / 2).translate(-W / 2, H / 2, zc),
+    new THREE.PlaneGeometry(len, H).rotateY(-Math.PI / 2).translate(W / 2, H / 2, zc), new THREE.PlaneGeometry(W, len).rotateX(Math.PI / 2).translate(0, H, zc),
+    new THREE.PlaneGeometry(W, H).translate(0, H / 2, z1)]), M('#eceff3', 0.9));
+  const box = (w, h, d, x, y, z) => new THREE.BoxGeometry(w, h, d).translate(x, y, z);
+  const panels = [], doors = [], frames = [], handles = [], skirt = [box(0.012, 0.09, len, -W / 2 + 0.006, 0.045, zc), box(0.012, 0.09, len, W / 2 - 0.006, 0.045, zc)];
+  for (let z = 1.6; z > z1 + 1; z -= 1.8) panels.push(box(0.5, 0.012, 1.0, 0, H - 0.006, z));
+  for (const [sx, z] of [[-1, -2.6], [1, -4.4], [-1, -6.8], [1, -8.6], [-1, -11], [1, -12.8]]) {
+    const x = sx * (W / 2 - 0.012);
+    doors.push(box(0.03, 2.1, 0.9, x, 1.05, z));
+    frames.push(box(0.03, 0.06, 1.02, sx * (W / 2 - 0.008), 2.13, z), box(0.03, 2.16, 0.06, sx * (W / 2 - 0.008), 1.08, z - 0.48), box(0.03, 2.16, 0.06, sx * (W / 2 - 0.008), 1.08, z + 0.48));
+    handles.push(box(0.05, 0.016, 0.12, sx * (W / 2 - 0.04), 1.02, z + 0.33));
+  }
+  const lights = new THREE.Mesh(mergeBoxes(panels), new THREE.MeshBasicMaterial({ color: '#f6f9ff' }));
+  const light = new THREE.Mesh(mergeBoxes(doors), M('#a4aeb9', 0.55));
+  const trim = new THREE.Mesh(mergeBoxes([...frames, ...skirt]), M('#d3d8dd', 0.5));
+  const steel = new THREE.Mesh(mergeBoxes(handles), M('#c7ccd1', 0.25, { metalness: 1 }));
+  // the far end: a glazed door full of daylight, where the task is going
+  const day = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 2.25).translate(0, 1.125, z1 + 0.01), new THREE.MeshBasicMaterial({ color: new THREE.Color('#eef5ff').multiplyScalar(1.25), toneMapped: false }));
+  // the plane's soft shadow on the floor far below (the key casts none here: one clean shadow)
+  const sc = document.createElement('canvas'); sc.width = sc.height = 128; const sx2 = sc.getContext('2d');
+  sx2.filter = 'blur(9px)'; sx2.fillStyle = '#000'; sx2.beginPath(); sx2.moveTo(64, 14); sx2.lineTo(104, 112); sx2.lineTo(24, 112); sx2.closePath(); sx2.fill();
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.28).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), color: '#000', transparent: true, opacity: 0.28, depthWrite: false }));
+  shadow.position.set(c.x - 0.12, 0.002, c.z - 0.22); shadow.rotation.y = -0.25;
+  g.add(floor, shell, lights, light, trim, steel, day, shadow);
+  g.userData.fog = new THREE.Fog('#e8edf3', 3, 24);   // a little air down the corridor, toward the daylight
+}
+
+function clipboardSet(g, sheetObj) {
+  // in the sheet's frame (the sheet lies on the board): hardboard, a steel lever clip over the sheet's top edge, a nail
+  const cb = new THREE.Group(); cb.position.copy(sheetObj.position); cb.quaternion.copy(sheetObj.quaternion);
+  const board = new THREE.Mesh(roundedSlab(0.235, 0.335, 0.003, 0.012).translate(0, 0.012, -0.0022), new THREE.MeshStandardMaterial({ color: '#6e4b31', roughness: 0.55, bumpMap: noiseTexture(), bumpScale: 0.15 }));
+  const steel = new THREE.MeshStandardMaterial({ color: '#c9cdd2', metalness: 1, roughness: 0.28 });
+  const enamel = new THREE.MeshStandardMaterial({ color: '#232427', metalness: 0.5, roughness: 0.36 });   // a black-enamelled steel clip
+  const top = 0.1485;
+  const clip = new THREE.Mesh(mergeBoxes([
+    new THREE.BoxGeometry(0.12, 0.03, 0.0035).translate(0, top + 0.004, 0.0012),                                   // the jaw over the sheet
+    new THREE.CylinderGeometry(0.0055, 0.0055, 0.106, 20).rotateZ(Math.PI / 2).translate(0, top + 0.022, 0.0045),   // the hinge barrel
+    new THREE.BoxGeometry(0.09, 0.024, 0.003).rotateX(-0.55).translate(0, top + 0.036, 0.011),                      // the lever, raised
+  ]), enamel);
+  const nail = new THREE.Mesh(new THREE.CylinderGeometry(0.0022, 0.0022, 0.004, 12).rotateX(Math.PI / 2).translate(0, top + 0.03, -0.004), steel);
+  cb.add(board, clip, nail);
+  // the grey wall behind (world-aligned), a fine plaster grain
+  const wall = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.MeshStandardMaterial({ color: '#9ba1a7', roughness: 0.95, bumpMap: noiseTexture(), bumpScale: 0.5 }));
+  wall.position.set(sheetObj.position.x, sheetObj.position.y, sheetObj.position.z - 0.0105);
+  g.add(cb, wall);
+}
+
+function roundedSlab(w, h, d, r) {
+  const s = new THREE.Shape(), x0 = -w / 2, y0 = -h / 2;
+  s.moveTo(x0 + r, y0); s.lineTo(x0 + w - r, y0); s.quadraticCurveTo(x0 + w, y0, x0 + w, y0 + r); s.lineTo(x0 + w, y0 + h - r); s.quadraticCurveTo(x0 + w, y0 + h, x0 + w - r, y0 + h);
+  s.lineTo(x0 + r, y0 + h); s.quadraticCurveTo(x0, y0 + h, x0, y0 + h - r); s.lineTo(x0, y0 + r); s.quadraticCurveTo(x0, y0, x0 + r, y0);
+  return new THREE.ExtrudeGeometry(s, { depth: d, bevelEnabled: false, curveSegments: 6 }).translate(0, 0, -d / 2);
 }
 
 function mergeBoxes(list) {

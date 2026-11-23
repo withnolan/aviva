@@ -22,13 +22,17 @@ for (const n of only) {
   await page.waitForFunction(() => window.__ready === true, null, { timeout: 180000, polling: 250 });
   await page.evaluate(() => { const h = document.getElementById('help'); if (h) h.style.display = 'none'; });
   const r = await page.evaluate((MAX) => {
-    const c = window.lab.renderer.domElement;
-    for (let q = 0.92; q >= 0.5; q -= 0.04) { const u = c.toDataURL('image/webp', q), b = Math.round((u.length - 23) * 0.75); if (b <= MAX || q < 0.54) return { u, q: +q.toFixed(2), b, w: c.width, h: c.height }; }
+    // quality steps down to 0.6; a very fine-grained still (the fibre macro) is then re-encoded from a copy softened by
+    // 0.6 px, which keeps it under the cap at a decent quality instead of blocking up
+    const c = window.lab.renderer.domElement, size = (u) => Math.round((u.length - 23) * 0.75);
+    for (let q = 0.92; q >= 0.6; q -= 0.04) { const u = c.toDataURL('image/webp', q); if (size(u) <= MAX) return { u, q: +q.toFixed(2), w: c.width, h: c.height, soft: 0 }; }
+    const s = document.createElement('canvas'); s.width = c.width; s.height = c.height; const x = s.getContext('2d'); x.filter = 'blur(0.6px)'; x.drawImage(c, 0, 0);
+    for (let q = 0.84; q >= 0.3; q -= 0.04) { const u = s.toDataURL('image/webp', q); if (size(u) <= MAX || q < 0.34) return { u, q: +q.toFixed(2), w: s.width, h: s.height, soft: 0.6 }; }
   }, MAX);
   const file = path.join(out, `c${n}.webp`);
   fs.writeFileSync(file, Buffer.from(r.u.split(',')[1], 'base64'));
   await page.screenshot({ path: path.join(preview, `c${n}.jpg`), quality: 90 });
-  console.log(`${file}  ${r.w}x${r.h}  q ${r.q}  ${(fs.statSync(file).size / 1024).toFixed(1)} KB`);
+  console.log(`${file}  ${r.w}x${r.h}  q ${r.q}${r.soft ? '  softened ' + r.soft + ' px' : ''}  ${(fs.statSync(file).size / 1024).toFixed(1)} KB`);
 }
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

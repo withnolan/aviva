@@ -42,7 +42,7 @@ export function createS07Ink({ scroll, world = null, reduce = false }) {
   const sec = scroll.byKey('s07'), stage = document.getElementById('s07-stage');
   if (!sec || !stage || !world) return { frame() {} };
   const flips = [...stage.querySelectorAll('.ink-flip')], bar = stage.querySelector('.s07__inst'), timer = document.getElementById('s07-timer');
-  let lastT = '', lastMm = '';
+  let lastT = '', lastMm = '', lastInk = '';
   function inkUnder(el, D, W, H) {
     const r = el.getBoundingClientRect();
     if (r.width < 1 || r.height < 1) return 0;
@@ -63,6 +63,9 @@ export function createS07Ink({ scroll, world = null, reduce = false }) {
       // the scale bar: 1 mm at the sheet's current scale; the timer: one decimal
       const mm = D.pxPerMm.toFixed(2);
       if (bar && mm !== lastMm) { lastMm = mm; bar.style.setProperty('--mm', mm); }
+      // the ink panels' colour: the sheet's lit ink before the hand-over, deepening to the token with the screen front
+      const k = C.bleedTone ?? 1, ink = `rgb(${Math.round(50 - 19 * k)} ${Math.round(46 - 19 * k)} ${Math.round(105 + 5 * k)})`;
+      if (ink !== lastInk) { lastInk = ink; stage.style.setProperty('--ink-now', ink); }
       const t = copy('s07.timer', { s: (C.inkTime || 0).toFixed(1) });
       if (timer && t !== lastT) { lastT = t; timer.textContent = t; }
       // each block inverts once the ink under it passes 50 % (hysteresis), and stays inverted on the ink ground
@@ -70,7 +73,7 @@ export function createS07Ink({ scroll, world = null, reduce = false }) {
       for (const el of flips) {
         const was = el.classList.contains('is-inked');
         const k = ground ? 1 : D.on || D.cov > 0.0005 ? inkUnder(el, D, W, H) : 0;
-        const on = ground || (was ? k > 0.68 : k > 0.76);   // 'half inked' by contrast: white text wins once the ink alpha is ~0.76
+        const on = ground || (was ? k > 0.42 : k > 0.5);    // the block's panel takes the colour of most of the ground under it
         if (on !== was) el.classList.toggle('is-inked', on);
       }
     },
