@@ -522,6 +522,7 @@
   transition: transform 0.7s var(--ease-out);
 }
 .claim.is-tilt { transition-duration: 0.2s; }
+#s11-stage { overflow: clip; }   /* not a scroll container: tabbing to an off-screen card must not scroll the stage sideways (claims.js centres it) */
 .claim:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 10px; }
 .claim--p { aspect-ratio: 210 / 297; }
 .claim--l { aspect-ratio: 297 / 210; }
@@ -549,7 +550,7 @@
 .claim.is-done .claim__img { opacity: 1; filter: none; }
 .claim__img.is-missing { visibility: hidden; }
 /* a render still to come (config claimRenders): the print stays blank, a faint latent image warming as it "develops" */
-.claim__fig.is-pending { background: radial-gradient(58% 52% at 50% 56%, rgb(122 110 94 / calc(0.04 + 0.08 * var(--dev, 0))), transparent 72%), var(--color-paper); }
+.claim__fig.is-pending { background: linear-gradient(172deg, rgb(122 110 94 / calc(0.02 + 0.04 * var(--dev, 0))), rgb(122 110 94 / calc(0.05 + 0.07 * var(--dev, 0)))), var(--color-paper); }
 .claim__txt { flex: 1; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4) var(--space-5) var(--space-5); min-height: 0; }
 .claim__h { font-size: clamp(1.25rem, 0.85rem + 1.2vw, 2.125rem); line-height: 1.08; letter-spacing: -0.02em; font-weight: var(--fw-light); text-wrap: balance; }
 /* the caption shows on the card nearest the centre only (or the focused one) */
