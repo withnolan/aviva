@@ -366,6 +366,12 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
 
   /* ---------------------------------------------------------------- the section-driven DOM */
   const s04 = S.byKey('s04'), s06 = S.byKey('s06'), s09 = S.byKey('s09'), s11 = S.byKey('s11'), s12 = S.byKey('s12');
+  // s08 (T34): the generations' labels follow their sheets; hovering or focusing one lights it (choreo reads E.genHover)
+  const s08 = S.byKey('s08'), genLabels = [...document.querySelectorAll('#s08-gens .gen-l')];
+  genLabels.forEach((b, i) => {
+    const on = () => { E.genHover = i; world && world.markDirty(); }, off = () => { if (E.genHover === i) E.genHover = -1; world && world.markDirty(); };
+    b.addEventListener('pointerenter', on); b.addEventListener('pointerleave', off); b.addEventListener('focus', on); b.addEventListener('blur', off);
+  });
   const near = (s) => s && s.raw > -1.05 && s.raw < s.h + 0.05;
   function sections() {
     const vw = innerWidth, vh = S.vh;
@@ -402,6 +408,13 @@ export function createUI({ scroll, grounds, world = null, reduce = false }) {
       const v = smoothstep(0.3, 0.02, d);
       E.cues.dogEar = reduce ? (v > 0.5 ? 1 : 0) : v;
       if (v > 0.9) E.cues.dogEarSeen = true;
+    }
+    if (near(s08) && genLabels.length && world && world.ctx && world.ctx.gens) {
+      const G = world.ctx.gens;
+      genLabels.forEach((b, i) => {
+        if (G.on) { setVar(b, '--x', G.dom[i].x.toFixed(1)); setVar(b, '--y', G.dom[i].y.toFixed(1)); }
+        const lit = G.lit[i] > 0.5; if (lit !== b.__lit) { b.__lit = lit; b.classList.toggle('is-lit', lit); }
+      });
     }
     if (near(s11) && claims) {
       const track = seg(s11.p, 0.8, 6.4, ease.linear) * claimsMax;

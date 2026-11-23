@@ -18,7 +18,7 @@ export function outputSpacing(w) { return w <= 600 ? 74 : w <= 1024 ? 40 : 26; }
 
 export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   const { camera, rig, size } = stage;
-  const { A, B, F, O, hero = null, bench = null, rim = null, board = null, portrait = null, lineup = null } = sheets;  // the product, second instance, falling output 1, outputs 2–8, the letters (letters.js)
+  const { A, B, F, O, hero = null, bench = null, rim = null, board = null, portrait = null, lineup = null, gens = null } = sheets;  // the product, second instance, falling output 1, outputs 2–8, the letters (letters.js)
   const ctx = {
     M: false, reduce: false, time: 0, hero: null, loop: false,
     tear: { p1: 0, s1: 0, p2: 0, s2: 0, live: false, fall: 0 }, rel: { plane: 0, fly: 0, fade: 1 },
@@ -80,6 +80,11 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   // the callouts' screen points, and whether it still needs frames (the spot sliding, the riffle settling)
   // s12: the lineup's stack: the model it shows, its displayed count, the deal in progress (from -> to over t 0..1), the
   // Notebook Pro's binding (0..1), and whether it still needs frames
+  // s08 (T34): the generations stage: on, its screen y (%), the cursor parallax (damped), each generation's light, the
+  // balance's tilt, the labels' screen points, and whether it still needs frames
+  ctx.gens = { on: false, was: false, y: 134, px: 0, py: 0, px0: 0, py0: 0, lit: [0, 0, 0, 0, 0, 0, 0], tilt: 0, settle: 0, busy: false,
+    dom: Array.from({ length: 7 }, () => ({ x: 0, y: 0 })), bal: { x: 0, y: 0 }, pans: { sheet: { x: 0, y: 0 }, jar: { x: 0, y: 0 } } };
+  const _gp = new THREE.Vector3(), _gq = new THREE.Quaternion(), _gv = new THREE.Vector3(), _gw = new THREE.Vector3(), _gsc = {};
   ctx.lineup = { on: false, model: 'base', count: 1, from: 1, to: 1, t: 1, dur: 0.9, bind: 0, busy: false };
   const _lq = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2), _lv = new THREE.Vector3();
   ctx.port = { on: false, y: 107, sel: 0, rk: 0, t: 0, busy: false, px: 0, py: 0, dom: [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }], hint: { x: 0, y: 0 }, ream: { x: 0, y: 0 } };
@@ -279,6 +284,21 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
     },
     s08(S, p) {
       const M = ctx.M;
+      if (!M && gens) {
+        // T34: the camera tilts down from the floating sheet to the generations stage (0-0.55 vh); the stage holds while
+        // the callouts step (0.6-2 vh); the sheet comes back from the top as the stage scrolls away, to its s09 pose
+        const G = ctx.gens, up = seg(p, 0, 0.55), back = seg(p, 2.4, 3);
+        const y = p < 1.5 ? lerp(32, -34, ease.in(up)) : lerp(-34, 50, ease.out(back));
+        S.many('A.', { on: up < 0.99 || back > 0.01 ? 1 : 0, op: 1, x: 50, y, size: p < 1.5 ? 30 : lerp(30, 34, back), ry: 0, rx: 0, rz: 0, dot: 1, trans: 0.36 });
+        G.on = p > 0.02 && p < 2.98;
+        G.y = p <= 2 ? lerp(134, 62, ease.out(seg(p, 0.05, 0.65))) : 62 - 100 * (p - 2);
+        if (G.on && (G.busy || E.pointer.x !== G.px0 || E.pointer.y !== G.py0)) ctx.loop = true;
+        G.px0 = E.pointer.x; G.py0 = E.pointer.y;
+        S.set('bg.ink', 1); S.setEnum('ground', 'ink');
+        S.light('s08', 1);
+        S.setEnum('A.gen', 'f' + (E.arena.genA || 0));
+        return;
+      }
       // phones: the copy and cards scroll through the middle of the screen, so the sheet steps out of their way
       const y = M ? kf(p, [[0, 26], [0.5, 24], [0.95, -30], [2.4, -30], [3, 52]]) : kf(p, [[0, 32], [2.4, 30], [3, 50]]);
       S.many('A.', { on: 1, op: 1, x: 50, y, size: M ? kf(p, [[0, 22], [2.4, 18]]) : kf(p, [[0, 30], [2.4, 30], [3, 34]]),
@@ -381,7 +401,7 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
   /* ------------------------------------------------------------------ per-frame: claim → resolve */
   function claim(secs, frame) {
     ctx.M = size.w <= 600 || size.aspect <= 0.8;      // the stacked layout: the same test as the CSS media query
-    ctx.heroLetters = false; ctx.bench.on = false; ctx.dofK = 0; ctx.rimOn = 0; ctx.boardOn = false; ctx.port.on = false; ctx.lineup.on = false;
+    ctx.heroLetters = false; ctx.bench.on = false; ctx.dofK = 0; ctx.rimOn = 0; ctx.boardOn = false; ctx.port.on = false; ctx.lineup.on = false; ctx.gens.on = false;
     ctx.reduce = frame.reduce;
     ctx.time = E.time;
     ctx.loop = false;
@@ -819,6 +839,45 @@ export function createChoreo({ stage, paper, state, springs, props, sheets }) {
       paper.lights.aim(aOn ? A.object.position : _v.set(0, STAGE.anchor.y, 0));
       if (paper.contact) paper.contact.uniforms.uCS.value.z = CONTACT0;
       if (paper.lights.raw && !(bench && bo.on)) paper.lights.raw.shadowExtent = EXTENT0;
+    }
+    /* s08 (T34): the generations stage, camera-relative (seen from 9 deg above, a little parallax with the cursor), framed
+       close: the row and the balance fill about 80 % of the width. Hover lights a generation (or its label does) and
+       tips the balance toward the pan under the cursor; the back-light's cone opens to reach the whole row */
+    if (gens) {
+      const G = ctx.gens, o = gens.object, back = paper.lights.raw && paper.lights.raw.back;
+      o.visible = G.on;
+      if (G.on) {
+        const Pt = E.pointer, kd = Math.min(dt, 0.1), k3 = 1 - Math.exp(-3 * kd);
+        G.px += ((Pt.on && !ctx.reduce ? Pt.nx : 0) - G.px) * k3; G.py += ((Pt.on && !ctx.reduce ? Pt.ny : 0) - G.py) * k3;
+        const gk = stage.screenPlace(44.5, G.y, 136, 2.1, 0, _gp);          // left of centre: the balance stands at the row's right
+        stage.screenQuat(-9 + 2 * G.py, 5 * G.px, 0, _gq);
+        o.position.copy(_gp); o.quaternion.copy(_gq); o.scale.setScalar(gk); o.updateMatrixWorld(true);
+        let hov = E.genHover ?? -1, tilt = 0;
+        if (Pt.on) {
+          if (hov < 0) gens.gens.forEach((g, i) => {
+            const so = g.sheet.object; stage.toScreen(so.localToWorld(_gv.set(0, 0, 0)), _gsc); const cx = _gsc.x, cy = _gsc.y;
+            stage.toScreen(so.localToWorld(_gv.set(0.105, 0.1485, 0)), _gsc); const hw = Math.abs(_gsc.x - cx) + 6, hh = Math.abs(_gsc.y - cy) + 6;
+            if (Math.abs(Pt.x - cx) < hw && Math.abs(Pt.y - cy) < hh) hov = i;
+          });
+          for (const [key, sgn] of [['sheet', -1], ['jar', 1]]) {
+            gens.balance.pans[key].getWorldPosition(_gw); stage.toScreen(_gw, _gsc);
+            if (Math.hypot(Pt.x - _gsc.x, Pt.y - (_gsc.y - 12)) < 46) tilt = sgn;
+          }
+        }
+        const k8 = 1 - Math.exp(-8 * kd);
+        let moving = false;
+        gens.gens.forEach((g, i) => { const t = i === hov ? 1 : 0, v = G.lit[i] + (t - G.lit[i]) * k8; if (Math.abs(v - G.lit[i]) > 0.002) moving = true; G.lit[i] = v; g.setLit(v); });
+        if (tilt !== G.tilt) { G.tilt = tilt; G.settle = 1.6; }
+        G.settle = Math.max(0, G.settle - kd);
+        gens.balance.tilt(ctx.reduce ? 0 : tilt); gens.update(dt);
+        G.busy = moving || G.settle > 0;
+        gens.gens.forEach((g, i) => { stage.toScreen(o.localToWorld(_gv.copy(g.label)), _gsc); G.dom[i].x = _gsc.x; G.dom[i].y = _gsc.y; });
+        stage.toScreen(gens.balance.object.getWorldPosition(_gw), _gsc); G.bal.x = _gsc.x; G.bal.y = _gsc.y;
+        for (const key of ['sheet', 'jar']) { gens.balance.pans[key].getWorldPosition(_gw); stage.toScreen(_gw, _gsc); G.pans[key].x = _gsc.x; G.pans[key].y = _gsc.y; }
+        if (back) back.angle = 1.2;
+        paper.lights.aim(o.localToWorld(_gv.set(0, 0.15, 0)));
+      } else if (G.was && back) back.angle = 0.75;
+      G.was = G.on;
     }
     paper.setUV(E.uv.k);                                             // s03 dark mode (T10): after setGround and lights.set
   }

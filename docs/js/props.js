@@ -118,6 +118,27 @@ export function createPipette() {
   return api;
 }
 
+/**
+ * s08 (T34): the generations stage's floor: lit ink, not a flat wash. A wide plane under the row whose colour rises from
+ * the ink token at its edges (it melts into the ink background) to a lighter, lit ink under the row. Not tone-mapped:
+ * its edges are exactly the CSS ink ground.
+ */
+export function createInkFloor({ ink = '#1F1B6E', lit = '#2F2B8C', deep = '#1A165F' } = {}) {
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 640;
+  const x = c.getContext('2d');
+  x.fillStyle = ink; x.fillRect(0, 0, c.width, c.height);
+  const g = x.createRadialGradient(512, 430, 10, 512, 440, 400);           // the far edge (canvas top) stays the token
+  g.addColorStop(0, lit); g.addColorStop(0.32, lit); g.addColorStop(0.62, ink); g.addColorStop(1, ink);
+  x.fillStyle = g; x.fillRect(0, 0, c.width, c.height);
+  const v = x.createLinearGradient(0, 640, 0, 380);           // the near edge falls a touch darker (a vignette toward the viewer)
+  v.addColorStop(0, deep); v.addColorStop(1, 'rgba(26,22,95,0)');
+  x.fillStyle = v; x.fillRect(0, 380, c.width, 260);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 4.5).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: t, toneMapped: false }));
+  mesh.position.set(0, -0.0008, -0.55); mesh.renderOrder = -2; mesh.name = 'prop.inkFloor';
+  return mesh;
+}
+
 /** The Bleed: a screen-space ragged ink front (fibre-guided noise), drawn over the scene. coverage 0..1. */
 export function createBleed() {
   const material = new THREE.ShaderMaterial({

@@ -92,6 +92,8 @@ const STATES = {
   generations: 'gens=1&btilt=0&cam=-6,8,2.75&target=0.16,0.17,0.05&aim=-0.12,0.16,0&light=s08&backang=1.2&bg=#120F45&contact=0',
   // s13b cleanup (T37): eight items dropped into / beside the bin, ct = seconds simulated
   cleanup: 'cleanup=1&ct=5&cam=-18,20,1.15&target=0.12,0.1,0&aim=0.15,0.08,0&light=card6&ground=studio&contact=1',
+  // s13 printout (T36): phover = the cursor on the floor (x, z); objv = the .obj viewer at objpos
+  printout: 'printout=1&phover=-0.03,-0.07&objv=1&objpos=0.33,0.17,0.3&cam=0,35,1.3&target=0,0,0.03&aim=0,0,0&light=studio&ground=studio&contact=1',
   // s04 weights case (T12)
   weights: 'weights=1&wlid=1.85&cam=-24,40,0.42&target=0,0.034,-0.01&pos=0,0.5,-3&light=weights&ground=greyLight&contact=1',
   // s02 metrology bench (T7) at ~2 vh: the sheet edge-on, the micrometer closing (bopen = gap mm, bread = LCD)
@@ -159,7 +161,7 @@ await paper.loadFloorPrint('../assets/logo/wordmark-floor.png').then((ok) => ok 
 const genMs = performance.now() - t0;
 
 const claimSets = {};
-let reviewsObj = null, printerObj = null, flockObj = null, gensObj = null, cleanupObj = null;
+let reviewsObj = null, printerObj = null, flockObj = null, gensObj = null, cleanupObj = null, printObj = null, objObj = null;
 let paint = null, pencilProp = null, stackObj = null, bleedOv = null, heroObj = null, heroStage = null, benchObj = null, boardObj = null, weightsObj = null, lineObj = null, arenaObj = null, crowdObj = null; const letterSheets = [];
 async function ensurePaint() { if (!paint) { paint = await paper.createPaint(); sheet.attachPaint(paint); } return paint; }
 
@@ -271,6 +273,16 @@ async function apply(search) {
     if (!boardObj) { boardObj = paper.createDraftingBoard(); scene.add(boardObj.object); }
     boardObj.object.visible = true; boardObj.object.position.copy(sheet.object.position); boardObj.object.quaternion.copy(sheet.object.quaternion);
   } else if (boardObj) boardObj.object.visible = false;
+  if (num('printout', 0) > 0) {
+    if (!printObj) { printObj = paper.createPrintout(); scene.add(printObj.object); await printObj.ready; }
+    printObj.object.visible = true; if (P.has('phover')) printObj.hover(...vec('phover')); else printObj.hover(null);
+    for (let i = 0; i < 90; i++) printObj.update(1 / 60);
+    if (num('objv', 0) > 0) {
+      if (!objObj) { objObj = paper.createObjViewer({ size: 0.14 }); scene.add(objObj.object); await objObj.ready; }
+      objObj.object.visible = true; objObj.object.position.set(...vec('objpos', [0.45, 0.16, 0.3])); for (let i = 0; i < 60; i++) objObj.update(1 / 60);
+    } else if (objObj) objObj.object.visible = false;
+    sheet.set({ visible: false });
+  } else { if (printObj) printObj.object.visible = false; if (objObj) objObj.object.visible = false; }
   if (num('cleanup', 0) > 0) {
     if (!cleanupObj) {
       cleanupObj = paper.createCleanup(); scene.add(cleanupObj.object); await cleanupObj.ready;

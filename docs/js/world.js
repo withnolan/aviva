@@ -11,7 +11,7 @@ import { createStage, A4 } from './scene.js';
 import { createPaper } from './sheet-adapter.js';
 import { SceneState, Springs } from './state.js';
 import { createChoreo } from './choreo.js';
-import { createTypePlane, createDryingLine, createDrop, createBleed, createPipette } from './props.js';
+import { createTypePlane, createDryingLine, createDrop, createBleed, createPipette, createInkFloor } from './props.js';
 import { createPortrait, createLineup } from './portrait.js';
 import { E, isAnimating } from './events.js';
 import { FEATURES, FLAGS } from './config.js';
@@ -65,6 +65,9 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     let lineup = null;                                     // s12: the lineup's growing stack behind the hero sheet
     try { lineup = createLineup({ sys: paper.raw }); } catch (e) { console.warn('[aviva] lineup:', e && e.message); }
     if (lineup) stage.scene.add(lineup.object);
+    let gens = null;                                       // s08 (T34): the generations stage, on a lit ink floor
+    try { gens = paper.raw && paper.raw.createGenerations ? paper.raw.createGenerations({ spacing: 0.26, curve: 0.12, balanceAt: [1.02, 0, 0.18] }) : null; } catch (e) { console.warn('[aviva] generations:', e && e.message); }
+    if (gens) { gens.object.add(createInkFloor()); gens.object.visible = false; stage.scene.add(gens.object); }
     const rim = new THREE.PointLight('#eef3ff', 0, 0.3, 2); rim.name = 's02.rim'; stage.scene.add(rim);
     const numerals = createTypePlane('4.99 g');
     const line = createDryingLine(8), drop = createDrop(), pipette = createPipette();   // s07 (T14): the glass dropper
@@ -81,7 +84,7 @@ export async function createWorld({ canvas, tier = 2, reduce = false, onProgress
     const springs = new Springs(state);
     springs.direct = reduced;
     const props = { numerals, line, drop, bleed, pipette };
-    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, hero, bench, rim, board, portrait, lineup } });
+    const choreo = createChoreo({ stage, paper, state, springs, props, sheets: { A, B, F, O, hero, bench, rim, board, portrait, lineup, gens } });
     choreo.ctx.ground = new THREE.Color('#ECEBE7');
     return { paper, A, B, F, O, hero, bench, props, paint, state, springs, choreo };
   }

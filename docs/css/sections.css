@@ -372,40 +372,26 @@
 }
 .s07 .ink-flip.is-inked::before { background: var(--ink-now, #1F1B6E); }
 
-/* ======================= s08 · It comes back. (ink) ======================= */
-.s08 { padding-top: calc(var(--vh100) * 0.5); padding-bottom: 24vh; }
-.s08__head { max-width: 640px; margin: 0 auto var(--space-7); text-align: center; }
-.s08__head .h2 { margin-bottom: var(--space-4); }
-.cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-5);
-  max-width: 1080px;
-  margin-inline: auto;
+/* ======================= s08 · It comes back. (ink) · T34: the generations stage ======================= */
+.s08__head { top: calc(var(--nav-h) + 3%); left: 50%; width: min(640px, calc(100% - 2 * var(--gutter))); transform: translateX(-50%); text-align: center; }
+.s08__head .h2 { margin: 0; }
+/* the labels sit under their sheets (choreo projects the points); each is a small button: hover or focus lights its sheet */
+.s08__gens { inset: 0; margin: 0; padding: 0; list-style: none; pointer-events: none; }
+.gen-l {
+  position: absolute; left: 0; top: 0; pointer-events: auto; padding: 6px 8px; border: 0; background: none; cursor: default;
+  color: var(--text-muted); font: inherit; font-size: var(--fs-micro); letter-spacing: var(--tracking-micro); font-weight: var(--fw-medium); white-space: nowrap;
+  transform: translate3d(calc(var(--x, -999) * 1px - 50%), calc(var(--y, -999) * 1px + 8px), 0);
+  transition: color var(--dur-base) var(--ease-out);
 }
-.card {
-  position: relative;
-  display: grid;
-  align-content: start;
-  gap: var(--space-2);
-  min-height: 300px;
-  padding: var(--space-5) var(--space-5) var(--space-6);
-  border: var(--hairline) solid var(--color-rule-strong);
-  background: var(--color-ink-deep);
-  clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 0 100%);   /* the dog-eared corner */
-}
-.card::after {     /* the folded-over flap */
-  content: "";
-  position: absolute;
-  top: 0; right: 0;
-  width: 26px; height: 26px;
-  background: linear-gradient(225deg, transparent 50%, rgba(247, 245, 240, 0.32) 50%);
-}
-.card__v { font-size: var(--fs-h2); line-height: 1; font-weight: var(--fw-light); letter-spacing: var(--tracking-h2); }
-.card__l { margin-top: var(--space-2); }
-.card__b { color: var(--text-muted); margin-top: var(--space-3); }
-.card__cite { color: var(--text-muted); margin-top: var(--space-3); }
-.s08__note { max-width: 640px; margin: var(--space-6) auto 0; text-align: center; }
+.gen-l.is-lit, .gen-l:hover { color: var(--text); }
+.gen-l:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; color: var(--text); }
+/* one callout at a time, over the row (brief 11.1): the value, its label, one line */
+.s08__call { top: 23%; left: 50%; width: min(560px, calc(100% - 2 * var(--gutter))); transform: translateX(-50%); display: grid; gap: 6px; justify-items: center; text-align: center; }
+.call__v { font-size: clamp(2rem, 1.2rem + 2vw, 3rem); font-weight: var(--fw-light); line-height: 1; letter-spacing: -0.02em; margin: 0; }
+.call__l { color: var(--text-muted); margin: 0; }
+.call__b { margin: 0; color: var(--text); }
+.call__cite { color: var(--text-muted); margin: 6px 0 0; max-width: 34ch; }
+.s08__note { bottom: calc(var(--hint-h) + 3%); left: 50%; transform: translateX(-50%); width: min(640px, calc(100% - 2 * var(--gutter))); text-align: center; color: var(--text-muted); }
 
 /* ======================= s09 · Rated in corners. (ink) ======================= */
 .s09 { position: relative; height: 100%; min-height: inherit; padding-top: calc(var(--nav-h) + 9vh); }

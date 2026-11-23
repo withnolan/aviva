@@ -14,14 +14,16 @@
 // Cost: one paper sheet per item (a torn sheet serves four quarters; light meshes), the bin 3 draws; the solver is
 // O(n^2) over a few dozen bodies with sleeping, well under 0.1 ms.
 import * as THREE from 'three';
+import { buildDart } from './flock.js';
 
 const KINDS = {
   crumple: { r: 0.034, wall: 0.034, rest: 0.034, roll: true },    // wall: the item's reach for the bin's wall (its half-extent)
   quarter: { r: 0.046, wall: 0.08, rest: 0.0015, flat: true },
   boat: { r: 0.058, wall: 0.075, rest: 0.0375 },
-  plane: { r: 0.07, wall: 0.155, rest: 0.026, outside: true },   // 306 mm: longer than the bin is wide, so it lands beside it
+  plane: { r: 0.07, wall: 0.155, rest: 0.03, outside: true },   // 306 mm: longer than the bin is wide, so it lands beside it
 };
-const BOAT_C = new THREE.Vector3(0, 0.111, 0), PLANE_C = new THREE.Vector3(-0.022, -0.004, 0);   // body centres in the sheet frame
+const BOAT_C = new THREE.Vector3(0, 0.111, 0);   // the boat's body centre in its sheet's frame
+let _dart = null, _dartMat = null;                // the plane: the flock's crisp 16-triangle dart (shared)
 const _q = new THREE.Quaternion(), _v = new THREE.Vector3(), _w = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
 
 function meshTexture() {
@@ -70,9 +72,12 @@ export class Cleanup {
         s.update(null); this.object.add(s.object); this._spare = [...s.pieces]; for (const p of this._spare) p.object.visible = false;
       }
       const piece = this._spare.pop(); piece.object.visible = true; vis = { piece };
+    } else if (kind === 'plane') {
+      _dart = _dart || buildDart(); _dartMat = _dartMat || new THREE.MeshStandardMaterial({ color: '#f4f2ed', vertexColors: true, roughness: 0.8, side: THREE.DoubleSide, flatShading: true });
+      const m = new THREE.Mesh(_dart, _dartMat); m.castShadow = m.receiveShadow = true; m.name = 'debris.plane'; this.object.add(m); vis = { mesh: m };
     } else {
-      const s = this.sys.createSheet({ name: 'debris' + kind, segments: kind === 'plane' ? undefined : [64, 91] });
-      s.set(kind === 'crumple' ? { crumple: 1 } : kind === 'boat' ? { boat: 1 } : { plane: 7 }); this.object.add(s.object); vis = { sheet: s };
+      const s = this.sys.createSheet({ name: 'debris' + kind, segments: [64, 91] });
+      s.set(kind === 'crumple' ? { crumple: 1 } : { boat: 1 }); this.object.add(s.object); vis = { sheet: s };
     }
     const ang = into ? R() * Math.PI * 2 : Math.PI * (0.08 + R() * 0.84), d = into ? R() * Math.max(0, B.R0 - K.wall) * 0.8 : B.R1 + K.wall + 0.02 + R() * 0.18;   // misses land on the front (+z) side, toward the viewer
     const yaw = R() * Math.PI * 2, b = {
@@ -82,7 +87,7 @@ export class Cleanup {
       q: new THREE.Quaternion().setFromEuler(new THREE.Euler(R() * 6.28, R() * 6.28, R() * 6.28)),
       rest: kind === 'quarter' ? new THREE.Quaternion().setFromEuler(new THREE.Euler(R() < 0.5 ? -Math.PI / 2 : Math.PI / 2, yaw, 0, 'YXZ'))
         : kind === 'boat' ? new THREE.Quaternion().setFromAxisAngle(UP, yaw)
-        : kind === 'plane' ? new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0)).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), 0.42)).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 2))
+        : kind === 'plane' ? new THREE.Quaternion().setFromAxisAngle(UP, yaw).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), 0.42))   // on its keel, one wing down
         : null,
     };
     this.bodies.push(b); this._write(b); return b;
@@ -145,13 +150,13 @@ export class Cleanup {
   }
   _write(b) {
     if (b.vis.piece) { const P = b.vis.piece; P.object.quaternion.copy(b.q); P.object.position.copy(b.p); return; }   // a piece's object sits at its own centre
-    const o = b.vis.sheet.object; o.quaternion.copy(b.q);
-    const off = b.kind === 'boat' ? BOAT_C : b.kind === 'plane' ? PLANE_C : null;
+    const o = b.vis.mesh || b.vis.sheet.object; o.quaternion.copy(b.q);
+    const off = b.kind === 'boat' ? BOAT_C : null;
     if (off) o.position.copy(b.p).sub(_v.copy(off).applyQuaternion(b.q)); else o.position.copy(b.p);
   }
   dispose() {
     for (const b of this.bodies) if (b.vis.sheet) b.vis.sheet.dispose();
-    this.object.traverse((o) => { if (o.isMesh && o.parent === this.object && !o.name.startsWith('paper.')) { o.geometry.dispose(); if (o.material.map) o.material.map.dispose(); if (o.material.alphaMap) o.material.alphaMap.dispose(); o.material.dispose(); } });
+    this.object.traverse((o) => { if (o.isMesh && o.parent === this.object && !o.name.startsWith('paper.') && o.name !== 'debris.plane') { o.geometry.dispose(); if (o.material.map) o.material.map.dispose(); if (o.material.alphaMap) o.material.alphaMap.dispose(); o.material.dispose(); } });
     this.object.removeFromParent();
   }
 }

@@ -1,0 +1,121 @@
+// printout.js: the s13 printout (brief 11.1 row s13, 5.12, T36). The paper's eight pages (docs/assets/paper/pages/
+// page-N.webp, rasterised from docs/research/aviva-a4.pdf by work/scripts/paper-proto/pages.sh) as real sheets lying in
+// a 4 x 2 grid with 20 mm gaps on the studio floor, each with a slight natural curl; the page under the cursor peels its
+// nearest corner up toward it (the sheet's curl: r 20 mm, up to 25 deg). Each render is turned into ink on the sheet
+// (its darkness becomes the overlay's alpha), so the paper keeps its own fibres, light and edges.
+// And the .obj viewer: docs/research/aviva-a4.obj parsed as is and drawn as a wireframe (graphite edges, ink-blue vertex
+// dots) that turns on drag or the arrow keys, with a little inertia and a slow idle turn until first touched.
+//
+//   const printout = system.createPrintout();    // { object, pages, ready, hover(x, z), update(dt) }
+//   scene.add(printout.object);                   // origin: the floor at the grid's centre; +z toward the camera
+//   printout.pages[i] = { n, sheet }              // page 1 top-left (far row 1-4, near row 5-8)
+//   printout.hover(x, z);                         // the cursor on the floor (printout space); hover(null) lets the pages settle
+//   printout.update(dt);                          // every frame: the corner curl's ease
+//
+//   const model = system.createObjViewer({ size: 0.12 });   // { object, ready, drag(dx, dy), turn(yaw, pitch), update(dt) }
+//   model.drag(dxPx, dyPx);                       // pointer drag (px); arrow keys: drag(+-30, 0) / drag(0, +-30)
+//
+// Cost: 8 light sheets (64 x 91 segments; ~190 k triangles with their shadows), 8 page textures at 620 x 877 (~17 MB of
+// GPU memory with mipmaps); the viewer 2 draws.
+import * as THREE from 'three';
+
+const W = 0.21, H = 0.297, CURL = { r: 0.02, angle: THREE.MathUtils.degToRad(25), size: 0.075 };
+
+function inkTexture(img) {
+  // the page as ink: alpha = its darkness (white paper drops out), colour kept, so figures keep their hue
+  const c = document.createElement('canvas'); c.width = 620; c.height = 877; const x = c.getContext('2d', { willReadFrequently: true });
+  x.drawImage(img, 0, 0, c.width, c.height);
+  const d = x.getImageData(0, 0, c.width, c.height), p = d.data;
+  for (let i = 0; i < p.length; i += 4) {
+    const l = (0.2126 * p[i] + 0.7152 * p[i + 1] + 0.0722 * p[i + 2]) / 255, a = Math.min(1, Math.max(0, (1 - l) * 1.75));   // a little denser than the render: small type stays legible on paper
+    // un-mix from the white paper: C = (1 - a) * 255 + a * ink, so ink = (C - (1 - a) * 255) / a
+    for (let ch = 0; ch < 3; ch++) p[i + ch] = a > 0.001 ? Math.min(255, Math.max(0, Math.round((p[i + ch] - (1 - a) * 255) / a))) : 0;
+    p[i + 3] = Math.round(a * 255);
+  }
+  x.putImageData(d, 0, 0);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+
+export class Printout {
+  constructor(sys, { base = new URL('../../assets/paper/pages/', import.meta.url).href, gap = 0.02, seed = 21 } = {}) {
+    this.sys = sys; this.object = new THREE.Group(); this.object.name = 'paper.printout'; this.pages = []; this._hover = null;
+    let a = seed; const R = () => { a = (a * 16807) % 2147483647; return (a - 1) / 2147483646; };
+    for (let i = 0; i < 8; i++) {
+      const col = i % 4, row = Math.floor(i / 4), x = (col - 1.5) * (W + gap) + (R() - 0.5) * 0.006, z = (row - 0.5) * (H + gap) + (R() - 0.5) * 0.006;
+      const sheet = sys.createSheet({ name: 'page' + (i + 1), seed: 400 + i, segments: [64, 91] });
+      sheet.object.rotation.set(-Math.PI / 2, 0, (R() - 0.5) * 0.035); sheet.object.position.set(x, 0.0005, z);
+      sheet.set({ cockle: 0.0006 });
+      this.object.add(sheet.object);
+      this.pages.push({ n: i + 1, sheet, x, z, curl: 0, want: 0, corner: 'br', next: 'br' });
+    }
+    const load = (n) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = base + 'page-' + n + '.webp'; });
+    this.ready = Promise.all(this.pages.map(async (p) => {
+      const img = await load(p.n); if (img) { p.texture = inkTexture(img); p.sheet.set({ overlay: { texture: p.texture, opacity: 1, face: 1 } }); }
+    }));
+  }
+  /** the cursor on the floor (printout space x, z): the page under it lifts the corner nearest to it */
+  hover(x, z) {
+    this._hover = x === null || x === undefined ? null : [x, z];
+    for (const p of this.pages) {
+      const dx = this._hover ? this._hover[0] - p.x : 9, dz = this._hover ? this._hover[1] - p.z : 9;
+      const on = Math.abs(dx) < W / 2 && Math.abs(dz) < H / 2;
+      p.next = on ? (dz < 0 ? 't' : 'b') + (dx > 0 ? 'r' : 'l') : p.next;   // the sheet's top (+y) lies away from the camera (-z)
+      p.want = on ? 1 : 0;
+    }
+    return this;
+  }
+  update(dt = 1 / 60) {
+    for (const p of this.pages) {
+      // a new corner only once the old one has settled
+      const want = p.next !== p.corner ? 0 : p.want; if (p.next !== p.corner && p.curl < 0.02) p.corner = p.next;
+      const c = p.curl + (want - p.curl) * (1 - Math.exp(-dt * 6));
+      if (Math.abs(c - p.curl) > 1e-4 || (c < 0.002 && p.curl >= 0.002)) {
+        p.curl = c; p.sheet.set({ curl: c > 0.002 ? { corner: p.corner, t: c, ...CURL } : null });
+      }
+    }
+    return this;
+  }
+  dispose() { for (const p of this.pages) { p.sheet.dispose(); if (p.texture) p.texture.dispose(); } this.object.removeFromParent(); }
+}
+
+export class ObjViewer {
+  constructor(sys, { url = new URL('../../research/aviva-a4.obj', import.meta.url).href, size = 0.12, auto = true } = {}) {
+    this.sys = sys; this.object = new THREE.Group(); this.object.name = 'paper.objviewer';
+    this.model = new THREE.Group(); this.object.add(this.model);
+    this.yaw = -0.55; this.pitch = 0.42; this.tYaw = this.yaw; this.tPitch = this.pitch; this.auto = auto; this.size = size;
+    this.ready = fetch(url).then((r) => r.text()).then((t) => this._build(t)).catch(() => null);
+  }
+  _build(text) {
+    // the OBJ as it is: v lines and f lines (v/vt/vn indices, 1-based); edges are the faces' sides, each drawn once
+    const v = [], f = [];
+    for (const line of text.split('\n')) {
+      const s = line.trim().split(/\s+/);
+      if (s[0] === 'v') v.push(new THREE.Vector3(+s[1], +s[2], +s[3]));
+      else if (s[0] === 'f') f.push(s.slice(1).map((q) => parseInt(q, 10) - 1));
+    }
+    if (!v.length) return null;
+    const box = new THREE.Box3().setFromPoints(v), c = box.getCenter(new THREE.Vector3()), e = box.getSize(new THREE.Vector3()), k = this.size / Math.max(e.x, e.y, e.z);
+    const P = v.map((q) => q.clone().sub(c).multiplyScalar(k)), seen = new Set(), seg = [];
+    for (const face of f) for (let i = 0; i < face.length; i++) {
+      const a = face[i], b = face[(i + 1) % face.length], key = Math.min(a, b) + ':' + Math.max(a, b);
+      if (!seen.has(key)) { seen.add(key); seg.push(P[a].x, P[a].y, P[a].z, P[b].x, P[b].y, P[b].z); }
+    }
+    const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(seg, 3));
+    this.lines = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: '#2a2926' }));
+    const dot = new THREE.SphereGeometry(this.size * 0.022, 16, 12);
+    this.dots = new THREE.InstancedMesh(dot, new THREE.MeshBasicMaterial({ color: '#1F1B6E' }), P.length);
+    P.forEach((q, i) => this.dots.setMatrixAt(i, new THREE.Matrix4().makeTranslation(q.x, q.y, q.z)));
+    this.model.add(this.lines, this.dots); this.vertices = P.length; this.edges = seg.length / 6;
+    return this;
+  }
+  /** pointer drag in px (or arrow keys as +-30 px steps): turns the model, and stops the idle turn */
+  drag(dx = 0, dy = 0) { this.auto = false; this.tYaw += dx * 0.01; this.tPitch = THREE.MathUtils.clamp(this.tPitch + dy * 0.01, -1.3, 1.3); return this; }
+  turn(yaw, pitch) { this.auto = false; this.tYaw = yaw; this.tPitch = pitch; return this; }
+  update(dt = 1 / 60) {
+    if (this.auto) this.tYaw += dt * 0.25;
+    const k = 1 - Math.exp(-dt * 8); this.yaw += (this.tYaw - this.yaw) * k; this.pitch += (this.tPitch - this.pitch) * k;
+    this.model.rotation.set(this.pitch, this.yaw, 0, 'YXZ');
+    return this;
+  }
+  dispose() { this.object.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); this.object.removeFromParent(); }
+}

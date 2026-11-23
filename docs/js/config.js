@@ -19,7 +19,7 @@ export const SECTIONS = [
   { id: 's05-architecture', key: 's05', len: 5, pin: true },
   { id: 's06-release-notes', key: 's06', len: 4, pin: false },
   { id: 's07-surface', key: 's07', len: 4.5, pin: true },
-  { id: 's08-afterlife', key: 's08', len: 3, pin: false, ink: true },
+  { id: 's08-afterlife', key: 's08', len: 3, pin: true, ink: true },        // T34: the generations stage (pinned)
   { id: 's09-reviews', key: 's09', len: 4, pin: false, ink: true },
   { id: 's10-arena', key: 's10', len: 3, pin: true, ink: true },
   { id: 's11-claims', key: 's11', len: 7, pin: true },

@@ -19,7 +19,7 @@ import * as THREE from 'three';
 // 127 mm span, 47 mm keel). Each wing is a top and an underside layer, split along the folded flap's edge, with a turned
 // leading edge (a bright sliver); the keel is two layers. ~8 deg dihedral, a tone per facet. Flight frame: nose +z,
 // up +y, span x. 16 triangles.
-function buildDart() {
+export function buildDart() {
   const L = 0.306, S = 0.127, K = 0.047, dh = 0.009, t = 0.0007;   // dh: the wingtips' lift; t: the wing's thickness
   const N = [0, 0, L / 2], T = [0, 0, -L / 2], pos = [], col = [];
   const tri = (a, b, c, k) => { pos.push(...a, ...b, ...c); for (let i = 0; i < 3; i++) col.push(k, k, k * 0.985); };

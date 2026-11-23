@@ -538,33 +538,42 @@
       </div>
     </section>
 
-    <!-- s08 · It comes back. (ink-blue) -->
-    <section class="sec sec--flow" id="s08-afterlife" data-sec="s08" data-ground="ink" style="--len:3" aria-labelledby="s08-h2">
-      <div class="wrap s08">
-        <header class="s08__head" data-reveal>
+    <!-- s08 · It comes back. (ink-blue) · T34: the generations stage (paper/generations.js), pinned -->
+    <section class="sec sec--pin" id="s08-afterlife" data-sec="s08" data-ground="ink" style="--len:3" aria-labelledby="s08-h2">
+      <div class="stage s08" id="s08-stage">
+        <header class="s08__head" data-at="0.3" data-until="2.9">
           <p class="eyebrow" data-copy="s08.eyebrow">AFTERLIFE</p>
           <h2 class="h2" id="s08-h2" data-copy="s08.h2" data-split>It comes back.</h2>
-          <p class="body" data-copy="s08.body">Its fibres can be made into paper again, and again. Then they retire.</p>
+          <p class="sr-only" data-copy="s08.body">Its fibres can be made into paper again, and again. Then they retire.</p>
         </header>
-        <ul class="cards">
-          <li class="card" data-copy="s08.c1" data-reveal>
-            <p class="card__v">5–7</p>
-            <p class="card__l micro">LIVES</p>
-            <p class="card__b small">Usually five to seven times. Researchers are aiming for 25.</p>
-          </li>
-          <li class="card" data-copy="s08.c2" data-reveal>
-            <p class="card__v">≈ ¾</p>
-            <p class="card__l micro">RECYCLING RATE, EUROPE</p>
-            <p class="card__b small">About three-quarters of Europe’s paper and board comes back.</p>
-          </li>
-          <li class="card" data-copy="s08.c3" data-reveal>
-            <p class="card__v">4.64 g</p>
-            <p class="card__l micro">CO₂e PER SHEET (ISO METHOD)</p>
-            <p class="card__b small">Its footprint is about its own weight.</p>
-            <p class="card__cite micro" data-copy="s08.c3.cite">Dias &amp; Arroja, <cite>Journal of Cleaner Production</cite>, 2012 · European Paper Recycling Council, 2025.</p>
-          </li>
-        </ul>
-        <p class="s08__note small muted" data-copy="s08.note" data-reveal>AVIVA is fictional and holds no certifications. These figures describe ordinary office paper.</p>
+        <!-- the seven generations' labels, at their sheets (3D); hover or focus one to light it -->
+        <ol class="s08__gens" id="s08-gens" data-at="0.45" data-until="2.9">
+          <li><button class="gen-l micro" type="button" data-gen="0">GEN 1</button></li>
+          <li><button class="gen-l micro" type="button" data-gen="1">GEN 2</button></li>
+          <li><button class="gen-l micro" type="button" data-gen="2">GEN 3</button></li>
+          <li><button class="gen-l micro" type="button" data-gen="3">GEN 4</button></li>
+          <li><button class="gen-l micro" type="button" data-gen="4">GEN 5</button></li>
+          <li><button class="gen-l micro" type="button" data-gen="5">GEN 6</button></li>
+          <li><button class="gen-l micro" type="button" data-gen="6">GEN 7</button></li>
+        </ol>
+        <!-- one callout at a time (≤ 5 lines on screen with the heading and the note) -->
+        <div class="s08__call s08__call--l" data-copy="s08.c1" data-at="0.6" data-until="1.15">
+          <p class="call__v">5–7</p>
+          <p class="call__l micro">LIVES</p>
+          <p class="call__b small">Usually five to seven times. Researchers are aiming for 25.</p>
+        </div>
+        <div class="s08__call s08__call--l" data-copy="s08.c2" data-at="1.15" data-until="1.6">
+          <p class="call__v">≈ ¾</p>
+          <p class="call__l micro">RECYCLING RATE, EUROPE</p>
+          <p class="call__b small">About three-quarters of Europe’s paper and board comes back.</p>
+        </div>
+        <div class="s08__call s08__call--r" data-copy="s08.c3" data-at="1.6" data-until="2.9">
+          <p class="call__v">4.64 g</p>
+          <p class="call__l micro">CO₂e PER SHEET (ISO METHOD)</p>
+          <p class="call__b small">Its footprint is about its own weight.</p>
+          <p class="call__cite micro" data-copy="s08.c3.cite">Dias &amp; Arroja, <cite>Journal of Cleaner Production</cite>, 2012 · European Paper Recycling Council, 2025.</p>
+        </div>
+        <p class="s08__note small" data-copy="s08.note" data-at="0.6" data-until="2.9">AVIVA is fictional and holds no certifications. These figures describe ordinary office paper.</p>
       </div>
     </section>
 

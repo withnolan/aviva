@@ -31,6 +31,7 @@ import { Printer } from './printer.js';
 import { Flock } from './flock.js';
 import { Generations } from './generations.js';
 import { Cleanup } from './cleanup.js';
+import { Printout, ObjViewer } from './printout.js';
 import { sheetSegments } from './geometry.js';
 import * as folds from './folds.js';
 
@@ -49,6 +50,7 @@ export { Printer } from './printer.js';
 export { Flock } from './flock.js';
 export { Generations } from './generations.js';
 export { Cleanup } from './cleanup.js';
+export { Printout, ObjViewer } from './printout.js';
 
 // Colours (sRGB hex). paper / studio / graphite / ink / inkDeep match docs/css/tokens.css. The decision #24 families
 // (charcoal, the cool greys, HB-pencil yellow, blueprint blue) are provisional here until tokens.css carries them:
@@ -186,6 +188,10 @@ export async function createPaperSystem(renderer, opts = {}) {
     createGenerations(o = {}) { return new Generations(sys, o); },
     /** the s13b cleanup (cleanup.js; T37): debris into a wire bin; drop(kind), push(x, y, z, r, s), update(dt), count */
     createCleanup(o = {}) { return new Cleanup(sys, o); },
+    /** the s13 printout (printout.js; T36): the paper's eight pages on the floor; hover(x, z) curls a corner; update(dt) */
+    createPrintout(o = {}) { return new Printout(sys, o); },
+    /** the s13 .obj viewer (printout.js; T36): aviva-a4.obj as a wireframe; drag(dx, dy), turn(yaw, pitch), update(dt) */
+    createObjViewer(o = {}) { return new ObjViewer(sys, o); },
     createArena(o = {}) { return new Arena(sys, o); },
     createLine(o = {}) { return new DryingLine(sys, o); },
     createWeightsCase(o = {}) { return new WeightsCase(sys, o); },
