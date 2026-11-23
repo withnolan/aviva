@@ -30,6 +30,7 @@ import { ReviewSet } from './reviews.js';
 import { Printer } from './printer.js';
 import { Flock } from './flock.js';
 import { Generations } from './generations.js';
+import { Cleanup } from './cleanup.js';
 import { sheetSegments } from './geometry.js';
 import * as folds from './folds.js';
 
@@ -47,6 +48,7 @@ export { ReviewSet, REVIEWERS } from './reviews.js';
 export { Printer } from './printer.js';
 export { Flock } from './flock.js';
 export { Generations } from './generations.js';
+export { Cleanup } from './cleanup.js';
 
 // Colours (sRGB hex). paper / studio / graphite / ink / inkDeep match docs/css/tokens.css. The decision #24 families
 // (charcoal, the cool greys, HB-pencil yellow, blueprint blue) are provisional here until tokens.css carries them:
@@ -182,6 +184,8 @@ export async function createPaperSystem(renderer, opts = {}) {
     createFlock(o = {}) { return new Flock(sys, o); },
     /** the s08 generations stage (generations.js; T33): GEN 1-7 sheets ageing, the balance (tilt(k)) and the jar */
     createGenerations(o = {}) { return new Generations(sys, o); },
+    /** the s13b cleanup (cleanup.js; T37): debris into a wire bin; drop(kind), push(x, y, z, r, s), update(dt), count */
+    createCleanup(o = {}) { return new Cleanup(sys, o); },
     createArena(o = {}) { return new Arena(sys, o); },
     createLine(o = {}) { return new DryingLine(sys, o); },
     createWeightsCase(o = {}) { return new WeightsCase(sys, o); },
