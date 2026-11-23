@@ -122,7 +122,7 @@ export function createLineup({ sys }) {
   if (!sys || !sys.createStack) return null;
   const stack = sys.createStack({ max: 500, fly: 24, seed: 5, name: 'lineup' });
   stack.topSheet.set({ visible: false });                  // the hero sheet is the top of this stack
-  const bind = new THREE.Mesh(new THREE.BoxGeometry(0.0014, 1, SHEET.h), new THREE.MeshStandardMaterial({ color: '#2f2e2b', roughness: 0.7, transparent: true, opacity: 0 }));
+  const bind = new THREE.Mesh(new THREE.BoxGeometry(0.0007, 1, SHEET.h), new THREE.MeshStandardMaterial({ color: '#46443f', roughness: 0.7, transparent: true, opacity: 0 }));
   bind.position.x = -SHEET.w / 2 - 0.0002;
   stack.object.add(bind); stack.object.visible = false;
   return {
